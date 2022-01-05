@@ -4,7 +4,7 @@
 
 This project contains 6328's robot code for the 2022 RAPID REACT game. See also:
 
-* Our #OpenAlliance build thread on Chief Delphi (link coming soon).
+* Our #OpenAlliance [build thread](https://www.chiefdelphi.com/t/frc-6328-mechanical-advantage-2022-build-thread/398645) on Chief Delphi.
 
 * Our robot framework [AdvantageKit](https://github.com/Mechanical-Advantage/AdvantageKit), used heavily in this project.
 
