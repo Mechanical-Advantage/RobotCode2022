@@ -38,6 +38,7 @@ public class Robot extends LoggedRobot {
     setUseTiming(Constants.getMode() != Mode.REPLAY);
     logger.recordMetadata("Robot", Constants.getRobot().toString());
     logger.recordMetadata("TuningMode", Boolean.toString(Constants.tuningMode));
+    logger.recordMetadata("RuntimeType", getRuntimeType().toString());
     logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
     logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
