@@ -45,44 +45,47 @@ public interface DriveTrainIO {
 
     public void fromLog(LogTable table) {
       leftPositionRad = table.getDouble("LeftPositionRad", leftPositionRad);
-      leftVelocityRadPerSec = table.getDouble("LeftVelocityRadPerSec", leftVelocityRadPerSec);
+      leftVelocityRadPerSec =
+          table.getDouble("LeftVelocityRadPerSec", leftVelocityRadPerSec);
       leftAppliedVolts = table.getDouble("LeftAppliedVolts", leftAppliedVolts);
-      leftCurrentAmps = table.getDoubleArray("LeftCurrentAmps", leftCurrentAmps);
-      leftTempCelcius = table.getDoubleArray("LeftTempCelcius", leftTempCelcius);
+      leftCurrentAmps =
+          table.getDoubleArray("LeftCurrentAmps", leftCurrentAmps);
+      leftTempCelcius =
+          table.getDoubleArray("LeftTempCelcius", leftTempCelcius);
 
       rightPositionRad = table.getDouble("RightPositionRad", rightPositionRad);
-      rightVelocityRadPerSec = table.getDouble("RightVelocityRadPerSec", rightVelocityRadPerSec);
-      rightAppliedVolts = table.getDouble("RightAppliedVolts", rightAppliedVolts);
-      rightCurrentAmps = table.getDoubleArray("RightCurrentAmps", rightCurrentAmps);
-      rightTempCelcius = table.getDoubleArray("RightTempCelcius", rightTempCelcius);
+      rightVelocityRadPerSec =
+          table.getDouble("RightVelocityRadPerSec", rightVelocityRadPerSec);
+      rightAppliedVolts =
+          table.getDouble("RightAppliedVolts", rightAppliedVolts);
+      rightCurrentAmps =
+          table.getDoubleArray("RightCurrentAmps", rightCurrentAmps);
+      rightTempCelcius =
+          table.getDoubleArray("RightTempCelcius", rightTempCelcius);
 
       gyroPositionRad = table.getDouble("GyroPositionRad", gyroPositionRad);
-      gyroVelocityRadPerSec = table.getDouble("GyroVelocityRadPerSec", gyroVelocityRadPerSec);
+      gyroVelocityRadPerSec =
+          table.getDouble("GyroVelocityRadPerSec", gyroVelocityRadPerSec);
     }
   }
 
   /** Updates the set of loggable inputs. */
-  public default void updateInputs(DriveTrainIOInputs inputs) {
-  }
+  public default void updateInputs(DriveTrainIOInputs inputs) {}
 
   /** Run open loop at the specified voltage. */
-  public default void setVoltage(double leftVolts, double rightVolts) {
-  }
+  public default void setVoltage(double leftVolts, double rightVolts) {}
 
   /** Run closed loop at the specified velocity. */
-  public default void setVelocity(double leftVelocityRadPerSec, double rightVelocityRadPerSec, double leftFFVolts,
-      double rightFFVolts) {
-  }
+  public default void setVelocity(double leftVelocityRadPerSec,
+      double rightVelocityRadPerSec, double leftFFVolts, double rightFFVolts) {}
 
   /** Enable or disable brake mode. */
-  public default void setBrakeMode(boolean enable) {
-  }
+  public default void setBrakeMode(boolean enable) {}
 
   /** Set velocity PID constants. */
-  public default void configurePID(double kp, double ki, double kd) {
-  }
+  public default void configurePID(double kp, double ki, double kd) {}
 
   /** Reset the encoder(s) to a known position. */
-  public default void resetPosition(double leftPositionRad, double rightPositionRad) {
-  }
+  public default void resetPosition(double leftPositionRad,
+      double rightPositionRad) {}
 }
