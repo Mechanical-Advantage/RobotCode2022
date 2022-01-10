@@ -14,18 +14,24 @@ import frc.robot.util.GeomUtil;
 public final class FieldConstants {
 
   // Field dimensions
-  public static final double fieldLength = Units.inchesToMeters(54.0 * 12);
-  public static final double fieldWidth = Units.inchesToMeters(27.0 * 12);
+  public static final double fieldLength = Units.inchesToMeters(54.0 * 12.0);
+  public static final double fieldWidth = Units.inchesToMeters(27.0 * 12.0);
   public static final double hangarLength = Units.inchesToMeters(128.75);
   public static final double hangarWidth = Units.inchesToMeters(116.0);
 
+  // Vision target
+  public static final double visionTargetDiameter =
+      Units.inchesToMeters(4.0 * 12.0 + 5.375);
+  public static final double visionTargetHeight =
+      Units.inchesToMeters(8.0 * 12.0 + 7.0); // Center of tape
+
   // Dimensions of hub and tarmac
-  public static final Rotation2d centerLineAngle = Rotation2d.fromDegrees(66);
+  public static final Rotation2d centerLineAngle = Rotation2d.fromDegrees(66.0);
   public static final Translation2d hubCenter =
-      new Translation2d(fieldLength / 2, fieldWidth / 2);
-  public static final double tarmacHeight = Units.inchesToMeters(219.25); // Between parallel sides
+      new Translation2d(fieldLength / 2.0, fieldWidth / 2.0);
+  public static final double tarmacDiameter = Units.inchesToMeters(219.25); // Inner diameter
   public static final double tarmacFullSideLength =
-      tarmacHeight * (Math.sqrt(2) - 1); // If the tarmac formed a full octagon
+      tarmacDiameter * (Math.sqrt(2.0) - 1.0); // If the tarmac formed a full octagon
   public static final double tarmacMarkedSideLength =
       Units.inchesToMeters(82.83); // Length of tape marking outside of tarmac
   public static final double tarmacMissingSideLength =
@@ -34,32 +40,32 @@ public final class FieldConstants {
   // Reference rotations (angle from hub to each reference point)
   public static final Rotation2d referenceARotation =
       Rotation2d.fromDegrees(180.0).minus(centerLineAngle)
-          .plus(Rotation2d.fromDegrees(360.0 / 16));
+          .plus(Rotation2d.fromDegrees(360.0 / 16.0));
   public static final Rotation2d referenceBRotation =
-      referenceARotation.rotateBy(Rotation2d.fromDegrees(360.0 / 8));
+      referenceARotation.rotateBy(Rotation2d.fromDegrees(360.0 / 8.0));
   public static final Rotation2d referenceCRotation =
-      referenceBRotation.rotateBy(Rotation2d.fromDegrees(360.0 / 8));
+      referenceBRotation.rotateBy(Rotation2d.fromDegrees(360.0 / 8.0));
   public static final Rotation2d referenceDRotation =
-      referenceCRotation.rotateBy(Rotation2d.fromDegrees(360.0 / 8));
+      referenceCRotation.rotateBy(Rotation2d.fromDegrees(360.0 / 8.0));
 
   // Reference points (centered of the sides of the tarmac if they formed a complete octagon)
   public static final Pose2d referenceA =
       new Pose2d(hubCenter, referenceARotation).transformBy(
-          GeomUtil.transformFromTranslation(tarmacHeight / 2, 0.0));
+          GeomUtil.transformFromTranslation(tarmacDiameter / 2.0, 0.0));
   public static final Pose2d referenceB =
       new Pose2d(hubCenter, referenceBRotation).transformBy(
-          GeomUtil.transformFromTranslation(tarmacHeight / 2, 0.0));
+          GeomUtil.transformFromTranslation(tarmacDiameter / 2.0, 0.0));
   public static final Pose2d referenceC =
       new Pose2d(hubCenter, referenceCRotation).transformBy(
-          GeomUtil.transformFromTranslation(tarmacHeight / 2, 0.0));
+          GeomUtil.transformFromTranslation(tarmacDiameter / 2.0, 0.0));
   public static final Pose2d referenceD =
       new Pose2d(hubCenter, referenceDRotation).transformBy(
-          GeomUtil.transformFromTranslation(tarmacHeight / 2, 0.0));
+          GeomUtil.transformFromTranslation(tarmacDiameter / 2.0, 0.0));
 
   // Cargo points
   public static final double cornerToCargoY = Units.inchesToMeters(15.56);
   public static final double referenceToCargoY =
-      (tarmacFullSideLength / 2) - cornerToCargoY;
+      (tarmacFullSideLength / 2.0) - cornerToCargoY;
   public static final double referenceToCargoX = Units.inchesToMeters(40.44);
   public static final Pose2d cargoA = referenceA.transformBy(
       GeomUtil.transformFromTranslation(referenceToCargoX, -referenceToCargoY));
