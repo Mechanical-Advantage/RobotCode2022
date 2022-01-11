@@ -21,6 +21,7 @@ public final class Constants {
   private static final Robot robot = Robot.ROBOT_2022C;
   public static final double loopPeriodSecs = 0.02;
   public static final boolean tuningMode = false;
+  public static final boolean burnMotorControllerFlash = false;
 
   public static Robot getRobot() {
     if (RobotBase.isReal()) {
