@@ -81,7 +81,8 @@ public class RobotContainer {
     handheldOI = OISelector.findHandheldOI();
 
     // Bind new buttons
-    // handheldOI.getAutoAimButton().whenActive(new PrintCommand("Activating the auto aim!"));
+    // handheldOI.getAutoAimButton()
+    // .whenActive(new PrintCommand("Activating the auto aim!"));
   }
 
   /**
