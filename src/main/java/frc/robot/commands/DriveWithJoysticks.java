@@ -18,7 +18,7 @@ public class DriveWithJoysticks extends CommandBase {
   private static final double deadband = 0.08;
   private static final double curvatureThreshold = 0.15; // Where to transition to full curvature
   private static final double curvatureArcadeTurnScale = 0.5; // Arcade turning scale factor
-  private final Drive driveTrain;
+  private final Drive drive;
   private final Supplier<Double> leftXSupplier;
   private final Supplier<Double> leftYSupplier;
   private final Supplier<Double> rightXSupplier;
@@ -34,7 +34,7 @@ public class DriveWithJoysticks extends CommandBase {
 
       Supplier<Double> rightYSupplier) {
     addRequirements(drive);
-    this.driveTrain = drive;
+    this.drive = drive;
     this.leftXSupplier = leftXSupplier;
     this.leftYSupplier = leftYSupplier;
     this.rightXSupplier = rightXSupplier;
@@ -99,13 +99,13 @@ public class DriveWithJoysticks extends CommandBase {
         leftPercent);
     Logger.getInstance().recordOutput("DriveWithJoysticks/RightPercent",
         rightPercent);
-    driveTrain.drivePercent(leftPercent, rightPercent);
+    drive.drivePercent(leftPercent, rightPercent);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    driveTrain.stop();
+    drive.stop();
   }
 
   // Returns true when the command should end.
