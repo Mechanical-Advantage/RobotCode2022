@@ -80,7 +80,7 @@ public class DriveIOSparkMAX implements DriveIO {
   }
 
   @Override
-  public void updateInputs(DriveTrainIOInputs inputs) {
+  public void updateInputs(DriveIOInputs inputs) {
     inputs.leftPositionRad =
         leftEncoder.getPosition() * (2.0 * Math.PI) / afterEncoderReduction;
     inputs.rightPositionRad =

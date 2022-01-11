@@ -13,7 +13,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.commands.SysIdCommand.DriveTrainSysIdData;
-import frc.robot.subsystems.drive.DriveIO.DriveTrainIOInputs;
+import frc.robot.subsystems.drive.DriveIO.DriveIOInputs;
 import frc.robot.util.TunableNumber;
 
 public class Drive extends SubsystemBase {
@@ -24,7 +24,7 @@ public class Drive extends SubsystemBase {
   private final TunableNumber kD = new TunableNumber("Drive/kD");
 
   private final DriveIO io;
-  private final DriveTrainIOInputs inputs = new DriveTrainIOInputs();
+  private final DriveIOInputs inputs = new DriveIOInputs();
 
   private Supplier<Boolean> disableOverride = () -> false;
   private Supplier<Boolean> openLoopOverride = () -> false;;
