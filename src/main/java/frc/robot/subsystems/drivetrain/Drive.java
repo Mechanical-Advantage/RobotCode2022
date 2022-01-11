@@ -13,43 +13,39 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.commands.SysIdCommand.DriveTrainSysIdData;
-import frc.robot.subsystems.drivetrain.DriveTrainIO.DriveTrainIOInputs;
+import frc.robot.subsystems.drivetrain.DriveIO.DriveTrainIOInputs;
+import frc.robot.util.TunableNumber;
 
-public class DriveTrain extends SubsystemBase {
+public class Drive extends SubsystemBase {
   private final double wheelRadiusM;
   private final SimpleMotorFeedforward leftModel, rightModel;
+  private final TunableNumber kP = new TunableNumber("Drive/kP");
+  private final TunableNumber kD = new TunableNumber("Drive/kD");
 
-  private final DriveTrainIO io;
+  private final DriveIO io;
   private final DriveTrainIOInputs inputs = new DriveTrainIOInputs();
 
   private Supplier<Boolean> disableOverride = () -> false;
   private Supplier<Boolean> openLoopOverride = () -> false;;
 
   /** Creates a new DriveTrain. */
-  public DriveTrain(DriveTrainIO io) {
+  public Drive(DriveIO io) {
     this.io = io;
 
     switch (Constants.getRobot()) {
-      // case ROBOT_2022C:
-      // break;
       case ROBOT_2020:
         wheelRadiusM = Units.inchesToMeters(3.0);
         leftModel = new SimpleMotorFeedforward(0, 0, 0);
         rightModel = new SimpleMotorFeedforward(0, 0, 0);
+        kP.setDefault(0.00015);
+        kD.setDefault(0.0015);
         break;
-      // case ROBOT_2022P:
-      // break;
-      // case ROBOT_KITBOT:
-      // break;
-      // case ROBOT_ROMI:
-      // break;
-      // case ROBOT_SIMBOT:
-      // break;
       default:
         wheelRadiusM = Double.POSITIVE_INFINITY;
         leftModel = new SimpleMotorFeedforward(0, 0, 0);
         rightModel = new SimpleMotorFeedforward(0, 0, 0);
-
+        kP.setDefault(0);
+        kD.setDefault(0);
         break;
 
     }
@@ -66,7 +62,11 @@ public class DriveTrain extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     io.updateInputs(inputs);
-    Logger.getInstance().processInputs("DriveTrain", inputs);
+    Logger.getInstance().processInputs("Drive", inputs);
+
+    if (kP.hasChanged() | kD.hasChanged()) {
+      io.configurePID(kP.get(), 0, kD.get());
+    }
   }
 
   /**

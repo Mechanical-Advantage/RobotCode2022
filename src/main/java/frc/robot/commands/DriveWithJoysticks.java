@@ -9,10 +9,10 @@ import java.util.function.Supplier;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.drivetrain.DriveTrain;
+import frc.robot.subsystems.drivetrain.Drive;
 
 public class DriveWithJoysticks extends CommandBase {
-  private final DriveTrain driveTrain;
+  private final Drive driveTrain;
   private final Supplier<Double> leftXSupplier;
   private final Supplier<Double> leftYSupplier;
   private final Supplier<Double> rightXSupplier;
@@ -22,11 +22,13 @@ public class DriveWithJoysticks extends CommandBase {
       new SendableChooser<JoystickMode>();
 
   /** Creates a new DriveWithJoysticks. */
-  public DriveWithJoysticks(DriveTrain driveTrain,
-      Supplier<Double> leftXSupplier, Supplier<Double> leftYSupplier,
-      Supplier<Double> rightXSupplier, Supplier<Double> rightYSupplier) {
-    addRequirements(driveTrain);
-    this.driveTrain = driveTrain;
+  public DriveWithJoysticks(Drive drive, Supplier<Double> leftXSupplier,
+
+      Supplier<Double> leftYSupplier, Supplier<Double> rightXSupplier,
+
+      Supplier<Double> rightYSupplier) {
+    addRequirements(drive);
+    this.driveTrain = drive;
     this.leftXSupplier = leftXSupplier;
     this.leftYSupplier = leftYSupplier;
     this.rightXSupplier = rightXSupplier;

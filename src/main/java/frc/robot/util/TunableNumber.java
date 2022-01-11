@@ -10,6 +10,7 @@ import frc.robot.Constants;
 public class TunableNumber {
   private String key;
   private double defaultValue;
+  private double lastHasChangedValue = defaultValue;
 
   /**
    * Create a new TunableNumber
@@ -51,5 +52,21 @@ public class TunableNumber {
   public double get() {
     return Constants.tuningMode ? SmartDashboard.getNumber(key, defaultValue)
         : defaultValue;
+  }
+
+  /**
+   * Checks whether the number has changed since our last check
+   * 
+   * @return True if the number has changed since the last time this method was called, false
+   *         otherwise
+   */
+  public boolean hasChanged() {
+    double currentValue = get();
+    if (currentValue != lastHasChangedValue) {
+      lastHasChangedValue = currentValue;
+      return true;
+    }
+
+    return false;
   }
 }

@@ -8,7 +8,7 @@ import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 /** Drive subsystem hardware interface. */
-public interface DriveTrainIO {
+public interface DriveIO {
   /** The set of loggable inputs for the drive subsystem. */
   public static class DriveTrainIOInputs implements LoggableInputs {
     public double leftPositionRad = 0.0;

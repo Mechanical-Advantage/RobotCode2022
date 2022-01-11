@@ -14,8 +14,8 @@ import frc.robot.commands.SysIdCommand;
 import frc.robot.oi.HandheldOI;
 import frc.robot.oi.OISelector;
 import frc.robot.oi.OverrideOI;
-import frc.robot.subsystems.drivetrain.DriveTrain;
-import frc.robot.subsystems.drivetrain.DriveTrainIO;
+import frc.robot.subsystems.drivetrain.Drive;
+import frc.robot.subsystems.drivetrain.DriveIO;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -26,7 +26,7 @@ import frc.robot.subsystems.drivetrain.DriveTrainIO;
 public class RobotContainer {
 
   // Subsystems
-  private final DriveTrain driveTrain;
+  private final Drive drive;
 
   // OI objects
   private OverrideOI overrideOI = new OverrideOI();
@@ -40,27 +40,27 @@ public class RobotContainer {
   public RobotContainer() {
     // Instantiate subsystems
     if (Constants.getMode() == Mode.REPLAY) {
-      driveTrain = new DriveTrain(new DriveTrainIO() {});
+      drive = new Drive(new DriveIO() {});
     } else {
       switch (Constants.getRobot()) {
         default:
-          driveTrain = new DriveTrain(new DriveTrainIO() {});
+          drive = new Drive(new DriveIO() {});
           break;
 
       }
     }
 
     // Set up subsystems
-    driveTrain.setOverrides(() -> overrideOI.getDriveDisable(),
+    drive.setOverrides(() -> overrideOI.getDriveDisable(),
         () -> overrideOI.getOpenLoop());
-    driveTrain.setDefaultCommand(new DriveWithJoysticks(driveTrain,
+    drive.setDefaultCommand(new DriveWithJoysticks(drive,
         () -> handheldOI.getLeftDriveX(), () -> handheldOI.getLeftDriveY(),
         () -> handheldOI.getRightDriveX(), () -> handheldOI.getRightDriveY()));
 
     // Set up auto chooser
     autoChooser.setDefaultOption("Do Nothing", null);
-    autoChooser.addOption("Run SysId (DriveTrain)", new SysIdCommand(driveTrain,
-        driveTrain::driveVoltage, driveTrain::getSysIdData));
+    autoChooser.addOption("Run SysId (Drive)",
+        new SysIdCommand(drive, drive::driveVoltage, drive::getSysIdData));
     SmartDashboard.putData("Auto Mode", autoChooser);
 
     // Instantiate OI classes and bind buttons

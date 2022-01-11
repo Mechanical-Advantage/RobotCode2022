@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.SerialPort;
 import frc.robot.Constants;
 
-public class DriveTrainIO2020 implements DriveTrainIO {
+public class DriveIOSparkMAX implements DriveIO {
   private static final double afterEncoderReduction =
       1.0 / ((9.0 / 62.0) * (18.0 / 30.0));
 
@@ -37,7 +37,7 @@ public class DriveTrainIO2020 implements DriveTrainIO {
   private final AHRS gyro = new AHRS(SerialPort.Port.kMXP); // SPI currently broken on 2022
 
 
-  public DriveTrainIO2020() {
+  public DriveIOSparkMAX() {
     if (Constants.burnMotorControllerFlash) {
       leftLeader.restoreFactoryDefaults();
       leftFollower.restoreFactoryDefaults();
