@@ -12,7 +12,7 @@ import frc.robot.util.Alert.AlertType;
  * Utility class for selecting the appropriate OI implementations based on the connected joysticks.
  */
 public class OISelector {
-  private static final String overrideName = "Generic";
+  private static final String overrideName = "Generic USB Joystick";
   private static String[] lastJoystickNames =
       new String[] {"", "", "", "", "", ""};
   private static final Alert noOverrideWarning =
@@ -43,7 +43,7 @@ public class OISelector {
    */
   public static OverrideOI findOverrideOI() {
     for (int port = 0; port < DriverStation.kJoystickPorts; port++) {
-      if (DriverStation.getJoystickName(port).startsWith(overrideName)) {
+      if (DriverStation.getJoystickName(port).equals(overrideName)) {
         noOverrideWarning.set(false);
         return new OverrideOI(port);
       }
