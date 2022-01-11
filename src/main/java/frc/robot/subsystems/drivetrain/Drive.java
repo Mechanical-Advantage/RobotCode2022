@@ -18,6 +18,7 @@ import frc.robot.util.TunableNumber;
 
 public class Drive extends SubsystemBase {
   private final double wheelRadiusM;
+  private final double maxVelocityMetersPerSec;
   private final SimpleMotorFeedforward leftModel, rightModel;
   private final TunableNumber kP = new TunableNumber("Drive/kP");
   private final TunableNumber kD = new TunableNumber("Drive/kD");
@@ -34,6 +35,7 @@ public class Drive extends SubsystemBase {
 
     switch (Constants.getRobot()) {
       case ROBOT_2020:
+        maxVelocityMetersPerSec = Units.inchesToMeters(150.0);
         wheelRadiusM = Units.inchesToMeters(3.0);
         leftModel = new SimpleMotorFeedforward(0, 0, 0);
         rightModel = new SimpleMotorFeedforward(0, 0, 0);
@@ -41,6 +43,7 @@ public class Drive extends SubsystemBase {
         kD.setDefault(0.0015);
         break;
       default:
+        maxVelocityMetersPerSec = 0;
         wheelRadiusM = Double.POSITIVE_INFINITY;
         leftModel = new SimpleMotorFeedforward(0, 0, 0);
         rightModel = new SimpleMotorFeedforward(0, 0, 0);
@@ -73,6 +76,11 @@ public class Drive extends SubsystemBase {
    * Drive at the specified voltage with no other processing. Only use with SysId.
    */
   public void driveVoltage(double leftVolts, double rightVolts) {
+    if (disableOverride.get()) {
+      io.setVoltage(0, 0);
+      return;
+    }
+
     io.setVoltage(leftVolts, rightVolts);
   }
 
@@ -80,7 +88,14 @@ public class Drive extends SubsystemBase {
    * Drive at the specified percentage of max speed.
    */
   public void drivePercent(double leftPercent, double rightPercent) {
-    io.setVoltage(leftPercent * 12.0, rightPercent * 12.0);
+    if (disableOverride.get()) {
+      io.setVoltage(0, 0);
+      return;
+    }
+
+
+    driveVelocity(leftPercent * maxVelocityMetersPerSec,
+        rightPercent * maxVelocityMetersPerSec);
   }
 
   /**
@@ -88,6 +103,12 @@ public class Drive extends SubsystemBase {
    */
   public void driveVelocity(double leftVelocityMetersPerSec,
       double rightVelocityMetersPerSec) {
+    if (disableOverride.get()) {
+      io.setVoltage(0, 0);
+      return;
+    }
+
+
     double leftVelocityRadPerSec = leftVelocityMetersPerSec / wheelRadiusM;
     double rightVelocityRadPerSec = rightVelocityMetersPerSec / wheelRadiusM;
 
@@ -107,7 +128,7 @@ public class Drive extends SubsystemBase {
    * In open loop, goes to neutral. In closed loop, resets velocity setpoint.
    */
   public void stop() {
-    driveVelocity(0, 0);
+    drivePercent(0, 0);
   }
 
   /**
