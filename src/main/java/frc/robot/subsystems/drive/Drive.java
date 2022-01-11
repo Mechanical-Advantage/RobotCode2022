@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.drivetrain;
+package frc.robot.subsystems.drive;
 
 import java.util.function.Supplier;
 
@@ -13,11 +13,11 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.commands.SysIdCommand.DriveTrainSysIdData;
-import frc.robot.subsystems.drivetrain.DriveIO.DriveTrainIOInputs;
+import frc.robot.subsystems.drive.DriveIO.DriveTrainIOInputs;
 import frc.robot.util.TunableNumber;
 
 public class Drive extends SubsystemBase {
-  private final double wheelRadiusM;
+  private final double wheelRadiusMeters;
   private final double maxVelocityMetersPerSec;
   private final SimpleMotorFeedforward leftModel, rightModel;
   private final TunableNumber kP = new TunableNumber("Drive/kP");
@@ -36,7 +36,7 @@ public class Drive extends SubsystemBase {
     switch (Constants.getRobot()) {
       case ROBOT_2020:
         maxVelocityMetersPerSec = Units.inchesToMeters(150.0);
-        wheelRadiusM = Units.inchesToMeters(3.0);
+        wheelRadiusMeters = Units.inchesToMeters(3.0);
         leftModel = new SimpleMotorFeedforward(0, 0, 0);
         rightModel = new SimpleMotorFeedforward(0, 0, 0);
         kP.setDefault(0.00015);
@@ -44,7 +44,7 @@ public class Drive extends SubsystemBase {
         break;
       default:
         maxVelocityMetersPerSec = 0;
-        wheelRadiusM = Double.POSITIVE_INFINITY;
+        wheelRadiusMeters = Double.POSITIVE_INFINITY;
         leftModel = new SimpleMotorFeedforward(0, 0, 0);
         rightModel = new SimpleMotorFeedforward(0, 0, 0);
         kP.setDefault(0);
@@ -109,8 +109,9 @@ public class Drive extends SubsystemBase {
     }
 
 
-    double leftVelocityRadPerSec = leftVelocityMetersPerSec / wheelRadiusM;
-    double rightVelocityRadPerSec = rightVelocityMetersPerSec / wheelRadiusM;
+    double leftVelocityRadPerSec = leftVelocityMetersPerSec / wheelRadiusMeters;
+    double rightVelocityRadPerSec =
+        rightVelocityMetersPerSec / wheelRadiusMeters;
 
     double leftFFVolts = leftModel.calculate(leftVelocityRadPerSec);
     double rightFFVolts = rightModel.calculate(rightVelocityRadPerSec);
@@ -119,8 +120,8 @@ public class Drive extends SubsystemBase {
       // Use open loop control
       io.setVoltage(leftFFVolts, rightFFVolts);
     } else {
-      io.setVelocity(leftVelocityRadPerSec,
-          rightVelocityRadPerSec / wheelRadiusM, leftFFVolts, rightFFVolts);
+      io.setVelocity(leftVelocityRadPerSec, rightVelocityRadPerSec, leftFFVolts,
+          rightFFVolts);
     }
   }
 

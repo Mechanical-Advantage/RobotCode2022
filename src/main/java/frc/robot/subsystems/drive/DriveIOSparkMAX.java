@@ -1,4 +1,4 @@
-package frc.robot.subsystems.drivetrain;
+package frc.robot.subsystems.drive;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
@@ -9,7 +9,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxPIDController.ArbFFUnits;
 
-import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.SerialPort;
 import frc.robot.Constants;
 
@@ -26,9 +26,7 @@ public class DriveIOSparkMAX implements DriveIO {
   private final SparkMaxPIDController leftPID;
   private final SparkMaxPIDController rightPID;
 
-
   private final AHRS gyro = new AHRS(SerialPort.Port.kMXP); // SPI currently broken on 2022
-
 
   public DriveIOSparkMAX() {
     switch (Constants.getRobot()) {
@@ -82,63 +80,18 @@ public class DriveIOSparkMAX implements DriveIO {
   }
 
   @Override
-  public void configurePID(double kp, double ki, double kd) {
-    leftPID.setP(kp);
-    leftPID.setI(ki);
-    leftPID.setD(kd);
-
-    rightPID.setP(kp);
-    rightPID.setI(ki);
-    rightPID.setD(kd);
-  }
-
-  @Override
-  public void resetPosition(double leftPositionRad, double rightPositionRad) {
-    leftEncoder
-        .setPosition(leftPositionRad / (2.0 * Math.PI) * afterEncoderReduction);
-    rightEncoder.setPosition(
-        rightPositionRad / (2.0 * Math.PI) * afterEncoderReduction);
-  }
-
-  @Override
-  public void setBrakeMode(boolean enable) {
-    IdleMode mode = enable ? IdleMode.kBrake : IdleMode.kCoast;
-    leftLeader.setIdleMode(mode);
-    leftFollower.setIdleMode(mode);
-    rightLeader.setIdleMode(mode);
-    rightFollower.setIdleMode(mode);
-  }
-
-  @Override
-  public void setVelocity(double leftVelocityRadPerSec,
-      double rightVelocityRadPerSec, double leftFFVolts, double rightFFVolts) {
-    double leftRPM =
-        leftVelocityRadPerSec * 60.0 / (2.0 * Math.PI) * afterEncoderReduction;
-    double rightRPM =
-        leftVelocityRadPerSec * 60.0 / (2.0 * Math.PI) * afterEncoderReduction;
-    leftPID.setReference(leftRPM, ControlType.kVelocity, 0, leftFFVolts,
-        ArbFFUnits.kVoltage);
-    rightPID.setReference(rightRPM, ControlType.kVelocity, 0, rightFFVolts,
-        ArbFFUnits.kVoltage);
-  }
-
-  @Override
-  public void setVoltage(double leftVolts, double rightVolts) {
-    leftLeader.setVoltage(leftVolts);
-    rightLeader.setVoltage(rightVolts);
-  }
-
-  @Override
   public void updateInputs(DriveTrainIOInputs inputs) {
     inputs.leftPositionRad =
         leftEncoder.getPosition() * (2.0 * Math.PI) / afterEncoderReduction;
     inputs.rightPositionRad =
         rightEncoder.getPosition() * (2.0 * Math.PI) / afterEncoderReduction;
 
-    inputs.leftVelocityRadPerSec = leftEncoder.getVelocity() * (2.0 * Math.PI)
-        / 60.0 / afterEncoderReduction;
-    inputs.rightVelocityRadPerSec = rightEncoder.getVelocity() * (2.0 * Math.PI)
-        / 60.0 / afterEncoderReduction;
+    inputs.leftVelocityRadPerSec =
+        Units.rotationsPerMinuteToRadiansPerSecond(leftEncoder.getVelocity())
+            / afterEncoderReduction;
+    inputs.rightVelocityRadPerSec =
+        Units.rotationsPerMinuteToRadiansPerSecond(rightEncoder.getVelocity())
+            / afterEncoderReduction;
 
     inputs.leftAppliedVolts = leftLeader.getAppliedOutput() * 12.0;
     inputs.rightAppliedVolts = rightLeader.getAppliedOutput() * 12.0;
@@ -156,7 +109,54 @@ public class DriveIOSparkMAX implements DriveIO {
 
     inputs.gyroPositionRad = Math.toRadians(gyro.getAngle());
     inputs.gyroVelocityRadPerSec = Math.toRadians(gyro.getRate());
-
   }
 
+  @Override
+  public void setVoltage(double leftVolts, double rightVolts) {
+    leftLeader.setVoltage(leftVolts);
+    rightLeader.setVoltage(rightVolts);
+  }
+
+  @Override
+  public void setVelocity(double leftVelocityRadPerSec,
+      double rightVelocityRadPerSec, double leftFFVolts, double rightFFVolts) {
+    double leftRPM =
+        Units.radiansPerSecondToRotationsPerMinute(leftVelocityRadPerSec)
+            * afterEncoderReduction;
+    double rightRPM =
+        Units.radiansPerSecondToRotationsPerMinute(rightVelocityRadPerSec)
+            * afterEncoderReduction;
+    leftPID.setReference(leftRPM, ControlType.kVelocity, 0, leftFFVolts,
+        ArbFFUnits.kVoltage);
+    rightPID.setReference(rightRPM, ControlType.kVelocity, 0, rightFFVolts,
+        ArbFFUnits.kVoltage);
+  }
+
+  @Override
+  public void setBrakeMode(boolean enable) {
+    IdleMode mode = enable ? IdleMode.kBrake : IdleMode.kCoast;
+    leftLeader.setIdleMode(mode);
+    leftFollower.setIdleMode(mode);
+    rightLeader.setIdleMode(mode);
+    rightFollower.setIdleMode(mode);
+  }
+
+  @Override
+  public void configurePID(double kp, double ki, double kd) {
+    leftPID.setP(kp);
+    leftPID.setI(ki);
+    leftPID.setD(kd);
+
+    rightPID.setP(kp);
+    rightPID.setI(ki);
+    rightPID.setD(kd);
+  }
+
+  @Override
+  public void resetPosition(double leftPositionRad, double rightPositionRad) {
+    leftEncoder
+        .setPosition(leftPositionRad / (2.0 * Math.PI) * afterEncoderReduction);
+    rightEncoder.setPosition(
+        rightPositionRad / (2.0 * Math.PI) * afterEncoderReduction);
+  }
 }

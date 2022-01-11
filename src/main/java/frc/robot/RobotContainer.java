@@ -14,9 +14,9 @@ import frc.robot.commands.SysIdCommand;
 import frc.robot.oi.HandheldOI;
 import frc.robot.oi.OISelector;
 import frc.robot.oi.OverrideOI;
-import frc.robot.subsystems.drivetrain.Drive;
-import frc.robot.subsystems.drivetrain.DriveIO;
-import frc.robot.subsystems.drivetrain.DriveIOSparkMAX;
+import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.DriveIO;
+import frc.robot.subsystems.drive.DriveIOSparkMAX;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
