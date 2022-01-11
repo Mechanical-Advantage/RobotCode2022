@@ -4,24 +4,43 @@
 
 package frc.robot.oi;
 
+import edu.wpi.first.wpilibj.Joystick;
+
 /** Class for the override switches on the OI console. */
 public class OverrideOI {
+  private Joystick overrides;
 
   /** Creates a dummy set of overrides if controller is not available. */
   public OverrideOI() {}
 
   /** Creates a set of overrides using the given controller port. */
-  public OverrideOI(int port) {}
+  public OverrideOI(int port) {
+    new Joystick(port);
+  }
 
   public boolean getDriveDisable() {
-    return false;
+    if (overrides == null) {
+      return false;
+    }
+    return overrides.getRawButton(1);
   }
 
   public boolean getOpenLoop() {
-    return false;
+    if (overrides == null) {
+      return false;
+    }
+    return overrides.getRawButton(2);
   }
 
   public VisionLEDMode getVisionLEDMode() {
+    if (overrides != null) {
+      if (overrides.getRawButton(4)) {
+        return VisionLEDMode.ALWAYS_ON;
+      }
+      if (overrides.getRawButton(5)) {
+        return VisionLEDMode.ALWAYS_OFF;
+      }
+    }
     return VisionLEDMode.AUTO;
   }
 

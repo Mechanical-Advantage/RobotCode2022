@@ -4,9 +4,33 @@
 
 package frc.robot.oi;
 
+import edu.wpi.first.wpilibj.XboxController;
+
 /** Class for controlling the robot with a single Xbox controller. */
 public class SingleHandheldOI implements HandheldOI {
+  private final XboxController controller;
 
-  public SingleHandheldOI(int port) {}
+  public SingleHandheldOI(int port) {
+    controller = new XboxController(port);
+  }
 
+  @Override
+  public double getLeftDriveX() {
+    return controller.getLeftX();
+  }
+
+  @Override
+  public double getLeftDriveY() {
+    return controller.getLeftY() * -1;
+  }
+
+  @Override
+  public double getRightDriveX() {
+    return controller.getRightX();
+  }
+
+  @Override
+  public double getRightDriveY() {
+    return controller.getRightY() * -1;
+  }
 }
