@@ -6,6 +6,8 @@ package frc.robot.commands;
 
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -52,8 +54,8 @@ public class DriveWithJoysticks extends CommandBase {
     if (Math.abs(value) < deadband) {
       return 0.0;
     }
-    double scaledValue = (value - deadband) / (1 - deadband);
-    return scaledValue * scaledValue;
+    double scaledValue = (Math.abs(value) - deadband) / (1 - deadband);
+    return Math.copySign(scaledValue * scaledValue, value);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -90,9 +92,13 @@ public class DriveWithJoysticks extends CommandBase {
         break;
     }
 
-    double leftSpeed = MathUtil.clamp(speeds.left, -1.0, 1.0);
-    double rightSpeed = MathUtil.clamp(speeds.right, -1.0, 1.0);
-    driveTrain.drivePercent(leftSpeed, rightSpeed);
+    double leftPercent = MathUtil.clamp(speeds.left, -1.0, 1.0);
+    double rightPercent = MathUtil.clamp(speeds.right, -1.0, 1.0);
+    Logger.getInstance().recordOutput("DriveWithJoysticks/LeftPercent",
+        leftPercent);
+    Logger.getInstance().recordOutput("DriveWithJoysticks/RightPercent",
+        rightPercent);
+    driveTrain.drivePercent(leftPercent, rightPercent);
   }
 
   // Called once the command ends or is interrupted.
