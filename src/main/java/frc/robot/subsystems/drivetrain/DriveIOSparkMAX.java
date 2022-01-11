@@ -14,30 +14,40 @@ import edu.wpi.first.wpilibj.SerialPort;
 import frc.robot.Constants;
 
 public class DriveIOSparkMAX implements DriveIO {
-  private static final double afterEncoderReduction =
-      1.0 / ((9.0 / 62.0) * (18.0 / 30.0));
+  private final double afterEncoderReduction;
 
+  private final CANSparkMax leftLeader;
+  private final CANSparkMax leftFollower;
+  private final CANSparkMax rightLeader;
+  private final CANSparkMax rightFollower;
 
-
-  private final CANSparkMax leftLeader =
-      new CANSparkMax(3, MotorType.kBrushless);
-  private final CANSparkMax leftFollower =
-      new CANSparkMax(12, MotorType.kBrushless);
-  private final CANSparkMax rightLeader =
-      new CANSparkMax(16, MotorType.kBrushless);
-  private final CANSparkMax rightFollower =
-      new CANSparkMax(15, MotorType.kBrushless);
-
-  private final RelativeEncoder leftEncoder = leftLeader.getEncoder();
-  private final RelativeEncoder rightEncoder = rightLeader.getEncoder();
-  private final SparkMaxPIDController leftPID = leftLeader.getPIDController();
-  private final SparkMaxPIDController rightPID = rightLeader.getPIDController();
+  private final RelativeEncoder leftEncoder;
+  private final RelativeEncoder rightEncoder;
+  private final SparkMaxPIDController leftPID;
+  private final SparkMaxPIDController rightPID;
 
 
   private final AHRS gyro = new AHRS(SerialPort.Port.kMXP); // SPI currently broken on 2022
 
 
   public DriveIOSparkMAX() {
+    switch (Constants.getRobot()) {
+      case ROBOT_2020:
+        afterEncoderReduction = 1.0 / ((9.0 / 62.0) * (18.0 / 30.0));
+        leftLeader = new CANSparkMax(3, MotorType.kBrushless);
+        leftFollower = new CANSparkMax(12, MotorType.kBrushless);
+        rightLeader = new CANSparkMax(16, MotorType.kBrushless);
+        rightFollower = new CANSparkMax(15, MotorType.kBrushless);
+        break;
+      default:
+        throw new RuntimeException("Invalid robot for DriveIOSparkMax!");
+    }
+
+    leftEncoder = leftLeader.getEncoder();
+    rightEncoder = rightLeader.getEncoder();
+    leftPID = leftLeader.getPIDController();
+    rightPID = rightLeader.getPIDController();
+
     if (Constants.burnMotorControllerFlash) {
       leftLeader.restoreFactoryDefaults();
       leftFollower.restoreFactoryDefaults();
