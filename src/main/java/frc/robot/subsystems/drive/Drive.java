@@ -37,8 +37,8 @@ public class Drive extends SubsystemBase {
       case ROBOT_2020:
         maxVelocityMetersPerSec = Units.inchesToMeters(150.0);
         wheelRadiusMeters = Units.inchesToMeters(3.0);
-        leftModel = new SimpleMotorFeedforward(0, 0, 0);
-        rightModel = new SimpleMotorFeedforward(0, 0, 0);
+        leftModel = new SimpleMotorFeedforward(0.23004, 0.2126, 0.036742);
+        rightModel = new SimpleMotorFeedforward(0.22652, 0.21748, 0.03177);
         kP.setDefault(0.00015);
         kD.setDefault(0.0015);
         break;

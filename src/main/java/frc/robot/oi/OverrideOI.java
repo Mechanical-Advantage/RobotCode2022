@@ -4,6 +4,8 @@
 
 package frc.robot.oi;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj.Joystick;
 
 /** Class for the override switches on the OI console. */
@@ -15,7 +17,7 @@ public class OverrideOI {
 
   /** Creates a set of overrides using the given controller port. */
   public OverrideOI(int port) {
-    new Joystick(port);
+    overrides = new Joystick(port);
   }
 
   public boolean getDriveDisable() {

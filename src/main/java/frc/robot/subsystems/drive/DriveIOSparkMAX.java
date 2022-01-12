@@ -10,7 +10,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxPIDController.ArbFFUnits;
 
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.SPI;
 import frc.robot.Constants;
 
 public class DriveIOSparkMAX implements DriveIO {
@@ -26,7 +26,7 @@ public class DriveIOSparkMAX implements DriveIO {
   private final SparkMaxPIDController leftPID;
   private final SparkMaxPIDController rightPID;
 
-  private final AHRS gyro = new AHRS(SerialPort.Port.kMXP); // SPI currently broken on 2022
+  private final AHRS gyro = new AHRS(SPI.Port.kMXP); // SPI currently broken on 2022
 
   public DriveIOSparkMAX() {
     switch (Constants.getRobot()) {
