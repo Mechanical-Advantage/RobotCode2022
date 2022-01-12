@@ -4,6 +4,10 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -34,7 +38,9 @@ public class RobotContainer {
   private HandheldOI handheldOI = new HandheldOI() {};
 
   // Dashboard choosers
-  private final SendableChooser<Command> autoChooser =
+  private final SendableChooser<Pose2d> autoPositionChooser =
+      new SendableChooser<Pose2d>();
+  private final SendableChooser<Command> autoRoutineChooser =
       new SendableChooser<Command>();
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -61,11 +67,28 @@ public class RobotContainer {
         () -> handheldOI.getLeftDriveX(), () -> handheldOI.getLeftDriveY(),
         () -> handheldOI.getRightDriveX(), () -> handheldOI.getRightDriveY()));
 
-    // Set up auto chooser
-    autoChooser.setDefaultOption("Do Nothing", null);
-    autoChooser.addOption("Run SysId (Drive)",
+    // Set up auto choosers
+    Transform2d autoPositionTransformLeft = new Transform2d(
+        new Translation2d(-0.5, FieldConstants.tarmacMissingSideLength / 2),
+        Rotation2d.fromDegrees(180));
+    Transform2d autoPositionTransformRight = new Transform2d(
+        new Translation2d(-0.5, -FieldConstants.tarmacMissingSideLength / 2),
+        Rotation2d.fromDegrees(180));
+    autoPositionChooser.setDefaultOption("Origin", new Pose2d());
+    autoPositionChooser.addOption("Tarmac A",
+        FieldConstants.referenceA.transformBy(autoPositionTransformLeft));
+    autoPositionChooser.addOption("Tarmac B",
+        FieldConstants.referenceB.transformBy(autoPositionTransformRight));
+    autoPositionChooser.addOption("Tarmac C",
+        FieldConstants.referenceC.transformBy(autoPositionTransformLeft));
+    autoPositionChooser.addOption("Tarmac D",
+        FieldConstants.referenceD.transformBy(autoPositionTransformRight));
+    SmartDashboard.putData("Auto Position", autoPositionChooser);
+
+    autoRoutineChooser.setDefaultOption("Do Nothing", null);
+    autoRoutineChooser.addOption("Run SysId (Drive)",
         new SysIdCommand(drive, drive::driveVoltage, drive::getSysIdData));
-    SmartDashboard.putData("Auto Mode", autoChooser);
+    SmartDashboard.putData("Auto Routine", autoRoutineChooser);
 
     // Instantiate OI classes and bind buttons
     updateOI();
@@ -95,6 +118,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
+    drive.setPose(autoPositionChooser.getSelected());
+    return autoRoutineChooser.getSelected();
   }
 }

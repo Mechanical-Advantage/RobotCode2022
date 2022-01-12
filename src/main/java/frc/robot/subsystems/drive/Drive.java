@@ -9,6 +9,9 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -33,6 +36,8 @@ public class Drive extends SubsystemBase {
   private Supplier<Boolean> disableOverride = () -> false;
   private Supplier<Boolean> openLoopOverride = () -> false;
 
+  private final DifferentialDriveOdometry odometry =
+      new DifferentialDriveOdometry(new Rotation2d());
   private boolean brakeMode = false;
 
   /** Creates a new DriveTrain. */
@@ -73,6 +78,16 @@ public class Drive extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Drive", inputs);
 
+    // Update odometry
+    odometry.update(new Rotation2d(inputs.gyroPositionRad * -1),
+        inputs.leftPositionRad * wheelRadiusMeters,
+        inputs.rightPositionRad * wheelRadiusMeters);
+    Logger.getInstance().recordOutput("Odometry",
+        new double[] {odometry.getPoseMeters().getX(),
+            odometry.getPoseMeters().getY(),
+            odometry.getPoseMeters().getRotation().getRadians()});
+
+    // Update brake mode
     if (DriverStation.isEnabled()) {
       if (!brakeMode) {
         brakeMode = true;
@@ -89,6 +104,7 @@ public class Drive extends SubsystemBase {
       }
     }
 
+    // Send tuning constants
     if (kP.hasChanged() | kD.hasChanged()) {
       io.configurePID(kP.get(), 0, kD.get());
     }
@@ -154,13 +170,29 @@ public class Drive extends SubsystemBase {
     drivePercent(0, 0);
   }
 
+  /** Returns the current odometry pose */
+  public Pose2d getPose() {
+    return odometry.getPoseMeters();
+  }
+
+  /** Returns the current rotation according to odometry */
+  public Rotation2d getRotation() {
+    return odometry.getPoseMeters().getRotation();
+  }
+
+  /** Resets the current odometry pose. */
+  public void setPose(Pose2d pose) {
+    io.resetPosition(0, 0);
+    odometry.resetPosition(pose, new Rotation2d(inputs.gyroPositionRad * -1));
+  }
+
   /** Return left velocity in meters per second. */
-  private double getLeftVelocityMetersPerSec() {
+  public double getLeftVelocityMetersPerSec() {
     return inputs.leftVelocityRadPerSec * wheelRadiusMeters;
   }
 
   /** Return right velocity in meters per second. */
-  private double getRightVelocityMetersPerSec() {
+  public double getRightVelocityMetersPerSec() {
     return inputs.rightVelocityRadPerSec * wheelRadiusMeters;
   }
 
