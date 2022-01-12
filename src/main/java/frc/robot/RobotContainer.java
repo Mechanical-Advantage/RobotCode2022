@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.List;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -14,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.Mode;
 import frc.robot.commands.DriveWithJoysticks;
+import frc.robot.commands.MotionProfileCommand;
 import frc.robot.commands.SysIdCommand;
 import frc.robot.oi.HandheldOI;
 import frc.robot.oi.OISelector;
@@ -86,6 +89,10 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Position", autoPositionChooser);
 
     autoRoutineChooser.setDefaultOption("Do Nothing", null);
+    autoRoutineChooser.addOption("Test Motion Profile",
+        new MotionProfileCommand(drive, 0.0,
+            List.of(new Pose2d(), new Pose2d(5.0, 2.0, new Rotation2d())), 0.0,
+            false));
     autoRoutineChooser.addOption("Run SysId (Drive)",
         new SysIdCommand(drive, drive::driveVoltage, drive::getSysIdData));
     SmartDashboard.putData("Auto Routine", autoRoutineChooser);

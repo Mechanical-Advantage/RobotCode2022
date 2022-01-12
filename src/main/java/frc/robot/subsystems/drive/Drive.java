@@ -26,6 +26,7 @@ public class Drive extends SubsystemBase {
 
   private final double wheelRadiusMeters;
   private final double maxVelocityMetersPerSec;
+  private final double trackWidthMeters;
   private final SimpleMotorFeedforward leftModel, rightModel;
   private final TunableNumber kP = new TunableNumber("Drive/kP");
   private final TunableNumber kD = new TunableNumber("Drive/kD");
@@ -47,6 +48,7 @@ public class Drive extends SubsystemBase {
       case ROBOT_2020:
         maxVelocityMetersPerSec = Units.inchesToMeters(150.0);
         wheelRadiusMeters = Units.inchesToMeters(3.0);
+        trackWidthMeters = 1.768748;
         leftModel = new SimpleMotorFeedforward(0.23004, 0.2126, 0.036742);
         rightModel = new SimpleMotorFeedforward(0.22652, 0.21748, 0.03177);
         kP.setDefault(0.00015);
@@ -55,6 +57,7 @@ public class Drive extends SubsystemBase {
       default:
         maxVelocityMetersPerSec = 0;
         wheelRadiusMeters = Double.POSITIVE_INFINITY;
+        trackWidthMeters = 1.0;
         leftModel = new SimpleMotorFeedforward(0, 0, 0);
         rightModel = new SimpleMotorFeedforward(0, 0, 0);
         kP.setDefault(0);
@@ -82,7 +85,7 @@ public class Drive extends SubsystemBase {
     odometry.update(new Rotation2d(inputs.gyroPositionRad * -1),
         inputs.leftPositionRad * wheelRadiusMeters,
         inputs.rightPositionRad * wheelRadiusMeters);
-    Logger.getInstance().recordOutput("Odometry",
+    Logger.getInstance().recordOutput("Odometry/Robot",
         new double[] {odometry.getPoseMeters().getX(),
             odometry.getPoseMeters().getY(),
             odometry.getPoseMeters().getRotation().getRadians()});
@@ -194,6 +197,26 @@ public class Drive extends SubsystemBase {
   /** Return right velocity in meters per second. */
   public double getRightVelocityMetersPerSec() {
     return inputs.rightVelocityRadPerSec * wheelRadiusMeters;
+  }
+
+  /** Return track width in meters. */
+  public double getTrackWidthMeters() {
+    return trackWidthMeters;
+  }
+
+  /** Return average kS. */
+  public double getKs() {
+    return (leftModel.ks + rightModel.ks) / 2;
+  }
+
+  /** Return average kV in (volts * second) / meter. */
+  public double getKv() {
+    return ((leftModel.kv + rightModel.kv) / 2) / wheelRadiusMeters;
+  }
+
+  /** Return average kA in (volts * second^2) / meter. */
+  public double getKa() {
+    return ((leftModel.ka + rightModel.ka) / 2) / wheelRadiusMeters;
   }
 
   /**
