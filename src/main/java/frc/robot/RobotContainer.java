@@ -17,6 +17,7 @@ import frc.robot.oi.OverrideOI;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveIO;
 import frc.robot.subsystems.drive.DriveIOSparkMAX;
+import frc.robot.subsystems.drive.DriveIOTalonSRX;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -46,6 +47,9 @@ public class RobotContainer {
       switch (Constants.getRobot()) {
         case ROBOT_2020:
           drive = new Drive(new DriveIOSparkMAX());
+          break;
+        case ROBOT_KITBOT:
+          drive = new Drive(new DriveIOTalonSRX());
           break;
         default:
           drive = new Drive(new DriveIO() {});
