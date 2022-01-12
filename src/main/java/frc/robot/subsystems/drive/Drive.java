@@ -10,6 +10,7 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.commands.SysIdCommand.DriveTrainSysIdData;
@@ -17,6 +18,9 @@ import frc.robot.subsystems.drive.DriveIO.DriveIOInputs;
 import frc.robot.util.TunableNumber;
 
 public class Drive extends SubsystemBase {
+  private static final double maxCoastVelocityMetersPerSec = 0.05; // Need to be under this to
+                                                                   // switch to coast when disabling
+
   private final double wheelRadiusMeters;
   private final double maxVelocityMetersPerSec;
   private final SimpleMotorFeedforward leftModel, rightModel;
@@ -27,12 +31,13 @@ public class Drive extends SubsystemBase {
   private final DriveIOInputs inputs = new DriveIOInputs();
 
   private Supplier<Boolean> disableOverride = () -> false;
-  private Supplier<Boolean> openLoopOverride = () -> false;;
+  private Supplier<Boolean> openLoopOverride = () -> false;
+
+  private boolean brakeMode = false;
 
   /** Creates a new DriveTrain. */
   public Drive(DriveIO io) {
     this.io = io;
-
     switch (Constants.getRobot()) {
       case ROBOT_2020:
         maxVelocityMetersPerSec = Units.inchesToMeters(150.0);
@@ -50,8 +55,9 @@ public class Drive extends SubsystemBase {
         kP.setDefault(0);
         kD.setDefault(0);
         break;
-
     }
+
+    io.setBrakeMode(false);
   }
 
   /** Set boolean supplier for the override switches. */
@@ -66,6 +72,22 @@ public class Drive extends SubsystemBase {
     // This method will be called once per scheduler run
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Drive", inputs);
+
+    if (DriverStation.isEnabled()) {
+      if (!brakeMode) {
+        brakeMode = true;
+        io.setBrakeMode(true);
+      }
+    } else {
+      if (brakeMode
+          && Math
+              .abs(getLeftVelocityMetersPerSec()) < maxCoastVelocityMetersPerSec
+          && Math.abs(
+              getRightVelocityMetersPerSec()) < maxCoastVelocityMetersPerSec) {
+        brakeMode = false;
+        io.setBrakeMode(false);
+      }
+    }
 
     if (kP.hasChanged() | kD.hasChanged()) {
       io.configurePID(kP.get(), 0, kD.get());
@@ -130,6 +152,16 @@ public class Drive extends SubsystemBase {
    */
   public void stop() {
     drivePercent(0, 0);
+  }
+
+  /** Return left velocity in meters per second. */
+  private double getLeftVelocityMetersPerSec() {
+    return inputs.leftVelocityRadPerSec * wheelRadiusMeters;
+  }
+
+  /** Return right velocity in meters per second. */
+  private double getRightVelocityMetersPerSec() {
+    return inputs.rightVelocityRadPerSec * wheelRadiusMeters;
   }
 
   /**

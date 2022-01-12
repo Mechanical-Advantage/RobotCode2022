@@ -67,8 +67,6 @@ public class DriveIOSparkMAX implements DriveIO {
     rightLeader.setSmartCurrentLimit(80);
     rightFollower.setSmartCurrentLimit(80);
 
-    setBrakeMode(false);
-
     if (Constants.burnMotorControllerFlash) {
       leftLeader.burnFlash();
       leftFollower.burnFlash();
