@@ -159,8 +159,9 @@ gradle-app.setting
 .settings/
 bin/
 
-# Simulation GUI and other tools window save file
+# Simulation GUI and other tools window save files
 *-window.json
+simgui*.json
 
 # Version file
 src/main/java/frc/robot/BuildConstants.java
