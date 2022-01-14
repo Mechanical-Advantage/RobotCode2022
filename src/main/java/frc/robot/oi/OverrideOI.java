@@ -4,8 +4,6 @@
 
 package frc.robot.oi;
 
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.wpilibj.Joystick;
 
 /** Class for the override switches on the OI console. */
