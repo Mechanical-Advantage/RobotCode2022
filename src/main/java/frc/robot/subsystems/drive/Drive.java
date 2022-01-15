@@ -39,6 +39,8 @@ public class Drive extends SubsystemBase {
 
   private final DifferentialDriveOdometry odometry =
       new DifferentialDriveOdometry(new Rotation2d());
+  private double baseDistanceLeftRad = 0.0;
+  private double baseDistanceRightRad = 0.0;
   private boolean brakeMode = false;
 
   /** Creates a new DriveTrain. */
@@ -63,6 +65,15 @@ public class Drive extends SubsystemBase {
         kP.setDefault(2);
         kD.setDefault(40);
         break;
+      case ROBOT_SIMBOT:
+        maxVelocityMetersPerSec = 4.0;
+        wheelRadiusMeters = Units.inchesToMeters(3.0);
+        trackWidthMeters = 0.354426;
+        leftModel = new SimpleMotorFeedforward(0.0, 0.22643, 0.018292);
+        rightModel = new SimpleMotorFeedforward(0.0, 0.22643, 0.018292);
+        kP.setDefault(0.4);
+        kD.setDefault(0.0);
+        break;
       default:
         maxVelocityMetersPerSec = 0;
         wheelRadiusMeters = Double.POSITIVE_INFINITY;
@@ -75,6 +86,7 @@ public class Drive extends SubsystemBase {
     }
 
     io.setBrakeMode(false);
+    io.resetPosition(0.0, 0.0);
   }
 
   /** Set boolean supplier for the override switches. */
@@ -92,8 +104,8 @@ public class Drive extends SubsystemBase {
 
     // Update odometry
     odometry.update(new Rotation2d(inputs.gyroPositionRad * -1),
-        inputs.leftPositionRad * wheelRadiusMeters,
-        inputs.rightPositionRad * wheelRadiusMeters);
+        (inputs.leftPositionRad - baseDistanceLeftRad) * wheelRadiusMeters,
+        (inputs.rightPositionRad - baseDistanceRightRad) * wheelRadiusMeters);
     Logger.getInstance().recordOutput("Odometry/Robot",
         new double[] {odometry.getPoseMeters().getX(),
             odometry.getPoseMeters().getY(),
@@ -194,7 +206,8 @@ public class Drive extends SubsystemBase {
 
   /** Resets the current odometry pose. */
   public void setPose(Pose2d pose) {
-    io.resetPosition(0, 0);
+    baseDistanceLeftRad = inputs.leftPositionRad;
+    baseDistanceRightRad = inputs.rightPositionRad;
     odometry.resetPosition(pose, new Rotation2d(inputs.gyroPositionRad * -1));
   }
 

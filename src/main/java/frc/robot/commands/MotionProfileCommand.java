@@ -65,6 +65,11 @@ public class MotionProfileCommand extends CommandBase {
         maxAccelerationMetersPerSec2 = Units.inchesToMeters(100.0);
         maxCentripetalAccelerationMetersPerSec2 = Units.inchesToMeters(100.0);
         break;
+      case ROBOT_SIMBOT:
+        maxVelocityMetersPerSec = 3.0;
+        maxAccelerationMetersPerSec2 = 3.0;
+        maxCentripetalAccelerationMetersPerSec2 = 3.0;
+        break;
       default:
         maxVelocityMetersPerSec = 0.0;
         maxAccelerationMetersPerSec2 = 0.0;
