@@ -4,14 +4,15 @@
 
 package frc.robot;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.Mode;
@@ -25,6 +26,7 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveIO;
 import frc.robot.subsystems.drive.DriveIOSparkMAX;
 import frc.robot.subsystems.drive.DriveIOTalonSRX;
+import frc.robot.util.LoggedChoosers;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -41,11 +43,12 @@ public class RobotContainer {
   private OverrideOI overrideOI = new OverrideOI();
   private HandheldOI handheldOI = new HandheldOI() {};
 
-  // Dashboard choosers
-  private final SendableChooser<Pose2d> autoPositionChooser =
-      new SendableChooser<Pose2d>();
-  private final SendableChooser<Command> autoRoutineChooser =
-      new SendableChooser<Command>();
+  // Choosers
+  private final LoggedChoosers choosers = new LoggedChoosers();
+  private final Map<String, Pose2d> autoPositionMap =
+      new HashMap<String, Pose2d>();
+  private final Map<String, Command> autoRoutineMap =
+      new HashMap<String, Command>();
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -71,35 +74,35 @@ public class RobotContainer {
     drive.setOverrides(() -> overrideOI.getDriveDisable(),
         () -> overrideOI.getOpenLoop());
     drive.setDefaultCommand(new DriveWithJoysticks(drive,
-        () -> handheldOI.getLeftDriveX(), () -> handheldOI.getLeftDriveY(),
-        () -> handheldOI.getRightDriveX(), () -> handheldOI.getRightDriveY()));
+        () -> choosers.getJoystickMode(), () -> handheldOI.getLeftDriveX(),
+        () -> handheldOI.getLeftDriveY(), () -> handheldOI.getRightDriveX(),
+        () -> handheldOI.getRightDriveY()));
 
-    // Set up auto choosers
+    // Set up auto positions
     Transform2d autoPositionTransformLeft = new Transform2d(
         new Translation2d(-0.5, FieldConstants.tarmacMissingSideLength / 2),
         Rotation2d.fromDegrees(180));
     Transform2d autoPositionTransformRight = new Transform2d(
         new Translation2d(-0.5, -FieldConstants.tarmacMissingSideLength / 2),
         Rotation2d.fromDegrees(180));
-    autoPositionChooser.setDefaultOption("Origin", new Pose2d());
-    autoPositionChooser.addOption("Tarmac A",
+    autoPositionMap.put("Origin", new Pose2d());
+    autoPositionMap.put("Tarmac A",
         FieldConstants.referenceA.transformBy(autoPositionTransformLeft));
-    autoPositionChooser.addOption("Tarmac B",
+    autoPositionMap.put("Tarmac B",
         FieldConstants.referenceB.transformBy(autoPositionTransformRight));
-    autoPositionChooser.addOption("Tarmac C",
+    autoPositionMap.put("Tarmac C",
         FieldConstants.referenceC.transformBy(autoPositionTransformLeft));
-    autoPositionChooser.addOption("Tarmac D",
+    autoPositionMap.put("Tarmac D",
         FieldConstants.referenceD.transformBy(autoPositionTransformRight));
-    SmartDashboard.putData("Auto Position", autoPositionChooser);
 
-    autoRoutineChooser.setDefaultOption("Do Nothing", null);
-    autoRoutineChooser.addOption("Test Motion Profile",
+    // Set up auto routines
+    autoRoutineMap.put("Do Nothing", null);
+    autoRoutineMap.put("Test Motion Profile",
         new MotionProfileCommand(drive, 0.0,
-            List.of(new Pose2d(), new Pose2d(5.0, 2.0, new Rotation2d())), 0.0,
+            List.of(new Pose2d(), new Pose2d(3.0, 1.0, new Rotation2d())), 0.0,
             false));
-    autoRoutineChooser.addOption("Run SysId (Drive)",
+    autoRoutineMap.put("Run SysId (Drive)",
         new SysIdCommand(drive, drive::driveVoltage, drive::getSysIdData));
-    SmartDashboard.putData("Auto Routine", autoRoutineChooser);
 
     // Instantiate OI classes and bind buttons
     updateOI();
@@ -129,7 +132,21 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    drive.setPose(autoPositionChooser.getSelected());
-    return autoRoutineChooser.getSelected();
+    String positionString = choosers.getAutoPosition();
+    if (autoPositionMap.containsKey(positionString)) {
+      drive.setPose(autoPositionMap.get(positionString));
+    } else {
+      DriverStation.reportError(
+          "Unknown auto position: '" + positionString + "'", false);
+    }
+
+    String routineString = choosers.getAutoRoutine();
+    if (autoRoutineMap.containsKey(routineString)) {
+      return autoRoutineMap.get(routineString);
+    } else {
+      DriverStation.reportError("Unknown auto routine: '" + routineString + "'",
+          false);
+      return null;
+    }
   }
 }

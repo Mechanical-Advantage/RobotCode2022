@@ -9,8 +9,6 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.drive.Drive;
 
@@ -19,31 +17,23 @@ public class DriveWithJoysticks extends CommandBase {
   private static final double curvatureThreshold = 0.15; // Where to transition to full curvature
   private static final double curvatureArcadeTurnScale = 0.5; // Arcade turning scale factor
   private final Drive drive;
+  private final Supplier<String> modeSupplier;
   private final Supplier<Double> leftXSupplier;
   private final Supplier<Double> leftYSupplier;
   private final Supplier<Double> rightXSupplier;
   private final Supplier<Double> rightYSupplier;
 
-  private final SendableChooser<JoystickMode> modeChooser =
-      new SendableChooser<JoystickMode>();
-
   /** Creates a new DriveWithJoysticks. */
-  public DriveWithJoysticks(Drive drive, Supplier<Double> leftXSupplier,
-
-      Supplier<Double> leftYSupplier, Supplier<Double> rightXSupplier,
-
-      Supplier<Double> rightYSupplier) {
+  public DriveWithJoysticks(Drive drive, Supplier<String> modeSupplier,
+      Supplier<Double> leftXSupplier, Supplier<Double> leftYSupplier,
+      Supplier<Double> rightXSupplier, Supplier<Double> rightYSupplier) {
     addRequirements(drive);
     this.drive = drive;
+    this.modeSupplier = modeSupplier;
     this.leftXSupplier = leftXSupplier;
     this.leftYSupplier = leftYSupplier;
     this.rightXSupplier = rightXSupplier;
     this.rightYSupplier = rightYSupplier;
-
-    modeChooser.setDefaultOption("Curvature", JoystickMode.CURVATURE);
-    modeChooser.addOption("Split Arcade", JoystickMode.SPLIT_ARCADE);
-    modeChooser.addOption("Tank", JoystickMode.TANK);
-    SmartDashboard.putData("Joystick Mode", modeChooser);
   }
 
   // Called when the command is initially scheduled.
@@ -69,16 +59,16 @@ public class DriveWithJoysticks extends CommandBase {
     double rightYValue = processAxis(rightYSupplier.get());
 
     WheelSpeeds speeds = new WheelSpeeds(0.0, 0.0);
-    switch (modeChooser.getSelected()) {
-      case TANK:
+    switch (modeSupplier.get()) {
+      case "Tank":
         speeds = new WheelSpeeds(leftYValue, rightYValue);
         break;
 
-      case SPLIT_ARCADE:
+      case "Split Arcade":
         speeds = WheelSpeeds.fromArcade(leftYValue, rightXValue);
         break;
 
-      case CURVATURE:
+      case "Curvature":
         WheelSpeeds arcadeSpeeds = WheelSpeeds.fromArcade(leftYValue,
             rightXValue * curvatureArcadeTurnScale);
         WheelSpeeds curvatureSpeeds =
@@ -133,9 +123,5 @@ public class DriveWithJoysticks extends CommandBase {
       turnSpeed = Math.abs(baseSpeed) * turnSpeed;
       return new WheelSpeeds(baseSpeed + turnSpeed, baseSpeed - turnSpeed);
     }
-  }
-
-  private static enum JoystickMode {
-    CURVATURE, SPLIT_ARCADE, TANK
   }
 }

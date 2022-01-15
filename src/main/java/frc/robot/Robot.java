@@ -6,6 +6,7 @@ package frc.robot;
 
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.inputs.LoggedNetworkTables;
 import org.littletonrobotics.junction.io.ByteLogReceiver;
 import org.littletonrobotics.junction.io.ByteLogReplay;
 import org.littletonrobotics.junction.io.LogSocketServer;
@@ -36,6 +37,8 @@ public class Robot extends LoggedRobot {
   public void robotInit() {
     Logger logger = Logger.getInstance();
     setUseTiming(Constants.getMode() != Mode.REPLAY);
+    LoggedNetworkTables.getInstance()
+        .addTable("/SmartDashboard/TunableNumbers");
     logger.recordMetadata("Robot", Constants.getRobot().toString());
     logger.recordMetadata("TuningMode", Boolean.toString(Constants.tuningMode));
     logger.recordMetadata("RuntimeType", getRuntimeType().toString());

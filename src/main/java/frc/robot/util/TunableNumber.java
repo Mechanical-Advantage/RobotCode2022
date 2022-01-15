@@ -8,6 +8,8 @@ import frc.robot.Constants;
  * value not in dashboard.
  */
 public class TunableNumber {
+  private static final String tableKey = "TunableNumbers";
+
   private String key;
   private double defaultValue;
   private double lastHasChangedValue = defaultValue;
@@ -18,7 +20,7 @@ public class TunableNumber {
    * @param dashboardKey Key on dashboard
    */
   public TunableNumber(String dashboardKey) {
-    this.key = dashboardKey;
+    this.key = tableKey + "/" + dashboardKey;
   }
 
   /**
