@@ -22,6 +22,7 @@ import frc.robot.commands.SysIdCommand;
 import frc.robot.oi.HandheldOI;
 import frc.robot.oi.OISelector;
 import frc.robot.oi.OverrideOI;
+import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveIO;
 import frc.robot.subsystems.drive.DriveIOSim;
@@ -39,6 +40,7 @@ public class RobotContainer {
 
   // Subsystems
   private final Drive drive;
+  private final Vision vision = new Vision();
 
   // OI objects
   private OverrideOI overrideOI = new OverrideOI();
@@ -81,6 +83,7 @@ public class RobotContainer {
         () -> choosers.getJoystickMode(), () -> handheldOI.getLeftDriveX(),
         () -> handheldOI.getLeftDriveY(), () -> handheldOI.getRightDriveX(),
         () -> handheldOI.getRightDriveY()));
+    vision.setRotationSupplier(drive::getRotation);
 
     // Set up auto positions
     Transform2d autoPositionTransformLeft = new Transform2d(
