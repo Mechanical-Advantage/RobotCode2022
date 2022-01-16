@@ -22,8 +22,10 @@ public final class FieldConstants {
   // Vision target
   public static final double visionTargetDiameter =
       Units.inchesToMeters(4.0 * 12.0 + 5.375);
-  public static final double visionTargetHeight =
-      Units.inchesToMeters(8.0 * 12.0 + 7.0); // Center of tape
+  public static final double visionTargetHeightLower =
+      Units.inchesToMeters(8.0 * 12 + 5.625); // Bottom of tape
+  public static final double visionTargetHeightUpper =
+      visionTargetHeightLower + Units.inchesToMeters(2.0); // Top of tape
 
   // Dimensions of hub and tarmac
   public static final Rotation2d centerLineAngle = Rotation2d.fromDegrees(66.0);
