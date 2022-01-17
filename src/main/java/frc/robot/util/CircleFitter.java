@@ -62,7 +62,7 @@ public class CircleFitter {
       Translation2d center) {
     double residual = 0.0;
     for (Translation2d point : points) {
-      double diff = point.minus(center).getNorm() - radius;
+      double diff = point.getDistance(center) - radius;
       residual += diff * diff;
     }
     return residual;
