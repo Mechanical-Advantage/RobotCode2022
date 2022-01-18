@@ -17,6 +17,7 @@ import org.photonvision.targeting.TargetCorner;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FieldConstants;
@@ -32,7 +33,7 @@ public class Vision extends SubsystemBase {
   private static final int minTargetCount = 2; // For calculating odometry
   private static final double targetGraceSecs = 0.5;
   private static final double blinkPeriodSecs = 3.0;
-  private static final double blinkLengthSecs = 0.2;
+  private static final double blinkLengthSecs = 0.5;
 
   // FOV constants
   private static final double vpw = 2.0 * Math.tan(Math.toRadians(59.6 / 2.0));
@@ -93,6 +94,8 @@ public class Vision extends SubsystemBase {
       case AUTO:
         if (forceLeds) {
           ledsOn = true;
+        } else if (DriverStation.isDisabled()) {
+          ledsOn = false;
         } else {
           ledsOn = idleOn;
         }
@@ -130,7 +133,7 @@ public class Vision extends SubsystemBase {
         }
       }
 
-      if (cameraToTargetTranslations.size() > minTargetCount * 4) {
+      if (cameraToTargetTranslations.size() >= minTargetCount * 4) {
         Translation2d cameraToTargetTranslation =
             CircleFitter.fit(FieldConstants.visionTargetDiameter / 2.0,
                 cameraToTargetTranslations, circleFitPrecision);
