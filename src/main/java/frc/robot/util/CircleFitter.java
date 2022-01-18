@@ -22,10 +22,8 @@ public class CircleFitter {
 
     // Iterate to find optimal center
     double shiftDist = radius / 2.0;
-    int iterations = 0;
     double minResidual = calcResidual(radius, points, center);
     while (true) {
-      iterations++;
       List<Translation2d> translations = List.of(
           new Translation2d(shiftDist, 0.0), new Translation2d(-shiftDist, 0.0),
           new Translation2d(0.0, shiftDist),
@@ -49,7 +47,6 @@ public class CircleFitter {
       if (centerIsBest) {
         shiftDist /= 2.0;
         if (shiftDist < precision) {
-          System.out.println(iterations);
           return center;
         }
       } else {
