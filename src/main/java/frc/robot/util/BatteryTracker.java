@@ -14,7 +14,18 @@ import frc.robot.Constants.Mode;
 import frc.robot.Constants.Robot;
 
 public class BatteryTracker extends SubsystemBase {
-  private static final List<Robot> supportedRobots = List.of(Robot.ROBOT_2022C);
+  private static BatteryTracker instance = null;
+
+  private BatteryTracker() {}
+
+  public static BatteryTracker getInstance() {
+    if (instance == null) {
+      instance = new BatteryTracker();
+    }
+    return instance;
+  }
+
+  private static final List<Robot> supportedRobots = List.of(Robot.ROBOT_KITBOT);
 
   private static final int nameLength = 12;
   private static final byte[] scanCommand = new byte[] {0x7e, 0x00, 0x08, 0x01,

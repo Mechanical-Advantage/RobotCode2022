@@ -53,7 +53,7 @@ public class RobotContainer {
       new HashMap<String, Command>();
 
   // Battery tracker
-  private final BatteryTracker batteryTracker = new BatteryTracker();
+  private final BatteryTracker batteryTracker = BatteryTracker.getInstance();
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
