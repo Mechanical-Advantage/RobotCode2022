@@ -20,7 +20,7 @@ public class PneumaticLauncher extends SubsystemBase {
   public PneumaticLauncher() {
     SmartDashboard.putNumber("LauncherLengthMs", 20.0);
     for (Integer channel : solenoidChannels) {
-      solenoids.add(new Solenoid(PneumaticsModuleType.REVPH, channel));
+      solenoids.add(new Solenoid(PneumaticsModuleType.CTREPCM, channel));
     }
   }
 
