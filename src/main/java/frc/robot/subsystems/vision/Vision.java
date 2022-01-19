@@ -125,7 +125,7 @@ public class Vision extends SubsystemBase {
 
         for (int i = 0; i < 4; i++) {
           Translation2d translation = solveCameraToTargetTranslation(
-              corners.get(0), i < 2 ? FieldConstants.visionTargetHeightUpper
+              corners.get(i), i < 2 ? FieldConstants.visionTargetHeightUpper
                   : FieldConstants.visionTargetHeightLower);
           if (translation != null) {
             cameraToTargetTranslations.add(translation);
