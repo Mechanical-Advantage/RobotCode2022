@@ -5,6 +5,7 @@
 package frc.robot.oi;
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /** Class for controlling the robot with a single Xbox controller. */
 public class SingleHandheldOI implements HandheldOI {
@@ -32,5 +33,15 @@ public class SingleHandheldOI implements HandheldOI {
   @Override
   public double getRightDriveY() {
     return controller.getRightY() * -1;
+  }
+
+  @Override
+  public Trigger getLauncherHold() {
+    return new Trigger(controller::getLeftBumper);
+  }
+
+  @Override
+  public Trigger getLauncherPulse() {
+    return new Trigger(controller::getRightBumper);
   }
 }

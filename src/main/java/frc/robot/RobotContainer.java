@@ -15,6 +15,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import frc.robot.Constants.Mode;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.MotionProfileCommand;
@@ -22,6 +24,7 @@ import frc.robot.commands.SysIdCommand;
 import frc.robot.oi.HandheldOI;
 import frc.robot.oi.OISelector;
 import frc.robot.oi.OverrideOI;
+import frc.robot.subsystems.PneumaticLauncher;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveIO;
 import frc.robot.subsystems.drive.DriveIOSim;
@@ -39,6 +42,7 @@ public class RobotContainer {
 
   // Subsystems
   private final Drive drive;
+  private final PneumaticLauncher launcher = new PneumaticLauncher();
 
   // OI objects
   private OverrideOI overrideOI = new OverrideOI();
@@ -126,8 +130,11 @@ public class RobotContainer {
     handheldOI = OISelector.findHandheldOI();
 
     // Bind new buttons
-    // handheldOI.getAutoAimButton()
-    // .whenActive(new PrintCommand("Activating the auto aim!"));
+    handheldOI.getLauncherHold().whileActiveContinuous(
+        new StartEndCommand(() -> launcher.setExtended(true),
+            () -> launcher.setExtended(false), launcher));
+    handheldOI.getLauncherPulse()
+        .whenActive(new InstantCommand(launcher::runPulse, launcher));
   }
 
   /**

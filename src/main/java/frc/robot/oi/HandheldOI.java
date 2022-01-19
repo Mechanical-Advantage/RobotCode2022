@@ -4,6 +4,8 @@
 
 package frc.robot.oi;
 
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+
 /**
  * Interface for all driver and operator controls (either single or dual Xbox).
  */
@@ -23,5 +25,13 @@ public interface HandheldOI {
 
   public default double getRightDriveY() {
     return 0.0;
+  }
+
+  public default Trigger getLauncherHold() {
+    return new Trigger();
+  }
+
+  public default Trigger getLauncherPulse() {
+    return new Trigger();
   }
 }
