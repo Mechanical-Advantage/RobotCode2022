@@ -4,7 +4,6 @@
   "version": "2022.1.1",
   "uuid": "2854af28-a682-4c3e-abe5-1f62c288c6b8",
   "mavenUrls": [],
-  "jsonUrl": "https://raw.githubusercontent.com/wpilibsuite/romi-vendordep/main/RomiVendordep.json",
   "javaDependencies": [
     {
       "groupId": "edu.wpi.first.romi",
