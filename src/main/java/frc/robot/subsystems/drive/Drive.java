@@ -9,12 +9,19 @@ import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.MatBuilder;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.numbers.N5;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
@@ -36,6 +43,21 @@ public class Drive extends SubsystemBase {
   private static final double maxNoVisionLog = 0.1; // How long to wait with no vision data before
                                                     // clearing log visualization
 
+
+  // Kalman filter standard deviations (meters and radians):
+  // - stateStdDevs = [x, y, theta, left encoder, right encoder]
+  // - localMeasurementStdDevs = [left encoder, right encoder, theta]
+  // - visionMeasurementStdDevs = [x, y, theta]
+  // ---- x and y standard deviations are calculated as base + (gyro velocity * gain)
+
+  private static final Matrix<N5, N1> stateStdDevs =
+      new MatBuilder<>(Nat.N5(), Nat.N1()).fill(0.02, 0.02, 0.01, 0.02, 0.02);
+  private static final Matrix<N3, N1> localMeasurementStdDevs =
+      new MatBuilder<>(Nat.N3(), Nat.N1()).fill(0.02, 0.02, 0.01);
+  private static final double visionMeasurementStdDevTheta = 0.01;
+  private static final double visionMeasurementStdDevPositionBase = 0.01;
+  private static final double visionMeasurementStdDevPositionGain = 2.0;
+
   private final double wheelRadiusMeters;
   private final double maxVelocityMetersPerSec;
   private final double trackWidthMeters;
@@ -49,8 +71,14 @@ public class Drive extends SubsystemBase {
   private Supplier<Boolean> disableOverride = () -> false;
   private Supplier<Boolean> openLoopOverride = () -> false;
 
-  private final DifferentialDriveOdometry odometry =
-      new DifferentialDriveOdometry(new Rotation2d());
+  private final DifferentialDrivePoseEstimator odometry =
+      new DifferentialDrivePoseEstimator(new Rotation2d(), new Pose2d(),
+          stateStdDevs, localMeasurementStdDevs,
+          new MatBuilder<>(Nat.N3(), Nat.N1()).fill(
+              visionMeasurementStdDevPositionBase,
+              visionMeasurementStdDevPositionBase,
+              visionMeasurementStdDevTheta),
+          Constants.loopPeriodSecs);
   private final PoseHistory poseHistory = new PoseHistory(500);
   private final Timer noVisionTimer = new Timer(); // Time since last vision update
   private Pose2d lastVisionPose = new Pose2d();
@@ -119,16 +147,23 @@ public class Drive extends SubsystemBase {
     Logger.getInstance().processInputs("Drive", inputs);
 
     // Update odometry
-    odometry.update(new Rotation2d(inputs.gyroPositionRad * -1),
+    odometry.updateWithTime(Timer.getFPGATimestamp(),
+        new Rotation2d(inputs.gyroPositionRad * -1),
+        new DifferentialDriveWheelSpeeds(
+            inputs.leftVelocityRadPerSec * wheelRadiusMeters,
+            inputs.rightVelocityRadPerSec * wheelRadiusMeters),
         (inputs.leftPositionRad - baseDistanceLeftRad) * wheelRadiusMeters,
         (inputs.rightPositionRad - baseDistanceRightRad) * wheelRadiusMeters);
-    poseHistory.insert(Timer.getFPGATimestamp(), odometry.getPoseMeters());
 
-    // Log odometry positions
+
+    // Log robot pose
+    Pose2d robotPose = odometry.getEstimatedPosition();
+    poseHistory.insert(Timer.getFPGATimestamp(), robotPose);
     Logger.getInstance().recordOutput("Odometry/Robot",
-        new double[] {odometry.getPoseMeters().getX(),
-            odometry.getPoseMeters().getY(),
-            odometry.getPoseMeters().getRotation().getRadians()});
+        new double[] {robotPose.getX(), robotPose.getY(),
+            robotPose.getRotation().getRadians()});
+
+    // Log vision pose
     if (noVisionTimer.get() < maxNoVisionLog) {
       Logger.getInstance().recordOutput("Odometry/VisionPose",
           new double[] {lastVisionPose.getX(), lastVisionPose.getY(),
@@ -221,12 +256,12 @@ public class Drive extends SubsystemBase {
 
   /** Returns the current odometry pose */
   public Pose2d getPose() {
-    return odometry.getPoseMeters();
+    return odometry.getEstimatedPosition();
   }
 
   /** Returns the current rotation according to odometry */
   public Rotation2d getRotation() {
-    return odometry.getPoseMeters().getRotation();
+    return odometry.getEstimatedPosition().getRotation();
   }
 
   /** Resets the current odometry pose. */
@@ -252,6 +287,12 @@ public class Drive extends SubsystemBase {
 
       noVisionTimer.reset();
       lastVisionPose = fieldToVehicle;
+      double visionMeasurementStdDev = visionMeasurementStdDevPositionBase
+          + (Math.abs(inputs.gyroVelocityRadPerSec)
+              * visionMeasurementStdDevPositionGain);
+      odometry.addVisionMeasurement(fieldToVehicle, data.timestamp,
+          new MatBuilder<>(Nat.N3(), Nat.N1()).fill(visionMeasurementStdDev,
+              visionMeasurementStdDev, visionMeasurementStdDevTheta));
     }
   }
 
