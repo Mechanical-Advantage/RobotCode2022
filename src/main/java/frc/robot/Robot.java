@@ -14,6 +14,7 @@ import org.littletonrobotics.junction.io.LogSocketServer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.Mode;
+import frc.robot.util.BatteryTracker;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -40,6 +41,7 @@ public class Robot extends LoggedRobot {
     LoggedNetworkTables.getInstance()
         .addTable("/SmartDashboard/TunableNumbers");
     logger.recordMetadata("Robot", Constants.getRobot().toString());
+    logger.recordMetadata("BatteryName", BatteryTracker.scanBattery(1.0));
     logger.recordMetadata("TuningMode", Boolean.toString(Constants.tuningMode));
     logger.recordMetadata("RuntimeType", getRuntimeType().toString());
     logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);

@@ -3,29 +3,13 @@ package frc.robot.util;
 import java.util.Arrays;
 import java.util.List;
 
-import org.littletonrobotics.junction.LogTable;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
-
 import edu.wpi.first.wpilibj.SerialPort;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.Constants.Robot;
 
-public class BatteryTracker extends SubsystemBase {
-  private static BatteryTracker instance = null;
-
-  private BatteryTracker() {}
-
-  public static BatteryTracker getInstance() {
-    if (instance == null) {
-      instance = new BatteryTracker();
-    }
-    return instance;
-  }
-
-  private static final List<Robot> supportedRobots = List.of(Robot.ROBOT_KITBOT);
+public class BatteryTracker {
+  private static final List<Robot> supportedRobots = List.of();
 
   private static final int nameLength = 12;
   private static final byte[] scanCommand = new byte[] {0x7e, 0x00, 0x08, 0x01,
@@ -36,28 +20,16 @@ public class BatteryTracker extends SubsystemBase {
   private static final int fullResponseLength =
       responsePrefix.length + nameLength + 1;
 
-  private static class BatteryInfo implements LoggableInputs {
-    public String name = "BAT-0000-000";
-
-    @Override
-    public void toLog(LogTable table) {
-      table.put("Name", name);
-    }
-
-    @Override
-    public void fromLog(LogTable table) {
-      name = table.getString("Name", name);
-    }
-  }
-
-  private final BatteryInfo data = new BatteryInfo();
+  public static String name = "BAT-0000-000";
 
   /**
    * Scans the battery. This should be called before the first loop cycle
    * 
    * @param timeout The time to wait before giving up
    */
-  public void scanBattery(double timeout) {
+  public static String scanBattery(double timeout) {
+    System.out.println(Constants.getMode());
+    System.out.println(Constants.getRobot());
     if (Constants.getMode() == Mode.REAL) {
       if (supportedRobots.contains(Constants.getRobot())) {
         // Only scan on supported robots and in real mode
@@ -74,7 +46,7 @@ public class BatteryTracker extends SubsystemBase {
           if (response.length != fullResponseLength) {
             System.out.println("[BatteryTracker] Expected " + fullResponseLength
                 + " bytes from scanner, got " + response.length);
-            return;
+            return name;
           }
 
           // Ensure response starts with prefix
@@ -84,7 +56,7 @@ public class BatteryTracker extends SubsystemBase {
                   "[BatteryTracker] Invalid prefix from scanner.  Got data:");
               System.out
                   .println("[BatteryTracker] " + Arrays.toString(response));
-              return;
+              return name;
             }
           }
 
@@ -99,8 +71,8 @@ public class BatteryTracker extends SubsystemBase {
           byte[] batteryNameBytes = new byte[nameLength];
           System.arraycopy(response, responsePrefix.length, batteryNameBytes, 0,
               nameLength);
-          data.name = new String(batteryNameBytes);
-          System.out.println("[BatteryTracker] Scanned battery " + data.name);
+          name = new String(batteryNameBytes);
+          System.out.println("[BatteryTracker] Scanned battery " + name);
 
 
         } catch (Exception e) {
@@ -110,21 +82,8 @@ public class BatteryTracker extends SubsystemBase {
         }
       }
     }
-  }
 
-  @Override
-  public void periodic() {
-    Logger.getInstance().processInputs("BatteryInfo", data);
-  }
-
-  /**
-   * Returns the name of the detected battery, or BAT-0000-000 if no battery was detected. The
-   * format is BAT-YEAR-NUM, where NUM starts at 001.
-   * 
-   * @return
-   */
-  public String getBatteryName() {
-    return data.name;
+    return name;
   }
 
 }

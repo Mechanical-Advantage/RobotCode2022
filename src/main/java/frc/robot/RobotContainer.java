@@ -27,7 +27,6 @@ import frc.robot.subsystems.drive.DriveIO;
 import frc.robot.subsystems.drive.DriveIOSim;
 import frc.robot.subsystems.drive.DriveIOSparkMAX;
 import frc.robot.subsystems.drive.DriveIOTalonSRX;
-import frc.robot.util.BatteryTracker;
 import frc.robot.util.LoggedChoosers;
 
 /**
@@ -52,14 +51,8 @@ public class RobotContainer {
   private final Map<String, Command> autoRoutineMap =
       new HashMap<String, Command>();
 
-  // Battery tracker
-  private final BatteryTracker batteryTracker = BatteryTracker.getInstance();
-
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    // Look for battery for up to 1 second
-    batteryTracker.scanBattery(1.0);
-
     // Instantiate subsystems
     if (Constants.getMode() == Mode.REPLAY) {
       drive = new Drive(new DriveIO() {});
