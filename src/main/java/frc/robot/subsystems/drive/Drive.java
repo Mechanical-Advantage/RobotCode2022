@@ -36,8 +36,9 @@ public class Drive extends SubsystemBase {
       new Translation2d(Units.inchesToMeters(1.875), 0.0), new Rotation2d());
   private static final double maxNoVisionLog = 0.1; // How long to wait with no vision data before
                                                     // clearing log visualization
+  private static final double visionNominalFramerate = 45;
   private static final double visionShiftPerSec = 0.85; // After one second of vision data, what %
-                                                        // of pose average should be vision
+  // of pose average should be vision
   private static final double visionMaxAngularVelocity =
       Units.degreesToRadians(5.0); // Max angular velocity before vision data is rejected
 
@@ -275,16 +276,23 @@ public class Drive extends SubsystemBase {
           Math.abs(inputs.gyroVelocityRadPerSec) / visionMaxAngularVelocity;
       angularErrorScale = MathUtil.clamp(angularErrorScale, 0, 1);
       double visionShift =
-          1 - Math.pow((1 - visionShiftPerSec), Constants.loopPeriodSecs);
+          1 - Math.pow(1 - visionShiftPerSec, 1 / visionNominalFramerate);
       visionShift *= 1 - angularErrorScale;
 
       // Reset pose
       Pose2d currentFieldToTarget = getPose();
+      Translation2d fieldToVisionField = new Translation2d(
+          visionFieldToTarget.getX() - historicalFieldToTarget.get().getX(),
+          visionFieldToTarget.getY() - historicalFieldToTarget.get().getY());
+      Pose2d visionLatencyCompFieldToTarget =
+          new Pose2d(currentFieldToTarget.getX() + fieldToVisionField.getX(),
+              currentFieldToTarget.getY() + fieldToVisionField.getY(),
+              currentFieldToTarget.getRotation());
       setPose(new Pose2d(
           currentFieldToTarget.getX() * (1 - visionShift)
-              + visionFieldToTarget.getX() * visionShift,
+              + visionLatencyCompFieldToTarget.getX() * visionShift,
           currentFieldToTarget.getY() * (1 - visionShift)
-              + visionFieldToTarget.getY() * visionShift,
+              + visionLatencyCompFieldToTarget.getY() * visionShift,
           currentFieldToTarget.getRotation()));
     }
   }
