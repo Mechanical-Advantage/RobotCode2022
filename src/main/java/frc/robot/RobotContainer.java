@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import frc.robot.Constants.Mode;
 import frc.robot.commands.DriveWithJoysticks;
+import frc.robot.commands.LaunchPulse;
 import frc.robot.commands.MotionProfileCommand;
 import frc.robot.commands.SysIdCommand;
 import frc.robot.oi.HandheldOI;
@@ -133,8 +134,7 @@ public class RobotContainer {
     handheldOI.getLauncherHold().whileActiveContinuous(
         new StartEndCommand(() -> launcher.setExtended(true),
             () -> launcher.setExtended(false), launcher));
-    handheldOI.getLauncherPulse()
-        .whenActive(new InstantCommand(launcher::runPulse, launcher));
+    handheldOI.getLauncherPulse().whenActive(new LaunchPulse(launcher));
   }
 
   /**

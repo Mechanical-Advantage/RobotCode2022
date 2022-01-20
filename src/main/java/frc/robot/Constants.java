@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj.RobotBase;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-  private static final Robot robot = Robot.ROBOT_2020;
+  private static final Robot robot = Robot.ROBOT_KITBOT;
   public static final double loopPeriodSecs = 0.02;
   public static final boolean tuningMode = false;
   public static final boolean burnMotorControllerFlash = false;
