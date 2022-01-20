@@ -36,6 +36,10 @@ public class Drive extends SubsystemBase {
       new Translation2d(Units.inchesToMeters(1.875), 0.0), new Rotation2d());
   private static final double maxNoVisionLog = 0.1; // How long to wait with no vision data before
                                                     // clearing log visualization
+  private static final double visionShiftPerSec = 0.85; // After one second of vision data, what %
+                                                        // of pose average should be vision
+  private static final double visionMaxAngularVelocity =
+      Units.degreesToRadians(5.0); // Max angular velocity before vision data is rejected
 
   private final double wheelRadiusMeters;
   private final double maxVelocityMetersPerSec;
@@ -248,32 +252,40 @@ public class Drive extends SubsystemBase {
 
   /** Adds a new timestamped vision measurement */
   public void addVisionMeasurement(TimestampedTranslation2d data) {
-    Optional<Pose2d> robotPose = poseHistory.get(data.timestamp);
-    if (robotPose.isPresent()) {
-      Rotation2d robotRotation = robotPose.get().getRotation();
+    Optional<Pose2d> historicalFieldToTarget = poseHistory.get(data.timestamp);
+    if (historicalFieldToTarget.isPresent()) {
+
+      // Calculate new robot pose
+      Rotation2d robotRotation = historicalFieldToTarget.get().getRotation();
       Rotation2d cameraRotation =
           robotRotation.rotateBy(vehicleToCamera.getRotation());
       Transform2d fieldToTargetRotated =
           new Transform2d(FieldConstants.hubCenter, cameraRotation);
       Transform2d fieldToCamera = fieldToTargetRotated.plus(
           GeomUtil.transformFromTranslation(data.translation.unaryMinus()));
-      Pose2d fieldToVehicle = GeomUtil
+      Pose2d visionFieldToTarget = GeomUtil
           .transformToPose(fieldToCamera.plus(vehicleToCamera.inverse()));
 
+      // Save vision pose for logging
       noVisionTimer.reset();
-      lastVisionPose = fieldToVehicle;
+      lastVisionPose = visionFieldToTarget;
 
-      Pose2d oldFieldToVehicle = odometry.getPoseMeters();
-      double angularErrorScale = Math.abs(inputs.gyroVelocityRadPerSec) / 0.01;
+      // Calculate vision percent
+      double angularErrorScale =
+          Math.abs(inputs.gyroVelocityRadPerSec) / visionMaxAngularVelocity;
       angularErrorScale = MathUtil.clamp(angularErrorScale, 0, 1);
-      Logger.getInstance().recordOutput("Vision/AngularErrorScale",
-          angularErrorScale);
-      double visionPercent = 0.05 * (1 - angularErrorScale);
-      double newX = oldFieldToVehicle.getX() * (1 - visionPercent)
-          + fieldToVehicle.getX() * visionPercent;
-      double newY = oldFieldToVehicle.getY() * (1 - visionPercent)
-          + fieldToVehicle.getY() * visionPercent;
-      setPose(new Pose2d(newX, newY, oldFieldToVehicle.getRotation()));
+      double visionShift =
+          1 - Math.pow((1 - visionShiftPerSec), Constants.loopPeriodSecs);
+      visionShift *= 1 - angularErrorScale;
+
+      // Reset pose
+      Pose2d currentFieldToTarget = getPose();
+      setPose(new Pose2d(
+          currentFieldToTarget.getX() * (1 - visionShift)
+              + visionFieldToTarget.getX() * visionShift,
+          currentFieldToTarget.getY() * (1 - visionShift)
+              + visionFieldToTarget.getY() * visionShift,
+          currentFieldToTarget.getRotation()));
     }
   }
 
