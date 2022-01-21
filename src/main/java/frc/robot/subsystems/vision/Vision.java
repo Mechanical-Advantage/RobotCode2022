@@ -31,6 +31,7 @@ public class Vision extends SubsystemBase {
   private static final double lensHeightMeters = Units.inchesToMeters(18.25);
   private static final double circleFitPrecision = 0.01;
   private static final int minTargetCount = 2; // For calculating odometry
+  private static final double extraLatencySecs = 0.06; // Approximate camera + network latency
   private static final double targetGraceSecs = 0.5;
   private static final double blinkPeriodSecs = 3.0;
   private static final double blinkLengthSecs = 0.5;
@@ -138,7 +139,8 @@ public class Vision extends SubsystemBase {
             CircleFitter.fit(FieldConstants.visionTargetDiameter / 2.0,
                 cameraToTargetTranslations, circleFitPrecision);
         translationConsumer.accept(new TimestampedTranslation2d(
-            inputs.captureTimestamp, cameraToTargetTranslation));
+            inputs.captureTimestamp - extraLatencySecs,
+            cameraToTargetTranslation));
       }
     }
   }

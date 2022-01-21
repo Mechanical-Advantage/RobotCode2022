@@ -40,7 +40,7 @@ public class Drive extends SubsystemBase {
   private static final double visionShiftPerSec = 0.85; // After one second of vision data, what %
   // of pose average should be vision
   private static final double visionMaxAngularVelocity =
-      Units.degreesToRadians(5.0); // Max angular velocity before vision data is rejected
+      Units.degreesToRadians(8.0); // Max angular velocity before vision data is rejected
 
   private final double wheelRadiusMeters;
   private final double maxVelocityMetersPerSec;
