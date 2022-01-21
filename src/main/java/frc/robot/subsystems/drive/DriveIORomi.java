@@ -19,9 +19,15 @@ public class DriveIORomi implements DriveIO {
   private PIDController rightPID = new PIDController(0.0, 0.0, 0.0);
   private double leftFFVolts = 0.0;
   private double rightFFVolts = 0.0;
+  private double appliedVoltsLeft = 0.0;
+  private double appliedVoltsRight = 0.0;
 
 
-  public DriveIORomi() {}
+  public DriveIORomi() {
+    // Romi encoders have 1440 pulses per revolution
+    leftEncoder.setDistancePerPulse((2 * Math.PI) / 1440);
+    rightEncoder.setDistancePerPulse((2 * Math.PI) / 1440);
+  }
 
   @Override
   public void updateInputs(DriveIOInputs inputs) {
@@ -29,17 +35,22 @@ public class DriveIORomi implements DriveIO {
     inputs.gyroPositionRad = Math.toRadians(gyro.getAngleZ());
     inputs.rightPositionRad = (rightEncoder.getDistance() / 1440) * 2 * Math.PI;
     inputs.leftPositionRad = (leftEncoder.getDistance() / 1440) * 2 * Math.PI;
+    inputs.leftCurrentAmps = new double[] {};
+    inputs.rightCurrentAmps = new double[] {};
+    inputs.leftTempCelcius = new double[] {};
+    inputs.rightTempCelcius = new double[] {};
+    inputs.leftAppliedVolts = appliedVoltsLeft;
+    inputs.rightAppliedVolts = appliedVoltsRight;
     double leftVolts = leftPID.calculate(leftEncoder.getRate()) + leftFFVolts;
     double rightVolts =
         rightPID.calculate(rightEncoder.getRate()) + rightFFVolts;
     setVoltage(leftVolts, rightVolts);
-
-
   }
 
   @Override
   public void setVoltage(double leftVolts, double rightVolts) {
-
+    appliedVoltsRight = rightVolts;
+    appliedVoltsLeft = leftVolts;
     leftMotor.setVoltage(leftVolts);
     rightMotor.setVoltage(rightVolts);
 
