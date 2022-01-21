@@ -27,7 +27,7 @@ import frc.robot.util.CircleFitter;
 
 public class Vision extends SubsystemBase {
   private static final Rotation2d horizontalPlaneToLens =
-      Rotation2d.fromDegrees(30.0);
+      Rotation2d.fromDegrees(29.75);
   private static final double lensHeightMeters = Units.inchesToMeters(18.25);
   private static final double circleFitPrecision = 0.01;
   private static final int minTargetCount = 2; // For calculating odometry
