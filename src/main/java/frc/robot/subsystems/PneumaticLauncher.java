@@ -13,10 +13,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class PneumaticLauncher extends SubsystemBase {
   private final List<DoubleSolenoid> solenoids =
-      List.of(new DoubleSolenoid(1, PneumaticsModuleType.CTREPCM, 1, 0),
-          new DoubleSolenoid(1, PneumaticsModuleType.CTREPCM, 3, 2),
-          new DoubleSolenoid(1, PneumaticsModuleType.CTREPCM, 5, 4),
-          new DoubleSolenoid(1, PneumaticsModuleType.CTREPCM, 7, 6));
+      List.of(new DoubleSolenoid(1, PneumaticsModuleType.CTREPCM, 0, 1),
+          new DoubleSolenoid(1, PneumaticsModuleType.CTREPCM, 2, 3),
+          new DoubleSolenoid(1, PneumaticsModuleType.CTREPCM, 4, 5),
+          new DoubleSolenoid(1, PneumaticsModuleType.CTREPCM, 6, 7));
 
   /** Creates a new PneumaticLauncher. */
   public PneumaticLauncher() {
