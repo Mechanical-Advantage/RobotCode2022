@@ -225,11 +225,6 @@ public class Drive extends SubsystemBase {
     double rightVelocityRadPerSec =
         rightVelocityMetersPerSec / wheelRadiusMeters;
 
-    Logger.getInstance().recordOutput("Drive/LeftVelocitySepoint",
-        leftVelocityRadPerSec);
-    Logger.getInstance().recordOutput("Drive/RightVelocitySepoint",
-        rightVelocityRadPerSec);
-
     double leftFFVolts = leftModel.calculate(leftVelocityRadPerSec);
     double rightFFVolts = rightModel.calculate(rightVelocityRadPerSec);
 
