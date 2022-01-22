@@ -2,40 +2,39 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.flywheel;
+package frc.robot.subsystems.feeder;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.SparkMaxPIDController.ArbFFUnits;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 
-public class FlywheelIOSparkMAX implements FlywheelIO {
+public class FeederIOSparkMAX implements FeederIO {
   private boolean invert = false;
   private boolean invertFollower = false;
   private double gearRatio = 1.0;
 
-  private CANSparkMax leader;
-  private CANSparkMax follower;
-  private RelativeEncoder encoder;
-  private SparkMaxPIDController pid;
+  private final CANSparkMax leader;
+  private final CANSparkMax follower;
+  private final RelativeEncoder encoder;
+  private final DigitalInput cargoSensor;
 
-  public FlywheelIOSparkMAX() {
+  public FeederIOSparkMAX() {
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
         leader = new CANSparkMax(0, MotorType.kBrushless);
         follower = new CANSparkMax(1, MotorType.kBrushless);
+        cargoSensor = new DigitalInput(0);
         invert = false;
         invertFollower = false;
         gearRatio = 1.0;
         break;
       default:
-        throw new RuntimeException("Invalid robot for FlywheelIOSparkMax!");
+        throw new RuntimeException("Invalid robot for FeederIOSparkMax!");
     }
 
     if (Constants.burnMotorControllerFlash) {
@@ -51,7 +50,6 @@ public class FlywheelIOSparkMAX implements FlywheelIO {
     follower.enableVoltageCompensation(12.0);
 
     encoder = leader.getEncoder();
-    pid = leader.getPIDController();
 
     leader.setCANTimeout(0);
     follower.setCANTimeout(0);
@@ -63,7 +61,8 @@ public class FlywheelIOSparkMAX implements FlywheelIO {
   }
 
   @Override
-  public void updateInputs(FlywheelIOInputs inputs) {
+  public void updateInputs(FeederIOInputs inputs) {
+    inputs.cargoSensor = cargoSensor.get();
     inputs.positionRad = encoder.getPosition() * gearRatio * 2 * Math.PI;
     inputs.velocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity())
@@ -81,24 +80,8 @@ public class FlywheelIOSparkMAX implements FlywheelIO {
   }
 
   @Override
-  public void setVelocity(double velocityRadPerSec, double ffVolts) {
-    pid.setReference(
-        Units.radiansPerSecondToRotationsPerMinute(velocityRadPerSec)
-            / gearRatio,
-        ControlType.kVelocity, 0, ffVolts, ArbFFUnits.kVoltage);
-  }
-
-  @Override
   public void setBrakeMode(boolean enable) {
     leader.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
     follower.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
-  }
-
-  @Override
-  public void configurePID(double kp, double ki, double kd) {
-    pid.setP(kp, 0);
-    pid.setI(ki, 0);
-    pid.setD(kd, 0);
-    pid.setFF(0, 0);
   }
 }

@@ -28,8 +28,12 @@ import frc.robot.subsystems.drive.DriveIO;
 import frc.robot.subsystems.drive.DriveIOSim;
 import frc.robot.subsystems.drive.DriveIOSparkMAX;
 import frc.robot.subsystems.drive.DriveIOTalonSRX;
+import frc.robot.subsystems.feeder.Feeder;
+import frc.robot.subsystems.feeder.FeederIO;
 import frc.robot.subsystems.flywheel.Flywheel;
 import frc.robot.subsystems.flywheel.FlywheelIO;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
@@ -47,6 +51,8 @@ public class RobotContainer {
   private final Drive drive;
   private final Vision vision;
   private final Flywheel flywheel;
+  private final Feeder feeder;
+  private final Intake intake;
 
   // OI objects
   private OverrideOI overrideOI = new OverrideOI();
@@ -66,27 +72,37 @@ public class RobotContainer {
       drive = new Drive(new DriveIO() {});
       vision = new Vision(new VisionIO() {});
       flywheel = new Flywheel(new FlywheelIO() {});
+      feeder = new Feeder(new FeederIO() {});
+      intake = new Intake(new IntakeIO() {});
     } else {
       switch (Constants.getRobot()) {
         case ROBOT_2020:
           drive = new Drive(new DriveIOSparkMAX());
           vision = new Vision(new VisionIOPhotonVision());
           flywheel = new Flywheel(new FlywheelIO() {});
+          feeder = new Feeder(new FeederIO() {});
+          intake = new Intake(new IntakeIO() {});
           break;
         case ROBOT_KITBOT:
           drive = new Drive(new DriveIOTalonSRX());
           vision = new Vision(new VisionIO() {});
           flywheel = new Flywheel(new FlywheelIO() {});
+          feeder = new Feeder(new FeederIO() {});
+          intake = new Intake(new IntakeIO() {});
           break;
         case ROBOT_SIMBOT:
           drive = new Drive(new DriveIOSim());
           vision = new Vision(new VisionIO() {});
           flywheel = new Flywheel(new FlywheelIO() {});
+          feeder = new Feeder(new FeederIO() {});
+          intake = new Intake(new IntakeIO() {});
           break;
         default:
           drive = new Drive(new DriveIO() {});
           vision = new Vision(new VisionIO() {});
           flywheel = new Flywheel(new FlywheelIO() {});
+          feeder = new Feeder(new FeederIO() {});
+          intake = new Intake(new IntakeIO() {});
           break;
       }
     }
@@ -126,6 +142,8 @@ public class RobotContainer {
             false));
     autoRoutineMap.put("Run SysId (Drive)",
         new SysIdCommand(drive, drive::driveVoltage, drive::getSysIdData));
+    autoRoutineMap.put("Run SysId (Flywheel)", new SysIdCommand(flywheel,
+        flywheel::runVoltage, flywheel::getSysIdData));
 
     // Instantiate OI classes and bind buttons
     updateOI();

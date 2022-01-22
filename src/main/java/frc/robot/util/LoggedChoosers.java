@@ -31,8 +31,8 @@ public class LoggedChoosers extends SubsystemBase {
         List.of("Curvature", "Split Arcade", "Tank"));
     addOptions(autoPositionChooser,
         List.of("Origin", "Tarmac A", "Tarmac B", "Tarmac C", "Tarmac D"));
-    addOptions(autoRoutineChooser,
-        List.of("Do Nothing", "Test Motion Profile", "Run SysId (Drive)"));
+    addOptions(autoRoutineChooser, List.of("Do Nothing", "Test Motion Profile",
+        "Run SysId (Drive)", "Run SysId (Flywheel)"));
 
     SmartDashboard.putData("Joystick Mode", joystickModeChooser);
     SmartDashboard.putData("Auto Position", autoPositionChooser);

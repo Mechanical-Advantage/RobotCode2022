@@ -10,6 +10,7 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.commands.SysIdCommand.MechanismSysIdData;
 import frc.robot.subsystems.flywheel.FlywheelIO.FlywheelIOInputs;
 import frc.robot.util.TunableNumber;
 import frc.robot.util.VelocityProfiler;
@@ -98,5 +99,12 @@ public class Flywheel extends SubsystemBase {
     } else {
       return false;
     }
+  }
+
+  /**
+   * Returns a set of data for SysId
+   */
+  public MechanismSysIdData getSysIdData() {
+    return new MechanismSysIdData(inputs.positionRad, inputs.velocityRadPerSec);
   }
 }
