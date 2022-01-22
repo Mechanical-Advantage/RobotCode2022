@@ -86,7 +86,6 @@ public class Drive extends SubsystemBase {
     }
 
     io.setBrakeMode(false);
-    io.resetPosition(0.0, 0.0);
   }
 
   /** Set boolean supplier for the override switches. */

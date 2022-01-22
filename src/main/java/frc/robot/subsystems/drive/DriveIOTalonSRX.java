@@ -21,7 +21,7 @@ public class DriveIOTalonSRX implements DriveIO {
 
   private final double encoderTicksPerRev;
 
-  //private final AHRS gyro = new AHRS(SerialPort.Port.kUSB);
+  // private final AHRS gyro = new AHRS(SerialPort.Port.kUSB);
 
   public DriveIOTalonSRX() {
     switch (Constants.getRobot()) {
@@ -50,55 +50,7 @@ public class DriveIOTalonSRX implements DriveIO {
         throw new RuntimeException("Invalid robot for DriveIOTalonSRX!");
     }
 
-    //gyro.calibrate();
-  }
-
-  @Override
-  public void configurePID(double kp, double ki, double kd) {
-    leftLeader.config_kP(0, kp);
-    leftLeader.config_kI(0, ki);
-    leftLeader.config_kD(0, kd);
-    rightLeader.config_kP(0, kp);
-    rightLeader.config_kI(0, ki);
-    rightLeader.config_kD(0, kd);
-  }
-
-  @Override
-  public void resetPosition(double leftPositionRad, double rightPositionRad) {
-    double leftTicks =
-        Units.radiansToRotations(leftPositionRad) * encoderTicksPerRev;
-    double rightTicks =
-        Units.radiansToRotations(rightPositionRad) * encoderTicksPerRev;
-    leftLeader.setSelectedSensorPosition(leftTicks);
-    rightLeader.setSelectedSensorPosition(rightTicks);
-  }
-
-  @Override
-  public void setBrakeMode(boolean enable) {
-    NeutralMode mode = enable ? NeutralMode.Brake : NeutralMode.Coast;
-    leftLeader.setNeutralMode(mode);
-    leftFollower.setNeutralMode(mode);
-    rightLeader.setNeutralMode(mode);
-    rightFollower.setNeutralMode(mode);
-  }
-
-  @Override
-  public void setVelocity(double leftVelocityRadPerSec,
-      double rightVelocityRadPerSec, double leftFFVolts, double rightFFVolts) {
-    double leftTicksPer100Ms = Units.radiansToRotations(leftVelocityRadPerSec)
-        * encoderTicksPerRev / 10.0;
-    double rightTicksPer100Ms = Units.radiansToRotations(rightVelocityRadPerSec)
-        * encoderTicksPerRev / 10.0;
-    leftLeader.set(ControlMode.Velocity, leftTicksPer100Ms,
-        DemandType.ArbitraryFeedForward, leftFFVolts / 12.0);
-    rightLeader.set(ControlMode.Velocity, rightTicksPer100Ms,
-        DemandType.ArbitraryFeedForward, rightFFVolts / 12.0);
-  }
-
-  @Override
-  public void setVoltage(double leftVolts, double rightVolts) {
-    leftLeader.set(ControlMode.PercentOutput, leftVolts / 12.0);
-    rightLeader.set(ControlMode.PercentOutput, rightVolts / 12.0);
+    // gyro.calibrate();
   }
 
   @Override
@@ -118,9 +70,45 @@ public class DriveIOTalonSRX implements DriveIO {
     inputs.rightCurrentAmps = new double[] {rightLeader.getSupplyCurrent(),
         rightFollower.getSupplyCurrent()};
 
-    //inputs.gyroPositionRad = Units.degreesToRadians(gyro.getAngle());
-    //inputs.gyroVelocityRadPerSec = Units.degreesToRadians(gyro.getRate());
-
+    // inputs.gyroPositionRad = Units.degreesToRadians(gyro.getAngle());
+    // inputs.gyroVelocityRadPerSec = Units.degreesToRadians(gyro.getRate());
   }
 
+  @Override
+  public void setVoltage(double leftVolts, double rightVolts) {
+    leftLeader.set(ControlMode.PercentOutput, leftVolts / 12.0);
+    rightLeader.set(ControlMode.PercentOutput, rightVolts / 12.0);
+  }
+
+  @Override
+  public void setVelocity(double leftVelocityRadPerSec,
+      double rightVelocityRadPerSec, double leftFFVolts, double rightFFVolts) {
+    double leftTicksPer100Ms = Units.radiansToRotations(leftVelocityRadPerSec)
+        * encoderTicksPerRev / 10.0;
+    double rightTicksPer100Ms = Units.radiansToRotations(rightVelocityRadPerSec)
+        * encoderTicksPerRev / 10.0;
+    leftLeader.set(ControlMode.Velocity, leftTicksPer100Ms,
+        DemandType.ArbitraryFeedForward, leftFFVolts / 12.0);
+    rightLeader.set(ControlMode.Velocity, rightTicksPer100Ms,
+        DemandType.ArbitraryFeedForward, rightFFVolts / 12.0);
+  }
+
+  @Override
+  public void setBrakeMode(boolean enable) {
+    NeutralMode mode = enable ? NeutralMode.Brake : NeutralMode.Coast;
+    leftLeader.setNeutralMode(mode);
+    leftFollower.setNeutralMode(mode);
+    rightLeader.setNeutralMode(mode);
+    rightFollower.setNeutralMode(mode);
+  }
+
+  @Override
+  public void configurePID(double kp, double ki, double kd) {
+    leftLeader.config_kP(0, kp);
+    leftLeader.config_kI(0, ki);
+    leftLeader.config_kD(0, kd);
+    rightLeader.config_kP(0, kp);
+    rightLeader.config_kI(0, ki);
+    rightLeader.config_kD(0, kd);
+  }
 }

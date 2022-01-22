@@ -149,12 +149,4 @@ public class DriveIOSparkMAX implements DriveIO {
     rightPID.setI(ki);
     rightPID.setD(kd);
   }
-
-  @Override
-  public void resetPosition(double leftPositionRad, double rightPositionRad) {
-    leftEncoder
-        .setPosition(leftPositionRad / (2.0 * Math.PI) * afterEncoderReduction);
-    rightEncoder.setPosition(
-        rightPositionRad / (2.0 * Math.PI) * afterEncoderReduction);
-  }
 }
