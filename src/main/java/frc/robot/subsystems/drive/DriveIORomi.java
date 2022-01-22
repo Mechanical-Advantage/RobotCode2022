@@ -36,20 +36,23 @@ public class DriveIORomi implements DriveIO {
       appliedVoltsRight = rightVolts;
       appliedVoltsLeft = leftVolts;
       leftMotor.setVoltage(leftVolts);
-      rightMotor.setVoltage(rightVolts);
+      rightMotor.setVoltage(rightVolts * -1);
     }
 
     inputs.leftPositionRad = leftEncoder.getDistance();
+    inputs.leftVelocityRadPerSec = leftEncoder.getRate();
     inputs.leftAppliedVolts = appliedVoltsLeft;
     inputs.leftCurrentAmps = new double[] {};
     inputs.leftTempCelcius = new double[] {};
 
     inputs.rightPositionRad = rightEncoder.getDistance();
-    inputs.rightCurrentAmps = new double[] {};
+    inputs.rightVelocityRadPerSec = rightEncoder.getRate();
     inputs.rightAppliedVolts = appliedVoltsRight;
+    inputs.rightCurrentAmps = new double[] {};
     inputs.rightTempCelcius = new double[] {};
 
     inputs.gyroPositionRad = Math.toRadians(gyro.getAngleZ());
+    inputs.gyroVelocityRadPerSec = Math.toRadians(gyro.getRateZ());
   }
 
   @Override
@@ -58,7 +61,7 @@ public class DriveIORomi implements DriveIO {
     appliedVoltsRight = rightVolts;
     appliedVoltsLeft = leftVolts;
     leftMotor.setVoltage(leftVolts);
-    rightMotor.setVoltage(rightVolts);
+    rightMotor.setVoltage(rightVolts * -1);
   }
 
   @Override
@@ -73,12 +76,11 @@ public class DriveIORomi implements DriveIO {
 
   @Override
   public void configurePID(double kp, double ki, double kd) {
-
-  }
-
-  @Override
-  public void resetPosition(double leftPositionRad, double rightPositionRad) {
-    leftEncoder.reset();
-    rightEncoder.reset();
+    leftPID.setP(kp);
+    leftPID.setI(ki);
+    leftPID.setD(kd);
+    rightPID.setP(kp);
+    rightPID.setI(ki);
+    rightPID.setD(kd);
   }
 }

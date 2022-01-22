@@ -83,8 +83,8 @@ public class Drive extends SubsystemBase {
         maxVelocityMetersPerSec = Units.inchesToMeters(122.0);
         wheelRadiusMeters = Units.inchesToMeters(3.0);
         trackWidthMeters = 1.0;
-        leftModel = new SimpleMotorFeedforward(0, 0, 0);
-        rightModel = new SimpleMotorFeedforward(0, 0, 0);
+        leftModel = new SimpleMotorFeedforward(0.0, 0.0, 0.0);
+        rightModel = new SimpleMotorFeedforward(0.0, 0.0, 0.0);
         kP.setDefault(2);
         kD.setDefault(40);
         break;
@@ -96,6 +96,15 @@ public class Drive extends SubsystemBase {
         rightModel = new SimpleMotorFeedforward(0.0, 0.22643, 0.018292);
         kP.setDefault(0.4);
         kD.setDefault(0.0);
+        break;
+      case ROBOT_ROMI:
+        maxVelocityMetersPerSec = 0.6;
+        wheelRadiusMeters = 0.035;
+        trackWidthMeters = 0.281092;
+        leftModel = new SimpleMotorFeedforward(0.27034, 0.64546, 0.021935);
+        rightModel = new SimpleMotorFeedforward(0.48548, 0.37427, 0.07421);
+        kP.setDefault(0.25);
+        kD.setDefault(0.001);
         break;
       default:
         maxVelocityMetersPerSec = 0;
@@ -215,6 +224,11 @@ public class Drive extends SubsystemBase {
     double leftVelocityRadPerSec = leftVelocityMetersPerSec / wheelRadiusMeters;
     double rightVelocityRadPerSec =
         rightVelocityMetersPerSec / wheelRadiusMeters;
+
+    Logger.getInstance().recordOutput("Drive/LeftVelocitySepoint",
+        leftVelocityRadPerSec);
+    Logger.getInstance().recordOutput("Drive/RightVelocitySepoint",
+        rightVelocityRadPerSec);
 
     double leftFFVolts = leftModel.calculate(leftVelocityRadPerSec);
     double rightFFVolts = rightModel.calculate(rightVelocityRadPerSec);

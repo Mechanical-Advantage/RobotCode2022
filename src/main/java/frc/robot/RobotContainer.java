@@ -25,6 +25,7 @@ import frc.robot.oi.OISelector;
 import frc.robot.oi.OverrideOI;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveIO;
+import frc.robot.subsystems.drive.DriveIORomi;
 import frc.robot.subsystems.drive.DriveIOSim;
 import frc.robot.subsystems.drive.DriveIOSparkMAX;
 import frc.robot.subsystems.drive.DriveIOTalonSRX;
@@ -74,6 +75,10 @@ public class RobotContainer {
           break;
         case ROBOT_SIMBOT:
           drive = new Drive(new DriveIOSim());
+          vision = new Vision(new VisionIO() {});
+          break;
+        case ROBOT_ROMI:
+          drive = new Drive(new DriveIORomi());
           vision = new Vision(new VisionIO() {});
           break;
         default:
