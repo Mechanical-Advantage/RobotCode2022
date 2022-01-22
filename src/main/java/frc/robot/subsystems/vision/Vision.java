@@ -121,7 +121,9 @@ public class Vision extends SubsystemBase {
       for (int targetIndex = 0; targetIndex < targetCount; targetIndex++) {
         List<TargetCorner> corners = new ArrayList<>();
         for (int i = targetIndex * 4; i < (targetIndex * 4) + 4; i++) {
-          corners.add(new TargetCorner(inputs.cornerX[i], inputs.cornerY[i]));
+          if (i < inputs.cornerX.length && i < inputs.cornerY.length) {
+            corners.add(new TargetCorner(inputs.cornerX[i], inputs.cornerY[i]));
+          }
         }
 
         corners = corners.stream().sorted(sortByY).collect(Collectors.toList());
