@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.Mode;
+import frc.robot.commands.AutoAim;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.MotionProfileCommand;
 import frc.robot.commands.SysIdCommand;
@@ -136,8 +137,7 @@ public class RobotContainer {
     handheldOI = OISelector.findHandheldOI();
 
     // Bind new buttons
-    // handheldOI.getAutoAimButton()
-    // .whenActive(new PrintCommand("Activating the auto aim!"));
+    handheldOI.getAutoAimButton().whileActiveOnce(new AutoAim(drive, vision));
   }
 
   /**

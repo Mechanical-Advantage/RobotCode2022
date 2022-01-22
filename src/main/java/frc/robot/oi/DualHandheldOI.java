@@ -5,6 +5,7 @@
 package frc.robot.oi;
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /** Class for controlling the robot with two Xbox controllers. */
 public class DualHandheldOI implements HandheldOI {
@@ -34,5 +35,10 @@ public class DualHandheldOI implements HandheldOI {
   @Override
   public double getRightDriveY() {
     return driverController.getRightY() * -1;
+  }
+
+  @Override
+  public Trigger getAutoAimButton() {
+    return new Trigger(driverController::getLeftBumper);
   }
 }
