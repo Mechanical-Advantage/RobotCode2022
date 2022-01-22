@@ -107,7 +107,6 @@ public class Drive extends SubsystemBase {
     }
 
     io.setBrakeMode(false);
-    io.resetPosition(0.0, 0.0);
     noVisionTimer.start();
   }
 

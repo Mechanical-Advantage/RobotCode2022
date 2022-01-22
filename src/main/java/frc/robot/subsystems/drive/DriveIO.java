@@ -84,8 +84,4 @@ public interface DriveIO {
 
   /** Set velocity PID constants. */
   public default void configurePID(double kp, double ki, double kd) {}
-
-  /** Reset the encoder(s) to a known position. */
-  public default void resetPosition(double leftPositionRad,
-      double rightPositionRad) {}
 }

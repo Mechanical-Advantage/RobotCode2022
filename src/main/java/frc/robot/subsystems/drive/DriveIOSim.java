@@ -25,8 +25,6 @@ public class DriveIOSim implements DriveIO {
   private boolean closedLoop = false;
   private double leftFFVolts = 0.0;
   private double rightFFVolts = 0.0;
-  private double basePositionLeft = 0.0;
-  private double basePositionRight = 0.0;
   private double appliedVoltsLeft = 0.0;
   private double appliedVoltsRight = 0.0;
 
@@ -44,16 +42,14 @@ public class DriveIOSim implements DriveIO {
     }
 
     sim.update(Constants.loopPeriodSecs);
-    inputs.leftPositionRad =
-        (sim.getLeftPositionMeters() - basePositionLeft) / wheelRadiusMeters;
+    inputs.leftPositionRad = sim.getLeftPositionMeters() / wheelRadiusMeters;
     inputs.leftVelocityRadPerSec =
         sim.getLeftVelocityMetersPerSecond() / wheelRadiusMeters;
     inputs.leftAppliedVolts = appliedVoltsLeft;
     inputs.leftCurrentAmps = new double[] {sim.getLeftCurrentDrawAmps()};
     inputs.leftTempCelcius = new double[] {};
 
-    inputs.rightPositionRad =
-        (sim.getRightPositionMeters()) - basePositionRight / wheelRadiusMeters;
+    inputs.rightPositionRad = sim.getRightPositionMeters() / wheelRadiusMeters;
     inputs.rightVelocityRadPerSec =
         sim.getRightVelocityMetersPerSecond() / wheelRadiusMeters;
     inputs.rightAppliedVolts = appliedVoltsRight;
@@ -89,12 +85,5 @@ public class DriveIOSim implements DriveIO {
     rightPID.setP(kp);
     rightPID.setI(ki);
     rightPID.setD(kd);
-  }
-
-  public void resetPosition(double leftPositionRad, double rightPositionRad) {
-    basePositionLeft =
-        (leftPositionRad * wheelRadiusMeters) - sim.getLeftPositionMeters();
-    basePositionRight =
-        (rightPositionRad * wheelRadiusMeters) - sim.getRightPositionMeters();
   }
 }
