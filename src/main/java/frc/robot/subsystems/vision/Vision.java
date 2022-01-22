@@ -97,6 +97,8 @@ public class Vision extends SubsystemBase {
           ledsOn = true;
         } else if (DriverStation.isDisabled()) {
           ledsOn = false;
+        } else if (DriverStation.isAutonomous()) {
+          ledsOn = true;
         } else {
           ledsOn = idleOn;
         }

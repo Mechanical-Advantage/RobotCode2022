@@ -34,6 +34,7 @@ public class Drive extends SubsystemBase {
                                                                    // switch to coast when disabling
   private static final Transform2d vehicleToCamera = new Transform2d(
       new Translation2d(Units.inchesToMeters(1.875), 0.0), new Rotation2d());
+  private static final int poseHistoryCapacity = 500;
   private static final double maxNoVisionLog = 0.1; // How long to wait with no vision data before
                                                     // clearing log visualization
   private static final double visionNominalFramerate = 45;
@@ -57,12 +58,13 @@ public class Drive extends SubsystemBase {
 
   private final DifferentialDriveOdometry odometry =
       new DifferentialDriveOdometry(new Rotation2d(), new Pose2d());
-  private final PoseHistory poseHistory = new PoseHistory(500);
   private final Timer noVisionTimer = new Timer(); // Time since last vision update
+  private PoseHistory poseHistory = new PoseHistory(poseHistoryCapacity);
   private Pose2d lastVisionPose = new Pose2d();
   private double baseDistanceLeftRad = 0.0;
   private double baseDistanceRightRad = 0.0;
   private boolean brakeMode = false;
+  private boolean resetOnVision = false;
 
   /** Creates a new DriveTrain. */
   public Drive(DriveIO io) {
@@ -244,7 +246,10 @@ public class Drive extends SubsystemBase {
   }
 
   /** Resets the current odometry pose. */
-  public void setPose(Pose2d pose) {
+  public void setPose(Pose2d pose, boolean clearHistory) {
+    if (clearHistory) {
+      poseHistory = new PoseHistory(poseHistoryCapacity);
+    }
     baseDistanceLeftRad = inputs.leftPositionRad;
     baseDistanceRightRad = inputs.rightPositionRad;
     odometry.resetPosition(pose, new Rotation2d(inputs.gyroPositionRad * -1));
@@ -287,13 +292,31 @@ public class Drive extends SubsystemBase {
           new Pose2d(currentFieldToTarget.getX() + fieldToVisionField.getX(),
               currentFieldToTarget.getY() + fieldToVisionField.getY(),
               currentFieldToTarget.getRotation());
-      setPose(new Pose2d(
-          currentFieldToTarget.getX() * (1 - visionShift)
-              + visionLatencyCompFieldToTarget.getX() * visionShift,
-          currentFieldToTarget.getY() * (1 - visionShift)
-              + visionLatencyCompFieldToTarget.getY() * visionShift,
-          currentFieldToTarget.getRotation()));
+
+      if (resetOnVision) {
+        setPose(new Pose2d(visionFieldToTarget.getX(),
+            visionFieldToTarget.getY(), currentFieldToTarget.getRotation()),
+            true);
+        resetOnVision = false;
+      } else {
+        setPose(new Pose2d(
+            currentFieldToTarget.getX() * (1 - visionShift)
+                + visionLatencyCompFieldToTarget.getX() * visionShift,
+            currentFieldToTarget.getY() * (1 - visionShift)
+                + visionLatencyCompFieldToTarget.getY() * visionShift,
+            currentFieldToTarget.getRotation()), false);
+      }
     }
+  }
+
+  /** Reset odometry on the next vision frame (rather than using averaging). */
+  public void resetOnNextVision() {
+    resetOnVision = true;
+  }
+
+  /** Returns whether the vision reset triggered by "resetOnNextVision()" is complete. */
+  public boolean getVisionResetComplete() {
+    return !resetOnVision;
   }
 
   /** Return left velocity in meters per second. */

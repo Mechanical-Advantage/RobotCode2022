@@ -148,7 +148,8 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     String positionString = choosers.getAutoPosition();
     if (autoPositionMap.containsKey(positionString)) {
-      drive.setPose(autoPositionMap.get(positionString));
+      drive.setPose(autoPositionMap.get(positionString), true);
+      drive.resetOnNextVision();
     } else {
       DriverStation.reportError(
           "Unknown auto position: '" + positionString + "'", false);
