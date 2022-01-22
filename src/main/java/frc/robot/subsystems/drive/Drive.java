@@ -4,25 +4,44 @@
 
 package frc.robot.subsystems.drive;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.FieldConstants;
 import frc.robot.commands.SysIdCommand.DriveTrainSysIdData;
 import frc.robot.subsystems.drive.DriveIO.DriveIOInputs;
+import frc.robot.subsystems.vision.Vision.TimestampedTranslation2d;
+import frc.robot.util.GeomUtil;
+import frc.robot.util.PoseHistory;
 import frc.robot.util.TunableNumber;
 
 public class Drive extends SubsystemBase {
   private static final double maxCoastVelocityMetersPerSec = 0.05; // Need to be under this to
                                                                    // switch to coast when disabling
+  private static final Transform2d vehicleToCamera = new Transform2d(
+      new Translation2d(Units.inchesToMeters(1.875), 0.0), new Rotation2d());
+  private static final int poseHistoryCapacity = 500;
+  private static final double maxNoVisionLog = 0.1; // How long to wait with no vision data before
+                                                    // clearing log visualization
+  private static final double visionNominalFramerate = 45;
+  private static final double visionShiftPerSec = 0.85; // After one second of vision data, what %
+  // of pose average should be vision
+  private static final double visionMaxAngularVelocity =
+      Units.degreesToRadians(8.0); // Max angular velocity before vision data is rejected
 
   private final double wheelRadiusMeters;
   private final double maxVelocityMetersPerSec;
@@ -38,10 +57,14 @@ public class Drive extends SubsystemBase {
   private Supplier<Boolean> openLoopOverride = () -> false;
 
   private final DifferentialDriveOdometry odometry =
-      new DifferentialDriveOdometry(new Rotation2d());
+      new DifferentialDriveOdometry(new Rotation2d(), new Pose2d());
+  private final Timer noVisionTimer = new Timer(); // Time since last vision update
+  private PoseHistory poseHistory = new PoseHistory(poseHistoryCapacity);
+  private Pose2d lastVisionPose = new Pose2d();
   private double baseDistanceLeftRad = 0.0;
   private double baseDistanceRightRad = 0.0;
   private boolean brakeMode = false;
+  private boolean resetOnVision = false;
 
   /** Creates a new DriveTrain. */
   public Drive(DriveIO io) {
@@ -86,7 +109,7 @@ public class Drive extends SubsystemBase {
     }
 
     io.setBrakeMode(false);
-    io.resetPosition(0.0, 0.0);
+    noVisionTimer.start();
   }
 
   /** Set boolean supplier for the override switches. */
@@ -106,10 +129,29 @@ public class Drive extends SubsystemBase {
     odometry.update(new Rotation2d(inputs.gyroPositionRad * -1),
         (inputs.leftPositionRad - baseDistanceLeftRad) * wheelRadiusMeters,
         (inputs.rightPositionRad - baseDistanceRightRad) * wheelRadiusMeters);
+
+
+    // Log robot pose
+    Pose2d robotPose = odometry.getPoseMeters();
+    poseHistory.insert(Timer.getFPGATimestamp(), robotPose);
     Logger.getInstance().recordOutput("Odometry/Robot",
-        new double[] {odometry.getPoseMeters().getX(),
-            odometry.getPoseMeters().getY(),
-            odometry.getPoseMeters().getRotation().getRadians()});
+        new double[] {robotPose.getX(), robotPose.getY(),
+            robotPose.getRotation().getRadians()});
+
+    // Log vision pose
+    if (noVisionTimer.get() < maxNoVisionLog) {
+      Logger.getInstance().recordOutput("Odometry/VisionPose",
+          new double[] {lastVisionPose.getX(), lastVisionPose.getY(),
+              lastVisionPose.getRotation().getRadians()});
+      Logger.getInstance().recordOutput("Odometry/VisionTarget", new double[] {
+          FieldConstants.fieldLength / 2.0, FieldConstants.fieldWidth / 2.0});
+      Logger.getInstance().recordOutput("Vision/DistXInches",
+          Units.metersToInches(
+              (FieldConstants.fieldLength / 2.0) - lastVisionPose.getX()));
+      Logger.getInstance().recordOutput("Vision/DistYInches",
+          Units.metersToInches(
+              (FieldConstants.fieldWidth / 2.0) - lastVisionPose.getY()));
+    }
 
     // Update brake mode
     if (DriverStation.isEnabled()) {
@@ -154,7 +196,6 @@ public class Drive extends SubsystemBase {
       io.setVoltage(0, 0);
       return;
     }
-
 
     driveVelocity(leftPercent * maxVelocityMetersPerSec,
         rightPercent * maxVelocityMetersPerSec);
@@ -205,10 +246,77 @@ public class Drive extends SubsystemBase {
   }
 
   /** Resets the current odometry pose. */
-  public void setPose(Pose2d pose) {
+  public void setPose(Pose2d pose, boolean clearHistory) {
+    if (clearHistory) {
+      poseHistory = new PoseHistory(poseHistoryCapacity);
+    }
     baseDistanceLeftRad = inputs.leftPositionRad;
     baseDistanceRightRad = inputs.rightPositionRad;
     odometry.resetPosition(pose, new Rotation2d(inputs.gyroPositionRad * -1));
+  }
+
+  /** Adds a new timestamped vision measurement */
+  public void addVisionMeasurement(TimestampedTranslation2d data) {
+    Optional<Pose2d> historicalFieldToTarget = poseHistory.get(data.timestamp);
+    if (historicalFieldToTarget.isPresent()) {
+
+      // Calculate new robot pose
+      Rotation2d robotRotation = historicalFieldToTarget.get().getRotation();
+      Rotation2d cameraRotation =
+          robotRotation.rotateBy(vehicleToCamera.getRotation());
+      Transform2d fieldToTargetRotated =
+          new Transform2d(FieldConstants.hubCenter, cameraRotation);
+      Transform2d fieldToCamera = fieldToTargetRotated.plus(
+          GeomUtil.transformFromTranslation(data.translation.unaryMinus()));
+      Pose2d visionFieldToTarget = GeomUtil
+          .transformToPose(fieldToCamera.plus(vehicleToCamera.inverse()));
+
+      // Save vision pose for logging
+      noVisionTimer.reset();
+      lastVisionPose = visionFieldToTarget;
+
+      // Calculate vision percent
+      double angularErrorScale =
+          Math.abs(inputs.gyroVelocityRadPerSec) / visionMaxAngularVelocity;
+      angularErrorScale = MathUtil.clamp(angularErrorScale, 0, 1);
+      double visionShift =
+          1 - Math.pow(1 - visionShiftPerSec, 1 / visionNominalFramerate);
+      visionShift *= 1 - angularErrorScale;
+
+      // Reset pose
+      Pose2d currentFieldToTarget = getPose();
+      Translation2d fieldToVisionField = new Translation2d(
+          visionFieldToTarget.getX() - historicalFieldToTarget.get().getX(),
+          visionFieldToTarget.getY() - historicalFieldToTarget.get().getY());
+      Pose2d visionLatencyCompFieldToTarget =
+          new Pose2d(currentFieldToTarget.getX() + fieldToVisionField.getX(),
+              currentFieldToTarget.getY() + fieldToVisionField.getY(),
+              currentFieldToTarget.getRotation());
+
+      if (resetOnVision) {
+        setPose(new Pose2d(visionFieldToTarget.getX(),
+            visionFieldToTarget.getY(), currentFieldToTarget.getRotation()),
+            true);
+        resetOnVision = false;
+      } else {
+        setPose(new Pose2d(
+            currentFieldToTarget.getX() * (1 - visionShift)
+                + visionLatencyCompFieldToTarget.getX() * visionShift,
+            currentFieldToTarget.getY() * (1 - visionShift)
+                + visionLatencyCompFieldToTarget.getY() * visionShift,
+            currentFieldToTarget.getRotation()), false);
+      }
+    }
+  }
+
+  /** Reset odometry on the next vision frame (rather than using averaging). */
+  public void resetOnNextVision() {
+    resetOnVision = true;
+  }
+
+  /** Returns whether the vision reset triggered by "resetOnNextVision()" is complete. */
+  public boolean getVisionResetComplete() {
+    return !resetOnVision;
   }
 
   /** Return left velocity in meters per second. */

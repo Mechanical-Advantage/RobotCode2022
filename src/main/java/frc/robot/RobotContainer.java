@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.Mode;
+import frc.robot.commands.AutoAim;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.MotionProfileCommand;
 import frc.robot.commands.SysIdCommand;
@@ -27,6 +28,9 @@ import frc.robot.subsystems.drive.DriveIO;
 import frc.robot.subsystems.drive.DriveIOSim;
 import frc.robot.subsystems.drive.DriveIOSparkMAX;
 import frc.robot.subsystems.drive.DriveIOTalonSRX;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.util.LoggedChoosers;
 
 /**
@@ -39,6 +43,7 @@ public class RobotContainer {
 
   // Subsystems
   private final Drive drive;
+  private final Vision vision;
 
   // OI objects
   private OverrideOI overrideOI = new OverrideOI();
@@ -56,21 +61,25 @@ public class RobotContainer {
     // Instantiate subsystems
     if (Constants.getMode() == Mode.REPLAY) {
       drive = new Drive(new DriveIO() {});
+      vision = new Vision(new VisionIO() {});
     } else {
       switch (Constants.getRobot()) {
         case ROBOT_2020:
           drive = new Drive(new DriveIOSparkMAX());
+          vision = new Vision(new VisionIOPhotonVision());
           break;
         case ROBOT_KITBOT:
           drive = new Drive(new DriveIOTalonSRX());
+          vision = new Vision(new VisionIO() {});
           break;
         case ROBOT_SIMBOT:
           drive = new Drive(new DriveIOSim());
+          vision = new Vision(new VisionIO() {});
           break;
         default:
           drive = new Drive(new DriveIO() {});
+          vision = new Vision(new VisionIO() {});
           break;
-
       }
     }
 
@@ -81,6 +90,8 @@ public class RobotContainer {
         () -> choosers.getJoystickMode(), () -> handheldOI.getLeftDriveX(),
         () -> handheldOI.getLeftDriveY(), () -> handheldOI.getRightDriveX(),
         () -> handheldOI.getRightDriveY()));
+    vision.setOverrides(() -> overrideOI.getVisionLEDMode());
+    vision.setTranslationConsumer(drive::addVisionMeasurement);
 
     // Set up auto positions
     Transform2d autoPositionTransformLeft = new Transform2d(
@@ -126,8 +137,7 @@ public class RobotContainer {
     handheldOI = OISelector.findHandheldOI();
 
     // Bind new buttons
-    // handheldOI.getAutoAimButton()
-    // .whenActive(new PrintCommand("Activating the auto aim!"));
+    handheldOI.getAutoAimButton().whileActiveOnce(new AutoAim(drive, vision));
   }
 
   /**
@@ -138,7 +148,8 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     String positionString = choosers.getAutoPosition();
     if (autoPositionMap.containsKey(positionString)) {
-      drive.setPose(autoPositionMap.get(positionString));
+      drive.setPose(autoPositionMap.get(positionString), true);
+      drive.resetOnNextVision();
     } else {
       DriverStation.reportError(
           "Unknown auto position: '" + positionString + "'", false);
