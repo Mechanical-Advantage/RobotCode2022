@@ -149,17 +149,6 @@ public class Vision extends SubsystemBase {
         translationConsumer.accept(new TimestampedTranslation2d(
             inputs.captureTimestamp - extraLatencySecs,
             cameraToTargetTranslation));
-
-        List<Double> translationData = new ArrayList<>();
-        translationData.add(cameraToTargetTranslation.getX());
-        translationData.add(cameraToTargetTranslation.getY());
-        for (Translation2d translation : cameraToTargetTranslations) {
-          translationData.add(translation.getX());
-          translationData.add(translation.getY());
-        }
-        Logger.getInstance().recordOutput("Vision/TranslationData",
-            translationData.stream().mapToDouble(Double::doubleValue)
-                .toArray());
       }
     }
   }

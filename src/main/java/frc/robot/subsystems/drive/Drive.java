@@ -154,12 +154,7 @@ public class Drive extends SubsystemBase {
               lastVisionPose.getRotation().getRadians()});
       Logger.getInstance().recordOutput("Odometry/VisionTarget", new double[] {
           FieldConstants.fieldLength / 2.0, FieldConstants.fieldWidth / 2.0});
-      Logger.getInstance().recordOutput("Vision/DistXInches",
-          Units.metersToInches(
-              (FieldConstants.fieldLength / 2.0) - lastVisionPose.getX()));
-      Logger.getInstance().recordOutput("Vision/DistYInches",
-          Units.metersToInches(
-              (FieldConstants.fieldWidth / 2.0) - lastVisionPose.getY()));
+
     }
 
     // Update brake mode
