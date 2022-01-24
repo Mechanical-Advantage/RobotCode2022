@@ -119,16 +119,20 @@ public class Vision extends SubsystemBase {
     if (targetCount >= minTargetCount) {
       List<Translation2d> cameraToTargetTranslations = new ArrayList<>();
       for (int targetIndex = 0; targetIndex < targetCount; targetIndex++) {
-        List<TargetCorner> corners = new ArrayList<>();
+        List<VisionPoint> corners = new ArrayList<>();
+        double totalX = 0.0, totalY = 0.0;
         for (int i = targetIndex * 4; i < (targetIndex * 4) + 4; i++) {
           if (i < inputs.cornerX.length && i < inputs.cornerY.length) {
-            corners.add(new TargetCorner(inputs.cornerX[i], inputs.cornerY[i]));
+            corners.add(new VisionPoint(inputs.cornerX[i], inputs.cornerY[i]));
+            totalX += inputs.cornerX[i];
+            totalY += inputs.cornerY[i];
           }
         }
 
-        corners = corners.stream().sorted(sortByY).collect(Collectors.toList());
+        VisionPoint targetAvg = new VisionPoint(totalX / 4, totalY / 4);
+        corners = sortCorners(corners, targetAvg);
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < corners.size(); i++) {
           Translation2d translation = solveCameraToTargetTranslation(
               corners.get(i), i < 2 ? FieldConstants.visionTargetHeightUpper
                   : FieldConstants.visionTargetHeightLower);
@@ -145,11 +149,89 @@ public class Vision extends SubsystemBase {
         translationConsumer.accept(new TimestampedTranslation2d(
             inputs.captureTimestamp - extraLatencySecs,
             cameraToTargetTranslation));
+
+        List<Double> translationData = new ArrayList<>();
+        translationData.add(cameraToTargetTranslation.getX());
+        translationData.add(cameraToTargetTranslation.getY());
+        for (Translation2d translation : cameraToTargetTranslations) {
+          translationData.add(translation.getX());
+          translationData.add(translation.getY());
+        }
+        Logger.getInstance().recordOutput("Vision/TranslationData",
+            translationData.stream().mapToDouble(Double::doubleValue)
+                .toArray());
       }
     }
   }
 
-  private Translation2d solveCameraToTargetTranslation(TargetCorner corner,
+  private List<VisionPoint> sortCorners(List<VisionPoint> corners,
+      VisionPoint average) {
+
+    // Find top corners
+    Integer topLeftIndex = null;
+    Integer topRightIndex = null;
+    double minPosRads = Math.PI;
+    double minNegRads = Math.PI;
+    for (int i = 0; i < corners.size(); i++) {
+      VisionPoint corner = corners.get(i);
+      double angleRad =
+          new Rotation2d(corner.x - average.x, average.y - corner.y)
+              .minus(Rotation2d.fromDegrees(90)).getRadians();
+      if (angleRad > 0) {
+        if (angleRad < minPosRads) {
+          minPosRads = angleRad;
+          topLeftIndex = i;
+        }
+      } else {
+        if (Math.abs(angleRad) < minNegRads) {
+          minNegRads = Math.abs(angleRad);
+          topRightIndex = i;
+        }
+      }
+    }
+
+    // Find lower corners
+    Integer lowerIndex1 = null;
+    Integer lowerIndex2 = null;
+    for (int i = 0; i < corners.size(); i++) {
+      boolean alreadySaved = false;
+      if (topLeftIndex != null) {
+        if (topLeftIndex.equals(i)) {
+          alreadySaved = true;
+        }
+      }
+      if (topRightIndex != null) {
+        if (topRightIndex.equals(i)) {
+          alreadySaved = true;
+        }
+      }
+      if (!alreadySaved) {
+        if (lowerIndex1 == null) {
+          lowerIndex1 = i;
+        } else {
+          lowerIndex2 = i;
+        }
+      }
+    }
+
+    // Combine final list
+    List<VisionPoint> newCorners = new ArrayList<>();
+    if (topLeftIndex != null) {
+      newCorners.add(corners.get(topLeftIndex));
+    }
+    if (topRightIndex != null) {
+      newCorners.add(corners.get(topRightIndex));
+    }
+    if (lowerIndex1 != null) {
+      newCorners.add(corners.get(lowerIndex1));
+    }
+    if (lowerIndex2 != null) {
+      newCorners.add(corners.get(lowerIndex2));
+    }
+    return newCorners;
+  }
+
+  private Translation2d solveCameraToTargetTranslation(VisionPoint corner,
       double goalHeight) {
     double yPixels = corner.x;
     double zPixels = corner.y;
@@ -175,8 +257,15 @@ public class Vision extends SubsystemBase {
     return null;
   }
 
-  private static final Comparator<TargetCorner> sortByY = (TargetCorner c1,
-      TargetCorner c2) -> Double.valueOf(c1.y).compareTo(Double.valueOf(c2.y));
+  public static class VisionPoint {
+    public final double x;
+    public final double y;
+
+    public VisionPoint(double x, double y) {
+      this.x = x;
+      this.y = y;
+    }
+  }
 
   public static class TimestampedTranslation2d {
     public final double timestamp;
