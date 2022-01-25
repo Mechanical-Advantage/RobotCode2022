@@ -70,6 +70,16 @@ public class Drive extends SubsystemBase {
   public Drive(DriveIO io) {
     this.io = io;
     switch (Constants.getRobot()) {
+      case ROBOT_2022C:
+      case ROBOT_2022P:
+        maxVelocityMetersPerSec = Units.inchesToMeters(150.0);
+        wheelRadiusMeters = Units.inchesToMeters(2.0);
+        trackWidthMeters = 1.5;
+        leftModel = new SimpleMotorFeedforward(0.0, 0.2, 0.0);
+        rightModel = new SimpleMotorFeedforward(0.0, 0.2, 0.0);
+        kP.setDefault(0);
+        kD.setDefault(0);
+        break;
       case ROBOT_2020:
         maxVelocityMetersPerSec = Units.inchesToMeters(150.0);
         wheelRadiusMeters = Units.inchesToMeters(3.0);
