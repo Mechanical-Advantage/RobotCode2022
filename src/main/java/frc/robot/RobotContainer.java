@@ -32,7 +32,9 @@ import frc.robot.subsystems.drive.DriveIOTalonSRX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
+import frc.robot.util.Alert;
 import frc.robot.util.LoggedChoosers;
+import frc.robot.util.Alert.AlertType;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -128,6 +130,12 @@ public class RobotContainer {
             false));
     autoRoutineMap.put("Run SysId (Drive)",
         new SysIdCommand(drive, drive::driveVoltage, drive::getSysIdData));
+
+    // Alert if in tuning mode
+    if (Constants.tuningMode) {
+      new Alert("Tuning mode active, expect decreased network performance.",
+          AlertType.INFO).set(true);
+    }
 
     // Instantiate OI classes and bind buttons
     updateOI();

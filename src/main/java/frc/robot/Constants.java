@@ -7,6 +7,8 @@ package frc.robot;
 import java.util.Map;
 
 import edu.wpi.first.wpilibj.RobotBase;
+import frc.robot.util.Alert;
+import frc.robot.util.Alert.AlertType;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -23,9 +25,14 @@ public final class Constants {
   public static final boolean tuningMode = false;
   public static final boolean burnMotorControllerFlash = false;
 
+  private static final Alert invalidRobotAlert =
+      new Alert("Invalid robot selected, using competition robot as default.",
+          AlertType.WARNING);
+
   public static Robot getRobot() {
     if (RobotBase.isReal()) {
       if (robot == Robot.ROBOT_SIMBOT || robot == Robot.ROBOT_ROMI) { // Invalid robot selected
+        invalidRobotAlert.set(true);
         return Robot.ROBOT_2022C;
       } else {
         return robot;
