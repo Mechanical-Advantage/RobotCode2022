@@ -21,7 +21,7 @@ public class DriveIOTalonSRX implements DriveIO {
 
   private final double encoderTicksPerRev;
 
-  // private final AHRS gyro = new AHRS(SerialPort.Port.kUSB);
+  private final AHRS gyro = new AHRS(SerialPort.Port.kMXP);
 
   public DriveIOTalonSRX() {
     switch (Constants.getRobot()) {
@@ -50,7 +50,7 @@ public class DriveIOTalonSRX implements DriveIO {
         throw new RuntimeException("Invalid robot for DriveIOTalonSRX!");
     }
 
-    // gyro.calibrate();
+    gyro.calibrate();
   }
 
   @Override
@@ -70,8 +70,8 @@ public class DriveIOTalonSRX implements DriveIO {
     inputs.rightCurrentAmps = new double[] {rightLeader.getSupplyCurrent(),
         rightFollower.getSupplyCurrent()};
 
-    // inputs.gyroPositionRad = Units.degreesToRadians(gyro.getAngle());
-    // inputs.gyroVelocityRadPerSec = Units.degreesToRadians(gyro.getRate());
+    inputs.gyroPositionRad = Units.degreesToRadians(gyro.getAngle());
+    inputs.gyroVelocityRadPerSec = Units.degreesToRadians(gyro.getRate());
   }
 
   @Override

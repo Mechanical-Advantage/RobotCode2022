@@ -1,32 +1,32 @@
 {
   "fileName": "AdvantageKit.json",
   "name": "AdvantageKit",
-  "version": "1.2.0",
+  "version": "1.4.0",
   "uuid": "d820cc26-74e3-11ec-90d6-0242ac120003",
   "mavenUrls": [],
-  "jsonUrl": "https://github.com/Mechanical-Advantage/AdvantageKit/releases/download/v1.2.0/AdvantageKit.json",
+  "jsonUrl": "https://github.com/Mechanical-Advantage/AdvantageKit/releases/download/v1.4.0/AdvantageKit.json",
   "javaDependencies": [
     {
       "groupId": "org.littletonrobotics.akit.junction",
       "artifactId": "wpilib-shim",
-      "version": "1.2.0"
+      "version": "1.4.0"
     },
     {
       "groupId": "org.littletonrobotics.akit.junction",
       "artifactId": "junction-core",
-      "version": "1.2.0"
+      "version": "1.4.0"
     },
     {
       "groupId": "org.littletonrobotics.akit.conduit",
       "artifactId": "conduit-api",
-      "version": "1.2.0"
+      "version": "1.4.0"
     }
   ],
   "jniDependencies": [
     {
       "groupId": "org.littletonrobotics.akit.conduit",
       "artifactId": "conduit-wpilibio",
-      "version": "1.2.0",
+      "version": "1.4.0",
       "skipInvalidPlatforms": true,
       "isJar": false,
       "validPlatforms": [

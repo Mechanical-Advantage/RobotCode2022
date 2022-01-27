@@ -70,6 +70,16 @@ public class Drive extends SubsystemBase {
   public Drive(DriveIO io) {
     this.io = io;
     switch (Constants.getRobot()) {
+      case ROBOT_2022C:
+      case ROBOT_2022P:
+        maxVelocityMetersPerSec = Units.inchesToMeters(150.0);
+        wheelRadiusMeters = Units.inchesToMeters(2.0);
+        trackWidthMeters = 1.5;
+        leftModel = new SimpleMotorFeedforward(0.0, 0.2, 0.0);
+        rightModel = new SimpleMotorFeedforward(0.0, 0.2, 0.0);
+        kP.setDefault(0);
+        kD.setDefault(0);
+        break;
       case ROBOT_2020:
         maxVelocityMetersPerSec = Units.inchesToMeters(150.0);
         wheelRadiusMeters = Units.inchesToMeters(3.0);
@@ -81,10 +91,10 @@ public class Drive extends SubsystemBase {
         break;
       case ROBOT_KITBOT:
         maxVelocityMetersPerSec = Units.inchesToMeters(122.0);
-        wheelRadiusMeters = Units.inchesToMeters(3.0);
-        trackWidthMeters = 1.0;
-        leftModel = new SimpleMotorFeedforward(0, 0, 0);
-        rightModel = new SimpleMotorFeedforward(0, 0, 0);
+        wheelRadiusMeters = Units.inchesToMeters(3.18);
+        trackWidthMeters = 0.6928821;
+        leftModel = new SimpleMotorFeedforward(0.75379, 0.25162, 0.042941);
+        rightModel = new SimpleMotorFeedforward(0.70773, 0.24745, 0.032956);
         kP.setDefault(2);
         kD.setDefault(40);
         break;
@@ -96,6 +106,15 @@ public class Drive extends SubsystemBase {
         rightModel = new SimpleMotorFeedforward(0.0, 0.22643, 0.018292);
         kP.setDefault(0.4);
         kD.setDefault(0.0);
+        break;
+      case ROBOT_ROMI:
+        maxVelocityMetersPerSec = 0.6;
+        wheelRadiusMeters = 0.035;
+        trackWidthMeters = 0.281092;
+        leftModel = new SimpleMotorFeedforward(0.27034, 0.64546, 0.021935);
+        rightModel = new SimpleMotorFeedforward(0.48548, 0.37427, 0.07421);
+        kP.setDefault(0.25);
+        kD.setDefault(0.001);
         break;
       default:
         maxVelocityMetersPerSec = 0;
@@ -145,12 +164,7 @@ public class Drive extends SubsystemBase {
               lastVisionPose.getRotation().getRadians()});
       Logger.getInstance().recordOutput("Odometry/VisionTarget", new double[] {
           FieldConstants.fieldLength / 2.0, FieldConstants.fieldWidth / 2.0});
-      Logger.getInstance().recordOutput("Vision/DistXInches",
-          Units.metersToInches(
-              (FieldConstants.fieldLength / 2.0) - lastVisionPose.getX()));
-      Logger.getInstance().recordOutput("Vision/DistYInches",
-          Units.metersToInches(
-              (FieldConstants.fieldWidth / 2.0) - lastVisionPose.getY()));
+
     }
 
     // Update brake mode

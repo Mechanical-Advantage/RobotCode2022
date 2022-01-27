@@ -39,22 +39,24 @@ public class DriveIOSparkMAX implements DriveIO {
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
       case ROBOT_2022P:
-        afterEncoderReduction = 1.0;
+        afterEncoderReduction = 6.0;
         threeControllers = true;
-        leftLeader = new CANSparkMax(0, MotorType.kBrushless);
-        leftFollower = new CANSparkMax(0, MotorType.kBrushless);
-        leftFollower2 = new CANSparkMax(0, MotorType.kBrushless);
-        rightLeader = new CANSparkMax(0, MotorType.kBrushless);
-        rightFollower = new CANSparkMax(0, MotorType.kBrushless);
-        rightFollower2 = new CANSparkMax(0, MotorType.kBrushless);
+        leftLeader = new CANSparkMax(15, MotorType.kBrushless);
+        leftFollower = new CANSparkMax(1, MotorType.kBrushless);
+        leftFollower2 = new CANSparkMax(30, MotorType.kBrushless);
+        rightLeader = new CANSparkMax(12, MotorType.kBrushless);
+        rightFollower = new CANSparkMax(2, MotorType.kBrushless);
+        rightFollower2 = new CANSparkMax(3, MotorType.kBrushless);
 
-        externalEncoders = true;
-        leftExternalEncoder = new Encoder(0, 1);
-        rightExternalEncoder = new Encoder(2, 3);
+        externalEncoders = false;
+        leftInternalEncoder = leftLeader.getEncoder();
+        rightInternalEncoder = rightLeader.getEncoder();
+        // leftExternalEncoder = new Encoder(0, 1);
+        // rightExternalEncoder = new Encoder(2, 3);
 
         // Convert to rotations
-        leftExternalEncoder.setDistancePerPulse(1440);
-        rightExternalEncoder.setDistancePerPulse(1440);
+        // leftExternalEncoder.setDistancePerPulse(2048);
+        // rightExternalEncoder.setDistancePerPulse(2048);
         break;
       case ROBOT_2020:
         afterEncoderReduction = 1.0 / ((9.0 / 62.0) * (18.0 / 30.0));
@@ -132,9 +134,8 @@ public class DriveIOSparkMAX implements DriveIO {
 
       inputs.leftVelocityRadPerSec = leftExternalEncoder.getRate()
           * (2.0 * Math.PI) / afterEncoderReduction;
-      inputs.rightVelocityRadPerSec =
-          rightExternalEncoder.getRate() * (2.0 * Math.PI)
-              / afterEncoderReduction;
+      inputs.rightVelocityRadPerSec = rightExternalEncoder.getRate()
+          * (2.0 * Math.PI) / afterEncoderReduction;
     } else {
       inputs.leftPositionRad = leftInternalEncoder.getPosition()
           * (2.0 * Math.PI) / afterEncoderReduction;

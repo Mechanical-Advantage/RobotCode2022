@@ -28,8 +28,6 @@ public class BatteryTracker {
    * @param timeout The time to wait before giving up
    */
   public static String scanBattery(double timeout) {
-    System.out.println(Constants.getMode());
-    System.out.println(Constants.getRobot());
     if (Constants.getMode() == Mode.REAL) {
       if (supportedRobots.contains(Constants.getRobot())) {
         // Only scan on supported robots and in real mode

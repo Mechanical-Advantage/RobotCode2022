@@ -14,7 +14,9 @@ import org.littletonrobotics.junction.io.LogSocketServer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.Mode;
+import frc.robot.util.Alert;
 import frc.robot.util.BatteryTracker;
+import frc.robot.util.Alert.AlertType;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -24,7 +26,19 @@ import frc.robot.util.BatteryTracker;
  */
 public class Robot extends LoggedRobot {
   private RobotContainer robotContainer;
+  private ByteLogReceiver logReceiver;
   private Command autoCommand;
+
+  private final Alert logNoFileAlert =
+      new Alert("No log path set for current robot. Data will NOT be logged.",
+          AlertType.WARNING);
+  private final Alert logReceiverQueueAlert =
+      new Alert("Logging queue exceeded capacity, data will NOT be logged.",
+          AlertType.ERROR);
+  private final Alert logOpenFileAlert = new Alert(
+      "Failed to open log file. Data will NOT be logged", AlertType.ERROR);
+  private final Alert logWriteAlert = new Alert(
+      "Failed write to the log file. Data will NOT be logged", AlertType.ERROR);
 
   public Robot() {
     super(Constants.loopPeriodSecs);
@@ -65,7 +79,10 @@ public class Robot extends LoggedRobot {
       case REAL:
         String folder = Constants.logFolders.get(Constants.getRobot());
         if (folder != null) {
-          logger.addDataReceiver(new ByteLogReceiver(folder));
+          logReceiver = new ByteLogReceiver(folder);
+          logger.addDataReceiver(logReceiver);
+        } else {
+          logNoFileAlert.set(true);
         }
         logger.addDataReceiver(new LogSocketServer(5800));
         break;
@@ -99,6 +116,13 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+
+    // Check logging faults
+    logReceiverQueueAlert.set(Logger.getInstance().getReceiverQueueFault());
+    if (logReceiver != null) {
+      logOpenFileAlert.set(logReceiver.getOpenFault());
+      logWriteAlert.set(logReceiver.getWriteFault());
+    }
   }
 
   /** This function is called once each time the robot enters Disabled mode. */

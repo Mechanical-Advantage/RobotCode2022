@@ -25,6 +25,7 @@ import frc.robot.oi.OISelector;
 import frc.robot.oi.OverrideOI;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveIO;
+import frc.robot.subsystems.drive.DriveIORomi;
 import frc.robot.subsystems.drive.DriveIOSim;
 import frc.robot.subsystems.drive.DriveIOSparkMAX;
 import frc.robot.subsystems.drive.DriveIOTalonSRX;
@@ -37,7 +38,9 @@ import frc.robot.subsystems.tower.TowerIO;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
+import frc.robot.util.Alert;
 import frc.robot.util.LoggedChoosers;
+import frc.robot.util.Alert.AlertType;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -76,6 +79,11 @@ public class RobotContainer {
       intake = new Intake(new IntakeIO() {});
     } else {
       switch (Constants.getRobot()) {
+        case ROBOT_2022C:
+        case ROBOT_2022P:
+          drive = new Drive(new DriveIOSparkMAX());
+          vision = new Vision(new VisionIO() {});
+          break;
         case ROBOT_2020:
           drive = new Drive(new DriveIOSparkMAX());
           vision = new Vision(new VisionIOPhotonVision());
@@ -96,6 +104,10 @@ public class RobotContainer {
           flywheel = new Flywheel(new FlywheelIO() {});
           tower = new Tower(new TowerIO() {});
           intake = new Intake(new IntakeIO() {});
+          break;
+        case ROBOT_ROMI:
+          drive = new Drive(new DriveIORomi());
+          vision = new Vision(new VisionIO() {});
           break;
         default:
           drive = new Drive(new DriveIO() {});
@@ -144,6 +156,12 @@ public class RobotContainer {
         new SysIdCommand(drive, drive::driveVoltage, drive::getSysIdData));
     autoRoutineMap.put("Run SysId (Flywheel)", new SysIdCommand(flywheel,
         flywheel::runVoltage, flywheel::getSysIdData));
+
+    // Alert if in tuning mode
+    if (Constants.tuningMode) {
+      new Alert("Tuning mode active, expect decreased network performance.",
+          AlertType.INFO).set(true);
+    }
 
     // Instantiate OI classes and bind buttons
     updateOI();

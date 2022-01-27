@@ -32,7 +32,6 @@ import frc.robot.subsystems.drive.Drive;
 public class MotionProfileCommand extends CommandBase {
   private static final double ramseteB = 2;
   private static final double ramseteZeta = 0.7;
-  private static final double maxVoltage = 10;
 
   private final Drive drive;
   private final DifferentialDriveKinematics kinematics;
@@ -57,20 +56,29 @@ public class MotionProfileCommand extends CommandBase {
     this.drive = drive;
 
     // Select max velocity & acceleration
-    double maxVelocityMetersPerSec, maxAccelerationMetersPerSec2,
+    double maxVoltage, maxVelocityMetersPerSec, maxAccelerationMetersPerSec2,
         maxCentripetalAccelerationMetersPerSec2;
     switch (Constants.getRobot()) {
       case ROBOT_2020:
+        maxVoltage = 10.0;
         maxVelocityMetersPerSec = Units.inchesToMeters(120.0);
         maxAccelerationMetersPerSec2 = Units.inchesToMeters(100.0);
         maxCentripetalAccelerationMetersPerSec2 = Units.inchesToMeters(100.0);
         break;
       case ROBOT_SIMBOT:
+        maxVoltage = 10.0;
         maxVelocityMetersPerSec = 3.0;
         maxAccelerationMetersPerSec2 = 3.0;
         maxCentripetalAccelerationMetersPerSec2 = 3.0;
         break;
+      case ROBOT_ROMI:
+        maxVoltage = 7.0;
+        maxVelocityMetersPerSec = 0.5;
+        maxAccelerationMetersPerSec2 = 0.5;
+        maxCentripetalAccelerationMetersPerSec2 = 1.0;
+        break;
       default:
+        maxVoltage = 10.0;
         maxVelocityMetersPerSec = 0.0;
         maxAccelerationMetersPerSec2 = 0.0;
         maxCentripetalAccelerationMetersPerSec2 = 0.0;
