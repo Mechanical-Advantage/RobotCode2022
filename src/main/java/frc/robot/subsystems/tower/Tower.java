@@ -2,19 +2,19 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.feeder;
+package frc.robot.subsystems.tower;
 
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.feeder.FeederIO.FeederIOInputs;
+import frc.robot.subsystems.tower.TowerIO.TowerIOInputs;
 
-public class Feeder extends SubsystemBase {
-  private final FeederIO io;
-  private final FeederIOInputs inputs = new FeederIOInputs();
+public class Tower extends SubsystemBase {
+  private final TowerIO io;
+  private final TowerIOInputs inputs = new TowerIOInputs();
 
-  /** Creates a new Feeder. */
-  public Feeder(FeederIO io) {
+  /** Creates a new Tower. */
+  public Tower(TowerIO io) {
     this.io = io;
     io.setBrakeMode(false);
   }
@@ -22,7 +22,7 @@ public class Feeder extends SubsystemBase {
   @Override
   public void periodic() {
     io.updateInputs(inputs);
-    Logger.getInstance().processInputs("Feeder", inputs);
+    Logger.getInstance().processInputs("Tower", inputs);
   }
 
   /** Run at the specified percentage. */

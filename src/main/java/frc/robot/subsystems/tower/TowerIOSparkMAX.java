@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.feeder;
+package frc.robot.subsystems.tower;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -13,7 +13,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 
-public class FeederIOSparkMAX implements FeederIO {
+public class TowerIOSparkMAX implements TowerIO {
   private boolean invert = false;
   private boolean invertFollower = false;
   private double gearRatio = 1.0;
@@ -23,7 +23,7 @@ public class FeederIOSparkMAX implements FeederIO {
   private final RelativeEncoder encoder;
   private final DigitalInput cargoSensor;
 
-  public FeederIOSparkMAX() {
+  public TowerIOSparkMAX() {
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
         leader = new CANSparkMax(0, MotorType.kBrushless);
@@ -61,7 +61,7 @@ public class FeederIOSparkMAX implements FeederIO {
   }
 
   @Override
-  public void updateInputs(FeederIOInputs inputs) {
+  public void updateInputs(TowerIOInputs inputs) {
     inputs.cargoSensor = cargoSensor.get();
     inputs.positionRad = encoder.getPosition() * gearRatio * 2 * Math.PI;
     inputs.velocityRadPerSec =
