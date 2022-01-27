@@ -41,4 +41,14 @@ public class DualHandheldOI implements HandheldOI {
   public Trigger getAutoAimButton() {
     return new Trigger(driverController::getLeftBumper);
   }
+
+  @Override
+  public Trigger getIntakeForwardsButton() {
+    return new Trigger(operatorController::getLeftBumper);
+  }
+
+  @Override
+  public Trigger getIntakeBackwardsButton() {
+    return new Trigger(operatorController::getRightBumper);
+  }
 }

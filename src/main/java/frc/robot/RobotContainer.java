@@ -19,6 +19,7 @@ import frc.robot.Constants.Mode;
 import frc.robot.commands.AutoAim;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.MotionProfileCommand;
+import frc.robot.commands.RunIntake;
 import frc.robot.commands.SysIdCommand;
 import frc.robot.oi.HandheldOI;
 import frc.robot.oi.OISelector;
@@ -188,6 +189,11 @@ public class RobotContainer {
 
     // Bind new buttons
     handheldOI.getAutoAimButton().whileActiveOnce(new AutoAim(drive, vision));
+
+    handheldOI.getIntakeForwardsButton()
+        .whileActiveContinuous(new RunIntake(intake, true));
+    handheldOI.getIntakeBackwardsButton()
+        .whileActiveContinuous(new RunIntake(intake, false));
   }
 
   /**

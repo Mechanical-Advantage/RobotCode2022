@@ -30,4 +30,12 @@ public interface HandheldOI {
   public default Trigger getAutoAimButton() {
     return new Trigger();
   }
+
+  public default Trigger getIntakeForwardsButton() {
+    return new Trigger();
+  }
+
+  public default Trigger getIntakeBackwardsButton() {
+    return new Trigger();
+  }
 }
