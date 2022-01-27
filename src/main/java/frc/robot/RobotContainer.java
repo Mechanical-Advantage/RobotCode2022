@@ -83,6 +83,9 @@ public class RobotContainer {
         case ROBOT_2022P:
           drive = new Drive(new DriveIOSparkMAX());
           vision = new Vision(new VisionIO() {});
+          flywheel = new Flywheel(new FlywheelIO() {});
+          tower = new Tower(new TowerIO() {});
+          intake = new Intake(new IntakeIO() {});
           break;
         case ROBOT_2020:
           drive = new Drive(new DriveIOSparkMAX());
@@ -108,6 +111,9 @@ public class RobotContainer {
         case ROBOT_ROMI:
           drive = new Drive(new DriveIORomi());
           vision = new Vision(new VisionIO() {});
+          flywheel = new Flywheel(new FlywheelIO() {});
+          tower = new Tower(new TowerIO() {});
+          intake = new Intake(new IntakeIO() {});
           break;
         default:
           drive = new Drive(new DriveIO() {});
