@@ -34,6 +34,7 @@ import frc.robot.subsystems.flywheel.Flywheel;
 import frc.robot.subsystems.flywheel.FlywheelIO;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.intake.IntakeIOSparkMAX;
 import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.tower.TowerIO;
 import frc.robot.subsystems.vision.Vision;
@@ -88,7 +89,7 @@ public class RobotContainer {
           vision = new Vision(new VisionIO() {});
           flywheel = new Flywheel(new FlywheelIO() {});
           tower = new Tower(new TowerIO() {});
-          intake = new Intake(new IntakeIO() {});
+          intake = new Intake(new IntakeIOSparkMAX());
           break;
         case ROBOT_2020:
           drive = new Drive(new DriveIOSparkMAX());
@@ -194,6 +195,8 @@ public class RobotContainer {
     handheldOI.getFlipButton().whenActive(driveWithJoysticks::toggleFlipped);
     handheldOI.getAutoAimButton().whileActiveOnce(new AutoAim(drive, vision));
 
+    handheldOI.getIntakeExtendButton().whenActive(intake::extend, intake);
+    handheldOI.getIntakeRetractButton().whenActive(intake::retract, intake);
     handheldOI.getIntakeForwardsButton()
         .whileActiveContinuous(new RunIntake(intake, true));
     handheldOI.getIntakeBackwardsButton()
