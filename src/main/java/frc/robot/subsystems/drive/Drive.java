@@ -70,15 +70,14 @@ public class Drive extends SubsystemBase {
   public Drive(DriveIO io) {
     this.io = io;
     switch (Constants.getRobot()) {
-      case ROBOT_2022C:
       case ROBOT_2022P:
-        maxVelocityMetersPerSec = Units.inchesToMeters(150.0);
+        maxVelocityMetersPerSec = Units.inchesToMeters(210.0);
         wheelRadiusMeters = Units.inchesToMeters(2.0);
-        trackWidthMeters = 1.5;
-        leftModel = new SimpleMotorFeedforward(0.0, 0.2, 0.0);
-        rightModel = new SimpleMotorFeedforward(0.0, 0.2, 0.0);
-        kP.setDefault(0);
-        kD.setDefault(0);
+        trackWidthMeters = Units.inchesToMeters(27.0);
+        leftModel = new SimpleMotorFeedforward(0.20554, 0.10965, 0.016329);
+        rightModel = new SimpleMotorFeedforward(0.20231, 0.11768, 0.0085871);
+        kP.setDefault(0.00002);
+        kD.setDefault(0.0013);
         break;
       case ROBOT_2020:
         maxVelocityMetersPerSec = Units.inchesToMeters(150.0);
@@ -229,6 +228,11 @@ public class Drive extends SubsystemBase {
     double leftVelocityRadPerSec = leftVelocityMetersPerSec / wheelRadiusMeters;
     double rightVelocityRadPerSec =
         rightVelocityMetersPerSec / wheelRadiusMeters;
+
+    Logger.getInstance().recordOutput("Drive/LeftSetpointRadPerSec",
+        leftVelocityRadPerSec);
+    Logger.getInstance().recordOutput("Drive/RightSetpointRadPerSec",
+        rightVelocityRadPerSec);
 
     double leftFFVolts = leftModel.calculate(leftVelocityRadPerSec);
     double rightFFVolts = rightModel.calculate(rightVelocityRadPerSec);

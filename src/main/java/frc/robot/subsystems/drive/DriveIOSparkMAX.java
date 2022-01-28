@@ -15,9 +15,8 @@ import edu.wpi.first.wpilibj.SPI;
 import frc.robot.Constants;
 
 public class DriveIOSparkMAX implements DriveIO {
-  private final double afterEncoderReduction;
 
-  private final boolean threeControllers;
+  private final boolean hasThreeControllers;
   private final CANSparkMax leftLeader;
   private final CANSparkMax leftFollower;
   private CANSparkMax leftFollower2;
@@ -25,7 +24,8 @@ public class DriveIOSparkMAX implements DriveIO {
   private final CANSparkMax rightFollower;
   private CANSparkMax rightFollower2;
 
-  private final boolean externalEncoders;
+  private final double afterEncoderReduction;
+  private final boolean hasExternalEncoders;
   private Encoder leftExternalEncoder;
   private Encoder rightExternalEncoder;
   private RelativeEncoder leftInternalEncoder;
@@ -33,14 +33,15 @@ public class DriveIOSparkMAX implements DriveIO {
   private final SparkMaxPIDController leftPID;
   private final SparkMaxPIDController rightPID;
 
-  private final AHRS gyro = new AHRS(SPI.Port.kMXP); // SPI currently broken on 2022
+  private final AHRS gyro = new AHRS(SPI.Port.kMXP);
 
   public DriveIOSparkMAX() {
     switch (Constants.getRobot()) {
-      case ROBOT_2022C:
       case ROBOT_2022P:
-        afterEncoderReduction = 6.0;
-        threeControllers = true;
+        afterEncoderReduction = 6.0; // Internal encoders
+        hasExternalEncoders = true;
+        hasThreeControllers = true;
+
         leftLeader = new CANSparkMax(15, MotorType.kBrushless);
         leftFollower = new CANSparkMax(1, MotorType.kBrushless);
         leftFollower2 = new CANSparkMax(30, MotorType.kBrushless);
@@ -48,27 +49,20 @@ public class DriveIOSparkMAX implements DriveIO {
         rightFollower = new CANSparkMax(2, MotorType.kBrushless);
         rightFollower2 = new CANSparkMax(3, MotorType.kBrushless);
 
-        externalEncoders = false;
-        leftInternalEncoder = leftLeader.getEncoder();
-        rightInternalEncoder = rightLeader.getEncoder();
-        // leftExternalEncoder = new Encoder(0, 1);
-        // rightExternalEncoder = new Encoder(2, 3);
-
-        // Convert to rotations
-        // leftExternalEncoder.setDistancePerPulse(2048);
-        // rightExternalEncoder.setDistancePerPulse(2048);
+        leftExternalEncoder = new Encoder(0, 1);
+        rightExternalEncoder = new Encoder(2, 3);
+        leftExternalEncoder.setDistancePerPulse(-1.0 / 2048.0);
+        rightExternalEncoder.setDistancePerPulse(1.0 / 2048.0);
         break;
       case ROBOT_2020:
         afterEncoderReduction = 1.0 / ((9.0 / 62.0) * (18.0 / 30.0));
-        threeControllers = false;
+        hasExternalEncoders = false;
+        hasThreeControllers = false;
+
         leftLeader = new CANSparkMax(3, MotorType.kBrushless);
         leftFollower = new CANSparkMax(12, MotorType.kBrushless);
         rightLeader = new CANSparkMax(16, MotorType.kBrushless);
         rightFollower = new CANSparkMax(15, MotorType.kBrushless);
-
-        externalEncoders = false;
-        leftInternalEncoder = leftLeader.getEncoder();
-        rightInternalEncoder = rightLeader.getEncoder();
         break;
       default:
         throw new RuntimeException("Invalid robot for DriveIOSparkMax!");
@@ -77,12 +71,17 @@ public class DriveIOSparkMAX implements DriveIO {
     leftPID = leftLeader.getPIDController();
     rightPID = rightLeader.getPIDController();
 
+    leftInternalEncoder = leftLeader.getEncoder();
+    rightInternalEncoder = rightLeader.getEncoder();
+    leftInternalEncoder.setPosition(0.0);
+    rightInternalEncoder.setPosition(0.0);
+
     if (Constants.burnMotorControllerFlash) {
       leftLeader.restoreFactoryDefaults();
       leftFollower.restoreFactoryDefaults();
       rightLeader.restoreFactoryDefaults();
       rightFollower.restoreFactoryDefaults();
-      if (threeControllers) {
+      if (hasThreeControllers) {
         leftFollower2.restoreFactoryDefaults();
         rightFollower2.restoreFactoryDefaults();
       }
@@ -90,7 +89,7 @@ public class DriveIOSparkMAX implements DriveIO {
 
     leftFollower.follow(leftLeader);
     rightFollower.follow(rightLeader);
-    if (threeControllers) {
+    if (hasThreeControllers) {
       leftFollower2.follow(leftLeader);
       rightFollower2.follow(rightLeader);
     }
@@ -105,7 +104,7 @@ public class DriveIOSparkMAX implements DriveIO {
     leftFollower.setSmartCurrentLimit(80);
     rightLeader.setSmartCurrentLimit(80);
     rightFollower.setSmartCurrentLimit(80);
-    if (threeControllers) {
+    if (hasThreeControllers) {
       leftFollower2.setSmartCurrentLimit(80);
       rightFollower2.setSmartCurrentLimit(80);
     }
@@ -115,7 +114,7 @@ public class DriveIOSparkMAX implements DriveIO {
       leftFollower.burnFlash();
       rightLeader.burnFlash();
       rightFollower.burnFlash();
-      if (threeControllers) {
+      if (hasThreeControllers) {
         leftFollower2.burnFlash();
         rightFollower2.burnFlash();
       }
@@ -126,33 +125,30 @@ public class DriveIOSparkMAX implements DriveIO {
 
   @Override
   public void updateInputs(DriveIOInputs inputs) {
-    if (externalEncoders) {
-      inputs.leftPositionRad = leftExternalEncoder.getDistance()
-          * (2.0 * Math.PI) / afterEncoderReduction;
-      inputs.rightPositionRad = rightExternalEncoder.getDistance()
-          * (2.0 * Math.PI) / afterEncoderReduction;
+    inputs.leftPositionRad = leftInternalEncoder.getPosition() * (2.0 * Math.PI)
+        / afterEncoderReduction;
+    inputs.rightPositionRad = rightInternalEncoder.getPosition()
+        * (2.0 * Math.PI) / afterEncoderReduction;
+    inputs.leftVelocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(
+        leftInternalEncoder.getVelocity()) / afterEncoderReduction;
+    inputs.rightVelocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(
+        rightInternalEncoder.getVelocity()) / afterEncoderReduction;
 
-      inputs.leftVelocityRadPerSec = leftExternalEncoder.getRate()
-          * (2.0 * Math.PI) / afterEncoderReduction;
-      inputs.rightVelocityRadPerSec = rightExternalEncoder.getRate()
-          * (2.0 * Math.PI) / afterEncoderReduction;
-    } else {
-      inputs.leftPositionRad = leftInternalEncoder.getPosition()
-          * (2.0 * Math.PI) / afterEncoderReduction;
-      inputs.rightPositionRad = rightInternalEncoder.getPosition()
-          * (2.0 * Math.PI) / afterEncoderReduction;
-
-      inputs.leftVelocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(
-          leftInternalEncoder.getVelocity()) / afterEncoderReduction;
-      inputs.rightVelocityRadPerSec =
-          Units.rotationsPerMinuteToRadiansPerSecond(
-              rightInternalEncoder.getVelocity()) / afterEncoderReduction;
+    if (hasExternalEncoders) {
+      inputs.externalLeftPositionRad =
+          leftExternalEncoder.getDistance() * (2.0 * Math.PI);
+      inputs.externalRightPositionRad =
+          rightExternalEncoder.getDistance() * (2.0 * Math.PI);
+      inputs.externalLeftVelocityRadPerSec =
+          leftExternalEncoder.getRate() * (2.0 * Math.PI);
+      inputs.externalRightVelocityRadPerSec =
+          rightExternalEncoder.getRate() * (2.0 * Math.PI);
     }
 
     inputs.leftAppliedVolts = leftLeader.getAppliedOutput() * 12.0;
     inputs.rightAppliedVolts = rightLeader.getAppliedOutput() * 12.0;
 
-    if (threeControllers) {
+    if (hasThreeControllers) {
       inputs.leftCurrentAmps = new double[] {leftLeader.getOutputCurrent(),
           leftFollower.getOutputCurrent(), leftFollower2.getOutputCurrent()};
       inputs.rightCurrentAmps = new double[] {rightLeader.getOutputCurrent(),
@@ -208,7 +204,7 @@ public class DriveIOSparkMAX implements DriveIO {
     leftFollower.setIdleMode(mode);
     rightLeader.setIdleMode(mode);
     rightFollower.setIdleMode(mode);
-    if (threeControllers) {
+    if (hasThreeControllers) {
       leftFollower2.setIdleMode(mode);
       rightFollower2.setIdleMode(mode);
     }

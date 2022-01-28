@@ -58,6 +58,9 @@ public class RobotContainer {
   private final Tower tower;
   private final Intake intake;
 
+  // Commands
+  private final DriveWithJoysticks driveWithJoysticks;
+
   // OI objects
   private OverrideOI overrideOI = new OverrideOI();
   private HandheldOI handheldOI = new HandheldOI() {};
@@ -80,7 +83,6 @@ public class RobotContainer {
       intake = new Intake(new IntakeIO() {});
     } else {
       switch (Constants.getRobot()) {
-        case ROBOT_2022C:
         case ROBOT_2022P:
           drive = new Drive(new DriveIOSparkMAX());
           vision = new Vision(new VisionIO() {});
@@ -129,10 +131,11 @@ public class RobotContainer {
     // Set up subsystems
     drive.setOverrides(() -> overrideOI.getDriveDisable(),
         () -> overrideOI.getOpenLoop());
-    drive.setDefaultCommand(new DriveWithJoysticks(drive,
+    driveWithJoysticks = new DriveWithJoysticks(drive,
         () -> choosers.getJoystickMode(), () -> handheldOI.getLeftDriveX(),
         () -> handheldOI.getLeftDriveY(), () -> handheldOI.getRightDriveX(),
-        () -> handheldOI.getRightDriveY()));
+        () -> handheldOI.getRightDriveY());
+    drive.setDefaultCommand(driveWithJoysticks);
     vision.setOverrides(() -> overrideOI.getVisionLEDMode());
     vision.setTranslationConsumer(drive::addVisionMeasurement);
 
@@ -188,6 +191,7 @@ public class RobotContainer {
     handheldOI = OISelector.findHandheldOI();
 
     // Bind new buttons
+    handheldOI.getFlipButton().whenActive(driveWithJoysticks::toggleFlipped);
     handheldOI.getAutoAimButton().whileActiveOnce(new AutoAim(drive, vision));
 
     handheldOI.getIntakeForwardsButton()

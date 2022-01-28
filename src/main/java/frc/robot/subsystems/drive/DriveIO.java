@@ -23,6 +23,12 @@ public interface DriveIO {
     public double[] rightCurrentAmps = new double[] {};
     public double[] rightTempCelcius = new double[] {};
 
+    public boolean externalAvailable = false;
+    public double externalLeftPositionRad = 0.0;
+    public double externalLeftVelocityRadPerSec = 0.0;
+    public double externalRightPositionRad = 0.0;
+    public double externalRightVelocityRadPerSec = 0.0;
+
     public double gyroPositionRad = 0.0;
     public double gyroVelocityRadPerSec = 0.0;
 
@@ -38,6 +44,13 @@ public interface DriveIO {
       table.put("RightAppliedVolts", rightAppliedVolts);
       table.put("RightCurrentAmps", rightCurrentAmps);
       table.put("RightTempCelcius", rightTempCelcius);
+
+      table.put("ExternalAvailable", externalAvailable);
+      table.put("ExternalLeftPositionRad", externalLeftPositionRad);
+      table.put("ExternalLeftVelocityRadPerSec", externalLeftVelocityRadPerSec);
+      table.put("ExternalRightPositionRad", externalRightPositionRad);
+      table.put("ExternalRightVelocityRadPerSec",
+          externalRightVelocityRadPerSec);
 
       table.put("GyroPositionRad", gyroPositionRad);
       table.put("GyroVelocityRadPerSec", gyroVelocityRadPerSec);
@@ -62,6 +75,17 @@ public interface DriveIO {
           table.getDoubleArray("RightCurrentAmps", rightCurrentAmps);
       rightTempCelcius =
           table.getDoubleArray("RightTempCelcius", rightTempCelcius);
+
+      externalAvailable =
+          table.getBoolean("ExternalAvailable", externalAvailable);
+      externalLeftPositionRad =
+          table.getDouble("ExternalLeftPositionRad", externalLeftPositionRad);
+      externalLeftVelocityRadPerSec = table.getDouble(
+          "ExternalLeftVelocityRadPerSec", externalLeftVelocityRadPerSec);
+      externalRightPositionRad =
+          table.getDouble("ExternalRightPositionRad", externalRightPositionRad);
+      externalRightVelocityRadPerSec = table.getDouble(
+          "ExternalRightVelocityRadPerSec", externalRightVelocityRadPerSec);
 
       gyroPositionRad = table.getDouble("GyroPositionRad", gyroPositionRad);
       gyroVelocityRadPerSec =

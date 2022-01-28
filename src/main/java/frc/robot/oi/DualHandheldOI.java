@@ -38,6 +38,11 @@ public class DualHandheldOI implements HandheldOI {
   }
 
   @Override
+  public Trigger getFlipButton() {
+    return new Trigger(driverController::getRightBumper);
+  }
+
+  @Override
   public Trigger getAutoAimButton() {
     return new Trigger(driverController::getLeftBumper);
   }
