@@ -70,7 +70,6 @@ public class RobotContainer {
       vision = new Vision(new VisionIO() {});
     } else {
       switch (Constants.getRobot()) {
-        case ROBOT_2022C:
         case ROBOT_2022P:
           drive = new Drive(new DriveIOSparkMAX());
           vision = new Vision(new VisionIO() {});
