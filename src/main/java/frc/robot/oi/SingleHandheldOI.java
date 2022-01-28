@@ -36,6 +36,11 @@ public class SingleHandheldOI implements HandheldOI {
   }
 
   @Override
+  public Trigger getFlipButton() {
+    return new Trigger(controller::getRightBumper);
+  }
+
+  @Override
   public Trigger getAutoAimButton() {
     return new Trigger(controller::getLeftBumper);
   }

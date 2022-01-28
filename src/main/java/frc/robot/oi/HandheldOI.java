@@ -27,6 +27,10 @@ public interface HandheldOI {
     return 0.0;
   }
 
+  public default Trigger getFlipButton() {
+    return new Trigger();
+  }
+
   public default Trigger getAutoAimButton() {
     return new Trigger();
   }

@@ -23,6 +23,8 @@ public class DriveWithJoysticks extends CommandBase {
   private final Supplier<Double> rightXSupplier;
   private final Supplier<Double> rightYSupplier;
 
+  private boolean flipped = false;
+
   /** Creates a new DriveWithJoysticks. */
   public DriveWithJoysticks(Drive drive, Supplier<String> modeSupplier,
       Supplier<Double> leftXSupplier, Supplier<Double> leftYSupplier,
@@ -34,6 +36,10 @@ public class DriveWithJoysticks extends CommandBase {
     this.leftYSupplier = leftYSupplier;
     this.rightXSupplier = rightXSupplier;
     this.rightYSupplier = rightYSupplier;
+  }
+
+  public void toggleFlipped() {
+    flipped = !flipped;
   }
 
   // Called when the command is initially scheduled.
@@ -81,6 +87,10 @@ public class DriveWithJoysticks extends CommandBase {
             curvatureSpeeds.right * hybridScale
                 + arcadeSpeeds.right * (1 - hybridScale));
         break;
+    }
+
+    if (flipped) {
+      speeds = new WheelSpeeds(speeds.right * -1, speeds.left * -1);
     }
 
     double leftPercent = MathUtil.clamp(speeds.left, -1.0, 1.0);

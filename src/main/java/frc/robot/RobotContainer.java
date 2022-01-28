@@ -48,6 +48,9 @@ public class RobotContainer {
   private final Drive drive;
   private final Vision vision;
 
+  // Commands
+  private final DriveWithJoysticks driveWithJoysticks;
+
   // OI objects
   private OverrideOI overrideOI = new OverrideOI();
   private HandheldOI handheldOI = new HandheldOI() {};
@@ -98,10 +101,11 @@ public class RobotContainer {
     // Set up subsystems
     drive.setOverrides(() -> overrideOI.getDriveDisable(),
         () -> overrideOI.getOpenLoop());
-    drive.setDefaultCommand(new DriveWithJoysticks(drive,
+    driveWithJoysticks = new DriveWithJoysticks(drive,
         () -> choosers.getJoystickMode(), () -> handheldOI.getLeftDriveX(),
         () -> handheldOI.getLeftDriveY(), () -> handheldOI.getRightDriveX(),
-        () -> handheldOI.getRightDriveY()));
+        () -> handheldOI.getRightDriveY());
+    drive.setDefaultCommand(driveWithJoysticks);
     vision.setOverrides(() -> overrideOI.getVisionLEDMode());
     vision.setTranslationConsumer(drive::addVisionMeasurement);
 
@@ -155,6 +159,7 @@ public class RobotContainer {
     handheldOI = OISelector.findHandheldOI();
 
     // Bind new buttons
+    handheldOI.getFlipButton().whenActive(driveWithJoysticks::toggleFlipped);
     handheldOI.getAutoAimButton().whileActiveOnce(new AutoAim(drive, vision));
   }
 
