@@ -16,7 +16,7 @@ import frc.robot.Constants;
 public class TowerIOSparkMAX implements TowerIO {
   private boolean invert = false;
   private boolean invertFollower = false;
-  private double gearRatio = 1.0;
+  private double afterEncoderReduction = 1.0;
 
   private final CANSparkMax leader;
   private final CANSparkMax follower;
@@ -31,7 +31,7 @@ public class TowerIOSparkMAX implements TowerIO {
         cargoSensor = new DigitalInput(0);
         invert = false;
         invertFollower = false;
-        gearRatio = 1.0;
+        afterEncoderReduction = 1.0;
         break;
       default:
         throw new RuntimeException("Invalid robot for FeederIOSparkMax!");
@@ -63,10 +63,11 @@ public class TowerIOSparkMAX implements TowerIO {
   @Override
   public void updateInputs(TowerIOInputs inputs) {
     inputs.cargoSensor = cargoSensor.get();
-    inputs.positionRad = encoder.getPosition() * gearRatio * 2 * Math.PI;
+    inputs.positionRad =
+        encoder.getPosition() * (2.0 * Math.PI) / afterEncoderReduction;
     inputs.velocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity())
-            * gearRatio;
+            * (2.0 * Math.PI) / afterEncoderReduction;
     inputs.appliedVolts = leader.getAppliedOutput();
     inputs.currentAmps =
         new double[] {leader.getOutputCurrent(), follower.getOutputCurrent()};

@@ -18,7 +18,7 @@ import frc.robot.Constants;
 public class FlywheelIOSparkMAX implements FlywheelIO {
   private boolean invert = false;
   private boolean invertFollower = false;
-  private double gearRatio = 1.0;
+  private double afterEncoderReduction = 1.0;
 
   private CANSparkMax leader;
   private CANSparkMax follower;
@@ -32,7 +32,7 @@ public class FlywheelIOSparkMAX implements FlywheelIO {
         follower = new CANSparkMax(1, MotorType.kBrushless);
         invert = false;
         invertFollower = false;
-        gearRatio = 1.0;
+        afterEncoderReduction = 1.0;
         break;
       default:
         throw new RuntimeException("Invalid robot for FlywheelIOSparkMax!");
@@ -64,10 +64,11 @@ public class FlywheelIOSparkMAX implements FlywheelIO {
 
   @Override
   public void updateInputs(FlywheelIOInputs inputs) {
-    inputs.positionRad = encoder.getPosition() * gearRatio * 2 * Math.PI;
+    inputs.positionRad =
+        encoder.getPosition() * (2.0 * Math.PI) / afterEncoderReduction;
     inputs.velocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity())
-            * gearRatio;
+            * (2.0 * Math.PI) / afterEncoderReduction;
     inputs.appliedVolts = leader.getAppliedOutput();
     inputs.currentAmps =
         new double[] {leader.getOutputCurrent(), follower.getOutputCurrent()};
@@ -84,7 +85,7 @@ public class FlywheelIOSparkMAX implements FlywheelIO {
   public void setVelocity(double velocityRadPerSec, double ffVolts) {
     pid.setReference(
         Units.radiansPerSecondToRotationsPerMinute(velocityRadPerSec)
-            / gearRatio,
+            / afterEncoderReduction,
         ControlType.kVelocity, 0, ffVolts, ArbFFUnits.kVoltage);
   }
 

@@ -48,12 +48,22 @@ public class DualHandheldOI implements HandheldOI {
   }
 
   @Override
-  public Trigger getIntakeForwardsButton() {
+  public Trigger getIntakeExtendButton() {
+    return new Trigger(operatorController::getRightBumper);
+  }
+
+  @Override
+  public Trigger getIntakeRetractButton() {
     return new Trigger(operatorController::getLeftBumper);
   }
 
   @Override
+  public Trigger getIntakeForwardsButton() {
+    return new Trigger(() -> operatorController.getRightTriggerAxis() > 0.5);
+  }
+
+  @Override
   public Trigger getIntakeBackwardsButton() {
-    return new Trigger(operatorController::getRightBumper);
+    return new Trigger(() -> operatorController.getLeftTriggerAxis() > 0.5);
   }
 }

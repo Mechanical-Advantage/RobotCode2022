@@ -10,74 +10,72 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.Solenoid;
 import frc.robot.Constants;
 
 public class IntakeIOSparkMAX implements IntakeIO {
   private boolean invert = false;
-  private boolean invertFollower = false;
-  private double gearRatio = 1.0;
 
-  private final CANSparkMax leader;
-  private final CANSparkMax follower;
+  private double afterEncoderReduction = 1.0;
+  private final CANSparkMax motor;
   private final RelativeEncoder encoder;
+
+  private final Solenoid solenoid;
 
   public IntakeIOSparkMAX() {
     switch (Constants.getRobot()) {
-      case ROBOT_2022C:
-        leader = new CANSparkMax(0, MotorType.kBrushless);
-        follower = new CANSparkMax(1, MotorType.kBrushless);
+      case ROBOT_2022P:
+        afterEncoderReduction = 1.0;
+        solenoid = new Solenoid(PneumaticsModuleType.CTREPCM, 0);
+        motor = new CANSparkMax(0, MotorType.kBrushless);
         invert = false;
-        invertFollower = false;
-        gearRatio = 1.0;
         break;
       default:
         throw new RuntimeException("Invalid robot for IntakeIOSparkMax!");
     }
 
     if (Constants.burnMotorControllerFlash) {
-      leader.restoreFactoryDefaults();
-      follower.restoreFactoryDefaults();
+      motor.restoreFactoryDefaults();
     }
+    motor.setInverted(invert);
+    motor.setSmartCurrentLimit(30);
+    motor.enableVoltageCompensation(12.0);
 
-    follower.follow(leader, invertFollower);
-    leader.setInverted(invert);
-    leader.setSmartCurrentLimit(30);
-    follower.setSmartCurrentLimit(30);
-    leader.enableVoltageCompensation(12.0);
-    follower.enableVoltageCompensation(12.0);
+    encoder = motor.getEncoder();
 
-    encoder = leader.getEncoder();
-
-    leader.setCANTimeout(0);
-    follower.setCANTimeout(0);
+    motor.setCANTimeout(0);
 
     if (Constants.burnMotorControllerFlash) {
-      leader.burnFlash();
-      follower.burnFlash();
+      motor.burnFlash();
     }
   }
 
   @Override
   public void updateInputs(IntakeIOInputs inputs) {
-    inputs.positionRad = encoder.getPosition() * gearRatio * 2 * Math.PI;
+    inputs.extended = solenoid.get();
+    inputs.positionRad =
+        encoder.getPosition() * (2.0 * Math.PI) / afterEncoderReduction;
     inputs.velocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity())
-            * gearRatio;
-    inputs.appliedVolts = leader.getAppliedOutput();
-    inputs.currentAmps =
-        new double[] {leader.getOutputCurrent(), follower.getOutputCurrent()};
-    inputs.tempCelcius = new double[] {leader.getMotorTemperature(),
-        follower.getMotorTemperature()};
+            * (2.0 * Math.PI) / afterEncoderReduction;
+    inputs.appliedVolts = motor.getAppliedOutput();
+    inputs.currentAmps = new double[] {motor.getOutputCurrent()};
+    inputs.tempCelcius = new double[] {motor.getMotorTemperature()};
   }
 
   @Override
   public void setVoltage(double volts) {
-    leader.setVoltage(volts);
+    motor.setVoltage(volts);
   }
 
   @Override
   public void setBrakeMode(boolean enable) {
-    leader.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
-    follower.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
+    motor.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
+  }
+
+  @Override
+  public void setExtended(boolean extended) {
+    solenoid.set(extended);
   }
 }

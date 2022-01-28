@@ -33,4 +33,12 @@ public class Intake extends SubsystemBase {
   public void stop() {
     runPercent(0.0);
   }
+
+  public void extend() {
+    io.setExtended(true);
+  }
+
+  public void retract() {
+    io.setExtended(false);
+  }
 }
