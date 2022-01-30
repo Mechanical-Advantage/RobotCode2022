@@ -21,13 +21,13 @@ public class IntakeIOSparkMAX implements IntakeIO {
   private final CANSparkMax motor;
   private final RelativeEncoder encoder;
 
-  private final Solenoid solenoid;
+  // private final Solenoid solenoid;
 
   public IntakeIOSparkMAX() {
     switch (Constants.getRobot()) {
       case ROBOT_2022P:
         afterEncoderReduction = 1.0;
-        solenoid = new Solenoid(PneumaticsModuleType.CTREPCM, 0);
+        // solenoid = new Solenoid(PneumaticsModuleType.CTREPCM, 0);
         motor = new CANSparkMax(0, MotorType.kBrushless);
         invert = false;
         break;
@@ -53,7 +53,7 @@ public class IntakeIOSparkMAX implements IntakeIO {
 
   @Override
   public void updateInputs(IntakeIOInputs inputs) {
-    inputs.extended = solenoid.get();
+    // inputs.extended = solenoid.get();
     inputs.positionRad =
         encoder.getPosition() * (2.0 * Math.PI) / afterEncoderReduction;
     inputs.velocityRadPerSec =
@@ -76,6 +76,6 @@ public class IntakeIOSparkMAX implements IntakeIO {
 
   @Override
   public void setExtended(boolean extended) {
-    solenoid.set(extended);
+    // solenoid.set(extended);
   }
 }
