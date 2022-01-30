@@ -34,7 +34,7 @@ public class DriveWithJoysticks extends CommandBase {
 
   private boolean flipped = false;
 
-  /** Creates a new DriveWithJoysticks. */
+  /** Creates a new DriveWithJoysticks. Drives based on the joystick values. */
   public DriveWithJoysticks(Drive drive, Supplier<String> modeSupplier,
       Supplier<Double> leftXSupplier, Supplier<Double> leftYSupplier,
       Supplier<Double> rightXSupplier, Supplier<Double> rightYSupplier,

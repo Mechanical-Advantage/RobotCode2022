@@ -40,7 +40,10 @@ public class MotionProfileCommand extends CommandBase {
       new RamseteController(ramseteB, ramseteZeta);
   private final Timer timer = new Timer();
 
-  /** Creates a new MotionProfileCommand with no extra constraints. */
+  /**
+   * Creates a new MotionProfileCommand with no extra constraints. Drives along the specified path
+   * based on odometry data.
+   */
   public MotionProfileCommand(Drive drive, double startVelocityMetersPerSec,
       List<Pose2d> waypoints, double endVelocityMetersPerSec,
       boolean reversed) {
@@ -48,7 +51,10 @@ public class MotionProfileCommand extends CommandBase {
         reversed, List.of());
   }
 
-  /** Creates a new MotionProfileCommand with extra constraints. */
+  /**
+   * Creates a new MotionProfileCommand with extra constraints. Drives along the specified path
+   * based on odometry data.
+   */
   public MotionProfileCommand(Drive drive, double startVelocityMetersPerSec,
       List<Pose2d> waypoints, double endVelocityMetersPerSec, boolean reversed,
       List<TrajectoryConstraint> constraints) {

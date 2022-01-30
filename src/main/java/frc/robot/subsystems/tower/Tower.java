@@ -34,7 +34,7 @@ public class Tower extends SubsystemBase {
     runPercent(0.0);
   }
 
-  public boolean getCargoSensorValue() {
+  public boolean getCargoSensorTripped() {
     return inputs.cargoSensor;
   }
 }

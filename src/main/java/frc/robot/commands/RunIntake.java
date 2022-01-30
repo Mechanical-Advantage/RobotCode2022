@@ -11,14 +11,16 @@ import frc.robot.util.TunableNumber;
 public class RunIntake extends CommandBase {
 
   private static final TunableNumber forwardsSpeed =
-      new TunableNumber("Intake/ForwardsSpeed");
+      new TunableNumber("RunIntake/ForwardsSpeed");
   private static final TunableNumber backwardsSpeed =
-      new TunableNumber("Intake/BackwardsSpeed");
+      new TunableNumber("RunIntake/BackwardsSpeed");
 
   private final Intake intake;
   private final boolean forwards;
 
-  /** Creates a new RunIntake. */
+  /**
+   * Creates a new RunIntake. Runs the intake forwards or backwards, intended for operator controls.
+   */
   public RunIntake(Intake intake, boolean forwards) {
     addRequirements(intake);
     this.intake = intake;

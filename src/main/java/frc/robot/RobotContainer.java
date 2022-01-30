@@ -17,9 +17,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.Mode;
 import frc.robot.commands.AutoAim;
+import frc.robot.commands.AutoIndex;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.MotionProfileCommand;
 import frc.robot.commands.RunIntake;
+import frc.robot.commands.RunTower;
 import frc.robot.commands.SysIdCommand;
 import frc.robot.oi.HandheldOI;
 import frc.robot.oi.OISelector;
@@ -136,6 +138,8 @@ public class RobotContainer {
         () -> handheldOI.getSniperModeButton().get()));
     vision.setOverrides(() -> overrideOI.getVisionLEDMode());
     vision.setTranslationConsumer(drive::addVisionMeasurement);
+    tower.setDefaultCommand(
+        new AutoIndex(tower, () -> overrideOI.getAutoIndexDisable()));
 
     // Set up auto positions
     Transform2d autoPositionTransformLeft = new Transform2d(
@@ -197,6 +201,11 @@ public class RobotContainer {
         .whileActiveContinuous(new RunIntake(intake, true));
     handheldOI.getIntakeBackwardsButton()
         .whileActiveContinuous(new RunIntake(intake, false));
+
+    handheldOI.getTowerUpButton()
+        .whileActiveContinuous(new RunTower(tower, true));
+    handheldOI.getTowerDownButton()
+        .whileActiveContinuous(new RunTower(tower, false));
   }
 
   /**

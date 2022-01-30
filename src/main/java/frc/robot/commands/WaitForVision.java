@@ -14,7 +14,10 @@ public class WaitForVision extends CommandBase {
   private final Drive drive;
   private Timer timer = new Timer();
 
-  /** Creates a new WaitForVision. */
+  /**
+   * Creates a new WaitForVision. Waits until odometry is updated based on vision (or a timeout is
+   * reached).
+   */
   public WaitForVision(Drive drive) {
     this.drive = drive;
   }

@@ -36,7 +36,7 @@ public class AutoAim extends CommandBase {
   private final TunableNumber toleranceTime =
       new TunableNumber("AutoAim/ToleranceTime");
 
-  /** Creates a new AutoAim. */
+  /** Creates a new AutoAim. Points towards the center of the field using odometry data. */
   public AutoAim(Drive drive, Vision vision) {
     addRequirements(drive, vision);
     this.drive = drive;

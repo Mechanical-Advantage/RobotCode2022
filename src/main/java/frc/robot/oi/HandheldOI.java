@@ -50,4 +50,12 @@ public interface HandheldOI {
   public default Trigger getIntakeBackwardsButton() {
     return new Trigger();
   }
+
+  public default Trigger getTowerUpButton() {
+    return new Trigger();
+  }
+
+  public default Trigger getTowerDownButton() {
+    return new Trigger();
+  }
 }
