@@ -34,7 +34,7 @@ public class TowerIOSparkMAX implements TowerIO {
         afterEncoderReduction = 1.0;
         break;
       default:
-        throw new RuntimeException("Invalid robot for FeederIOSparkMax!");
+        throw new RuntimeException("Invalid robot for TowerIOSparkMax!");
     }
 
     if (Constants.burnMotorControllerFlash) {
