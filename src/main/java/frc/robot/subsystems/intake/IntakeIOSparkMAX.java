@@ -28,8 +28,8 @@ public class IntakeIOSparkMAX implements IntakeIO {
       case ROBOT_2022P:
         afterEncoderReduction = 1.0;
         // solenoid = new Solenoid(PneumaticsModuleType.CTREPCM, 0);
-        motor = new CANSparkMax(0, MotorType.kBrushless);
-        invert = false;
+        motor = new CANSparkMax(4, MotorType.kBrushless);
+        invert = true;
         break;
       default:
         throw new RuntimeException("Invalid robot for IntakeIOSparkMax!");
