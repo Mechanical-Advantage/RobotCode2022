@@ -11,24 +11,34 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.util.TunableNumber;
 
 public class DriveWithJoysticks extends CommandBase {
-  private static final double deadband = 0.08;
-  private static final double curvatureThreshold = 0.15; // Where to transition to full curvature
-  private static final double curvatureArcadeTurnScale = 0.5; // Arcade turning scale factor
+  private static final TunableNumber deadband =
+      new TunableNumber("DriveWithJoysticks/Deadband");
+  private static final TunableNumber sniperLevel =
+      new TunableNumber("DriveWithJoysticks/SniperLevel");
+  private static final TunableNumber curvatureThreshold =
+      new TunableNumber("DriveWithJoysticks/CurvatureThreshold"); // Where to transition to full
+                                                                  // curvature
+  private static final TunableNumber curvatureArcadeTurnScale =
+      new TunableNumber("DriveWithJoysticks/CurvatureArcadeTurnScale"); // Arcade turning scale
+                                                                        // factor
   private final Drive drive;
   private final Supplier<String> modeSupplier;
   private final Supplier<Double> leftXSupplier;
   private final Supplier<Double> leftYSupplier;
   private final Supplier<Double> rightXSupplier;
   private final Supplier<Double> rightYSupplier;
+  private final Supplier<Boolean> sniperModeSupplier;
 
   private boolean flipped = false;
 
   /** Creates a new DriveWithJoysticks. */
   public DriveWithJoysticks(Drive drive, Supplier<String> modeSupplier,
       Supplier<Double> leftXSupplier, Supplier<Double> leftYSupplier,
-      Supplier<Double> rightXSupplier, Supplier<Double> rightYSupplier) {
+      Supplier<Double> rightXSupplier, Supplier<Double> rightYSupplier,
+      Supplier<Boolean> sniperModeSupplier) {
     addRequirements(drive);
     this.drive = drive;
     this.modeSupplier = modeSupplier;
@@ -36,6 +46,12 @@ public class DriveWithJoysticks extends CommandBase {
     this.leftYSupplier = leftYSupplier;
     this.rightXSupplier = rightXSupplier;
     this.rightYSupplier = rightYSupplier;
+    this.sniperModeSupplier = sniperModeSupplier;
+
+    deadband.setDefault(0.08);
+    sniperLevel.setDefault(0.5);
+    curvatureThreshold.setDefault(0.15);
+    curvatureArcadeTurnScale.setDefault(0.5);
   }
 
   public void toggleFlipped() {
@@ -48,10 +64,11 @@ public class DriveWithJoysticks extends CommandBase {
 
   /** Apply deadband and square. */
   private double processAxis(double value) {
-    if (Math.abs(value) < deadband) {
+    if (Math.abs(value) < deadband.get()) {
       return 0.0;
     }
-    double scaledValue = (Math.abs(value) - deadband) / (1 - deadband);
+    double scaledValue =
+        (Math.abs(value) - deadband.get()) / (1 - deadband.get());
     return Math.copySign(scaledValue * scaledValue, value);
   }
 
@@ -76,10 +93,10 @@ public class DriveWithJoysticks extends CommandBase {
 
       case "Curvature":
         WheelSpeeds arcadeSpeeds = WheelSpeeds.fromArcade(leftYValue,
-            rightXValue * curvatureArcadeTurnScale);
+            rightXValue * curvatureArcadeTurnScale.get());
         WheelSpeeds curvatureSpeeds =
             WheelSpeeds.fromCurvature(leftYValue, rightXValue);
-        double hybridScale = Math.abs(leftYValue) / curvatureThreshold;
+        double hybridScale = Math.abs(leftYValue) / curvatureThreshold.get();
         hybridScale = hybridScale > 1 ? 1 : hybridScale;
         speeds = new WheelSpeeds(
             curvatureSpeeds.left * hybridScale
@@ -89,8 +106,9 @@ public class DriveWithJoysticks extends CommandBase {
         break;
     }
 
-    if (flipped) {
-      speeds = new WheelSpeeds(speeds.right * -1, speeds.left * -1);
+    if (sniperModeSupplier.get()) {
+      speeds = new WheelSpeeds(speeds.left * sniperLevel.get(),
+          speeds.right * sniperLevel.get());
     }
 
     double leftPercent = MathUtil.clamp(speeds.left, -1.0, 1.0);

@@ -36,7 +36,7 @@ public class SingleHandheldOI implements HandheldOI {
   }
 
   @Override
-  public Trigger getFlipButton() {
+  public Trigger getSniperModeButton() {
     return new Trigger(controller::getRightBumper);
   }
 
