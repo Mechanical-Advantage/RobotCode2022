@@ -27,7 +27,7 @@ public interface HandheldOI {
     return 0.0;
   }
 
-  public default Trigger getFlipButton() {
+  public default Trigger getSniperModeButton() {
     return new Trigger();
   }
 
