@@ -55,6 +55,7 @@ public class Drive extends SubsystemBase {
 
   private Supplier<Boolean> disableOverride = () -> false;
   private Supplier<Boolean> openLoopOverride = () -> false;
+  private Supplier<Boolean> internalEncoderOverride = () -> false;
 
   private final DifferentialDriveOdometry odometry =
       new DifferentialDriveOdometry(new Rotation2d(), new Pose2d());
@@ -132,9 +133,11 @@ public class Drive extends SubsystemBase {
 
   /** Set boolean supplier for the override switches. */
   public void setOverrides(Supplier<Boolean> disableOverride,
-      Supplier<Boolean> openLoopOverride) {
+      Supplier<Boolean> openLoopOverride,
+      Supplier<Boolean> internalEncoderOverride) {
     this.disableOverride = disableOverride;
     this.openLoopOverride = openLoopOverride;
+    this.internalEncoderOverride = internalEncoderOverride;
   }
 
   @Override
@@ -145,8 +148,8 @@ public class Drive extends SubsystemBase {
 
     // Update odometry
     odometry.update(new Rotation2d(inputs.gyroPositionRad * -1),
-        (inputs.leftPositionRad - baseDistanceLeftRad) * wheelRadiusMeters,
-        (inputs.rightPositionRad - baseDistanceRightRad) * wheelRadiusMeters);
+        getLeftPositionMeters() - baseDistanceLeftRad,
+        getRightPositionMeters() - baseDistanceRightRad);
 
 
     // Log robot pose
@@ -186,6 +189,42 @@ public class Drive extends SubsystemBase {
     // Send tuning constants
     if (kP.hasChanged() | kD.hasChanged()) {
       io.configurePID(kP.get(), 0, kD.get());
+    }
+  }
+
+  /** Return left position in meters. */
+  private double getLeftPositionMeters() {
+    if (inputs.externalAvailable && !internalEncoderOverride.get()) {
+      return inputs.externalLeftPositionRad * wheelRadiusMeters;
+    } else {
+      return inputs.leftPositionRad * wheelRadiusMeters;
+    }
+  }
+
+  /** Return right position in meters. */
+  private double getRightPositionMeters() {
+    if (inputs.externalAvailable && !internalEncoderOverride.get()) {
+      return inputs.externalRightPositionRad * wheelRadiusMeters;
+    } else {
+      return inputs.rightPositionRad * wheelRadiusMeters;
+    }
+  }
+
+  /** Return left velocity in meters per second. */
+  private double getLeftVelocityMetersPerSec() {
+    if (inputs.externalAvailable && !internalEncoderOverride.get()) {
+      return inputs.externalRightVelocityRadPerSec * wheelRadiusMeters;
+    } else {
+      return inputs.rightVelocityRadPerSec * wheelRadiusMeters;
+    }
+  }
+
+  /** Return right velocity in meters per second. */
+  private double getRightVelocityMetersPerSec() {
+    if (inputs.externalAvailable && !internalEncoderOverride.get()) {
+      return inputs.externalLeftVelocityRadPerSec * wheelRadiusMeters;
+    } else {
+      return inputs.leftVelocityRadPerSec * wheelRadiusMeters;
     }
   }
 
@@ -268,8 +307,8 @@ public class Drive extends SubsystemBase {
     if (clearHistory) {
       poseHistory = new PoseHistory(poseHistoryCapacity);
     }
-    baseDistanceLeftRad = inputs.leftPositionRad;
-    baseDistanceRightRad = inputs.rightPositionRad;
+    baseDistanceLeftRad = getLeftPositionMeters();
+    baseDistanceRightRad = getRightPositionMeters();
     odometry.resetPosition(pose, new Rotation2d(inputs.gyroPositionRad * -1));
   }
 
@@ -337,16 +376,6 @@ public class Drive extends SubsystemBase {
     return !resetOnVision;
   }
 
-  /** Return left velocity in meters per second. */
-  public double getLeftVelocityMetersPerSec() {
-    return inputs.leftVelocityRadPerSec * wheelRadiusMeters;
-  }
-
-  /** Return right velocity in meters per second. */
-  public double getRightVelocityMetersPerSec() {
-    return inputs.rightVelocityRadPerSec * wheelRadiusMeters;
-  }
-
   /** Return track width in meters. */
   public double getTrackWidthMeters() {
     return trackWidthMeters;
@@ -371,9 +400,10 @@ public class Drive extends SubsystemBase {
    * Returns a set of data for SysId
    */
   public DriveTrainSysIdData getSysIdData() {
-    return new DriveTrainSysIdData(inputs.leftPositionRad,
-        inputs.rightPositionRad, inputs.leftVelocityRadPerSec,
-        inputs.rightVelocityRadPerSec, inputs.gyroPositionRad,
-        inputs.gyroVelocityRadPerSec);
+    return new DriveTrainSysIdData(getLeftPositionMeters() / wheelRadiusMeters,
+        getRightPositionMeters() / wheelRadiusMeters,
+        getLeftVelocityMetersPerSec() / wheelRadiusMeters,
+        getRightVelocityMetersPerSec() / wheelRadiusMeters,
+        inputs.gyroPositionRad, inputs.gyroVelocityRadPerSec);
   }
 }
