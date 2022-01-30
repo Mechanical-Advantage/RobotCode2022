@@ -45,6 +45,7 @@ public class Drive extends SubsystemBase {
 
   private final double wheelRadiusMeters;
   private final double maxVelocityMetersPerSec;
+  private final double maxAccelerationMetersPerSec2;
   private final double trackWidthMeters;
   private final SimpleMotorFeedforward leftModel, rightModel;
   private final TunableNumber kP = new TunableNumber("Drive/kP");
@@ -55,6 +56,7 @@ public class Drive extends SubsystemBase {
 
   private Supplier<Boolean> disableOverride = () -> false;
   private Supplier<Boolean> openLoopOverride = () -> false;
+  private Supplier<Boolean> internalEncoderOverride = () -> false;
 
   private final DifferentialDriveOdometry odometry =
       new DifferentialDriveOdometry(new Rotation2d(), new Pose2d());
@@ -63,6 +65,8 @@ public class Drive extends SubsystemBase {
   private Pose2d lastVisionPose = new Pose2d();
   private double baseDistanceLeftRad = 0.0;
   private double baseDistanceRightRad = 0.0;
+  private double lastLeftVelocityMetersPerSec = 0.0;
+  private double lastRightVelocityMetersPerSec = 0.0;
   private boolean brakeMode = false;
   private boolean resetOnVision = false;
 
@@ -72,6 +76,7 @@ public class Drive extends SubsystemBase {
     switch (Constants.getRobot()) {
       case ROBOT_2022P:
         maxVelocityMetersPerSec = Units.inchesToMeters(210.0);
+        maxAccelerationMetersPerSec2 = Double.POSITIVE_INFINITY;
         wheelRadiusMeters = Units.inchesToMeters(2.0);
         trackWidthMeters = Units.inchesToMeters(27.0);
         leftModel = new SimpleMotorFeedforward(0.20554, 0.10965, 0.016329);
@@ -81,6 +86,7 @@ public class Drive extends SubsystemBase {
         break;
       case ROBOT_2020:
         maxVelocityMetersPerSec = Units.inchesToMeters(150.0);
+        maxAccelerationMetersPerSec2 = Units.inchesToMeters(250.0);
         wheelRadiusMeters = Units.inchesToMeters(3.0);
         trackWidthMeters = 1.768748;
         leftModel = new SimpleMotorFeedforward(0.23004, 0.2126, 0.036742);
@@ -90,6 +96,7 @@ public class Drive extends SubsystemBase {
         break;
       case ROBOT_KITBOT:
         maxVelocityMetersPerSec = Units.inchesToMeters(122.0);
+        maxAccelerationMetersPerSec2 = Double.POSITIVE_INFINITY;
         wheelRadiusMeters = Units.inchesToMeters(3.18);
         trackWidthMeters = 0.6928821;
         leftModel = new SimpleMotorFeedforward(0.75379, 0.25162, 0.042941);
@@ -99,6 +106,7 @@ public class Drive extends SubsystemBase {
         break;
       case ROBOT_SIMBOT:
         maxVelocityMetersPerSec = 4.0;
+        maxAccelerationMetersPerSec2 = Double.POSITIVE_INFINITY;
         wheelRadiusMeters = Units.inchesToMeters(3.0);
         trackWidthMeters = 0.354426;
         leftModel = new SimpleMotorFeedforward(0.0, 0.22643, 0.018292);
@@ -108,6 +116,7 @@ public class Drive extends SubsystemBase {
         break;
       case ROBOT_ROMI:
         maxVelocityMetersPerSec = 0.6;
+        maxAccelerationMetersPerSec2 = Double.POSITIVE_INFINITY;
         wheelRadiusMeters = 0.035;
         trackWidthMeters = 0.281092;
         leftModel = new SimpleMotorFeedforward(0.27034, 0.64546, 0.021935);
@@ -117,6 +126,7 @@ public class Drive extends SubsystemBase {
         break;
       default:
         maxVelocityMetersPerSec = 0;
+        maxAccelerationMetersPerSec2 = Double.POSITIVE_INFINITY;
         wheelRadiusMeters = Double.POSITIVE_INFINITY;
         trackWidthMeters = 1.0;
         leftModel = new SimpleMotorFeedforward(0, 0, 0);
@@ -132,9 +142,11 @@ public class Drive extends SubsystemBase {
 
   /** Set boolean supplier for the override switches. */
   public void setOverrides(Supplier<Boolean> disableOverride,
-      Supplier<Boolean> openLoopOverride) {
+      Supplier<Boolean> openLoopOverride,
+      Supplier<Boolean> internalEncoderOverride) {
     this.disableOverride = disableOverride;
     this.openLoopOverride = openLoopOverride;
+    this.internalEncoderOverride = internalEncoderOverride;
   }
 
   @Override
@@ -145,8 +157,8 @@ public class Drive extends SubsystemBase {
 
     // Update odometry
     odometry.update(new Rotation2d(inputs.gyroPositionRad * -1),
-        (inputs.leftPositionRad - baseDistanceLeftRad) * wheelRadiusMeters,
-        (inputs.rightPositionRad - baseDistanceRightRad) * wheelRadiusMeters);
+        getLeftPositionMeters() - baseDistanceLeftRad,
+        getRightPositionMeters() - baseDistanceRightRad);
 
 
     // Log robot pose
@@ -189,6 +201,42 @@ public class Drive extends SubsystemBase {
     }
   }
 
+  /** Return left position in meters. */
+  private double getLeftPositionMeters() {
+    if (inputs.externalAvailable && !internalEncoderOverride.get()) {
+      return inputs.externalLeftPositionRad * wheelRadiusMeters;
+    } else {
+      return inputs.leftPositionRad * wheelRadiusMeters;
+    }
+  }
+
+  /** Return right position in meters. */
+  private double getRightPositionMeters() {
+    if (inputs.externalAvailable && !internalEncoderOverride.get()) {
+      return inputs.externalRightPositionRad * wheelRadiusMeters;
+    } else {
+      return inputs.rightPositionRad * wheelRadiusMeters;
+    }
+  }
+
+  /** Return left velocity in meters per second. */
+  private double getLeftVelocityMetersPerSec() {
+    if (inputs.externalAvailable && !internalEncoderOverride.get()) {
+      return inputs.externalRightVelocityRadPerSec * wheelRadiusMeters;
+    } else {
+      return inputs.rightVelocityRadPerSec * wheelRadiusMeters;
+    }
+  }
+
+  /** Return right velocity in meters per second. */
+  private double getRightVelocityMetersPerSec() {
+    if (inputs.externalAvailable && !internalEncoderOverride.get()) {
+      return inputs.externalLeftVelocityRadPerSec * wheelRadiusMeters;
+    } else {
+      return inputs.leftVelocityRadPerSec * wheelRadiusMeters;
+    }
+  }
+
   /**
    * Drive at the specified voltage with no other processing. Only use with SysId.
    */
@@ -224,19 +272,44 @@ public class Drive extends SubsystemBase {
       return;
     }
 
+    // Enforce acceleration limit
+    double maxAccelerationPerCycle =
+        maxAccelerationMetersPerSec2 * Constants.loopPeriodSecs;
+    double leftAcceleration = lastLeftVelocityMetersPerSec > 0
+        ? leftVelocityMetersPerSec - lastLeftVelocityMetersPerSec
+        : lastLeftVelocityMetersPerSec - leftVelocityMetersPerSec;
+    if (leftAcceleration > maxAccelerationPerCycle) {
+      lastLeftVelocityMetersPerSec +=
+          leftVelocityMetersPerSec > 0 ? maxAccelerationPerCycle
+              : -maxAccelerationPerCycle;
+    } else {
+      lastLeftVelocityMetersPerSec = leftVelocityMetersPerSec;
+    }
+    double rightAcceleration = lastRightVelocityMetersPerSec > 0
+        ? rightVelocityMetersPerSec - lastRightVelocityMetersPerSec
+        : lastRightVelocityMetersPerSec - rightVelocityMetersPerSec;
+    if (rightAcceleration > maxAccelerationPerCycle) {
+      lastRightVelocityMetersPerSec +=
+          rightVelocityMetersPerSec > 0 ? maxAccelerationPerCycle
+              : -maxAccelerationPerCycle;
+    } else {
+      lastRightVelocityMetersPerSec = rightVelocityMetersPerSec;
+    }
 
-    double leftVelocityRadPerSec = leftVelocityMetersPerSec / wheelRadiusMeters;
+    // Calculate setpoint and feed forward voltage
+    double leftVelocityRadPerSec =
+        lastLeftVelocityMetersPerSec / wheelRadiusMeters;
     double rightVelocityRadPerSec =
-        rightVelocityMetersPerSec / wheelRadiusMeters;
+        lastRightVelocityMetersPerSec / wheelRadiusMeters;
+    double leftFFVolts = leftModel.calculate(leftVelocityRadPerSec);
+    double rightFFVolts = rightModel.calculate(rightVelocityRadPerSec);
 
     Logger.getInstance().recordOutput("Drive/LeftSetpointRadPerSec",
         leftVelocityRadPerSec);
     Logger.getInstance().recordOutput("Drive/RightSetpointRadPerSec",
         rightVelocityRadPerSec);
 
-    double leftFFVolts = leftModel.calculate(leftVelocityRadPerSec);
-    double rightFFVolts = rightModel.calculate(rightVelocityRadPerSec);
-
+    // Send commands to motors
     if (openLoopOverride.get()) {
       // Use open loop control
       io.setVoltage(leftFFVolts, rightFFVolts);
@@ -268,8 +341,8 @@ public class Drive extends SubsystemBase {
     if (clearHistory) {
       poseHistory = new PoseHistory(poseHistoryCapacity);
     }
-    baseDistanceLeftRad = inputs.leftPositionRad;
-    baseDistanceRightRad = inputs.rightPositionRad;
+    baseDistanceLeftRad = getLeftPositionMeters();
+    baseDistanceRightRad = getRightPositionMeters();
     odometry.resetPosition(pose, new Rotation2d(inputs.gyroPositionRad * -1));
   }
 
@@ -337,16 +410,6 @@ public class Drive extends SubsystemBase {
     return !resetOnVision;
   }
 
-  /** Return left velocity in meters per second. */
-  public double getLeftVelocityMetersPerSec() {
-    return inputs.leftVelocityRadPerSec * wheelRadiusMeters;
-  }
-
-  /** Return right velocity in meters per second. */
-  public double getRightVelocityMetersPerSec() {
-    return inputs.rightVelocityRadPerSec * wheelRadiusMeters;
-  }
-
   /** Return track width in meters. */
   public double getTrackWidthMeters() {
     return trackWidthMeters;
@@ -371,9 +434,10 @@ public class Drive extends SubsystemBase {
    * Returns a set of data for SysId
    */
   public DriveTrainSysIdData getSysIdData() {
-    return new DriveTrainSysIdData(inputs.leftPositionRad,
-        inputs.rightPositionRad, inputs.leftVelocityRadPerSec,
-        inputs.rightVelocityRadPerSec, inputs.gyroPositionRad,
-        inputs.gyroVelocityRadPerSec);
+    return new DriveTrainSysIdData(getLeftPositionMeters() / wheelRadiusMeters,
+        getRightPositionMeters() / wheelRadiusMeters,
+        getLeftVelocityMetersPerSec() / wheelRadiusMeters,
+        getRightVelocityMetersPerSec() / wheelRadiusMeters,
+        inputs.gyroPositionRad, inputs.gyroVelocityRadPerSec);
   }
 }

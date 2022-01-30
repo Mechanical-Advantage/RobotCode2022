@@ -131,7 +131,7 @@ public class RobotContainer {
 
     // Set up subsystems
     drive.setOverrides(() -> overrideOI.getDriveDisable(),
-        () -> overrideOI.getOpenLoop());
+        () -> overrideOI.getOpenLoop(), () -> overrideOI.getInternalEncoders());
     driveWithJoysticks = new DriveWithJoysticks(drive,
         () -> choosers.getJoystickMode(), () -> handheldOI.getLeftDriveX(),
         () -> handheldOI.getLeftDriveY(), () -> handheldOI.getRightDriveX(),

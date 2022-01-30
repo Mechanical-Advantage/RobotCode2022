@@ -109,6 +109,16 @@ public class DriveIOSparkMAX implements DriveIO {
       rightFollower2.setSmartCurrentLimit(80);
     }
 
+    leftLeader.setCANTimeout(0);
+    leftFollower.setCANTimeout(0);
+    rightLeader.setCANTimeout(0);
+    rightFollower.setCANTimeout(0);
+    if (hasThreeControllers) {
+      leftFollower2.setCANTimeout(0);
+      rightFollower2.setCANTimeout(0);
+    }
+
+
     if (Constants.burnMotorControllerFlash) {
       leftLeader.burnFlash();
       leftFollower.burnFlash();

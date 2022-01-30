@@ -32,6 +32,13 @@ public class OverrideOI {
     return overrides.getRawButton(2);
   }
 
+  public boolean getInternalEncoders() {
+    if (overrides == null) {
+      return false;
+    }
+    return overrides.getRawButton(3);
+  }
+
   public VisionLEDMode getVisionLEDMode() {
     if (overrides != null) {
       if (overrides.getRawButton(4)) {

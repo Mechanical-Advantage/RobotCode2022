@@ -23,16 +23,16 @@ public class VisionIOPhotonVision implements VisionIO {
 
   private final PhotonCamera camera = new PhotonCamera(cameraName);
 
-  private volatile double captureTimestamp = 0.0;
-  private volatile double[] cornerX = new double[] {};
-  private volatile double[] cornerY = new double[] {};
+  private double captureTimestamp = 0.0;
+  private double[] cornerX = new double[] {};
+  private double[] cornerY = new double[] {};
 
   public VisionIOPhotonVision() {
     NetworkTableInstance.getDefault()
         .getEntry("/photonvision/" + cameraName + "/latencyMillis")
         .addListener(event -> {
           PhotonPipelineResult result = camera.getLatestResult();
-          captureTimestamp = Logger.getInstance().getRealTimestamp()
+          double timestamp = Logger.getInstance().getRealTimestamp()
               - (result.getLatencyMillis() / 1000.0);
 
           List<Double> cornerXList = new ArrayList<>();
@@ -44,16 +44,19 @@ public class VisionIOPhotonVision implements VisionIO {
             }
           }
 
-          cornerX =
-              cornerXList.stream().mapToDouble(Double::doubleValue).toArray();
-          cornerY =
-              cornerYList.stream().mapToDouble(Double::doubleValue).toArray();
+          synchronized (VisionIOPhotonVision.this) {
+            captureTimestamp = timestamp;
+            cornerX =
+                cornerXList.stream().mapToDouble(Double::doubleValue).toArray();
+            cornerY =
+                cornerYList.stream().mapToDouble(Double::doubleValue).toArray();
+          }
 
         }, EntryListenerFlags.kUpdate);
   }
 
   @Override
-  public void updateInputs(VisionIOInputs inputs) {
+  public synchronized void updateInputs(VisionIOInputs inputs) {
     inputs.captureTimestamp = captureTimestamp;
     inputs.cornerX = cornerX;
     inputs.cornerY = cornerY;
