@@ -15,14 +15,18 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Mode;
 import frc.robot.commands.AutoAim;
 import frc.robot.commands.AutoIndex;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.MotionProfileCommand;
+import frc.robot.commands.PrepareShooter;
 import frc.robot.commands.RunIntake;
 import frc.robot.commands.RunTower;
+import frc.robot.commands.Shoot;
 import frc.robot.commands.SysIdCommand;
+import frc.robot.commands.PrepareShooter.ShooterPreset;
 import frc.robot.oi.HandheldOI;
 import frc.robot.oi.OISelector;
 import frc.robot.oi.OverrideOI;
@@ -32,11 +36,15 @@ import frc.robot.subsystems.drive.DriveIORomi;
 import frc.robot.subsystems.drive.DriveIOSim;
 import frc.robot.subsystems.drive.DriveIOSparkMAX;
 import frc.robot.subsystems.drive.DriveIOTalonSRX;
-import frc.robot.subsystems.flywheel.Flywheel;
-import frc.robot.subsystems.flywheel.FlywheelIO;
+import frc.robot.subsystems.flywheels.Flywheels;
+import frc.robot.subsystems.flywheels.FlywheelsIO;
+import frc.robot.subsystems.hood.Hood;
+import frc.robot.subsystems.hood.HoodIO;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOSparkMAX;
+import frc.robot.subsystems.kicker.Kicker;
+import frc.robot.subsystems.kicker.KickerIO;
 import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.tower.TowerIO;
 import frc.robot.subsystems.vision.Vision;
@@ -57,7 +65,9 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final Vision vision;
-  private final Flywheel flywheel;
+  private final Flywheels flywheels;
+  private final Hood hood;
+  private final Kicker kicker;
   private final Tower tower;
   private final Intake intake;
 
@@ -78,7 +88,9 @@ public class RobotContainer {
     if (Constants.getMode() == Mode.REPLAY) {
       drive = new Drive(new DriveIO() {});
       vision = new Vision(new VisionIO() {});
-      flywheel = new Flywheel(new FlywheelIO() {});
+      flywheels = new Flywheels(new FlywheelsIO() {});
+      hood = new Hood(new HoodIO() {});
+      kicker = new Kicker(new KickerIO() {});
       tower = new Tower(new TowerIO() {});
       intake = new Intake(new IntakeIO() {});
     } else {
@@ -86,42 +98,54 @@ public class RobotContainer {
         case ROBOT_2022P:
           drive = new Drive(new DriveIOSparkMAX());
           vision = new Vision(new VisionIO() {});
-          flywheel = new Flywheel(new FlywheelIO() {});
+          flywheels = new Flywheels(new FlywheelsIO() {});
+          hood = new Hood(new HoodIO() {});
+          kicker = new Kicker(new KickerIO() {});
           tower = new Tower(new TowerIO() {});
           intake = new Intake(new IntakeIOSparkMAX());
           break;
         case ROBOT_2020:
           drive = new Drive(new DriveIOSparkMAX());
           vision = new Vision(new VisionIOPhotonVision());
-          flywheel = new Flywheel(new FlywheelIO() {});
+          flywheels = new Flywheels(new FlywheelsIO() {});
+          hood = new Hood(new HoodIO() {});
+          kicker = new Kicker(new KickerIO() {});
           tower = new Tower(new TowerIO() {});
           intake = new Intake(new IntakeIO() {});
           break;
         case ROBOT_KITBOT:
           drive = new Drive(new DriveIOTalonSRX());
           vision = new Vision(new VisionIO() {});
-          flywheel = new Flywheel(new FlywheelIO() {});
+          flywheels = new Flywheels(new FlywheelsIO() {});
+          hood = new Hood(new HoodIO() {});
+          kicker = new Kicker(new KickerIO() {});
           tower = new Tower(new TowerIO() {});
           intake = new Intake(new IntakeIO() {});
           break;
         case ROBOT_SIMBOT:
           drive = new Drive(new DriveIOSim());
           vision = new Vision(new VisionIO() {});
-          flywheel = new Flywheel(new FlywheelIO() {});
+          flywheels = new Flywheels(new FlywheelsIO() {});
+          hood = new Hood(new HoodIO() {});
+          kicker = new Kicker(new KickerIO() {});
           tower = new Tower(new TowerIO() {});
           intake = new Intake(new IntakeIO() {});
           break;
         case ROBOT_ROMI:
           drive = new Drive(new DriveIORomi());
           vision = new Vision(new VisionIO() {});
-          flywheel = new Flywheel(new FlywheelIO() {});
+          flywheels = new Flywheels(new FlywheelsIO() {});
+          hood = new Hood(new HoodIO() {});
+          kicker = new Kicker(new KickerIO() {});
           tower = new Tower(new TowerIO() {});
           intake = new Intake(new IntakeIO() {});
           break;
         default:
           drive = new Drive(new DriveIO() {});
           vision = new Vision(new VisionIO() {});
-          flywheel = new Flywheel(new FlywheelIO() {});
+          flywheels = new Flywheels(new FlywheelsIO() {});
+          hood = new Hood(new HoodIO() {});
+          kicker = new Kicker(new KickerIO() {});
           tower = new Tower(new TowerIO() {});
           intake = new Intake(new IntakeIO() {});
           break;
@@ -144,10 +168,10 @@ public class RobotContainer {
     // Set up auto positions
     Transform2d autoPositionTransformLeft = new Transform2d(
         new Translation2d(-0.5, FieldConstants.tarmacMissingSideLength / 2),
-        Rotation2d.fromDegrees(180));
+        new Rotation2d());
     Transform2d autoPositionTransformRight = new Transform2d(
         new Translation2d(-0.5, -FieldConstants.tarmacMissingSideLength / 2),
-        Rotation2d.fromDegrees(180));
+        new Rotation2d());
     autoPositionMap.put("Origin", new Pose2d());
     autoPositionMap.put("Tarmac A",
         FieldConstants.referenceA.transformBy(autoPositionTransformLeft));
@@ -166,11 +190,11 @@ public class RobotContainer {
             false));
     autoRoutineMap.put("Run SysId (Drive)",
         new SysIdCommand(drive, drive::driveVoltage, drive::getSysIdData));
-    autoRoutineMap.put("Run SysId (Big Flywheel)", new SysIdCommand(flywheel,
-        volts -> flywheel.runVoltage(volts, 0.0), flywheel::getBigSysIdData));
+    autoRoutineMap.put("Run SysId (Big Flywheel)", new SysIdCommand(flywheels,
+        volts -> flywheels.runVoltage(volts, 0.0), flywheels::getBigSysIdData));
     autoRoutineMap.put("Run SysId (Little Flywheel)",
-        new SysIdCommand(flywheel, volts -> flywheel.runVoltage(0.0, volts),
-            flywheel::getLittleSysIdData));
+        new SysIdCommand(flywheels, volts -> flywheels.runVoltage(0.0, volts),
+            flywheels::getLittleSysIdData));
 
     // Alert if in tuning mode
     if (Constants.tuningMode) {
@@ -198,12 +222,30 @@ public class RobotContainer {
     // Bind new buttons
     handheldOI.getAutoAimButton().whileActiveOnce(new AutoAim(drive, vision));
 
+    Trigger flywheelsReady = new Trigger(flywheels::atSetpoints);
+    handheldOI.getShootButton().and(flywheelsReady)
+        .whileActiveContinuous(new Shoot(tower, kicker));
+
     handheldOI.getIntakeExtendButton().whenActive(intake::extend, intake);
     handheldOI.getIntakeRetractButton().whenActive(intake::retract, intake);
     handheldOI.getIntakeForwardsButton()
         .whileActiveContinuous(new RunIntake(intake, true));
     handheldOI.getIntakeBackwardsButton()
         .whileActiveContinuous(new RunIntake(intake, false));
+
+    Command lowerFenderCommand =
+        new PrepareShooter(flywheels, hood, ShooterPreset.LOWER_FENDER);
+    Command upperFenderCommand =
+        new PrepareShooter(flywheels, hood, ShooterPreset.UPPER_FENDER);
+    Command upperTarmacCommand =
+        new PrepareShooter(flywheels, hood, ShooterPreset.UPPER_TARMAC);
+
+    handheldOI.getStartLowerFenderButton().whenActive(lowerFenderCommand);
+    handheldOI.getStartUpperFenderButton().whenActive(upperFenderCommand);
+    handheldOI.getStartUpperTarmacButton().whenActive(upperTarmacCommand);
+    handheldOI.getStopFlywheelButton().cancelWhenActive(lowerFenderCommand)
+        .cancelWhenActive(upperFenderCommand)
+        .cancelWhenActive(upperTarmacCommand);
 
     handheldOI.getTowerUpButton()
         .whileActiveContinuous(new RunTower(tower, true));

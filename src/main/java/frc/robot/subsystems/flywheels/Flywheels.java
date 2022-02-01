@@ -2,59 +2,70 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.flywheel;
+package frc.robot.subsystems.flywheels;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.commands.SysIdCommand.MechanismSysIdData;
-import frc.robot.subsystems.flywheel.FlywheelIO.FlywheelIOInputs;
+import frc.robot.subsystems.flywheels.FlywheelsIO.FlywheelsIOInputs;
 import frc.robot.util.TunableNumber;
 import frc.robot.util.VelocityProfiler;
 
-public class Flywheel extends SubsystemBase {
-  private final FlywheelIO io;
-  private final FlywheelIOInputs inputs = new FlywheelIOInputs();
+public class Flywheels extends SubsystemBase {
+  private final FlywheelsIO io;
+  private final FlywheelsIOInputs inputs = new FlywheelsIOInputs();
 
+  private final TunableNumber bigMaxVelocityRpm =
+      new TunableNumber("Flywheels/BigMaxVelocityRPM");
+  private final TunableNumber littleMaxVelocityRpm =
+      new TunableNumber("Flywheels/LittleMaxVelocityRPM");
   private final SimpleMotorFeedforward bigFFModel;
   private final SimpleMotorFeedforward littleFFModel;
-  private final TunableNumber bigKp = new TunableNumber("Flywheel/BigKp");
-  private final TunableNumber bigKd = new TunableNumber("Flywheel/BigKd");
-  private final TunableNumber littleKp = new TunableNumber("Flywheel/LittleKp");
-  private final TunableNumber littleKd = new TunableNumber("Flywheel/LittleKd");
+  private final TunableNumber bigKp = new TunableNumber("Flywheels/BigKp");
+  private final TunableNumber bigKd = new TunableNumber("Flywheels/BigKd");
+  private final TunableNumber littleKp =
+      new TunableNumber("Flywheels/LittleKp");
+  private final TunableNumber littleKd =
+      new TunableNumber("Flywheels/LittleKd");
   private final TunableNumber bigToleranceRpm =
-      new TunableNumber("Flywheel/BigToleranceRPM");
+      new TunableNumber("Flywheels/BigToleranceRPM");
   private final TunableNumber littleToleranceRpm =
-      new TunableNumber("Flywheel/LittleToleranceRPM");
+      new TunableNumber("Flywheels/LittleToleranceRPM");
 
   private final VelocityProfiler bigProfiler = new VelocityProfiler(1000.0);
   private final VelocityProfiler littleProfiler = new VelocityProfiler(1000.0);
   private boolean closedLoop = false;
 
-  /** Creates a new Flywheel. */
-  public Flywheel(FlywheelIO io) {
+  /** Creates a new Flywheels. */
+  public Flywheels(FlywheelsIO io) {
     this.io = io;
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
+        bigMaxVelocityRpm.setDefault(0.0);
         bigFFModel = new SimpleMotorFeedforward(0.0, 0.0, 0.0);
         bigKp.setDefault(0.0);
         bigKd.setDefault(0.0);
         bigToleranceRpm.setDefault(0.0);
 
+        littleMaxVelocityRpm.setDefault(0.0);
         littleFFModel = new SimpleMotorFeedforward(0.0, 0.0, 0.0);
         littleKp.setDefault(0.0);
         littleKd.setDefault(0.0);
         littleToleranceRpm.setDefault(0.0);
         break;
       default:
+        bigMaxVelocityRpm.setDefault(0.0);
         bigFFModel = new SimpleMotorFeedforward(0.0, 0.0, 0.0);
         bigKp.setDefault(0.0);
         bigKd.setDefault(0.0);
         bigToleranceRpm.setDefault(0.0);
 
+        littleMaxVelocityRpm.setDefault(0.0);
         littleFFModel = new SimpleMotorFeedforward(0.0, 0.0, 0.0);
         littleKp.setDefault(0.0);
         littleKd.setDefault(0.0);
@@ -67,7 +78,7 @@ public class Flywheel extends SubsystemBase {
   @Override
   public void periodic() {
     io.updateInputs(inputs);
-    Logger.getInstance().processInputs("Flywheel", inputs);
+    Logger.getInstance().processInputs("Flywheels", inputs);
 
     if (bigKp.hasChanged() | bigKd.hasChanged() | littleKp.hasChanged()
         | littleKd.hasChanged()) {
@@ -95,13 +106,17 @@ public class Flywheel extends SubsystemBase {
   }
 
   /** Run at velocity with closed loop control. */
-  public void runVelocity(double bigRPM, double littleRPM) {
+  public void runVelocity(double bigRpm, double littleRpm) {
+    bigRpm = MathUtil.clamp(bigRpm, -bigMaxVelocityRpm.get(),
+        bigMaxVelocityRpm.get());
+    littleRpm = MathUtil.clamp(littleRpm, -littleMaxVelocityRpm.get(),
+        littleMaxVelocityRpm.get());
     if (closedLoop) {
-      bigProfiler.setSetpointGoal(bigRPM);
-      littleProfiler.setSetpointGoal(littleRPM);
+      bigProfiler.setSetpointGoal(bigRpm);
+      littleProfiler.setSetpointGoal(littleRpm);
     } else {
-      bigProfiler.setSetpointGoal(bigRPM, getBigVelocity());
-      littleProfiler.setSetpointGoal(littleRPM, getLittleVelocity());
+      bigProfiler.setSetpointGoal(bigRpm, getBigVelocity());
+      littleProfiler.setSetpointGoal(littleRpm, getLittleVelocity());
     }
     closedLoop = true;
   }
@@ -123,8 +138,8 @@ public class Flywheel extends SubsystemBase {
         .radiansPerSecondToRotationsPerMinute(inputs.littleVelocityRadPerSec);
   }
 
-  /** Returns whether the velocity has reached the closed loop setpoint. */
-  public boolean atSetpoint() {
+  /** Returns whether the velocity has reached the closed loop setpoint on both flywheels. */
+  public boolean atSetpoints() {
     if (closedLoop) {
       boolean bigAtSetpoint = Math.abs(getBigVelocity()
           - bigProfiler.getSetpointGoal()) < bigToleranceRpm.get();

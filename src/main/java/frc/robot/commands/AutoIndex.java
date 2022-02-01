@@ -12,9 +12,10 @@ import frc.robot.subsystems.tower.Tower;
 import frc.robot.util.TunableNumber;
 
 public class AutoIndex extends CommandBase {
-  private final TunableNumber graceSecs =
+  private static final TunableNumber graceSecs =
       new TunableNumber("AutoIndex/GraceSecs");
-  private final TunableNumber speed = new TunableNumber("AutoIndex/Speed");
+  private static final TunableNumber speed =
+      new TunableNumber("AutoIndex/Speed");
 
   private final Tower tower;
   private final Timer graceTimer = new Timer();

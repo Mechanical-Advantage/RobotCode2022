@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.flywheel;
+package frc.robot.subsystems.flywheels;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -15,7 +15,7 @@ import com.revrobotics.SparkMaxPIDController.ArbFFUnits;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 
-public class FlywheelIOSparkMAX implements FlywheelIO {
+public class FlywheelsIOSparkMAX implements FlywheelsIO {
   private boolean bigInvert = false;
   private boolean bigInvertFollower = false;
   private double bigAfterEncoderReduction = 1.0;
@@ -34,7 +34,7 @@ public class FlywheelIOSparkMAX implements FlywheelIO {
   private RelativeEncoder littleEncoder;
   private SparkMaxPIDController littlePID;
 
-  public FlywheelIOSparkMAX() {
+  public FlywheelsIOSparkMAX() {
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
         bigLeader = new CANSparkMax(0, MotorType.kBrushless);
@@ -49,7 +49,7 @@ public class FlywheelIOSparkMAX implements FlywheelIO {
 
         break;
       default:
-        throw new RuntimeException("Invalid robot for FlywheelIOSparkMax!");
+        throw new RuntimeException("Invalid robot for FlywheelsIOSparkMax!");
     }
 
     if (Constants.burnMotorControllerFlash) {
@@ -92,7 +92,7 @@ public class FlywheelIOSparkMAX implements FlywheelIO {
   }
 
   @Override
-  public void updateInputs(FlywheelIOInputs inputs) {
+  public void updateInputs(FlywheelsIOInputs inputs) {
     inputs.bigPositionRad =
         bigEncoder.getPosition() * (2.0 * Math.PI) / bigAfterEncoderReduction;
     inputs.bigVelocityRadPerSec =

@@ -24,16 +24,16 @@ public class AutoAim extends CommandBase {
   private final PIDController controller;
   private final Timer toleranceTimer = new Timer();
 
-  private final TunableNumber kP = new TunableNumber("AutoAim/kP");
-  private final TunableNumber kI = new TunableNumber("AutoAim/kI");
-  private final TunableNumber kD = new TunableNumber("AutoAim/kD");
-  private final TunableNumber integralMaxError =
+  private static final TunableNumber kP = new TunableNumber("AutoAim/kP");
+  private static final TunableNumber kI = new TunableNumber("AutoAim/kI");
+  private static final TunableNumber kD = new TunableNumber("AutoAim/kD");
+  private static final TunableNumber integralMaxError =
       new TunableNumber("AutoAim/IntegralMaxError");
-  private final TunableNumber minVelocity =
+  private static final TunableNumber minVelocity =
       new TunableNumber("AutoAim/MinVelocity");
-  private final TunableNumber toleranceDegrees =
+  private static final TunableNumber toleranceDegrees =
       new TunableNumber("AutoAim/ToleranceDegrees");
-  private final TunableNumber toleranceTime =
+  private static final TunableNumber toleranceTime =
       new TunableNumber("AutoAim/ToleranceTime");
 
   /** Creates a new AutoAim. Points towards the center of the field using odometry data. */
@@ -89,6 +89,7 @@ public class AutoAim extends CommandBase {
         FieldConstants.hubCenter.minus(drive.getPose().getTranslation());
     Rotation2d targetRotation =
         new Rotation2d(vehicleToCenter.getX(), vehicleToCenter.getY());
+    targetRotation = targetRotation.plus(Rotation2d.fromDegrees(180));
     controller.setSetpoint(targetRotation.getDegrees());
 
     // Check if in tolerance

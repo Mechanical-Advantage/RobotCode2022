@@ -27,7 +27,7 @@ public final class Constants {
 
   private static final Alert invalidRobotAlert =
       new Alert("Invalid robot selected, using competition robot as default.",
-          AlertType.WARNING);
+          AlertType.ERROR);
 
   public static Robot getRobot() {
     if (RobotBase.isReal()) {

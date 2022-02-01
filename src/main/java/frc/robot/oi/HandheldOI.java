@@ -35,6 +35,10 @@ public interface HandheldOI {
     return new Trigger();
   }
 
+  public default Trigger getShootButton() {
+    return new Trigger();
+  }
+
   public default Trigger getIntakeExtendButton() {
     return new Trigger();
   }
@@ -48,6 +52,22 @@ public interface HandheldOI {
   }
 
   public default Trigger getIntakeBackwardsButton() {
+    return new Trigger();
+  }
+
+  public default Trigger getStopFlywheelButton() {
+    return new Trigger();
+  }
+
+  public default Trigger getStartLowerFenderButton() {
+    return new Trigger();
+  }
+
+  public default Trigger getStartUpperFenderButton() {
+    return new Trigger();
+  }
+
+  public default Trigger getStartUpperTarmacButton() {
     return new Trigger();
   }
 
