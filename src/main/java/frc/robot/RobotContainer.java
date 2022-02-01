@@ -36,6 +36,9 @@ import frc.robot.subsystems.drive.DriveIORomi;
 import frc.robot.subsystems.drive.DriveIOSim;
 import frc.robot.subsystems.drive.DriveIOSparkMAX;
 import frc.robot.subsystems.drive.DriveIOTalonSRX;
+import frc.robot.subsystems.duck.Duck;
+import frc.robot.subsystems.duck.DuckIO;
+import frc.robot.subsystems.duck.DuckIOVictorSPX;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.flywheels.FlywheelsIO;
 import frc.robot.subsystems.hood.Hood;
@@ -64,6 +67,7 @@ public class RobotContainer {
 
   // Subsystems
   private final Drive drive;
+  private final Duck duck;
   private final Vision vision;
   private final Flywheels flywheels;
   private final Hood hood;
@@ -87,6 +91,7 @@ public class RobotContainer {
     // Instantiate subsystems
     if (Constants.getMode() == Mode.REPLAY) {
       drive = new Drive(new DriveIO() {});
+      duck = new Duck(new DuckIO() {});
       vision = new Vision(new VisionIO() {});
       flywheels = new Flywheels(new FlywheelsIO() {});
       hood = new Hood(new HoodIO() {});
@@ -97,6 +102,7 @@ public class RobotContainer {
       switch (Constants.getRobot()) {
         case ROBOT_2022P:
           drive = new Drive(new DriveIOSparkMAX());
+          duck = new Duck(new DuckIO() {});
           vision = new Vision(new VisionIO() {});
           flywheels = new Flywheels(new FlywheelsIO() {});
           hood = new Hood(new HoodIO() {});
@@ -106,6 +112,7 @@ public class RobotContainer {
           break;
         case ROBOT_2020:
           drive = new Drive(new DriveIOSparkMAX());
+          duck = new Duck(new DuckIO() {});
           vision = new Vision(new VisionIOPhotonVision());
           flywheels = new Flywheels(new FlywheelsIO() {});
           hood = new Hood(new HoodIO() {});
@@ -115,6 +122,7 @@ public class RobotContainer {
           break;
         case ROBOT_KITBOT:
           drive = new Drive(new DriveIOTalonSRX());
+          duck = new Duck(new DuckIOVictorSPX() {});
           vision = new Vision(new VisionIO() {});
           flywheels = new Flywheels(new FlywheelsIO() {});
           hood = new Hood(new HoodIO() {});
@@ -124,6 +132,7 @@ public class RobotContainer {
           break;
         case ROBOT_SIMBOT:
           drive = new Drive(new DriveIOSim());
+          duck = new Duck(new DuckIO() {});
           vision = new Vision(new VisionIO() {});
           flywheels = new Flywheels(new FlywheelsIO() {});
           hood = new Hood(new HoodIO() {});
@@ -133,6 +142,7 @@ public class RobotContainer {
           break;
         case ROBOT_ROMI:
           drive = new Drive(new DriveIORomi());
+          duck = new Duck(new DuckIO() {});
           vision = new Vision(new VisionIO() {});
           flywheels = new Flywheels(new FlywheelsIO() {});
           hood = new Hood(new HoodIO() {});
@@ -142,6 +152,7 @@ public class RobotContainer {
           break;
         default:
           drive = new Drive(new DriveIO() {});
+          duck = new Duck(new DuckIO() {});
           vision = new Vision(new VisionIO() {});
           flywheels = new Flywheels(new FlywheelsIO() {});
           hood = new Hood(new HoodIO() {});
@@ -155,7 +166,7 @@ public class RobotContainer {
     // Set up subsystems
     drive.setOverrides(() -> overrideOI.getDriveDisable(),
         () -> overrideOI.getOpenLoop(), () -> overrideOI.getInternalEncoders());
-    drive.setDefaultCommand(new DriveWithJoysticks(drive,
+    drive.setDefaultCommand(new DriveWithJoysticks(drive, duck,
         () -> choosers.getJoystickMode(), () -> handheldOI.getLeftDriveX(),
         () -> handheldOI.getLeftDriveY(), () -> handheldOI.getRightDriveX(),
         () -> handheldOI.getRightDriveY(),

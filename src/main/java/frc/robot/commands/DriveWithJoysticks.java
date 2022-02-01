@@ -11,6 +11,7 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.duck.Duck;
 import frc.robot.util.TunableNumber;
 
 public class DriveWithJoysticks extends CommandBase {
@@ -25,6 +26,7 @@ public class DriveWithJoysticks extends CommandBase {
       new TunableNumber("DriveWithJoysticks/CurvatureArcadeTurnScale"); // Arcade turning scale
                                                                         // factor
   private final Drive drive;
+  private final Duck duck;
   private final Supplier<String> modeSupplier;
   private final Supplier<Double> leftXSupplier;
   private final Supplier<Double> leftYSupplier;
@@ -35,12 +37,13 @@ public class DriveWithJoysticks extends CommandBase {
   private boolean flipped = false;
 
   /** Creates a new DriveWithJoysticks. Drives based on the joystick values. */
-  public DriveWithJoysticks(Drive drive, Supplier<String> modeSupplier,
-      Supplier<Double> leftXSupplier, Supplier<Double> leftYSupplier,
-      Supplier<Double> rightXSupplier, Supplier<Double> rightYSupplier,
-      Supplier<Boolean> sniperModeSupplier) {
+  public DriveWithJoysticks(Drive drive, Duck duck,
+      Supplier<String> modeSupplier, Supplier<Double> leftXSupplier,
+      Supplier<Double> leftYSupplier, Supplier<Double> rightXSupplier,
+      Supplier<Double> rightYSupplier, Supplier<Boolean> sniperModeSupplier) {
     addRequirements(drive);
     this.drive = drive;
+    this.duck = duck;
     this.modeSupplier = modeSupplier;
     this.leftXSupplier = leftXSupplier;
     this.leftYSupplier = leftYSupplier;
@@ -118,6 +121,7 @@ public class DriveWithJoysticks extends CommandBase {
     Logger.getInstance().recordOutput("DriveWithJoysticks/RightPercent",
         rightPercent);
     drive.drivePercent(leftPercent, rightPercent);
+    duck.runPercent(rightPercent * 3);
   }
 
   // Called once the command ends or is interrupted.
