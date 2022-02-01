@@ -19,13 +19,19 @@ public class Flywheel extends SubsystemBase {
   private final FlywheelIO io;
   private final FlywheelIOInputs inputs = new FlywheelIOInputs();
 
-  private final SimpleMotorFeedforward ffModel;
-  private final TunableNumber kP = new TunableNumber("Flywheel/kP");
-  private final TunableNumber kD = new TunableNumber("Flywheel/kD");
-  private final TunableNumber toleranceRpm =
-      new TunableNumber("Flywheel/ToleranceRPM");
+  private final SimpleMotorFeedforward bigFFModel;
+  private final SimpleMotorFeedforward littleFFModel;
+  private final TunableNumber bigKp = new TunableNumber("Flywheel/BigKp");
+  private final TunableNumber bigKd = new TunableNumber("Flywheel/BigKd");
+  private final TunableNumber littleKp = new TunableNumber("Flywheel/LittleKp");
+  private final TunableNumber littleKd = new TunableNumber("Flywheel/LittleKd");
+  private final TunableNumber bigToleranceRpm =
+      new TunableNumber("Flywheel/BigToleranceRPM");
+  private final TunableNumber littleToleranceRpm =
+      new TunableNumber("Flywheel/LittleToleranceRPM");
 
-  private final VelocityProfiler profiler = new VelocityProfiler(1000.0);
+  private final VelocityProfiler bigProfiler = new VelocityProfiler(1000.0);
+  private final VelocityProfiler littleProfiler = new VelocityProfiler(1000.0);
   private boolean closedLoop = false;
 
   /** Creates a new Flywheel. */
@@ -33,16 +39,26 @@ public class Flywheel extends SubsystemBase {
     this.io = io;
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
-        ffModel = new SimpleMotorFeedforward(0.0, 0.0, 0.0);
-        kP.setDefault(0.0);
-        kD.setDefault(0.0);
-        toleranceRpm.setDefault(300.0);
+        bigFFModel = new SimpleMotorFeedforward(0.0, 0.0, 0.0);
+        bigKp.setDefault(0.0);
+        bigKd.setDefault(0.0);
+        bigToleranceRpm.setDefault(0.0);
+
+        littleFFModel = new SimpleMotorFeedforward(0.0, 0.0, 0.0);
+        littleKp.setDefault(0.0);
+        littleKd.setDefault(0.0);
+        littleToleranceRpm.setDefault(0.0);
         break;
       default:
-        ffModel = new SimpleMotorFeedforward(0.0, 0.0, 0.0);
-        kP.setDefault(0.0);
-        kD.setDefault(0.0);
-        toleranceRpm.setDefault(0.0);
+        bigFFModel = new SimpleMotorFeedforward(0.0, 0.0, 0.0);
+        bigKp.setDefault(0.0);
+        bigKd.setDefault(0.0);
+        bigToleranceRpm.setDefault(0.0);
+
+        littleFFModel = new SimpleMotorFeedforward(0.0, 0.0, 0.0);
+        littleKp.setDefault(0.0);
+        littleKd.setDefault(0.0);
+        littleToleranceRpm.setDefault(0.0);
     }
 
     io.setBrakeMode(false);
@@ -53,58 +69,86 @@ public class Flywheel extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Flywheel", inputs);
 
-    if (kP.hasChanged() | kD.hasChanged()) {
-      io.configurePID(kP.get(), 0.0, kD.get());
+    if (bigKp.hasChanged() | bigKd.hasChanged() | littleKp.hasChanged()
+        | littleKd.hasChanged()) {
+      io.configurePID(bigKp.get(), 0.0, bigKd.get(), littleKp.get(), 0.0,
+          littleKd.get());
     }
 
     if (closedLoop) {
-      double velocityRadPerSec =
-          Units.rotationsPerMinuteToRadiansPerSecond(profiler.getSetpoint());
-      io.setVelocity(velocityRadPerSec, ffModel.calculate(velocityRadPerSec));
+      double bigVelocityRadPerSec =
+          Units.rotationsPerMinuteToRadiansPerSecond(bigProfiler.getSetpoint());
+      double littleVelocityRadPerSec = Units
+          .rotationsPerMinuteToRadiansPerSecond(littleProfiler.getSetpoint());
+      io.setVelocity(bigVelocityRadPerSec, littleVelocityRadPerSec,
+          bigFFModel.calculate(bigVelocityRadPerSec),
+          littleFFModel.calculate(littleVelocityRadPerSec));
     }
   }
 
   /** Run at the specified voltage with no other processing. Only use with SysId. */
-  public void runVoltage(double volts) {
-    io.setVoltage(volts);
+  public void runVoltage(double bigVolts, double littleVolts) {
+    io.setVoltage(bigVolts, littleVolts);
     closedLoop = false;
-    profiler.reset();
+    bigProfiler.reset();
+    littleProfiler.reset();
   }
 
   /** Run at velocity with closed loop control. */
-  public void runVelocity(double rpm) {
+  public void runVelocity(double bigRPM, double littleRPM) {
     if (closedLoop) {
-      profiler.setSetpointGoal(rpm);
+      bigProfiler.setSetpointGoal(bigRPM);
+      littleProfiler.setSetpointGoal(littleRPM);
     } else {
-      profiler.setSetpointGoal(rpm, getVelocity());
+      bigProfiler.setSetpointGoal(bigRPM, getBigVelocity());
+      littleProfiler.setSetpointGoal(littleRPM, getLittleVelocity());
     }
     closedLoop = true;
   }
 
   /** Stops by going to open loop. */
   public void stop() {
-    runVoltage(0.0);
+    runVoltage(0.0, 0.0);
   }
 
-  /** Returns the current velocity in RPM. */
-  public double getVelocity() {
-    return Units.radiansPerSecondToRotationsPerMinute(inputs.velocityRadPerSec);
+  /** Returns the current velocity of the big flywheel in RPM. */
+  public double getBigVelocity() {
+    return Units
+        .radiansPerSecondToRotationsPerMinute(inputs.bigVelocityRadPerSec);
+  }
+
+  /** Returns the current velocity of the little flywheel in RPM. */
+  public double getLittleVelocity() {
+    return Units
+        .radiansPerSecondToRotationsPerMinute(inputs.littleVelocityRadPerSec);
   }
 
   /** Returns whether the velocity has reached the closed loop setpoint. */
   public boolean atSetpoint() {
     if (closedLoop) {
-      return Math.abs(getVelocity() - profiler.getSetpointGoal()) < toleranceRpm
-          .get();
+      boolean bigAtSetpoint = Math.abs(getBigVelocity()
+          - bigProfiler.getSetpointGoal()) < bigToleranceRpm.get();
+      boolean littleAtSetpoint = Math.abs(getLittleVelocity()
+          - littleProfiler.getSetpointGoal()) < littleToleranceRpm.get();
+      return bigAtSetpoint && littleAtSetpoint;
     } else {
       return false;
     }
   }
 
   /**
-   * Returns a set of data for SysId
+   * Returns a set of data for SysId (big flywheel).
    */
-  public MechanismSysIdData getSysIdData() {
-    return new MechanismSysIdData(inputs.positionRad, inputs.velocityRadPerSec);
+  public MechanismSysIdData getBigSysIdData() {
+    return new MechanismSysIdData(inputs.bigPositionRad,
+        inputs.bigVelocityRadPerSec);
+  }
+
+  /**
+   * Returns a set of data for SysId (little flywheel).
+   */
+  public MechanismSysIdData getLittleSysIdData() {
+    return new MechanismSysIdData(inputs.littlePositionRad,
+        inputs.littleVelocityRadPerSec);
   }
 }

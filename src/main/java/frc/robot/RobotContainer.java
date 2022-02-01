@@ -166,8 +166,11 @@ public class RobotContainer {
             false));
     autoRoutineMap.put("Run SysId (Drive)",
         new SysIdCommand(drive, drive::driveVoltage, drive::getSysIdData));
-    autoRoutineMap.put("Run SysId (Flywheel)", new SysIdCommand(flywheel,
-        flywheel::runVoltage, flywheel::getSysIdData));
+    autoRoutineMap.put("Run SysId (Big Flywheel)", new SysIdCommand(flywheel,
+        volts -> flywheel.runVoltage(volts, 0.0), flywheel::getBigSysIdData));
+    autoRoutineMap.put("Run SysId (Little Flywheel)",
+        new SysIdCommand(flywheel, volts -> flywheel.runVoltage(0.0, volts),
+            flywheel::getLittleSysIdData));
 
     // Alert if in tuning mode
     if (Constants.tuningMode) {
