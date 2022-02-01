@@ -17,6 +17,8 @@ import frc.robot.Constants;
 public class DriveIOSparkMAX implements DriveIO {
 
   private final boolean hasThreeControllers;
+  private final boolean leftInverted;
+  private final boolean rightInverted;
   private final CANSparkMax leftLeader;
   private final CANSparkMax leftFollower;
   private CANSparkMax leftFollower2;
@@ -41,16 +43,18 @@ public class DriveIOSparkMAX implements DriveIO {
         afterEncoderReduction = 6.0; // Internal encoders
         hasExternalEncoders = true;
         hasThreeControllers = true;
+        leftInverted = true;
+        rightInverted = false;
 
-        leftLeader = new CANSparkMax(15, MotorType.kBrushless);
-        leftFollower = new CANSparkMax(1, MotorType.kBrushless);
-        leftFollower2 = new CANSparkMax(30, MotorType.kBrushless);
-        rightLeader = new CANSparkMax(12, MotorType.kBrushless);
-        rightFollower = new CANSparkMax(2, MotorType.kBrushless);
-        rightFollower2 = new CANSparkMax(3, MotorType.kBrushless);
+        leftLeader = new CANSparkMax(12, MotorType.kBrushless);
+        leftFollower = new CANSparkMax(2, MotorType.kBrushless);
+        leftFollower2 = new CANSparkMax(3, MotorType.kBrushless);
+        rightLeader = new CANSparkMax(15, MotorType.kBrushless);
+        rightFollower = new CANSparkMax(1, MotorType.kBrushless);
+        rightFollower2 = new CANSparkMax(30, MotorType.kBrushless);
 
-        leftExternalEncoder = new Encoder(0, 1);
-        rightExternalEncoder = new Encoder(2, 3);
+        leftExternalEncoder = new Encoder(2, 3);
+        rightExternalEncoder = new Encoder(0, 1);
         leftExternalEncoder.setDistancePerPulse(-1.0 / 2048.0);
         rightExternalEncoder.setDistancePerPulse(1.0 / 2048.0);
         break;
@@ -58,6 +62,8 @@ public class DriveIOSparkMAX implements DriveIO {
         afterEncoderReduction = 1.0 / ((9.0 / 62.0) * (18.0 / 30.0));
         hasExternalEncoders = false;
         hasThreeControllers = false;
+        leftInverted = true;
+        rightInverted = false;
 
         leftLeader = new CANSparkMax(3, MotorType.kBrushless);
         leftFollower = new CANSparkMax(12, MotorType.kBrushless);
@@ -94,8 +100,8 @@ public class DriveIOSparkMAX implements DriveIO {
       rightFollower2.follow(rightLeader);
     }
 
-    rightLeader.setInverted(false);
-    leftLeader.setInverted(true);
+    leftLeader.setInverted(leftInverted);
+    rightLeader.setInverted(rightInverted);
 
     leftLeader.enableVoltageCompensation(12.0);
     rightLeader.enableVoltageCompensation(12.0);
