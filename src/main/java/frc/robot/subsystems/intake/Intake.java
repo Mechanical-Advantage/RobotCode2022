@@ -16,7 +16,8 @@ public class Intake extends SubsystemBase {
   /** Creates a new Feeder. */
   public Intake(IntakeIO io) {
     this.io = io;
-    io.setBrakeMode(false);
+    io.setRollerBrakeMode(false);
+    io.setHopperBrakeMode(false);
   }
 
   @Override
@@ -25,13 +26,22 @@ public class Intake extends SubsystemBase {
     Logger.getInstance().processInputs("Intake", inputs);
   }
 
-  /** Run at the specified percentage. */
-  public void runPercent(double percent) {
-    io.setVoltage(percent * 12.0);
+  /** Run the roller at the specified percentage. */
+  public void runRollerPercent(double percent) {
+    io.setRollerVoltage(percent * 12.0);
   }
 
-  public void stop() {
-    runPercent(0.0);
+  public void stopRoller() {
+    runRollerPercent(0.0);
+  }
+
+  /** Run the hopper at the specified percentage. */
+  public void runHopperPercent(double percent) {
+    io.setHopperVoltage(percent * 12.0);
+  }
+
+  public void stopHopper() {
+    runHopperPercent(0.0);
   }
 
   public void extend() {
