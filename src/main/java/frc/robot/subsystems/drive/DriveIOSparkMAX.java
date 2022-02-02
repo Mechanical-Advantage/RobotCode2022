@@ -13,6 +13,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SPI;
 import frc.robot.Constants;
+import frc.robot.util.SparkMAXBurnManager;
 
 public class DriveIOSparkMAX implements DriveIO {
 
@@ -82,7 +83,7 @@ public class DriveIOSparkMAX implements DriveIO {
     leftInternalEncoder.setPosition(0.0);
     rightInternalEncoder.setPosition(0.0);
 
-    if (Constants.burnMotorControllerFlash) {
+    if (SparkMAXBurnManager.shouldBurn()) {
       leftLeader.restoreFactoryDefaults();
       leftFollower.restoreFactoryDefaults();
       rightLeader.restoreFactoryDefaults();
@@ -125,7 +126,7 @@ public class DriveIOSparkMAX implements DriveIO {
     }
 
 
-    if (Constants.burnMotorControllerFlash) {
+    if (SparkMAXBurnManager.shouldBurn()) {
       leftLeader.burnFlash();
       leftFollower.burnFlash();
       rightLeader.burnFlash();

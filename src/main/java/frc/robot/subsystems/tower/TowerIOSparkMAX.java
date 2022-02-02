@@ -12,6 +12,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
+import frc.robot.util.SparkMAXBurnManager;
 
 public class TowerIOSparkMAX implements TowerIO {
   private boolean invert = false;
@@ -37,7 +38,7 @@ public class TowerIOSparkMAX implements TowerIO {
         throw new RuntimeException("Invalid robot for TowerIOSparkMax!");
     }
 
-    if (Constants.burnMotorControllerFlash) {
+    if (SparkMAXBurnManager.shouldBurn()) {
       leader.restoreFactoryDefaults();
       follower.restoreFactoryDefaults();
     }
@@ -54,7 +55,7 @@ public class TowerIOSparkMAX implements TowerIO {
     leader.setCANTimeout(0);
     follower.setCANTimeout(0);
 
-    if (Constants.burnMotorControllerFlash) {
+    if (SparkMAXBurnManager.shouldBurn()) {
       leader.burnFlash();
       follower.burnFlash();
     }

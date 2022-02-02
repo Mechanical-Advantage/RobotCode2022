@@ -52,6 +52,7 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.util.Alert;
 import frc.robot.util.LoggedChoosers;
+import frc.robot.util.SparkMAXBurnManager;
 import frc.robot.util.Alert.AlertType;
 
 /**
@@ -84,6 +85,9 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    // Check if flash should be burned
+    SparkMAXBurnManager.update();
+
     // Instantiate subsystems
     if (Constants.getMode() == Mode.REPLAY) {
       drive = new Drive(new DriveIO() {});

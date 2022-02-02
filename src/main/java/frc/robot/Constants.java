@@ -23,7 +23,6 @@ public final class Constants {
   private static final Robot robot = Robot.ROBOT_2020;
   public static final double loopPeriodSecs = 0.02;
   public static final boolean tuningMode = false;
-  public static final boolean burnMotorControllerFlash = false;
 
   private static final Alert invalidRobotAlert =
       new Alert("Invalid robot selected, using competition robot as default.",

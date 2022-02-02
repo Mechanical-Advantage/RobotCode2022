@@ -11,6 +11,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
+import frc.robot.util.SparkMAXBurnManager;
 
 public class KickerIOSparkMAX implements KickerIO {
   private boolean invert = false;
@@ -34,7 +35,7 @@ public class KickerIOSparkMAX implements KickerIO {
         throw new RuntimeException("Invalid robot for KickerIOSparkMax!");
     }
 
-    if (Constants.burnMotorControllerFlash) {
+    if (SparkMAXBurnManager.shouldBurn()) {
       leader.restoreFactoryDefaults();
       follower.restoreFactoryDefaults();
     }
@@ -51,7 +52,7 @@ public class KickerIOSparkMAX implements KickerIO {
     leader.setCANTimeout(0);
     follower.setCANTimeout(0);
 
-    if (Constants.burnMotorControllerFlash) {
+    if (SparkMAXBurnManager.shouldBurn()) {
       leader.burnFlash();
       follower.burnFlash();
     }

@@ -13,6 +13,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import frc.robot.Constants;
+import frc.robot.util.SparkMAXBurnManager;
 
 public class IntakeIOSparkMAX implements IntakeIO {
   private boolean invert = false;
@@ -35,7 +36,7 @@ public class IntakeIOSparkMAX implements IntakeIO {
         throw new RuntimeException("Invalid robot for IntakeIOSparkMax!");
     }
 
-    if (Constants.burnMotorControllerFlash) {
+    if (SparkMAXBurnManager.shouldBurn()) {
       motor.restoreFactoryDefaults();
     }
     motor.setInverted(invert);
@@ -46,7 +47,7 @@ public class IntakeIOSparkMAX implements IntakeIO {
 
     motor.setCANTimeout(0);
 
-    if (Constants.burnMotorControllerFlash) {
+    if (SparkMAXBurnManager.shouldBurn()) {
       motor.burnFlash();
     }
   }

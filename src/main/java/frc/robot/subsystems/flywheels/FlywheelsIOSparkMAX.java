@@ -14,6 +14,7 @@ import com.revrobotics.SparkMaxPIDController.ArbFFUnits;
 
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
+import frc.robot.util.SparkMAXBurnManager;
 
 public class FlywheelsIOSparkMAX implements FlywheelsIO {
   private boolean bigInvert = false;
@@ -52,7 +53,7 @@ public class FlywheelsIOSparkMAX implements FlywheelsIO {
         throw new RuntimeException("Invalid robot for FlywheelsIOSparkMax!");
     }
 
-    if (Constants.burnMotorControllerFlash) {
+    if (SparkMAXBurnManager.shouldBurn()) {
       bigLeader.restoreFactoryDefaults();
       bigFollower.restoreFactoryDefaults();
       littleLeader.restoreFactoryDefaults();
@@ -83,7 +84,7 @@ public class FlywheelsIOSparkMAX implements FlywheelsIO {
     littleLeader.setCANTimeout(0);
     littleFollower.setCANTimeout(0);
 
-    if (Constants.burnMotorControllerFlash) {
+    if (SparkMAXBurnManager.shouldBurn()) {
       bigLeader.burnFlash();
       bigFollower.burnFlash();
       littleLeader.burnFlash();
