@@ -52,6 +52,15 @@ public class AutoAim extends CommandBase {
         toleranceDegrees.setDefault(1.5);
         toleranceTime.setDefault(0.1);
         break;
+      case ROBOT_SIMBOT:
+        kP.setDefault(0.018);
+        kI.setDefault(0.0);
+        kD.setDefault(0.001);
+        integralMaxError.setDefault(0.0);
+        minVelocity.setDefault(0.0);
+        toleranceDegrees.setDefault(1.5);
+        toleranceTime.setDefault(0.25);
+        break;
       default:
         break;
     }
