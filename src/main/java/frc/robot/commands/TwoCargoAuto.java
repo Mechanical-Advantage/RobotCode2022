@@ -12,7 +12,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.FieldConstants;
@@ -27,9 +26,6 @@ import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.GeomUtil;
 
-// NOTE: Consider using this command inline, rather than writing a subclass. For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class TwoCargoAuto extends SequentialCommandGroup {
   private static final double shootDurationSecs = 5.0;
 
@@ -64,9 +60,8 @@ public class TwoCargoAuto extends SequentialCommandGroup {
   public TwoCargoAuto(Pose2d startingPose, AutoPosition position, Drive drive,
       Vision vision, Flywheels flywheels, Hood hood, Tower tower, Kicker kicker,
       Intake intake) {
-    addCommands(new ParallelDeadlineGroup(
-        new SequentialCommandGroup(
-            new InstantCommand(() -> intake.extend(), intake),
+    addCommands(deadline(
+        sequence(new InstantCommand(() -> intake.extend(), intake),
             new WaitForVision(drive),
             new MotionProfileCommand(drive, 0.0,
                 List.of(startingPose, cargoPositions.get(position)), 0.0, false)

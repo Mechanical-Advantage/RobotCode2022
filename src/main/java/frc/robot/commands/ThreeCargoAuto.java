@@ -14,9 +14,6 @@ import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.vision.Vision;
 
-// NOTE: Consider using this command inline, rather than writing a subclass. For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class ThreeCargoAuto extends SequentialCommandGroup {
   /** Creates a new ThreeCargoAuto. */
   public ThreeCargoAuto(Drive drive, Vision vision, Flywheels flywheels,
