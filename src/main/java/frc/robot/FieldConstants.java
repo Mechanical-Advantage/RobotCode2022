@@ -43,7 +43,7 @@ public final class FieldConstants {
   public static final double hubSquareLength =
       tarmacOuterDiameter - (tarmacFenderToTip * 2.0);
 
-  // Reference rotations (angle from hub to each reference point)
+  // Reference rotations (angle from hub to each reference point and fender side)
   public static final Rotation2d referenceARotation =
       Rotation2d.fromDegrees(180.0).minus(centerLineAngle)
           .plus(Rotation2d.fromDegrees(360.0 / 16.0));
@@ -58,7 +58,8 @@ public final class FieldConstants {
   public static final Rotation2d fenderBRotation =
       fenderARotation.rotateBy(Rotation2d.fromDegrees(90.0));
 
-  // Reference points (centered of the sides of the tarmac if they formed a complete octagon)
+  // Reference points (centered of the sides of the tarmac if they formed a complete octagon, plus
+  // edges of fender)
   public static final Pose2d referenceA =
       new Pose2d(hubCenter, referenceARotation).transformBy(
           GeomUtil.transformFromTranslation(tarmacInnerDiameter / 2.0, 0.0));
@@ -95,4 +96,19 @@ public final class FieldConstants {
       GeomUtil.transformFromTranslation(referenceToCargoX, -referenceToCargoY));
   public static final Pose2d cargoF = referenceD.transformBy(
       GeomUtil.transformFromTranslation(referenceToCargoX, referenceToCargoY));
+
+  // Terminal cargo point
+  public static final Rotation2d terminalOuterRotation =
+      Rotation2d.fromDegrees(133.75);
+  public static final double terminalLength =
+      Units.inchesToMeters(324.0 - 256.42);
+  public static final double terminalWidth = Math.tan(
+      Rotation2d.fromDegrees(180.0).minus(terminalOuterRotation).getRadians())
+      * terminalLength;
+  public static final Pose2d terminalCenter =
+      new Pose2d(new Translation2d(terminalLength / 2.0, terminalWidth / 2.0),
+          terminalOuterRotation.minus(Rotation2d.fromDegrees(90.0)));
+  public static final double terminalCargoOffset = Units.inchesToMeters(10.43);
+  public static final Pose2d cargoG = terminalCenter
+      .transformBy(GeomUtil.transformFromTranslation(terminalCargoOffset, 0.0));
 }
