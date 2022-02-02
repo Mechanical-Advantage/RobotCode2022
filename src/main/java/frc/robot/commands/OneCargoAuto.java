@@ -21,7 +21,7 @@ public class OneCargoAuto extends SequentialCommandGroup {
   public OneCargoAuto(Drive drive, Vision vision, Flywheels flywheels,
       Hood hood, Tower tower, Kicker kicker) {
     addCommands(deadline(
-        sequence(new AutoAim(drive, vision).alongWith(new WaitForVision(drive)),
+        sequence(new WaitForVision(drive), new AutoAim(drive, vision),
             new WaitUntilCommand(flywheels::atSetpoints),
             new Shoot(tower, kicker).withTimeout(shootDurationSecs)),
         new PrepareShooter(flywheels, hood, ShooterPreset.UPPER_FENDER)));
