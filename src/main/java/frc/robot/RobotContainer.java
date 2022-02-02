@@ -54,6 +54,7 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.util.Alert;
+import frc.robot.util.GeomUtil;
 import frc.robot.util.LoggedChoosers;
 import frc.robot.util.SparkMAXBurnManager;
 import frc.robot.util.Alert.AlertType;
@@ -206,11 +207,11 @@ public class RobotContainer {
                 hood, tower, kicker, intake)));
     autoRoutineMap.put("Two cargo (TC)",
         new AutoRoutine(AutoPosition.TARMAC_C,
-            new TwoCargoAuto(AutoPosition.TARMAC_A, drive, vision, flywheels,
+            new TwoCargoAuto(AutoPosition.TARMAC_C, drive, vision, flywheels,
                 hood, tower, kicker, intake)));
     autoRoutineMap.put("Two cargo (TD)",
         new AutoRoutine(AutoPosition.TARMAC_D,
-            new TwoCargoAuto(AutoPosition.TARMAC_A, drive, vision, flywheels,
+            new TwoCargoAuto(AutoPosition.TARMAC_D, drive, vision, flywheels,
                 hood, tower, kicker, intake)));
 
     autoRoutineMap.put("Three cargo (TD)",
@@ -321,30 +322,27 @@ public class RobotContainer {
     ORIGIN, TARMAC_A, TARMAC_B, TARMAC_C, TARMAC_D, FENDER_A, FENDER_B;
 
     public Pose2d getPose() {
-      Transform2d tarmacTransformLeft = new Transform2d(
-          new Translation2d(-0.5, FieldConstants.tarmacMissingSideLength / 2),
-          new Rotation2d());
-      Transform2d tarmacTransformRight = new Transform2d(
-          new Translation2d(-0.5, -FieldConstants.tarmacMissingSideLength / 2),
-          new Rotation2d());
-      Transform2d fenderTransform =
-          new Transform2d(new Translation2d(0.5, 0.0), new Rotation2d());
-
       switch (this) {
         case ORIGIN:
           return new Pose2d();
         case TARMAC_A:
-          return FieldConstants.referenceA.transformBy(tarmacTransformLeft);
+          return FieldConstants.referenceA
+              .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.7));
         case TARMAC_B:
-          return FieldConstants.referenceB.transformBy(tarmacTransformRight);
+          return FieldConstants.referenceB
+              .transformBy(GeomUtil.transformFromTranslation(-0.5, -0.2));
         case TARMAC_C:
-          return FieldConstants.referenceC.transformBy(tarmacTransformLeft);
+          return FieldConstants.referenceC
+              .transformBy(GeomUtil.transformFromTranslation(-0.5, -0.1));
         case TARMAC_D:
-          return FieldConstants.referenceD.transformBy(tarmacTransformRight);
+          return FieldConstants.referenceD
+              .transformBy(GeomUtil.transformFromTranslation(-0.5, -0.7));
         case FENDER_A:
-          return FieldConstants.fenderA.transformBy(fenderTransform);
+          return FieldConstants.fenderA
+              .transformBy(GeomUtil.transformFromTranslation(0.5, 0.0));
         case FENDER_B:
-          return FieldConstants.fenderB.transformBy(fenderTransform);
+          return FieldConstants.fenderB
+              .transformBy(GeomUtil.transformFromTranslation(0.5, 0.0));
         default:
           return new Pose2d();
       }

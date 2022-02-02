@@ -29,31 +29,31 @@ import frc.robot.util.GeomUtil;
 public class TwoCargoAuto extends SequentialCommandGroup {
   private static final double shootDurationSecs = 5.0;
 
-  public static final Map<AutoPosition, Pose2d> cargoPositions = Map.of(
-      AutoPosition.TARMAC_A,
-      FieldConstants.cargoB
-          .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0)),
-      AutoPosition.TARMAC_D,
-      FieldConstants.cargoE
-          .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0)),
-      AutoPosition.TARMAC_C, FieldConstants.cargoD.transformBy(new Transform2d(
-          new Translation2d(-0.4, 0.4), Rotation2d.fromDegrees(-45.0))));
-  public static final Map<AutoPosition, Pose2d> shootPositions =
+  public static final Map<AutoPosition, Pose2d> cargoPositions =
       Map.of(AutoPosition.TARMAC_A,
           FieldConstants.cargoB
-              .transformBy(GeomUtil.transformFromTranslation(-1.5, 0.0)),
-          AutoPosition.TARMAC_D,
-          FieldConstants.cargoE
-              .transformBy(GeomUtil.transformFromTranslation(-1.5, 0.0)),
-          AutoPosition.TARMAC_C, FieldConstants.cargoD
-              .transformBy(GeomUtil.transformFromTranslation(-1.5, 0.4)));
+              .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0)),
+          AutoPosition.TARMAC_C,
+          FieldConstants.cargoD.transformBy(new Transform2d(
+              new Translation2d(-0.4, 0.4), Rotation2d.fromDegrees(-45.0))),
+          AutoPosition.TARMAC_D, FieldConstants.cargoE
+              .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0)));
+  public static final Map<AutoPosition, Pose2d> shootPositions =
+      Map.of(AutoPosition.TARMAC_A,
+          calcAimedPose(AutoPosition.TARMAC_A.getPose()
+              .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0))),
+          AutoPosition.TARMAC_C,
+          calcAimedPose(AutoPosition.TARMAC_C.getPose()
+              .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0))),
+          AutoPosition.TARMAC_D, calcAimedPose(AutoPosition.TARMAC_D.getPose()
+              .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0))));
 
   /** Creates a new TwoCargoAuto. */
   public TwoCargoAuto(AutoPosition position, Drive drive, Vision vision,
       Flywheels flywheels, Hood hood, Tower tower, Kicker kicker,
       Intake intake) {
-    this(shootPositions.get(position), position, drive, vision, flywheels, hood,
-        tower, kicker, intake);
+    this(position.getPose(), position, drive, vision, flywheels, hood, tower,
+        kicker, intake);
   }
 
   /** Creates a new TwoCargoAuto. */
@@ -61,7 +61,7 @@ public class TwoCargoAuto extends SequentialCommandGroup {
       Vision vision, Flywheels flywheels, Hood hood, Tower tower, Kicker kicker,
       Intake intake) {
     addCommands(deadline(
-        sequence(new InstantCommand(() -> intake.extend(), intake),
+        sequence(new InstantCommand(intake::extend, intake),
             new WaitForVision(drive),
             new MotionProfileCommand(drive, 0.0,
                 List.of(startingPose, cargoPositions.get(position)), 0.0, false)
@@ -74,5 +74,14 @@ public class TwoCargoAuto extends SequentialCommandGroup {
             new WaitUntilCommand(flywheels::atSetpoints),
             new Shoot(tower, kicker).withTimeout(shootDurationSecs)),
         new PrepareShooter(flywheels, hood, ShooterPreset.UPPER_FENDER)));
+  }
+
+  public static Pose2d calcAimedPose(Pose2d pose) {
+    Translation2d vehicleToCenter =
+        FieldConstants.hubCenter.minus(pose.getTranslation());
+    Rotation2d targetRotation =
+        new Rotation2d(vehicleToCenter.getX(), vehicleToCenter.getY());
+    targetRotation = targetRotation.plus(Rotation2d.fromDegrees(180));
+    return new Pose2d(pose.getTranslation(), targetRotation);
   }
 }
