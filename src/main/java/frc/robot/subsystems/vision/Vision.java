@@ -5,14 +5,11 @@
 package frc.robot.subsystems.vision;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import org.littletonrobotics.junction.Logger;
-import org.photonvision.targeting.TargetCorner;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
