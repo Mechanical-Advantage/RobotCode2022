@@ -19,8 +19,6 @@ public class LoggedChoosers extends SubsystemBase {
 
   private final SendableChooser<String> joystickModeChooser =
       new SendableChooser<String>();
-  private final SendableChooser<String> autoPositionChooser =
-      new SendableChooser<String>();
   private final SendableChooser<String> autoRoutineChooser =
       new SendableChooser<String>();
 
@@ -29,14 +27,16 @@ public class LoggedChoosers extends SubsystemBase {
   public LoggedChoosers() {
     addOptions(joystickModeChooser,
         List.of("Curvature", "Split Arcade", "Tank"));
-    addOptions(autoPositionChooser,
-        List.of("Origin", "Tarmac A", "Tarmac B", "Tarmac C", "Tarmac D"));
     addOptions(autoRoutineChooser,
-        List.of("Do Nothing", "Test Motion Profile", "Run SysId (Drive)",
+        List.of("Do Nothing", "Simple taxi (TA)", "Simple taxi (TB)",
+            "Simple taxi (TC)", "Simple taxi (TD)", "Simple taxi (FA)",
+            "Simple taxi (FB)", "One cargo (TA)", "One cargo (TB)",
+            "One cargo (TC)", "One cargo (TD)", "One cargo (FA)",
+            "One cargo (FB)", "Two cargo (TA)", "Two cargo (TC)",
+            "Two cargo (TD)", "Three cargo (TD)", "Run SysId (Drive)",
             "Run SysId (Big Flywheel)", "Run SysId (Little Flywheel)"));
 
     SmartDashboard.putData("Joystick Mode", joystickModeChooser);
-    SmartDashboard.putData("Auto Position", autoPositionChooser);
     SmartDashboard.putData("Auto Routine", autoRoutineChooser);
   }
 
@@ -57,20 +57,17 @@ public class LoggedChoosers extends SubsystemBase {
   /** Represents the selected values of all of the choosers. */
   private static class ChooserData implements LoggableInputs {
     public String joystickMode = "";
-    public String autoPosition = "";
     public String autoRoutine = "";
 
     @Override
     public void toLog(LogTable table) {
       table.put("JoystickMode", joystickMode);
-      table.put("AutoPosition", autoPosition);
       table.put("AutoRoutine", autoRoutine);
     }
 
     @Override
     public void fromLog(LogTable table) {
       joystickMode = table.getString("JoystickMode", joystickMode);
-      autoPosition = table.getString("AutoPosition", autoPosition);
       autoRoutine = table.getString("AutoRoutine", autoRoutine);
     }
   }
@@ -80,7 +77,6 @@ public class LoggedChoosers extends SubsystemBase {
   public void periodic() {
     if (!Logger.getInstance().hasReplaySource()) {
       data.joystickMode = joystickModeChooser.getSelected();
-      data.autoPosition = autoPositionChooser.getSelected();
       data.autoRoutine = autoRoutineChooser.getSelected();
     }
     Logger.getInstance().processInputs("Choosers", data);
@@ -88,10 +84,6 @@ public class LoggedChoosers extends SubsystemBase {
 
   public String getJoystickMode() {
     return data.joystickMode;
-  }
-
-  public String getAutoPosition() {
-    return data.autoPosition;
   }
 
   public String getAutoRoutine() {

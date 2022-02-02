@@ -5,7 +5,6 @@
 package frc.robot;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -15,17 +14,21 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Mode;
 import frc.robot.commands.AutoAim;
 import frc.robot.commands.AutoIndex;
 import frc.robot.commands.DriveWithJoysticks;
-import frc.robot.commands.MotionProfileCommand;
+import frc.robot.commands.OneCargoAuto;
 import frc.robot.commands.PrepareShooter;
 import frc.robot.commands.RunIntake;
 import frc.robot.commands.RunTower;
 import frc.robot.commands.Shoot;
+import frc.robot.commands.SimpleTaxi;
 import frc.robot.commands.SysIdCommand;
+import frc.robot.commands.ThreeCargoAuto;
+import frc.robot.commands.TwoCargoAuto;
 import frc.robot.commands.PrepareShooter.ShooterPreset;
 import frc.robot.oi.HandheldOI;
 import frc.robot.oi.OISelector;
@@ -78,10 +81,8 @@ public class RobotContainer {
 
   // Choosers
   private final LoggedChoosers choosers = new LoggedChoosers();
-  private final Map<String, Pose2d> autoPositionMap =
-      new HashMap<String, Pose2d>();
-  private final Map<String, Command> autoRoutineMap =
-      new HashMap<String, Command>();
+  private final Map<String, AutoRoutine> autoRoutineMap =
+      new HashMap<String, AutoRoutine>();
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -169,36 +170,65 @@ public class RobotContainer {
     tower.setDefaultCommand(
         new AutoIndex(tower, () -> overrideOI.getAutoIndexDisable()));
 
-    // Set up auto positions
-    Transform2d autoPositionTransformLeft = new Transform2d(
-        new Translation2d(-0.5, FieldConstants.tarmacMissingSideLength / 2),
-        new Rotation2d());
-    Transform2d autoPositionTransformRight = new Transform2d(
-        new Translation2d(-0.5, -FieldConstants.tarmacMissingSideLength / 2),
-        new Rotation2d());
-    autoPositionMap.put("Origin", new Pose2d());
-    autoPositionMap.put("Tarmac A",
-        FieldConstants.referenceA.transformBy(autoPositionTransformLeft));
-    autoPositionMap.put("Tarmac B",
-        FieldConstants.referenceB.transformBy(autoPositionTransformRight));
-    autoPositionMap.put("Tarmac C",
-        FieldConstants.referenceC.transformBy(autoPositionTransformLeft));
-    autoPositionMap.put("Tarmac D",
-        FieldConstants.referenceD.transformBy(autoPositionTransformRight));
-
     // Set up auto routines
-    autoRoutineMap.put("Do Nothing", null);
-    autoRoutineMap.put("Test Motion Profile",
-        new MotionProfileCommand(drive, 0.0,
-            List.of(new Pose2d(), new Pose2d(3.0, 1.0, new Rotation2d())), 0.0,
-            false));
-    autoRoutineMap.put("Run SysId (Drive)",
-        new SysIdCommand(drive, drive::driveVoltage, drive::getSysIdData));
-    autoRoutineMap.put("Run SysId (Big Flywheel)", new SysIdCommand(flywheels,
-        volts -> flywheels.runVoltage(volts, 0.0), flywheels::getBigSysIdData));
+    autoRoutineMap.put("Do Nothing",
+        new AutoRoutine(AutoPosition.ORIGIN, new InstantCommand()));
+
+    autoRoutineMap.put("Simple taxi (TA)",
+        new AutoRoutine(AutoPosition.TARMAC_A, new SimpleTaxi(drive)));
+    autoRoutineMap.put("Simple taxi (TB)",
+        new AutoRoutine(AutoPosition.TARMAC_B, new SimpleTaxi(drive)));
+    autoRoutineMap.put("Simple taxi (TC)",
+        new AutoRoutine(AutoPosition.TARMAC_C, new SimpleTaxi(drive)));
+    autoRoutineMap.put("Simple taxi (TD)",
+        new AutoRoutine(AutoPosition.TARMAC_D, new SimpleTaxi(drive)));
+    autoRoutineMap.put("Simple taxi (FA)",
+        new AutoRoutine(AutoPosition.FENDER_A, new SimpleTaxi(drive)));
+    autoRoutineMap.put("Simple taxi (FB)",
+        new AutoRoutine(AutoPosition.FENDER_B, new SimpleTaxi(drive)));
+
+    autoRoutineMap.put("One cargo (TA)", new AutoRoutine(AutoPosition.TARMAC_A,
+        new OneCargoAuto(drive, vision, flywheels, hood, tower, kicker)));
+    autoRoutineMap.put("One cargo (TB)", new AutoRoutine(AutoPosition.TARMAC_B,
+        new OneCargoAuto(drive, vision, flywheels, hood, tower, kicker)));
+    autoRoutineMap.put("One cargo (TC)", new AutoRoutine(AutoPosition.TARMAC_C,
+        new OneCargoAuto(drive, vision, flywheels, hood, tower, kicker)));
+    autoRoutineMap.put("One cargo (TD)", new AutoRoutine(AutoPosition.TARMAC_D,
+        new OneCargoAuto(drive, vision, flywheels, hood, tower, kicker)));
+    autoRoutineMap.put("One cargo (FA)", new AutoRoutine(AutoPosition.FENDER_A,
+        new OneCargoAuto(drive, vision, flywheels, hood, tower, kicker)));
+    autoRoutineMap.put("One cargo (FB)", new AutoRoutine(AutoPosition.FENDER_B,
+        new OneCargoAuto(drive, vision, flywheels, hood, tower, kicker)));
+
+    autoRoutineMap.put("Two cargo (TA)",
+        new AutoRoutine(AutoPosition.TARMAC_A,
+            new TwoCargoAuto(AutoPosition.TARMAC_A, drive, vision, flywheels,
+                hood, tower, kicker, intake)));
+    autoRoutineMap.put("Two cargo (TC)",
+        new AutoRoutine(AutoPosition.TARMAC_C,
+            new TwoCargoAuto(AutoPosition.TARMAC_A, drive, vision, flywheels,
+                hood, tower, kicker, intake)));
+    autoRoutineMap.put("Two cargo (TD)",
+        new AutoRoutine(AutoPosition.TARMAC_D,
+            new TwoCargoAuto(AutoPosition.TARMAC_A, drive, vision, flywheels,
+                hood, tower, kicker, intake)));
+
+    autoRoutineMap.put("Three cargo (TD)",
+        new AutoRoutine(AutoPosition.TARMAC_D, new ThreeCargoAuto(drive, vision,
+            flywheels, hood, tower, kicker, intake)));
+
+    autoRoutineMap.put("Run SysId (Drive)", new AutoRoutine(AutoPosition.ORIGIN,
+        new SysIdCommand(drive, drive::driveVoltage, drive::getSysIdData)));
+    autoRoutineMap.put("Run SysId (Big Flywheel)",
+        new AutoRoutine(AutoPosition.ORIGIN,
+            new SysIdCommand(flywheels,
+                volts -> flywheels.runVoltage(volts, 0.0),
+                flywheels::getBigSysIdData)));
     autoRoutineMap.put("Run SysId (Little Flywheel)",
-        new SysIdCommand(flywheels, volts -> flywheels.runVoltage(0.0, volts),
-            flywheels::getLittleSysIdData));
+        new AutoRoutine(AutoPosition.ORIGIN,
+            new SysIdCommand(flywheels,
+                volts -> flywheels.runVoltage(0.0, volts),
+                flywheels::getLittleSysIdData)));
 
     // Alert if in tuning mode
     if (Constants.tuningMode) {
@@ -263,22 +293,61 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    String positionString = choosers.getAutoPosition();
-    if (autoPositionMap.containsKey(positionString)) {
-      drive.setPose(autoPositionMap.get(positionString), true);
-      drive.resetOnNextVision();
-    } else {
-      DriverStation.reportError(
-          "Unknown auto position: '" + positionString + "'", false);
-    }
-
     String routineString = choosers.getAutoRoutine();
     if (autoRoutineMap.containsKey(routineString)) {
-      return autoRoutineMap.get(routineString);
+      AutoRoutine routine = autoRoutineMap.get(routineString);
+      drive.setPose(routine.position.getPose(), true);
+      drive.resetOnNextVision();
+      return routine.command;
+
     } else {
       DriverStation.reportError("Unknown auto routine: '" + routineString + "'",
           false);
       return null;
+    }
+  }
+
+  private static class AutoRoutine {
+    public final AutoPosition position;
+    public final Command command;
+
+    public AutoRoutine(AutoPosition position, Command command) {
+      this.position = position;
+      this.command = command;
+    }
+  }
+
+  public static enum AutoPosition {
+    ORIGIN, TARMAC_A, TARMAC_B, TARMAC_C, TARMAC_D, FENDER_A, FENDER_B;
+
+    public Pose2d getPose() {
+      Transform2d tarmacTransformLeft = new Transform2d(
+          new Translation2d(-0.5, FieldConstants.tarmacMissingSideLength / 2),
+          new Rotation2d());
+      Transform2d tarmacTransformRight = new Transform2d(
+          new Translation2d(-0.5, -FieldConstants.tarmacMissingSideLength / 2),
+          new Rotation2d());
+      Transform2d fenderTransform =
+          new Transform2d(new Translation2d(0.5, 0.0), new Rotation2d());
+
+      switch (this) {
+        case ORIGIN:
+          return new Pose2d();
+        case TARMAC_A:
+          return FieldConstants.referenceA.transformBy(tarmacTransformLeft);
+        case TARMAC_B:
+          return FieldConstants.referenceB.transformBy(tarmacTransformRight);
+        case TARMAC_C:
+          return FieldConstants.referenceC.transformBy(tarmacTransformLeft);
+        case TARMAC_D:
+          return FieldConstants.referenceD.transformBy(tarmacTransformRight);
+        case FENDER_A:
+          return FieldConstants.fenderA.transformBy(fenderTransform);
+        case FENDER_B:
+          return FieldConstants.fenderB.transformBy(fenderTransform);
+        default:
+          return new Pose2d();
+      }
     }
   }
 }
