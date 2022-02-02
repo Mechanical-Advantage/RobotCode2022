@@ -10,10 +10,15 @@ import frc.robot.util.TunableNumber;
 
 public class RunIntake extends CommandBase {
 
-  private static final TunableNumber forwardsSpeed =
-      new TunableNumber("RunIntake/ForwardsSpeed");
-  private static final TunableNumber backwardsSpeed =
-      new TunableNumber("RunIntake/BackwardsSpeed");
+  private static final TunableNumber rollerForwardsSpeed =
+      new TunableNumber("RunIntake/RollerForwardsSpeed");
+  private static final TunableNumber rollerBackwardsSpeed =
+      new TunableNumber("RunIntake/RollerBackwardsSpeed");
+
+  private static final TunableNumber hopperForwardsSpeed =
+      new TunableNumber("RunIntake/HopperForwardsSpeed");
+  private static final TunableNumber hopperBackwardsSpeed =
+      new TunableNumber("RunIntake/HopperBackwardsSpeed");
 
   private final Intake intake;
   private final boolean forwards;
@@ -26,17 +31,21 @@ public class RunIntake extends CommandBase {
     this.intake = intake;
     this.forwards = forwards;
 
-    forwardsSpeed.setDefault(1.0);
-    backwardsSpeed.setDefault(1.0);
+    rollerForwardsSpeed.setDefault(1.0);
+    rollerBackwardsSpeed.setDefault(1.0);
+    hopperForwardsSpeed.setDefault(1.0);
+    hopperBackwardsSpeed.setDefault(1.0);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
     if (forwards) {
-      intake.runPercent(forwardsSpeed.get());
+      intake.runRollerPercent(rollerForwardsSpeed.get());
+      intake.runHopperPercent(hopperForwardsSpeed.get());
     } else {
-      intake.runPercent(backwardsSpeed.get());
+      intake.runRollerPercent(rollerBackwardsSpeed.get());
+      intake.runHopperPercent(hopperBackwardsSpeed.get());
     }
   }
 
@@ -47,7 +56,8 @@ public class RunIntake extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    intake.stop();
+    intake.stopRoller();
+    intake.stopHopper();
   }
 
   // Returns true when the command should end.

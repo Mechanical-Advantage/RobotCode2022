@@ -16,22 +16,18 @@ import frc.robot.util.SparkMAXBurnManager;
 
 public class TowerIOSparkMAX implements TowerIO {
   private boolean invert = false;
-  private boolean invertFollower = false;
   private double afterEncoderReduction = 1.0;
 
-  private final CANSparkMax leader;
-  private final CANSparkMax follower;
+  private final CANSparkMax motor;
   private final RelativeEncoder encoder;
   private final DigitalInput cargoSensor;
 
   public TowerIOSparkMAX() {
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
-        leader = new CANSparkMax(0, MotorType.kBrushless);
-        follower = new CANSparkMax(1, MotorType.kBrushless);
+        motor = new CANSparkMax(0, MotorType.kBrushless);
         cargoSensor = new DigitalInput(0);
         invert = false;
-        invertFollower = false;
         afterEncoderReduction = 1.0;
         break;
       default:
@@ -39,25 +35,19 @@ public class TowerIOSparkMAX implements TowerIO {
     }
 
     if (SparkMAXBurnManager.shouldBurn()) {
-      leader.restoreFactoryDefaults();
-      follower.restoreFactoryDefaults();
+      motor.restoreFactoryDefaults();
     }
 
-    follower.follow(leader, invertFollower);
-    leader.setInverted(invert);
-    leader.setSmartCurrentLimit(30);
-    follower.setSmartCurrentLimit(30);
-    leader.enableVoltageCompensation(12.0);
-    follower.enableVoltageCompensation(12.0);
+    motor.setInverted(invert);
+    motor.setSmartCurrentLimit(30);
+    motor.enableVoltageCompensation(12.0);
 
-    encoder = leader.getEncoder();
+    encoder = motor.getEncoder();
 
-    leader.setCANTimeout(0);
-    follower.setCANTimeout(0);
+    motor.setCANTimeout(0);
 
     if (SparkMAXBurnManager.shouldBurn()) {
-      leader.burnFlash();
-      follower.burnFlash();
+      motor.burnFlash();
     }
   }
 
@@ -69,21 +59,18 @@ public class TowerIOSparkMAX implements TowerIO {
     inputs.velocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity())
             * (2.0 * Math.PI) / afterEncoderReduction;
-    inputs.appliedVolts = leader.getAppliedOutput();
-    inputs.currentAmps =
-        new double[] {leader.getOutputCurrent(), follower.getOutputCurrent()};
-    inputs.tempCelcius = new double[] {leader.getMotorTemperature(),
-        follower.getMotorTemperature()};
+    inputs.appliedVolts = motor.getAppliedOutput();
+    inputs.currentAmps = new double[] {motor.getOutputCurrent()};
+    inputs.tempCelcius = new double[] {motor.getMotorTemperature()};
   }
 
   @Override
   public void setVoltage(double volts) {
-    leader.setVoltage(volts);
+    motor.setVoltage(volts);
   }
 
   @Override
   public void setBrakeMode(boolean enable) {
-    leader.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
-    follower.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
+    motor.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
   }
 }

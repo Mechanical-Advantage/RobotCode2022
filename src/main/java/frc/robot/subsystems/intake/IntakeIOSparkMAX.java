@@ -10,26 +10,29 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.Solenoid;
 import frc.robot.Constants;
 import frc.robot.util.SparkMAXBurnManager;
 
 public class IntakeIOSparkMAX implements IntakeIO {
   private boolean invert = false;
 
-  private double afterEncoderReduction = 1.0;
-  private final CANSparkMax motor;
-  private final RelativeEncoder encoder;
+  private double rollerAfterEncoderReduction = 1.0;
+  private double hopperAfterEncoderReduction = 1.0;
+  private final CANSparkMax rollerMotor;
+  private final CANSparkMax hopperMotor;
+  private final RelativeEncoder rollerEncoder;
+  private final RelativeEncoder hopperEncoder;
 
   // private final Solenoid solenoid;
 
   public IntakeIOSparkMAX() {
     switch (Constants.getRobot()) {
       case ROBOT_2022P:
-        afterEncoderReduction = 1.0;
         // solenoid = new Solenoid(PneumaticsModuleType.CTREPCM, 0);
-        motor = new CANSparkMax(4, MotorType.kBrushless);
+        rollerAfterEncoderReduction = 1.0;
+        hopperAfterEncoderReduction = 1.0;
+        rollerMotor = new CANSparkMax(4, MotorType.kBrushless);
+        hopperMotor = new CANSparkMax(4, MotorType.kBrushless);
         invert = true;
         break;
       default:
@@ -37,42 +40,71 @@ public class IntakeIOSparkMAX implements IntakeIO {
     }
 
     if (SparkMAXBurnManager.shouldBurn()) {
-      motor.restoreFactoryDefaults();
+      rollerMotor.restoreFactoryDefaults();
+      hopperMotor.restoreFactoryDefaults();
     }
-    motor.setInverted(invert);
-    motor.setSmartCurrentLimit(30);
-    motor.enableVoltageCompensation(12.0);
 
-    encoder = motor.getEncoder();
+    rollerMotor.setInverted(invert);
+    rollerMotor.setSmartCurrentLimit(30);
+    rollerMotor.enableVoltageCompensation(12.0);
 
-    motor.setCANTimeout(0);
+    hopperMotor.setInverted(invert);
+    hopperMotor.setSmartCurrentLimit(30);
+    hopperMotor.enableVoltageCompensation(12.0);
+
+    rollerEncoder = rollerMotor.getEncoder();
+    hopperEncoder = rollerMotor.getEncoder();
+
+    rollerMotor.setCANTimeout(0);
+    hopperMotor.setCANTimeout(0);
 
     if (SparkMAXBurnManager.shouldBurn()) {
-      motor.burnFlash();
+      rollerMotor.burnFlash();
+      hopperMotor.burnFlash();
     }
   }
 
   @Override
   public void updateInputs(IntakeIOInputs inputs) {
     // inputs.extended = solenoid.get();
-    inputs.positionRad =
-        encoder.getPosition() * (2.0 * Math.PI) / afterEncoderReduction;
-    inputs.velocityRadPerSec =
-        Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity())
-            * (2.0 * Math.PI) / afterEncoderReduction;
-    inputs.appliedVolts = motor.getAppliedOutput();
-    inputs.currentAmps = new double[] {motor.getOutputCurrent()};
-    inputs.tempCelcius = new double[] {motor.getMotorTemperature()};
+
+    inputs.rollerPositionRad = rollerEncoder.getPosition() * (2.0 * Math.PI)
+        / rollerAfterEncoderReduction;
+    inputs.rollerVelocityRadPerSec =
+        Units.rotationsPerMinuteToRadiansPerSecond(rollerEncoder.getVelocity())
+            * (2.0 * Math.PI) / rollerAfterEncoderReduction;
+    inputs.rollerAppliedVolts = rollerMotor.getAppliedOutput();
+    inputs.rollerCurrentAmps = new double[] {rollerMotor.getOutputCurrent()};
+    inputs.rollerTempCelcius = new double[] {rollerMotor.getMotorTemperature()};
+
+    inputs.hopperPositionRad = hopperEncoder.getPosition() * (2.0 * Math.PI)
+        / hopperAfterEncoderReduction;
+    inputs.hopperVelocityRadPerSec =
+        Units.rotationsPerMinuteToRadiansPerSecond(hopperEncoder.getVelocity())
+            * (2.0 * Math.PI) / hopperAfterEncoderReduction;
+    inputs.hopperAppliedVolts = hopperMotor.getAppliedOutput();
+    inputs.hopperCurrentAmps = new double[] {hopperMotor.getOutputCurrent()};
+    inputs.hopperTempCelcius = new double[] {hopperMotor.getMotorTemperature()};
   }
 
   @Override
-  public void setVoltage(double volts) {
-    motor.setVoltage(volts);
+  public void setRollerVoltage(double volts) {
+    rollerMotor.setVoltage(volts);
   }
 
   @Override
-  public void setBrakeMode(boolean enable) {
-    motor.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
+  public void setHopperVoltage(double volts) {
+    hopperMotor.setVoltage(volts);
+  }
+
+  @Override
+  public void setRollerBrakeMode(boolean enable) {
+    rollerMotor.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
+  }
+
+  @Override
+  public void setHopperBrakeMode(boolean enable) {
+    hopperMotor.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
   }
 
   @Override
