@@ -22,7 +22,7 @@ public class SimpleTaxi extends CommandBase {
     addRequirements(drive);
     this.drive = drive;
 
-    duration.setDefault(3.0);
+    duration.setDefault(1.0);
     speed.setDefault(0.5);
   }
 
