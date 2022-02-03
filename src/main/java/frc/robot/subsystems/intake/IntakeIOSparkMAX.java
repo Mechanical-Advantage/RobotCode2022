@@ -8,20 +8,20 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.SparkMaxRelativeEncoder.Type;
 
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 import frc.robot.util.SparkMAXBurnManager;
 
 public class IntakeIOSparkMAX implements IntakeIO {
-  private boolean invert = false;
+  private boolean invertRoller = false;
+  private boolean invertHopper = false;
 
   private double rollerAfterEncoderReduction = 1.0;
-  private double hopperAfterEncoderReduction = 1.0;
   private final CANSparkMax rollerMotor;
   private final CANSparkMax hopperMotor;
   private final RelativeEncoder rollerEncoder;
-  private final RelativeEncoder hopperEncoder;
 
   // private final Solenoid solenoid;
 
@@ -30,10 +30,10 @@ public class IntakeIOSparkMAX implements IntakeIO {
       case ROBOT_2022P:
         // solenoid = new Solenoid(PneumaticsModuleType.CTREPCM, 0);
         rollerAfterEncoderReduction = 1.0;
-        hopperAfterEncoderReduction = 1.0;
         rollerMotor = new CANSparkMax(4, MotorType.kBrushless);
-        hopperMotor = new CANSparkMax(4, MotorType.kBrushless);
-        invert = true;
+        hopperMotor = new CANSparkMax(9, MotorType.kBrushed);
+        invertRoller = true;
+        invertHopper = false;
         break;
       default:
         throw new RuntimeException("Invalid robot for IntakeIOSparkMax!");
@@ -44,16 +44,16 @@ public class IntakeIOSparkMAX implements IntakeIO {
       hopperMotor.restoreFactoryDefaults();
     }
 
-    rollerMotor.setInverted(invert);
+    rollerMotor.setInverted(invertRoller);
     rollerMotor.setSmartCurrentLimit(30);
     rollerMotor.enableVoltageCompensation(12.0);
 
-    hopperMotor.setInverted(invert);
+    hopperMotor.setInverted(invertHopper);
     hopperMotor.setSmartCurrentLimit(30);
     hopperMotor.enableVoltageCompensation(12.0);
 
     rollerEncoder = rollerMotor.getEncoder();
-    hopperEncoder = rollerMotor.getEncoder();
+    hopperMotor.getEncoder(Type.kNoSensor, 1);
 
     rollerMotor.setCANTimeout(0);
     hopperMotor.setCANTimeout(0);
@@ -77,11 +77,6 @@ public class IntakeIOSparkMAX implements IntakeIO {
     inputs.rollerCurrentAmps = new double[] {rollerMotor.getOutputCurrent()};
     inputs.rollerTempCelcius = new double[] {rollerMotor.getMotorTemperature()};
 
-    inputs.hopperPositionRad = hopperEncoder.getPosition() * (2.0 * Math.PI)
-        / hopperAfterEncoderReduction;
-    inputs.hopperVelocityRadPerSec =
-        Units.rotationsPerMinuteToRadiansPerSecond(hopperEncoder.getVelocity())
-            * (2.0 * Math.PI) / hopperAfterEncoderReduction;
     inputs.hopperAppliedVolts = hopperMotor.getAppliedOutput();
     inputs.hopperCurrentAmps = new double[] {hopperMotor.getOutputCurrent()};
     inputs.hopperTempCelcius = new double[] {hopperMotor.getMotorTemperature()};
