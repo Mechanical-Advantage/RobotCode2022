@@ -58,6 +58,19 @@ public class Flywheels extends SubsystemBase {
         littleKd.setDefault(0.0);
         littleToleranceRpm.setDefault(0.0);
         break;
+      case ROBOT_SIMBOT:
+        bigMaxVelocityRpm.setDefault(3800.0);
+        bigFFModel = new SimpleMotorFeedforward(0.0, 0.028214, 0.094281);
+        bigKp.setDefault(5.0);
+        bigKd.setDefault(0.0);
+        bigToleranceRpm.setDefault(50.0);
+
+        littleMaxVelocityRpm.setDefault(3800.0);
+        littleFFModel = new SimpleMotorFeedforward(0.0, 0.029752, 0.015384);
+        littleKp.setDefault(1.0);
+        littleKd.setDefault(0.0);
+        littleToleranceRpm.setDefault(50.0);
+        break;
       default:
         bigMaxVelocityRpm.setDefault(0.0);
         bigFFModel = new SimpleMotorFeedforward(0.0, 0.0, 0.0);
@@ -85,6 +98,11 @@ public class Flywheels extends SubsystemBase {
       io.configurePID(bigKp.get(), 0.0, bigKd.get(), littleKp.get(), 0.0,
           littleKd.get());
     }
+
+    Logger.getInstance().recordOutput("Flywheels/BigRPM", Units
+        .radiansPerSecondToRotationsPerMinute(inputs.bigVelocityRadPerSec));
+    Logger.getInstance().recordOutput("Flywheels/LittleRPM", Units
+        .radiansPerSecondToRotationsPerMinute(inputs.littleVelocityRadPerSec));
 
     if (closedLoop) {
       double bigVelocityRadPerSec =

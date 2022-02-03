@@ -48,8 +48,8 @@ public class PrepareShooter extends CommandBase {
     bigRpmMap.get(ShooterPreset.LOWER_FENDER).setDefault(0);
     littleRpmMap.get(ShooterPreset.LOWER_FENDER).setDefault(0);
 
-    bigRpmMap.get(ShooterPreset.UPPER_FENDER).setDefault(0);
-    littleRpmMap.get(ShooterPreset.UPPER_FENDER).setDefault(0);
+    bigRpmMap.get(ShooterPreset.UPPER_FENDER).setDefault(2500);
+    littleRpmMap.get(ShooterPreset.UPPER_FENDER).setDefault(2000);
 
     bigRpmMap.get(ShooterPreset.UPPER_TARMAC).setDefault(0);
     littleRpmMap.get(ShooterPreset.UPPER_TARMAC).setDefault(0);

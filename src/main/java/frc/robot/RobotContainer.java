@@ -41,6 +41,7 @@ import frc.robot.subsystems.drive.DriveIOSparkMAX;
 import frc.robot.subsystems.drive.DriveIOTalonSRX;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.flywheels.FlywheelsIO;
+import frc.robot.subsystems.flywheels.FlywheelsIOSim;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.hood.HoodIO;
 import frc.robot.subsystems.intake.Intake;
@@ -131,7 +132,7 @@ public class RobotContainer {
         case ROBOT_SIMBOT:
           drive = new Drive(new DriveIOSim());
           vision = new Vision(new VisionIO() {});
-          flywheels = new Flywheels(new FlywheelsIO() {});
+          flywheels = new Flywheels(new FlywheelsIOSim());
           hood = new Hood(new HoodIO() {});
           kicker = new Kicker(new KickerIO() {});
           tower = new Tower(new TowerIO() {});
@@ -172,8 +173,8 @@ public class RobotContainer {
         new AutoIndex(tower, () -> overrideOI.getAutoIndexDisable()));
 
     // Set up auto routines
-    autoRoutineMap.put("Do Nothing",
-        new AutoRoutine(AutoPosition.ORIGIN, new InstantCommand()));
+    autoRoutineMap.put("Do Nothing", new AutoRoutine(AutoPosition.ORIGIN,
+        new PrepareShooter(flywheels, hood, ShooterPreset.UPPER_FENDER)));
 
     autoRoutineMap.put("Simple taxi (TA)",
         new AutoRoutine(AutoPosition.TARMAC_A, new SimpleTaxi(drive)));
