@@ -99,7 +99,7 @@ public class FlywheelsIOSparkMAX implements FlywheelsIO {
     inputs.bigVelocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(bigEncoder.getVelocity())
             * (2.0 * Math.PI) / bigAfterEncoderReduction;
-    inputs.bigAppliedVolts = bigLeader.getAppliedOutput();
+    inputs.bigAppliedVolts = bigLeader.getAppliedOutput() * 12.0;
     inputs.bigCurrentAmps = new double[] {bigLeader.getOutputCurrent(),
         bigFollower.getOutputCurrent()};
     inputs.bigTempCelcius = new double[] {bigLeader.getMotorTemperature(),
@@ -110,7 +110,7 @@ public class FlywheelsIOSparkMAX implements FlywheelsIO {
     inputs.littleVelocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(littleEncoder.getVelocity())
             * (2.0 * Math.PI) / littleAfterEncoderReduction;
-    inputs.littleAppliedVolts = littleLeader.getAppliedOutput();
+    inputs.littleAppliedVolts = littleLeader.getAppliedOutput() * 12.0;
     inputs.littleCurrentAmps = new double[] {littleLeader.getOutputCurrent(),
         littleFollower.getOutputCurrent()};
     inputs.littleTempCelcius = new double[] {littleLeader.getMotorTemperature(),

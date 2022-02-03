@@ -73,11 +73,11 @@ public class IntakeIOSparkMAX implements IntakeIO {
     inputs.rollerVelocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(rollerEncoder.getVelocity())
             * (2.0 * Math.PI) / rollerAfterEncoderReduction;
-    inputs.rollerAppliedVolts = rollerMotor.getAppliedOutput();
+    inputs.rollerAppliedVolts = rollerMotor.getAppliedOutput() * 12.0;
     inputs.rollerCurrentAmps = new double[] {rollerMotor.getOutputCurrent()};
     inputs.rollerTempCelcius = new double[] {rollerMotor.getMotorTemperature()};
 
-    inputs.hopperAppliedVolts = hopperMotor.getAppliedOutput();
+    inputs.hopperAppliedVolts = hopperMotor.getAppliedOutput() * 12.0;
     inputs.hopperCurrentAmps = new double[] {hopperMotor.getOutputCurrent()};
     inputs.hopperTempCelcius = new double[] {hopperMotor.getMotorTemperature()};
   }
