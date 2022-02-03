@@ -27,7 +27,7 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.GeomUtil;
 
 public class TwoCargoAuto extends SequentialCommandGroup {
-  private static final double shootDurationSecs = 5.0;
+  private static final double shootDurationSecs = 2.0;
 
   public static final Map<AutoPosition, Pose2d> cargoPositions =
       Map.of(AutoPosition.TARMAC_A,
@@ -44,7 +44,7 @@ public class TwoCargoAuto extends SequentialCommandGroup {
               .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0))),
           AutoPosition.TARMAC_C,
           calcAimedPose(AutoPosition.TARMAC_C.getPose()
-              .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0))),
+              .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.25))),
           AutoPosition.TARMAC_D, calcAimedPose(AutoPosition.TARMAC_D.getPose()
               .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0))));
 
@@ -70,7 +70,6 @@ public class TwoCargoAuto extends SequentialCommandGroup {
                 List.of(cargoPositions.get(position),
                     shootPositions.get(position)),
                 0.0, true),
-            new AutoAim(drive, vision),
             new WaitUntilCommand(flywheels::atSetpoints),
             new Shoot(tower, kicker).withTimeout(shootDurationSecs)),
         new PrepareShooter(flywheels, hood, ShooterPreset.UPPER_FENDER)));
