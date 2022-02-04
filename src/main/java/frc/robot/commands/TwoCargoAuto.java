@@ -63,13 +63,14 @@ public class TwoCargoAuto extends SequentialCommandGroup {
     addCommands(deadline(
         sequence(new InstantCommand(intake::extend, intake),
             new WaitForVision(drive),
-            new MotionProfileCommand(drive, 0.0,
-                List.of(startingPose, cargoPositions.get(position)), 0.0, false)
-                    .deadlineWith(new RunIntake(intake, true)),
-            new MotionProfileCommand(drive, 0.0,
-                List.of(cargoPositions.get(position),
-                    shootPositions.get(position)),
-                0.0, true),
+            sequence(
+                new MotionProfileCommand(drive, 0.0,
+                    List.of(startingPose, cargoPositions.get(position)), 0.0,
+                    false),
+                new MotionProfileCommand(drive, 0.0,
+                    List.of(cargoPositions.get(position),
+                        shootPositions.get(position)),
+                    0.0, true)).deadlineWith(new RunIntake(intake, true)),
             new WaitUntilCommand(flywheels::atSetpoints),
             new Shoot(tower, kicker).withTimeout(shootDurationSecs)),
         new PrepareShooter(flywheels, hood, ShooterPreset.UPPER_FENDER)));
