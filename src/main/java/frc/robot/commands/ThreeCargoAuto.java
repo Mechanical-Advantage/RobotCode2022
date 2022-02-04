@@ -22,7 +22,7 @@ public class ThreeCargoAuto extends SequentialCommandGroup {
         new TwoCargoAuto(AutoPosition.TARMAC_D, drive, vision, flywheels, hood,
             tower, kicker, intake),
         new TwoCargoAuto(TwoCargoAuto.shootPositions.get(AutoPosition.TARMAC_D),
-            AutoPosition.TARMAC_C, drive, vision, flywheels, hood, tower,
-            kicker, intake));
+            OneCargoAuto.shootDurationSecs, AutoPosition.TARMAC_C, drive,
+            vision, flywheels, hood, tower, kicker, intake));
   }
 }

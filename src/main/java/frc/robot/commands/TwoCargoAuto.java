@@ -27,8 +27,6 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.GeomUtil;
 
 public class TwoCargoAuto extends SequentialCommandGroup {
-  private static final double shootDurationSecs = 2.0;
-
   public static final Map<AutoPosition, Pose2d> cargoPositions =
       Map.of(AutoPosition.TARMAC_A,
           FieldConstants.cargoB
@@ -52,14 +50,14 @@ public class TwoCargoAuto extends SequentialCommandGroup {
   public TwoCargoAuto(AutoPosition position, Drive drive, Vision vision,
       Flywheels flywheels, Hood hood, Tower tower, Kicker kicker,
       Intake intake) {
-    this(position.getPose(), position, drive, vision, flywheels, hood, tower,
-        kicker, intake);
+    this(position.getPose(), OneCargoAuto.shootDurationSecs, position, drive,
+        vision, flywheels, hood, tower, kicker, intake);
   }
 
   /** Creates a new TwoCargoAuto. */
-  public TwoCargoAuto(Pose2d startingPose, AutoPosition position, Drive drive,
-      Vision vision, Flywheels flywheels, Hood hood, Tower tower, Kicker kicker,
-      Intake intake) {
+  public TwoCargoAuto(Pose2d startingPose, double shootDurationSecs,
+      AutoPosition position, Drive drive, Vision vision, Flywheels flywheels,
+      Hood hood, Tower tower, Kicker kicker, Intake intake) {
     addCommands(deadline(
         sequence(new InstantCommand(intake::extend, intake),
             new WaitForVision(drive),

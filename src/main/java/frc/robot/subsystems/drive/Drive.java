@@ -105,10 +105,10 @@ public class Drive extends SubsystemBase {
         kD.setDefault(40);
         break;
       case ROBOT_SIMBOT:
-        maxVelocityMetersPerSec = 4.0;
+        maxVelocityMetersPerSec = Units.inchesToMeters(210.0);
         maxAccelerationMetersPerSec2 = Double.POSITIVE_INFINITY;
         wheelRadiusMeters = Units.inchesToMeters(3.0);
-        trackWidthMeters = 0.354426;
+        trackWidthMeters = 0.7;
         leftModel = new SimpleMotorFeedforward(0.0, 0.22643, 0.018292);
         rightModel = new SimpleMotorFeedforward(0.0, 0.22643, 0.018292);
         kP.setDefault(0.4);

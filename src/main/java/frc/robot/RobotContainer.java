@@ -20,6 +20,8 @@ import frc.robot.Constants.Mode;
 import frc.robot.commands.AutoAim;
 import frc.robot.commands.AutoIndex;
 import frc.robot.commands.DriveWithJoysticks;
+import frc.robot.commands.FiveCargoAuto;
+import frc.robot.commands.FourCargoAuto;
 import frc.robot.commands.OneCargoAuto;
 import frc.robot.commands.PrepareShooter;
 import frc.robot.commands.RunIntake;
@@ -217,6 +219,12 @@ public class RobotContainer {
 
     autoRoutineMap.put("Three cargo (TD)",
         new AutoRoutine(AutoPosition.TARMAC_D, new ThreeCargoAuto(drive, vision,
+            flywheels, hood, tower, kicker, intake)));
+    autoRoutineMap.put("Four cargo (TD)",
+        new AutoRoutine(AutoPosition.TARMAC_D, new FourCargoAuto(drive, vision,
+            flywheels, hood, tower, kicker, intake)));
+    autoRoutineMap.put("Five cargo (TD)",
+        new AutoRoutine(AutoPosition.TARMAC_D, new FiveCargoAuto(drive, vision,
             flywheels, hood, tower, kicker, intake)));
 
     autoRoutineMap.put("Run SysId (Drive)", new AutoRoutine(AutoPosition.ORIGIN,

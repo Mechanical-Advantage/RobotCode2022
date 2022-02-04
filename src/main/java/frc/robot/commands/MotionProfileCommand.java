@@ -79,9 +79,9 @@ public class MotionProfileCommand extends CommandBase {
         break;
       case ROBOT_SIMBOT:
         maxVoltage = 10.0;
-        maxVelocityMetersPerSec = 3.0;
-        maxAccelerationMetersPerSec2 = 3.0;
-        maxCentripetalAccelerationMetersPerSec2 = 3.0;
+        maxVelocityMetersPerSec = Units.inchesToMeters(210.0);
+        maxAccelerationMetersPerSec2 = Units.inchesToMeters(150.0);
+        maxCentripetalAccelerationMetersPerSec2 = Units.inchesToMeters(150.0);
         break;
       case ROBOT_ROMI:
         maxVoltage = 7.0;
@@ -161,5 +161,9 @@ public class MotionProfileCommand extends CommandBase {
   @Override
   public boolean isFinished() {
     return timer.hasElapsed(trajectory.getTotalTimeSeconds());
+  }
+
+  public double getDuration() {
+    return trajectory.getTotalTimeSeconds();
   }
 }

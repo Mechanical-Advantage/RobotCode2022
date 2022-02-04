@@ -33,8 +33,9 @@ public class LoggedChoosers extends SubsystemBase {
             "Simple taxi (FB)", "One cargo (TA)", "One cargo (TB)",
             "One cargo (TC)", "One cargo (TD)", "One cargo (FA)",
             "One cargo (FB)", "Two cargo (TA)", "Two cargo (TC)",
-            "Two cargo (TD)", "Three cargo (TD)", "Run SysId (Drive)",
-            "Run SysId (Big Flywheel)", "Run SysId (Little Flywheel)"));
+            "Two cargo (TD)", "Three cargo (TD)", "Four cargo (TD)",
+            "Five cargo (TD)", "Run SysId (Drive)", "Run SysId (Big Flywheel)",
+            "Run SysId (Little Flywheel)"));
 
     SmartDashboard.putData("Joystick Mode", joystickModeChooser);
     SmartDashboard.putData("Auto Routine", autoRoutineChooser);

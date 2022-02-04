@@ -15,7 +15,7 @@ import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.vision.Vision;
 
 public class OneCargoAuto extends SequentialCommandGroup {
-  private static final double shootDurationSecs = 5.0;
+  public static final double shootDurationSecs = 2.0;
 
   /** Creates a new OneCargoAuto. */
   public OneCargoAuto(Drive drive, Vision vision, Flywheels flywheels,
