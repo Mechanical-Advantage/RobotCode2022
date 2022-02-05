@@ -6,6 +6,8 @@ package frc.robot.commands;
 
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.tower.Tower;
@@ -20,6 +22,11 @@ public class AutoIndex extends CommandBase {
   private final Tower tower;
   private final Timer graceTimer = new Timer();
   private final Supplier<Boolean> disableSupplier;
+
+  /** Creates a new AutoIndex. Runs the tower forwards whenever the cargo sensor is tripped. */
+  public AutoIndex(Tower tower) {
+    this(tower, () -> false);
+  }
 
   /** Creates a new AutoIndex. Runs the tower forwards whenever the cargo sensor is tripped. */
   public AutoIndex(Tower tower, Supplier<Boolean> disableSupplier) {
@@ -43,6 +50,8 @@ public class AutoIndex extends CommandBase {
       tower.stop();
       return;
     }
+
+    Logger.getInstance().recordOutput("AutoIndex/Active", true);
 
     if (tower.getCargoSensorTripped()) {
       graceTimer.reset();

@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.util.TunableNumber;
@@ -51,7 +53,9 @@ public class RunIntake extends CommandBase {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    Logger.getInstance().recordOutput("RunIntake/Active", true);
+  }
 
   // Called once the command ends or is interrupted.
   @Override
