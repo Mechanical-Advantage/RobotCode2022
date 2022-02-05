@@ -50,11 +50,14 @@ public class FiveCargoAuto extends SequentialCommandGroup {
                         List.of(
                             TwoCargoAuto.shootPositions
                                 .get(AutoPosition.TARMAC_C),
+                            FourCargoAuto.terminalHubMidpoint,
+                            FourCargoAuto.terminalCargoApproachPosition,
                             FourCargoAuto.terminalCargoPosition),
                         0.0, false),
                     new WaitCommand(terminalWaitSecs),
                     new MotionProfileCommand(drive, 0.0,
                         List.of(FourCargoAuto.terminalCargoPosition,
+                            FourCargoAuto.terminalHubMidpoint,
                             TwoCargoAuto.shootPositions
                                 .get(AutoPosition.TARMAC_C)),
                         0.0, true)).deadlineWith(
@@ -62,9 +65,11 @@ public class FiveCargoAuto extends SequentialCommandGroup {
                             sequence(
                                 new WaitCommand(firstShootToCargoD.getDuration()
                                     + cargoDToSecondShoot.getDuration()
-                                    - secondShootStart),
-                                new Shoot(tower, kicker)
-                                    .withTimeout(shootDurationSecs))),
+                                    - secondShootStart)
+                                        .alongWith(new AutoIndex(tower)),
+                                new Shoot(tower, kicker).withTimeout(
+                                    shootDurationSecs),
+                                new AutoIndex(tower))),
                 new WaitUntilCommand(flywheels::atSetpoints),
                 new Shoot(tower, kicker).withTimeout(shootDurationSecs)),
             new PrepareShooter(flywheels, hood, ShooterPreset.UPPER_FENDER)));

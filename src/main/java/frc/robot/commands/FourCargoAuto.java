@@ -22,11 +22,17 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.util.GeomUtil;
 
 public class FourCargoAuto extends SequentialCommandGroup {
   public static final Pose2d terminalCargoPosition =
       FieldConstants.cargoG.transformBy(new Transform2d(
           new Translation2d(0.5, 0.0), Rotation2d.fromDegrees(180.0)));
+  public static final Pose2d terminalCargoApproachPosition =
+      terminalCargoPosition
+          .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0));
+  public static final Pose2d terminalHubMidpoint =
+      new Pose2d(5.0, 2.0, Rotation2d.fromDegrees(180.0));
 
   /** Creates a new FourCargoAuto. */
   public FourCargoAuto(Drive drive, Vision vision, Flywheels flywheels,
@@ -40,12 +46,14 @@ public class FourCargoAuto extends SequentialCommandGroup {
                     new MotionProfileCommand(drive, 0.0, List.of(
                         TwoCargoAuto.shootPositions.get(AutoPosition.TARMAC_D),
                         TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_C),
-                        terminalCargoPosition), 0.0, false),
+                        terminalCargoApproachPosition, terminalCargoPosition),
+                        0.0, false),
                     new MotionProfileCommand(drive, 0.0,
-                        List.of(terminalCargoPosition,
+                        List.of(terminalCargoPosition, terminalHubMidpoint,
                             TwoCargoAuto.shootPositions
                                 .get(AutoPosition.TARMAC_C)),
-                        0.0, true)).deadlineWith(new RunIntake(intake, true)),
+                        0.0, true)).deadlineWith(new RunIntake(intake, true),
+                            new AutoIndex(tower)),
                 new WaitUntilCommand(flywheels::atSetpoints),
                 new Shoot(tower, kicker)
                     .withTimeout(OneCargoAuto.shootDurationSecs)),

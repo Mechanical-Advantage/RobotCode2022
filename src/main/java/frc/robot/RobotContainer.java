@@ -27,7 +27,7 @@ import frc.robot.commands.PrepareShooter;
 import frc.robot.commands.RunIntake;
 import frc.robot.commands.RunTower;
 import frc.robot.commands.Shoot;
-import frc.robot.commands.SimpleTaxi;
+import frc.robot.commands.Taxi;
 import frc.robot.commands.SysIdCommand;
 import frc.robot.commands.ThreeCargoAuto;
 import frc.robot.commands.TwoCargoAuto;
@@ -107,7 +107,7 @@ public class RobotContainer {
         case ROBOT_2022P:
           drive = new Drive(new DriveIOSparkMAX());
           vision = new Vision(new VisionIO() {});
-          flywheels = new Flywheels(new FlywheelsIO() {});
+          flywheels = new Flywheels(new FlywheelsIOSim());
           hood = new Hood(new HoodIO() {});
           kicker = new Kicker(new KickerIO() {});
           tower = new Tower(new TowerIO() {});
@@ -178,31 +178,15 @@ public class RobotContainer {
     autoRoutineMap.put("Do Nothing", new AutoRoutine(AutoPosition.ORIGIN,
         new PrepareShooter(flywheels, hood, ShooterPreset.UPPER_FENDER)));
 
-    autoRoutineMap.put("Simple taxi (TA)",
-        new AutoRoutine(AutoPosition.TARMAC_A, new SimpleTaxi(drive)));
-    autoRoutineMap.put("Simple taxi (TB)",
-        new AutoRoutine(AutoPosition.TARMAC_B, new SimpleTaxi(drive)));
-    autoRoutineMap.put("Simple taxi (TC)",
-        new AutoRoutine(AutoPosition.TARMAC_C, new SimpleTaxi(drive)));
-    autoRoutineMap.put("Simple taxi (TD)",
-        new AutoRoutine(AutoPosition.TARMAC_D, new SimpleTaxi(drive)));
-    autoRoutineMap.put("Simple taxi (FA)",
-        new AutoRoutine(AutoPosition.FENDER_A, new SimpleTaxi(drive)));
-    autoRoutineMap.put("Simple taxi (FB)",
-        new AutoRoutine(AutoPosition.FENDER_B, new SimpleTaxi(drive)));
-
-    autoRoutineMap.put("One cargo (TA)", new AutoRoutine(AutoPosition.TARMAC_A,
-        new OneCargoAuto(drive, vision, flywheels, hood, tower, kicker)));
-    autoRoutineMap.put("One cargo (TB)", new AutoRoutine(AutoPosition.TARMAC_B,
-        new OneCargoAuto(drive, vision, flywheels, hood, tower, kicker)));
-    autoRoutineMap.put("One cargo (TC)", new AutoRoutine(AutoPosition.TARMAC_C,
-        new OneCargoAuto(drive, vision, flywheels, hood, tower, kicker)));
-    autoRoutineMap.put("One cargo (TD)", new AutoRoutine(AutoPosition.TARMAC_D,
-        new OneCargoAuto(drive, vision, flywheels, hood, tower, kicker)));
-    autoRoutineMap.put("One cargo (FA)", new AutoRoutine(AutoPosition.FENDER_A,
-        new OneCargoAuto(drive, vision, flywheels, hood, tower, kicker)));
-    autoRoutineMap.put("One cargo (FB)", new AutoRoutine(AutoPosition.FENDER_B,
-        new OneCargoAuto(drive, vision, flywheels, hood, tower, kicker)));
+    autoRoutineMap.put("Five cargo (TD)",
+        new AutoRoutine(AutoPosition.TARMAC_D, new FiveCargoAuto(drive, vision,
+            flywheels, hood, tower, kicker, intake)));
+    autoRoutineMap.put("Four cargo (TD)",
+        new AutoRoutine(AutoPosition.TARMAC_D, new FourCargoAuto(drive, vision,
+            flywheels, hood, tower, kicker, intake)));
+    autoRoutineMap.put("Three cargo (TD)",
+        new AutoRoutine(AutoPosition.TARMAC_D, new ThreeCargoAuto(drive, vision,
+            flywheels, hood, tower, kicker, intake)));
 
     autoRoutineMap.put("Two cargo (TA)",
         new AutoRoutine(AutoPosition.TARMAC_A,
@@ -217,15 +201,35 @@ public class RobotContainer {
             new TwoCargoAuto(AutoPosition.TARMAC_D, drive, vision, flywheels,
                 hood, tower, kicker, intake)));
 
-    autoRoutineMap.put("Three cargo (TD)",
-        new AutoRoutine(AutoPosition.TARMAC_D, new ThreeCargoAuto(drive, vision,
-            flywheels, hood, tower, kicker, intake)));
-    autoRoutineMap.put("Four cargo (TD)",
-        new AutoRoutine(AutoPosition.TARMAC_D, new FourCargoAuto(drive, vision,
-            flywheels, hood, tower, kicker, intake)));
-    autoRoutineMap.put("Five cargo (TD)",
-        new AutoRoutine(AutoPosition.TARMAC_D, new FiveCargoAuto(drive, vision,
-            flywheels, hood, tower, kicker, intake)));
+    autoRoutineMap.put("One cargo (TA)",
+        new AutoRoutine(AutoPosition.TARMAC_A, new OneCargoAuto(false, drive,
+            vision, flywheels, hood, tower, kicker)));
+    autoRoutineMap.put("One cargo (TB)",
+        new AutoRoutine(AutoPosition.TARMAC_B, new OneCargoAuto(false, drive,
+            vision, flywheels, hood, tower, kicker)));
+    autoRoutineMap.put("One cargo (TC)",
+        new AutoRoutine(AutoPosition.TARMAC_C, new OneCargoAuto(false, drive,
+            vision, flywheels, hood, tower, kicker)));
+    autoRoutineMap.put("One cargo (TD)",
+        new AutoRoutine(AutoPosition.TARMAC_D, new OneCargoAuto(false, drive,
+            vision, flywheels, hood, tower, kicker)));
+    autoRoutineMap.put("One cargo (FA)", new AutoRoutine(AutoPosition.FENDER_A,
+        new OneCargoAuto(true, drive, vision, flywheels, hood, tower, kicker)));
+    autoRoutineMap.put("One cargo (FB)", new AutoRoutine(AutoPosition.FENDER_B,
+        new OneCargoAuto(true, drive, vision, flywheels, hood, tower, kicker)));
+
+    autoRoutineMap.put("Taxi (TA)",
+        new AutoRoutine(AutoPosition.TARMAC_A, new Taxi(drive, false)));
+    autoRoutineMap.put("Taxi (TB)",
+        new AutoRoutine(AutoPosition.TARMAC_B, new Taxi(drive, false)));
+    autoRoutineMap.put("Taxi (TC)",
+        new AutoRoutine(AutoPosition.TARMAC_C, new Taxi(drive, false)));
+    autoRoutineMap.put("Taxi (TD)",
+        new AutoRoutine(AutoPosition.TARMAC_D, new Taxi(drive, false)));
+    autoRoutineMap.put("Taxi (FA)",
+        new AutoRoutine(AutoPosition.FENDER_A, new Taxi(drive, true)));
+    autoRoutineMap.put("Taxi (FB)",
+        new AutoRoutine(AutoPosition.FENDER_B, new Taxi(drive, true)));
 
     autoRoutineMap.put("Run SysId (Drive)", new AutoRoutine(AutoPosition.ORIGIN,
         new SysIdCommand(drive, drive::driveVoltage, drive::getSysIdData)));

@@ -33,7 +33,7 @@ public class TwoCargoAuto extends SequentialCommandGroup {
               .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0)),
           AutoPosition.TARMAC_C,
           FieldConstants.cargoD.transformBy(new Transform2d(
-              new Translation2d(-0.2, 0.2), Rotation2d.fromDegrees(-45.0))),
+              new Translation2d(-0.2, 0.1), Rotation2d.fromDegrees(-20.0))),
           AutoPosition.TARMAC_D, FieldConstants.cargoE
               .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0)));
   public static final Map<AutoPosition, Pose2d> shootPositions =
@@ -42,7 +42,7 @@ public class TwoCargoAuto extends SequentialCommandGroup {
               .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0))),
           AutoPosition.TARMAC_C,
           calcAimedPose(AutoPosition.TARMAC_C.getPose()
-              .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.25))),
+              .transformBy(GeomUtil.transformFromTranslation(-0.4, 0.4))),
           AutoPosition.TARMAC_D, calcAimedPose(AutoPosition.TARMAC_D.getPose()
               .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0))));
 
@@ -68,7 +68,8 @@ public class TwoCargoAuto extends SequentialCommandGroup {
                 new MotionProfileCommand(drive, 0.0,
                     List.of(cargoPositions.get(position),
                         shootPositions.get(position)),
-                    0.0, true)).deadlineWith(new RunIntake(intake, true)),
+                    0.0, true)).deadlineWith(new RunIntake(intake, true),
+                        new AutoIndex(tower)),
             new WaitUntilCommand(flywheels::atSetpoints),
             new Shoot(tower, kicker).withTimeout(shootDurationSecs)),
         new PrepareShooter(flywheels, hood, ShooterPreset.UPPER_FENDER)));

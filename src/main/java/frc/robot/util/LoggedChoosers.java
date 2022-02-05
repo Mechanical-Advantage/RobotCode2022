@@ -28,14 +28,13 @@ public class LoggedChoosers extends SubsystemBase {
     addOptions(joystickModeChooser,
         List.of("Curvature", "Split Arcade", "Tank"));
     addOptions(autoRoutineChooser,
-        List.of("Do Nothing", "Simple taxi (TA)", "Simple taxi (TB)",
-            "Simple taxi (TC)", "Simple taxi (TD)", "Simple taxi (FA)",
-            "Simple taxi (FB)", "One cargo (TA)", "One cargo (TB)",
+        List.of("Do Nothing", "Five cargo (TD)", "Four cargo (TD)",
+            "Three cargo (TD)", "Two cargo (TA)", "Two cargo (TC)",
+            "Two cargo (TD)", "One cargo (TA)", "One cargo (TB)",
             "One cargo (TC)", "One cargo (TD)", "One cargo (FA)",
-            "One cargo (FB)", "Two cargo (TA)", "Two cargo (TC)",
-            "Two cargo (TD)", "Three cargo (TD)", "Four cargo (TD)",
-            "Five cargo (TD)", "Run SysId (Drive)", "Run SysId (Big Flywheel)",
-            "Run SysId (Little Flywheel)"));
+            "One cargo (FB)", "Taxi (TA)", "Taxi (TB)", "Taxi (TC)",
+            "Taxi (TD)", "Taxi (FA)", "Taxi (FB)", "Run SysId (Drive)",
+            "Run SysId (Big Flywheel)", "Run SysId (Little Flywheel)"));
 
     SmartDashboard.putData("Joystick Mode", joystickModeChooser);
     SmartDashboard.putData("Auto Routine", autoRoutineChooser);
