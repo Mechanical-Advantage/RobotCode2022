@@ -76,7 +76,7 @@ public class Drive extends SubsystemBase {
     switch (Constants.getRobot()) {
       case ROBOT_2022P:
         maxVelocityMetersPerSec = Units.inchesToMeters(210.0);
-        maxAccelerationMetersPerSec2 = Double.POSITIVE_INFINITY;
+        maxAccelerationMetersPerSec2 = Units.inchesToMeters(250.0);
         wheelRadiusMeters = Units.inchesToMeters(2.0);
         trackWidthMeters = Units.inchesToMeters(27.0);
         leftModel = new SimpleMotorFeedforward(0.20554, 0.10965, 0.016329);
@@ -86,7 +86,7 @@ public class Drive extends SubsystemBase {
         break;
       case ROBOT_2020:
         maxVelocityMetersPerSec = Units.inchesToMeters(150.0);
-        maxAccelerationMetersPerSec2 = Units.inchesToMeters(250.0);
+        maxAccelerationMetersPerSec2 = Double.POSITIVE_INFINITY;
         wheelRadiusMeters = Units.inchesToMeters(3.0);
         trackWidthMeters = 1.768748;
         leftModel = new SimpleMotorFeedforward(0.23004, 0.2126, 0.036742);
