@@ -107,7 +107,7 @@ public class RobotContainer {
         case ROBOT_2022P:
           drive = new Drive(new DriveIOSparkMAX());
           vision = new Vision(new VisionIO() {});
-          flywheels = new Flywheels(new FlywheelsIOSim());
+          flywheels = new Flywheels(new FlywheelsIO() {});
           hood = new Hood(new HoodIO() {});
           kicker = new Kicker(new KickerIO() {});
           tower = new Tower(new TowerIO() {});
