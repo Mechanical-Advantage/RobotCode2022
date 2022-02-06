@@ -11,6 +11,7 @@ import org.littletonrobotics.junction.io.ByteLogReceiver;
 import org.littletonrobotics.junction.io.ByteLogReplay;
 import org.littletonrobotics.junction.io.LogSocketServer;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.Mode;
@@ -28,6 +29,8 @@ public class Robot extends LoggedRobot {
   private RobotContainer robotContainer;
   private ByteLogReceiver logReceiver;
   private Command autoCommand;
+  private double autoStart;
+  private boolean autoMessagePrinted;
 
   private final Alert logNoFileAlert =
       new Alert("No log path set for current robot. Data will NOT be logged.",
@@ -137,6 +140,8 @@ public class Robot extends LoggedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    autoStart = Timer.getFPGATimestamp();
+    autoMessagePrinted = false;
     autoCommand = robotContainer.getAutonomousCommand();
     if (autoCommand != null) {
       autoCommand.schedule();
@@ -145,7 +150,15 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    if (autoCommand != null) {
+      if (!autoCommand.isScheduled() && !autoMessagePrinted) {
+        System.out.println(String.format("Auto finished in %.2f secs",
+            Timer.getFPGATimestamp() - autoStart));
+        autoMessagePrinted = true;
+      }
+    }
+  }
 
   @Override
   public void teleopInit() {
