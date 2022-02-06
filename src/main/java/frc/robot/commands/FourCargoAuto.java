@@ -31,8 +31,6 @@ public class FourCargoAuto extends SequentialCommandGroup {
   public static final Pose2d terminalCargoApproachPosition =
       terminalCargoPosition
           .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0));
-  public static final Pose2d terminalHubMidpoint =
-      new Pose2d(5.0, 2.0, Rotation2d.fromDegrees(180.0));
 
   /** Creates a new FourCargoAuto. */
   public FourCargoAuto(Drive drive, Vision vision, Flywheels flywheels,
@@ -49,7 +47,7 @@ public class FourCargoAuto extends SequentialCommandGroup {
                         terminalCargoApproachPosition, terminalCargoPosition),
                         0.0, false),
                     new MotionProfileCommand(drive, 0.0,
-                        List.of(terminalCargoPosition, terminalHubMidpoint,
+                        List.of(terminalCargoPosition,
                             TwoCargoAuto.shootPositions
                                 .get(AutoPosition.TARMAC_C)),
                         0.0, true)).deadlineWith(new RunIntake(intake, true),

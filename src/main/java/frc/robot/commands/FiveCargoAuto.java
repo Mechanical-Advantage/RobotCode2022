@@ -50,14 +50,12 @@ public class FiveCargoAuto extends SequentialCommandGroup {
                         List.of(
                             TwoCargoAuto.shootPositions
                                 .get(AutoPosition.TARMAC_C),
-                            FourCargoAuto.terminalHubMidpoint,
                             FourCargoAuto.terminalCargoApproachPosition,
                             FourCargoAuto.terminalCargoPosition),
                         0.0, false),
                     new WaitCommand(terminalWaitSecs),
                     new MotionProfileCommand(drive, 0.0,
                         List.of(FourCargoAuto.terminalCargoPosition,
-                            FourCargoAuto.terminalHubMidpoint,
                             TwoCargoAuto.shootPositions
                                 .get(AutoPosition.TARMAC_C)),
                         0.0, true)).deadlineWith(
