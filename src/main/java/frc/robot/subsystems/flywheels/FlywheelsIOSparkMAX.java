@@ -18,34 +18,26 @@ import frc.robot.util.SparkMAXBurnManager;
 
 public class FlywheelsIOSparkMAX implements FlywheelsIO {
   private boolean bigInvert = false;
-  private boolean bigInvertFollower = false;
   private double bigAfterEncoderReduction = 1.0;
 
   private boolean littleInvert = false;
-  private boolean littleInvertFollower = false;
   private double littleAfterEncoderReduction = 1.0;
 
-  private CANSparkMax bigLeader;
-  private CANSparkMax bigFollower;
+  private CANSparkMax bigMotor;
   private RelativeEncoder bigEncoder;
   private SparkMaxPIDController bigPID;
 
-  private CANSparkMax littleLeader;
-  private CANSparkMax littleFollower;
+  private CANSparkMax littleMotor;
   private RelativeEncoder littleEncoder;
   private SparkMaxPIDController littlePID;
 
   public FlywheelsIOSparkMAX() {
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
-        bigLeader = new CANSparkMax(0, MotorType.kBrushless);
-        bigFollower = new CANSparkMax(1, MotorType.kBrushless);
-        littleLeader = new CANSparkMax(2, MotorType.kBrushless);
-        littleFollower = new CANSparkMax(3, MotorType.kBrushless);
+        bigMotor = new CANSparkMax(0, MotorType.kBrushless);
+        littleMotor = new CANSparkMax(2, MotorType.kBrushless);
         bigInvert = false;
-        bigInvertFollower = false;
         bigAfterEncoderReduction = 1.0;
-        littleInvertFollower = false;
         littleAfterEncoderReduction = 1.0;
 
         break;
@@ -54,41 +46,28 @@ public class FlywheelsIOSparkMAX implements FlywheelsIO {
     }
 
     if (SparkMAXBurnManager.shouldBurn()) {
-      bigLeader.restoreFactoryDefaults();
-      bigFollower.restoreFactoryDefaults();
-      littleLeader.restoreFactoryDefaults();
-      littleFollower.restoreFactoryDefaults();
+      bigMotor.restoreFactoryDefaults();
+      littleMotor.restoreFactoryDefaults();
     }
 
-    bigFollower.follow(bigLeader, bigInvertFollower);
-    littleFollower.follow(littleLeader, littleInvertFollower);
-    bigLeader.setInverted(bigInvert);
-    littleLeader.setInverted(littleInvert);
-    bigLeader.setSmartCurrentLimit(30);
-    littleLeader.setSmartCurrentLimit(30);
-    bigFollower.setSmartCurrentLimit(30);
-    littleFollower.setSmartCurrentLimit(30);
-    bigLeader.enableVoltageCompensation(12.0);
-    littleLeader.enableVoltageCompensation(12.0);
-    bigFollower.enableVoltageCompensation(12.0);
-    littleFollower.enableVoltageCompensation(12.0);
+    bigMotor.setInverted(bigInvert);
+    littleMotor.setInverted(littleInvert);
+    bigMotor.setSmartCurrentLimit(30);
+    littleMotor.setSmartCurrentLimit(30);
+    bigMotor.enableVoltageCompensation(12.0);
+    littleMotor.enableVoltageCompensation(12.0);
 
+    bigEncoder = bigMotor.getEncoder();
+    littleEncoder = littleMotor.getEncoder();
+    bigPID = bigMotor.getPIDController();
+    littlePID = littleMotor.getPIDController();
 
-    bigEncoder = bigLeader.getEncoder();
-    littleEncoder = littleLeader.getEncoder();
-    bigPID = bigLeader.getPIDController();
-    littlePID = littleLeader.getPIDController();
-
-    bigLeader.setCANTimeout(0);
-    bigFollower.setCANTimeout(0);
-    littleLeader.setCANTimeout(0);
-    littleFollower.setCANTimeout(0);
+    bigMotor.setCANTimeout(0);
+    littleMotor.setCANTimeout(0);
 
     if (SparkMAXBurnManager.shouldBurn()) {
-      bigLeader.burnFlash();
-      bigFollower.burnFlash();
-      littleLeader.burnFlash();
-      littleFollower.burnFlash();
+      bigMotor.burnFlash();
+      littleMotor.burnFlash();
     }
   }
 
@@ -99,28 +78,24 @@ public class FlywheelsIOSparkMAX implements FlywheelsIO {
     inputs.bigVelocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(bigEncoder.getVelocity())
             * (2.0 * Math.PI) / bigAfterEncoderReduction;
-    inputs.bigAppliedVolts = bigLeader.getAppliedOutput() * 12.0;
-    inputs.bigCurrentAmps = new double[] {bigLeader.getOutputCurrent(),
-        bigFollower.getOutputCurrent()};
-    inputs.bigTempCelcius = new double[] {bigLeader.getMotorTemperature(),
-        bigFollower.getMotorTemperature()};
+    inputs.bigAppliedVolts = bigMotor.getAppliedOutput() * 12.0;
+    inputs.bigCurrentAmps = new double[] {bigMotor.getOutputCurrent(),};
+    inputs.bigTempCelcius = new double[] {bigMotor.getMotorTemperature(),};
 
     inputs.littlePositionRad = littleEncoder.getPosition() * (2.0 * Math.PI)
         / littleAfterEncoderReduction;
     inputs.littleVelocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(littleEncoder.getVelocity())
             * (2.0 * Math.PI) / littleAfterEncoderReduction;
-    inputs.littleAppliedVolts = littleLeader.getAppliedOutput() * 12.0;
-    inputs.littleCurrentAmps = new double[] {littleLeader.getOutputCurrent(),
-        littleFollower.getOutputCurrent()};
-    inputs.littleTempCelcius = new double[] {littleLeader.getMotorTemperature(),
-        littleFollower.getMotorTemperature()};
+    inputs.littleAppliedVolts = littleMotor.getAppliedOutput() * 12.0;
+    inputs.littleCurrentAmps = new double[] {littleMotor.getOutputCurrent()};
+    inputs.littleTempCelcius = new double[] {littleMotor.getMotorTemperature()};
   }
 
   @Override
   public void setVoltage(double bigVolts, double littleVolts) {
-    bigLeader.setVoltage(bigVolts);
-    littleLeader.setVoltage(littleVolts);
+    bigMotor.setVoltage(bigVolts);
+    littleMotor.setVoltage(littleVolts);
   }
 
   @Override
@@ -138,10 +113,8 @@ public class FlywheelsIOSparkMAX implements FlywheelsIO {
 
   @Override
   public void setBrakeMode(boolean enable) {
-    bigLeader.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
-    bigFollower.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
-    littleLeader.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
-    littleFollower.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
+    bigMotor.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
+    littleMotor.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
   }
 
   @Override
