@@ -66,6 +66,7 @@ public class MotionProfileCommand extends CommandBase {
         maxCentripetalAccelerationMetersPerSec2;
     switch (Constants.getRobot()) {
       case ROBOT_2022P:
+      case ROBOT_SIMBOT:
         maxVoltage = 10.0;
         maxVelocityMetersPerSec = Units.inchesToMeters(210.0);
         maxAccelerationMetersPerSec2 = Units.inchesToMeters(210.0);
@@ -76,12 +77,6 @@ public class MotionProfileCommand extends CommandBase {
         maxVelocityMetersPerSec = Units.inchesToMeters(120.0);
         maxAccelerationMetersPerSec2 = Units.inchesToMeters(100.0);
         maxCentripetalAccelerationMetersPerSec2 = Units.inchesToMeters(100.0);
-        break;
-      case ROBOT_SIMBOT:
-        maxVoltage = 10.0;
-        maxVelocityMetersPerSec = Units.inchesToMeters(210.0);
-        maxAccelerationMetersPerSec2 = Units.inchesToMeters(150.0);
-        maxCentripetalAccelerationMetersPerSec2 = Units.inchesToMeters(150.0);
         break;
       case ROBOT_ROMI:
         maxVoltage = 7.0;
