@@ -78,7 +78,7 @@ public class Drive extends SubsystemBase {
         maxVelocityMetersPerSec = Units.inchesToMeters(210.0);
         maxAccelerationMetersPerSec2 = Units.inchesToMeters(250.0);
         wheelRadiusMeters = Units.inchesToMeters(2.0);
-        trackWidthMeters = Units.inchesToMeters(27.0);
+        trackWidthMeters = Units.inchesToMeters(25.528);
         leftModel = new SimpleMotorFeedforward(0.20554, 0.10965, 0.016329);
         rightModel = new SimpleMotorFeedforward(0.20231, 0.11768, 0.0085871);
         kP.setDefault(0.00002);
