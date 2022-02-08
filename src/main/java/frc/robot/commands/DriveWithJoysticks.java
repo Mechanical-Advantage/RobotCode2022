@@ -32,8 +32,6 @@ public class DriveWithJoysticks extends CommandBase {
   private final Supplier<Double> rightYSupplier;
   private final Supplier<Boolean> sniperModeSupplier;
 
-  private boolean flipped = false;
-
   /** Creates a new DriveWithJoysticks. Drives based on the joystick values. */
   public DriveWithJoysticks(Drive drive, Supplier<String> modeSupplier,
       Supplier<Double> leftXSupplier, Supplier<Double> leftYSupplier,
@@ -52,10 +50,6 @@ public class DriveWithJoysticks extends CommandBase {
     sniperLevel.setDefault(0.5);
     curvatureThreshold.setDefault(0.15);
     curvatureArcadeTurnScale.setDefault(0.5);
-  }
-
-  public void toggleFlipped() {
-    flipped = !flipped;
   }
 
   // Called when the command is initially scheduled.
