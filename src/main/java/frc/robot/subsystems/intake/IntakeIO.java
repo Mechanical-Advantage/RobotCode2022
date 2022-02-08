@@ -19,6 +19,8 @@ public interface IntakeIO {
     public double[] rollerCurrentAmps = new double[] {};
     public double[] rollerTempCelcius = new double[] {};
 
+    public double hopperPositionRad = 0.0;
+    public double hopperVelocityRadPerSec = 0.0;
     public double hopperAppliedVolts = 0.0;
     public double[] hopperCurrentAmps = new double[] {};
     public double[] hopperTempCelcius = new double[] {};
@@ -51,6 +53,10 @@ public interface IntakeIO {
       rollerTempCelcius =
           table.getDoubleArray("RollerTempCelcius", rollerTempCelcius);
 
+      hopperPositionRad =
+          table.getDouble("HopperPositionRad", hopperPositionRad);
+      hopperVelocityRadPerSec =
+          table.getDouble("HopperVelocityRadPerSec", hopperVelocityRadPerSec);
       hopperAppliedVolts =
           table.getDouble("HopperAppliedVolts", hopperAppliedVolts);
       hopperCurrentAmps =

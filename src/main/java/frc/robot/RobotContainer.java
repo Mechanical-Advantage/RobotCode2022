@@ -44,15 +44,19 @@ import frc.robot.subsystems.drive.DriveIOTalonSRX;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.flywheels.FlywheelsIO;
 import frc.robot.subsystems.flywheels.FlywheelsIOSim;
+import frc.robot.subsystems.flywheels.FlywheelsIOSparkMAX;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.hood.HoodIO;
+import frc.robot.subsystems.hood.HoodIOReal;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOSparkMAX;
 import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.kicker.KickerIO;
+import frc.robot.subsystems.kicker.KickerIOSparkMAX;
 import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.tower.TowerIO;
+import frc.robot.subsystems.tower.TowerIOSparkMAX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
@@ -104,6 +108,15 @@ public class RobotContainer {
       intake = new Intake(new IntakeIO() {});
     } else {
       switch (Constants.getRobot()) {
+        case ROBOT_2022C:
+          drive = new Drive(new DriveIOSparkMAX());
+          vision = new Vision(new VisionIOPhotonVision());
+          flywheels = new Flywheels(new FlywheelsIOSparkMAX());
+          hood = new Hood(new HoodIOReal());
+          kicker = new Kicker(new KickerIOSparkMAX());
+          tower = new Tower(new TowerIOSparkMAX());
+          intake = new Intake(new IntakeIOSparkMAX());
+          break;
         case ROBOT_2022P:
           drive = new Drive(new DriveIOSparkMAX());
           vision = new Vision(new VisionIO() {});

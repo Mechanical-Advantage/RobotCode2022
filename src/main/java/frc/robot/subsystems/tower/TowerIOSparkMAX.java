@@ -28,7 +28,7 @@ public class TowerIOSparkMAX implements TowerIO {
         motor = new CANSparkMax(0, MotorType.kBrushless);
         cargoSensor = new DigitalInput(0);
         invert = false;
-        afterEncoderReduction = 1.0;
+        afterEncoderReduction = 9.0;
         break;
       default:
         throw new RuntimeException("Invalid robot for TowerIOSparkMax!");

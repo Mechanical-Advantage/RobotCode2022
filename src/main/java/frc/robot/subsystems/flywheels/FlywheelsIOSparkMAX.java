@@ -37,9 +37,8 @@ public class FlywheelsIOSparkMAX implements FlywheelsIO {
         bigMotor = new CANSparkMax(0, MotorType.kBrushless);
         littleMotor = new CANSparkMax(2, MotorType.kBrushless);
         bigInvert = false;
-        bigAfterEncoderReduction = 1.0;
-        littleAfterEncoderReduction = 1.0;
-
+        bigAfterEncoderReduction = (48.0 / 24.0);
+        littleAfterEncoderReduction = (34.0 / 68.0) * (20.0 / 36.0);
         break;
       default:
         throw new RuntimeException("Invalid robot for FlywheelsIOSparkMax!");

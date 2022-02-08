@@ -25,7 +25,7 @@ public class KickerIOSparkMAX implements KickerIO {
       case ROBOT_2022C:
         motor = new CANSparkMax(0, MotorType.kBrushless);
         invert = false;
-        afterEncoderReduction = 1.0;
+        afterEncoderReduction = 60.0 / 12.0;
         break;
       default:
         throw new RuntimeException("Invalid robot for KickerIOSparkMax!");
