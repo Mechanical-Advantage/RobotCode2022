@@ -11,6 +11,7 @@ import org.littletonrobotics.junction.io.ByteLogReceiver;
 import org.littletonrobotics.junction.io.ByteLogReplay;
 import org.littletonrobotics.junction.io.LogSocketServer;
 
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -119,6 +120,12 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+
+    // Log scheduled commands
+    Logger.getInstance().recordOutput("Commands",
+        NetworkTableInstance.getDefault()
+            .getEntry("/LiveWindow/Ungrouped/Scheduler/Names")
+            .getStringArray(new String[] {}));
 
     // Check logging faults
     logReceiverQueueAlert.set(Logger.getInstance().getReceiverQueueFault());
