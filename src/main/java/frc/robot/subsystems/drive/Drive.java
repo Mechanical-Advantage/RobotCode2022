@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
-import frc.robot.commands.SysIdCommand.DriveTrainSysIdData;
 import frc.robot.subsystems.drive.DriveIO.DriveIOInputs;
 import frc.robot.subsystems.vision.Vision.TimestampedTranslation2d;
 import frc.robot.util.GeomUtil;
@@ -238,7 +237,7 @@ public class Drive extends SubsystemBase {
   }
 
   /**
-   * Drive at the specified voltage with no other processing. Only use with SysId.
+   * Drive at the specified voltage with no other processing. Only use when characterizing.
    */
   public void driveVoltage(double leftVolts, double rightVolts) {
     if (disableOverride.get()) {
@@ -430,14 +429,13 @@ public class Drive extends SubsystemBase {
     return ((leftModel.ka + rightModel.ka) / 2) / wheelRadiusMeters;
   }
 
-  /**
-   * Returns a set of data for SysId
-   */
-  public DriveTrainSysIdData getSysIdData() {
-    return new DriveTrainSysIdData(getLeftPositionMeters() / wheelRadiusMeters,
-        getRightPositionMeters() / wheelRadiusMeters,
-        getLeftVelocityMetersPerSec() / wheelRadiusMeters,
-        getRightVelocityMetersPerSec() / wheelRadiusMeters,
-        inputs.gyroPositionRad, inputs.gyroVelocityRadPerSec);
+  /** Returns left velocity in radians per second. Only use for characterization. */
+  public double getCharacterizationVelocityLeft() {
+    return getLeftVelocityMetersPerSec() / wheelRadiusMeters;
+  }
+
+  /** Returns right velocity in radians per second. Only use for characterization. */
+  public double getCharacterizationVelocityRight() {
+    return getRightVelocityMetersPerSec() / wheelRadiusMeters;
   }
 }

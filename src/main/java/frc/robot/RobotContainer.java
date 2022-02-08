@@ -8,18 +8,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Mode;
 import frc.robot.commands.AutoAim;
 import frc.robot.commands.AutoIndex;
 import frc.robot.commands.DriveWithJoysticks;
+import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FiveCargoAuto;
 import frc.robot.commands.FourCargoAuto;
 import frc.robot.commands.OneCargoAuto;
@@ -28,9 +26,9 @@ import frc.robot.commands.RunIntake;
 import frc.robot.commands.RunTower;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.Taxi;
-import frc.robot.commands.SysIdCommand;
 import frc.robot.commands.ThreeCargoAuto;
 import frc.robot.commands.TwoCargoAuto;
+import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.commands.PrepareShooter.ShooterPreset;
 import frc.robot.oi.HandheldOI;
 import frc.robot.oi.OISelector;
@@ -244,18 +242,48 @@ public class RobotContainer {
     autoRoutineMap.put("Taxi (FB)",
         new AutoRoutine(AutoPosition.FENDER_B, new Taxi(drive, true)));
 
-    autoRoutineMap.put("Run SysId (Drive)", new AutoRoutine(AutoPosition.ORIGIN,
-        new SysIdCommand(drive, drive::driveVoltage, drive::getSysIdData)));
-    autoRoutineMap.put("Run SysId (Big Flywheel)",
+    FeedForwardCharacterizationData driveLeftData =
+        new FeedForwardCharacterizationData("Drive/Left");
+    FeedForwardCharacterizationData driveRightData =
+        new FeedForwardCharacterizationData("Drive/Right");
+    autoRoutineMap.put("FF Characterization (Drive/Forwards)",
         new AutoRoutine(AutoPosition.ORIGIN,
-            new SysIdCommand(flywheels,
+            new FeedForwardCharacterization(drive, true, driveLeftData,
+                driveRightData, drive::driveVoltage,
+                drive::getCharacterizationVelocityLeft,
+                drive::getCharacterizationVelocityRight)));
+    autoRoutineMap.put("FF Characterization (Drive/Backwards)",
+        new AutoRoutine(AutoPosition.ORIGIN,
+            new FeedForwardCharacterization(drive, false, driveLeftData,
+                driveRightData, drive::driveVoltage,
+                drive::getCharacterizationVelocityLeft,
+                drive::getCharacterizationVelocityRight)));
+
+    FeedForwardCharacterizationData bigFlywheelData =
+        new FeedForwardCharacterizationData("Big Flywheel");
+    autoRoutineMap.put("FF Characterization (Big Flywheel/Forwards)",
+        new AutoRoutine(AutoPosition.ORIGIN,
+            new FeedForwardCharacterization(flywheels, true, bigFlywheelData,
                 volts -> flywheels.runVoltage(volts, 0.0),
-                flywheels::getBigSysIdData)));
-    autoRoutineMap.put("Run SysId (Little Flywheel)",
+                flywheels::getCharacterizationVelocityBig)));
+    autoRoutineMap.put("FF Characterization (Big Flywheel/Backwards)",
         new AutoRoutine(AutoPosition.ORIGIN,
-            new SysIdCommand(flywheels,
+            new FeedForwardCharacterization(flywheels, false, bigFlywheelData,
+                volts -> flywheels.runVoltage(volts, 0.0),
+                flywheels::getCharacterizationVelocityBig)));
+
+    FeedForwardCharacterizationData littleFlywheelData =
+        new FeedForwardCharacterizationData("Big Flywheel");
+    autoRoutineMap.put("FF Characterization (Little Flywheel/Forwards)",
+        new AutoRoutine(AutoPosition.ORIGIN,
+            new FeedForwardCharacterization(flywheels, true, littleFlywheelData,
                 volts -> flywheels.runVoltage(0.0, volts),
-                flywheels::getLittleSysIdData)));
+                flywheels::getCharacterizationVelocityLittle)));
+    autoRoutineMap.put("FF Characterization (Little Flywheel/Backwards)",
+        new AutoRoutine(AutoPosition.ORIGIN,
+            new FeedForwardCharacterization(flywheels, false,
+                littleFlywheelData, volts -> flywheels.runVoltage(0.0, volts),
+                flywheels::getCharacterizationVelocityLittle)));
 
     // Alert if in tuning mode
     if (Constants.tuningMode) {

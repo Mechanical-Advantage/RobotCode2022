@@ -11,7 +11,6 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.commands.SysIdCommand.MechanismSysIdData;
 import frc.robot.subsystems.flywheels.FlywheelsIO.FlywheelsIOInputs;
 import frc.robot.util.TunableNumber;
 import frc.robot.util.VelocityProfiler;
@@ -115,7 +114,7 @@ public class Flywheels extends SubsystemBase {
     }
   }
 
-  /** Run at the specified voltage with no other processing. Only use with SysId. */
+  /** Run at the specified voltage with no other processing. Only use when characterizing. */
   public void runVoltage(double bigVolts, double littleVolts) {
     io.setVoltage(bigVolts, littleVolts);
     closedLoop = false;
@@ -169,19 +168,13 @@ public class Flywheels extends SubsystemBase {
     }
   }
 
-  /**
-   * Returns a set of data for SysId (big flywheel).
-   */
-  public MechanismSysIdData getBigSysIdData() {
-    return new MechanismSysIdData(inputs.bigPositionRad,
-        inputs.bigVelocityRadPerSec);
+  /** Returns velocity of big flywheel in radians per second. Only use for characterization. */
+  public double getCharacterizationVelocityBig() {
+    return inputs.bigVelocityRadPerSec;
   }
 
-  /**
-   * Returns a set of data for SysId (little flywheel).
-   */
-  public MechanismSysIdData getLittleSysIdData() {
-    return new MechanismSysIdData(inputs.littlePositionRad,
-        inputs.littleVelocityRadPerSec);
+  /** Returns velocity of little flywheel in radians per second. Only use for characterization. */
+  public double getCharacterizationVelocityLittle() {
+    return inputs.littleVelocityRadPerSec;
   }
 }
