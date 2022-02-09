@@ -107,13 +107,13 @@ public class DriveIOSparkMAX implements DriveIO {
     leftLeader.enableVoltageCompensation(12.0);
     rightLeader.enableVoltageCompensation(12.0);
 
-    leftLeader.setSmartCurrentLimit(80);
-    leftFollower.setSmartCurrentLimit(80);
-    rightLeader.setSmartCurrentLimit(80);
-    rightFollower.setSmartCurrentLimit(80);
+    leftLeader.setSmartCurrentLimit(30);
+    leftFollower.setSmartCurrentLimit(30);
+    rightLeader.setSmartCurrentLimit(30);
+    rightFollower.setSmartCurrentLimit(30);
     if (hasThreeControllers) {
-      leftFollower2.setSmartCurrentLimit(80);
-      rightFollower2.setSmartCurrentLimit(80);
+      leftFollower2.setSmartCurrentLimit(30);
+      rightFollower2.setSmartCurrentLimit(30);
     }
 
     leftLeader.setCANTimeout(0);

@@ -87,7 +87,6 @@ public class FeedForwardCharacterization extends CommandBase {
         voltageConsumerDrive.accept(voltage, voltage);
       } else {
         voltageConsumerSimple.accept(voltage);
-
       }
       dataPrimary.add(velocitySupplierPrimary.get(), voltage);
       if (isDrive) {

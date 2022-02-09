@@ -45,7 +45,6 @@ public class Drive extends SubsystemBase {
 
   private final double wheelRadiusMeters;
   private final double maxVelocityMetersPerSec;
-  private final double maxAccelerationMetersPerSec2;
   private final double trackWidthMeters;
   private final SimpleMotorFeedforward leftModel, rightModel;
   private final TunableNumber kP = new TunableNumber("Drive/kP");
@@ -65,8 +64,6 @@ public class Drive extends SubsystemBase {
   private Pose2d lastVisionPose = new Pose2d();
   private double baseDistanceLeftRad = 0.0;
   private double baseDistanceRightRad = 0.0;
-  private double lastLeftVelocityMetersPerSec = 0.0;
-  private double lastRightVelocityMetersPerSec = 0.0;
   private boolean brakeMode = false;
   private boolean resetOnVision = false;
 
@@ -76,7 +73,6 @@ public class Drive extends SubsystemBase {
     switch (Constants.getRobot()) {
       case ROBOT_2022P:
         maxVelocityMetersPerSec = Units.inchesToMeters(210.0);
-        maxAccelerationMetersPerSec2 = Units.inchesToMeters(250.0);
         wheelRadiusMeters = Units.inchesToMeters(2.0);
         trackWidthMeters = Units.inchesToMeters(25.528);
         leftModel = new SimpleMotorFeedforward(0.20554, 0.10965, 0.016329);
@@ -86,7 +82,6 @@ public class Drive extends SubsystemBase {
         break;
       case ROBOT_2020:
         maxVelocityMetersPerSec = Units.inchesToMeters(150.0);
-        maxAccelerationMetersPerSec2 = Double.POSITIVE_INFINITY;
         wheelRadiusMeters = Units.inchesToMeters(3.0);
         trackWidthMeters = 1.768748;
         leftModel = new SimpleMotorFeedforward(0.23004, 0.2126, 0.036742);
@@ -96,7 +91,6 @@ public class Drive extends SubsystemBase {
         break;
       case ROBOT_KITBOT:
         maxVelocityMetersPerSec = Units.inchesToMeters(122.0);
-        maxAccelerationMetersPerSec2 = Double.POSITIVE_INFINITY;
         wheelRadiusMeters = Units.inchesToMeters(3.18);
         trackWidthMeters = 0.6928821;
         leftModel = new SimpleMotorFeedforward(0.75379, 0.25162, 0.042941);
@@ -106,7 +100,6 @@ public class Drive extends SubsystemBase {
         break;
       case ROBOT_SIMBOT:
         maxVelocityMetersPerSec = Units.inchesToMeters(210.0);
-        maxAccelerationMetersPerSec2 = Double.POSITIVE_INFINITY;
         wheelRadiusMeters = Units.inchesToMeters(3.0);
         trackWidthMeters = 0.7;
         leftModel = new SimpleMotorFeedforward(0.0, 0.22643, 0.018292);
@@ -116,7 +109,6 @@ public class Drive extends SubsystemBase {
         break;
       case ROBOT_ROMI:
         maxVelocityMetersPerSec = 0.6;
-        maxAccelerationMetersPerSec2 = Double.POSITIVE_INFINITY;
         wheelRadiusMeters = 0.035;
         trackWidthMeters = 0.281092;
         leftModel = new SimpleMotorFeedforward(0.27034, 0.64546, 0.021935);
@@ -126,7 +118,6 @@ public class Drive extends SubsystemBase {
         break;
       default:
         maxVelocityMetersPerSec = 0;
-        maxAccelerationMetersPerSec2 = Double.POSITIVE_INFINITY;
         wheelRadiusMeters = Double.POSITIVE_INFINITY;
         trackWidthMeters = 1.0;
         leftModel = new SimpleMotorFeedforward(0, 0, 0);
@@ -275,35 +266,10 @@ public class Drive extends SubsystemBase {
       return;
     }
 
-    // Enforce acceleration limit
-    double maxAccelerationPerCycle =
-        maxAccelerationMetersPerSec2 * Constants.loopPeriodSecs;
-    double leftAcceleration = lastLeftVelocityMetersPerSec > 0
-        ? leftVelocityMetersPerSec - lastLeftVelocityMetersPerSec
-        : lastLeftVelocityMetersPerSec - leftVelocityMetersPerSec;
-    if (leftAcceleration > maxAccelerationPerCycle) {
-      lastLeftVelocityMetersPerSec +=
-          leftVelocityMetersPerSec > 0 ? maxAccelerationPerCycle
-              : -maxAccelerationPerCycle;
-    } else {
-      lastLeftVelocityMetersPerSec = leftVelocityMetersPerSec;
-    }
-    double rightAcceleration = lastRightVelocityMetersPerSec > 0
-        ? rightVelocityMetersPerSec - lastRightVelocityMetersPerSec
-        : lastRightVelocityMetersPerSec - rightVelocityMetersPerSec;
-    if (rightAcceleration > maxAccelerationPerCycle) {
-      lastRightVelocityMetersPerSec +=
-          rightVelocityMetersPerSec > 0 ? maxAccelerationPerCycle
-              : -maxAccelerationPerCycle;
-    } else {
-      lastRightVelocityMetersPerSec = rightVelocityMetersPerSec;
-    }
-
     // Calculate setpoint and feed forward voltage
-    double leftVelocityRadPerSec =
-        lastLeftVelocityMetersPerSec / wheelRadiusMeters;
+    double leftVelocityRadPerSec = leftVelocityMetersPerSec / wheelRadiusMeters;
     double rightVelocityRadPerSec =
-        lastRightVelocityMetersPerSec / wheelRadiusMeters;
+        rightVelocityMetersPerSec / wheelRadiusMeters;
     double leftFFVolts = leftModel.calculate(leftVelocityRadPerSec);
     double rightFFVolts = rightModel.calculate(rightVelocityRadPerSec);
 

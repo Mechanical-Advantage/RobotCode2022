@@ -9,7 +9,9 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.TunableNumber;
 
@@ -18,6 +20,10 @@ public class DriveWithJoysticks extends CommandBase {
       new TunableNumber("DriveWithJoysticks/Deadband");
   private static final TunableNumber sniperLevel =
       new TunableNumber("DriveWithJoysticks/SniperLevel");
+  private static final TunableNumber maxAcceleration =
+      new TunableNumber("DriveWithJoysticks/MaxAcceleration"); // Percent velocity per second
+  private static final TunableNumber maxJerk =
+      new TunableNumber("DriveWithJoysticks/MaxJerk"); // Percent velocity per second^2
   private static final TunableNumber curvatureThreshold =
       new TunableNumber("DriveWithJoysticks/CurvatureThreshold"); // Where to transition to full
                                                                   // curvature
@@ -31,6 +37,11 @@ public class DriveWithJoysticks extends CommandBase {
   private final Supplier<Double> rightXSupplier;
   private final Supplier<Double> rightYSupplier;
   private final Supplier<Boolean> sniperModeSupplier;
+
+  private final AxisProcessor leftXProcessor = new AxisProcessor();
+  private final AxisProcessor leftYProcessor = new AxisProcessor();
+  private final AxisProcessor rightXProcessor = new AxisProcessor();
+  private final AxisProcessor rightYProcessor = new AxisProcessor();
 
   /** Creates a new DriveWithJoysticks. Drives based on the joystick values. */
   public DriveWithJoysticks(Drive drive, Supplier<String> modeSupplier,
@@ -48,6 +59,8 @@ public class DriveWithJoysticks extends CommandBase {
 
     deadband.setDefault(0.08);
     sniperLevel.setDefault(0.5);
+    maxAcceleration.setDefault(99999.0);
+    maxJerk.setDefault(40.0);
     curvatureThreshold.setDefault(0.15);
     curvatureArcadeTurnScale.setDefault(0.5);
   }
@@ -56,24 +69,14 @@ public class DriveWithJoysticks extends CommandBase {
   @Override
   public void initialize() {}
 
-  /** Apply deadband and square. */
-  private double processAxis(double value) {
-    if (Math.abs(value) < deadband.get()) {
-      return 0.0;
-    }
-    double scaledValue =
-        (Math.abs(value) - deadband.get()) / (1 - deadband.get());
-    return Math.copySign(scaledValue * scaledValue, value);
-  }
-
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   @SuppressWarnings("unused")
   public void execute() {
-    double leftXValue = processAxis(leftXSupplier.get());
-    double leftYValue = processAxis(leftYSupplier.get());
-    double rightXValue = processAxis(rightXSupplier.get());
-    double rightYValue = processAxis(rightYSupplier.get());
+    double leftXValue = leftXProcessor.process(leftXSupplier.get());
+    double leftYValue = leftYProcessor.process(leftYSupplier.get());
+    double rightXValue = rightXProcessor.process(rightXSupplier.get());
+    double rightYValue = rightYProcessor.process(rightYSupplier.get());
 
     WheelSpeeds speeds = new WheelSpeeds(0.0, 0.0);
     switch (modeSupplier.get()) {
@@ -144,6 +147,25 @@ public class DriveWithJoysticks extends CommandBase {
         double turnSpeed) {
       turnSpeed = Math.abs(baseSpeed) * turnSpeed;
       return new WheelSpeeds(baseSpeed + turnSpeed, baseSpeed - turnSpeed);
+    }
+  }
+
+  /** Cleans up a series of axis value (deadband + squaring + profile) */
+  private static class AxisProcessor {
+    private TrapezoidProfile.State state = new TrapezoidProfile.State();
+
+    public double process(double value) {
+      double scaledValue = 0.0;
+      if (Math.abs(value) > deadband.get()) {
+        scaledValue = (Math.abs(value) - deadband.get()) / (1 - deadband.get());
+        scaledValue = Math.copySign(scaledValue * scaledValue, value);
+      }
+      TrapezoidProfile profile = new TrapezoidProfile(
+          new TrapezoidProfile.Constraints(maxAcceleration.get(),
+              maxJerk.get()),
+          new TrapezoidProfile.State(scaledValue, 0.0), state);
+      state = profile.calculate(Constants.loopPeriodSecs);
+      return state.position;
     }
   }
 }
