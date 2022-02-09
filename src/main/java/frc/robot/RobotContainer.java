@@ -27,6 +27,7 @@ import frc.robot.commands.RunTower;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.Taxi;
 import frc.robot.commands.ThreeCargoAuto;
+import frc.robot.commands.TrackWidthCharacterization;
 import frc.robot.commands.TwoCargoAuto;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.commands.PrepareShooter.ShooterPreset;
@@ -241,6 +242,12 @@ public class RobotContainer {
         new AutoRoutine(AutoPosition.FENDER_A, new Taxi(drive, true)));
     autoRoutineMap.put("Taxi (FB)",
         new AutoRoutine(AutoPosition.FENDER_B, new Taxi(drive, true)));
+
+    autoRoutineMap.put("Track Width Characterization",
+        new AutoRoutine(AutoPosition.ORIGIN,
+            new TrackWidthCharacterization(drive, drive::driveVoltage,
+                drive::getLeftPositionMeters, drive::getRightPositionMeters,
+                drive::getCharacterizationGyroPosition)));
 
     FeedForwardCharacterizationData driveLeftData =
         new FeedForwardCharacterizationData("Drive/Left");

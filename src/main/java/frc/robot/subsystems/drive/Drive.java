@@ -201,7 +201,7 @@ public class Drive extends SubsystemBase {
   }
 
   /** Return left position in meters. */
-  private double getLeftPositionMeters() {
+  public double getLeftPositionMeters() {
     if (inputs.externalAvailable && !internalEncoderOverride.get()) {
       return inputs.externalLeftPositionRad * wheelRadiusMeters;
     } else {
@@ -210,7 +210,7 @@ public class Drive extends SubsystemBase {
   }
 
   /** Return right position in meters. */
-  private double getRightPositionMeters() {
+  public double getRightPositionMeters() {
     if (inputs.externalAvailable && !internalEncoderOverride.get()) {
       return inputs.externalRightPositionRad * wheelRadiusMeters;
     } else {
@@ -219,7 +219,7 @@ public class Drive extends SubsystemBase {
   }
 
   /** Return left velocity in meters per second. */
-  private double getLeftVelocityMetersPerSec() {
+  public double getLeftVelocityMetersPerSec() {
     if (inputs.externalAvailable && !internalEncoderOverride.get()) {
       return inputs.externalRightVelocityRadPerSec * wheelRadiusMeters;
     } else {
@@ -228,7 +228,7 @@ public class Drive extends SubsystemBase {
   }
 
   /** Return right velocity in meters per second. */
-  private double getRightVelocityMetersPerSec() {
+  public double getRightVelocityMetersPerSec() {
     if (inputs.externalAvailable && !internalEncoderOverride.get()) {
       return inputs.externalLeftVelocityRadPerSec * wheelRadiusMeters;
     } else {
@@ -437,5 +437,10 @@ public class Drive extends SubsystemBase {
   /** Returns right velocity in radians per second. Only use for characterization. */
   public double getCharacterizationVelocityRight() {
     return getRightVelocityMetersPerSec() / wheelRadiusMeters;
+  }
+
+  /** Returns gyro position in radians. Only use for characterization */
+  public double getCharacterizationGyroPosition() {
+    return inputs.gyroPositionRad;
   }
 }
