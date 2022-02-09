@@ -24,8 +24,8 @@ import frc.robot.util.CircleFitter;
 
 public class Vision extends SubsystemBase {
   private static final Rotation2d horizontalPlaneToLens =
-      Rotation2d.fromDegrees(29.75);
-  private static final double lensHeightMeters = Units.inchesToMeters(18.25);
+      Rotation2d.fromDegrees(41.0);
+  private static final double lensHeightMeters = Units.inchesToMeters(24.25);
   private static final double circleFitPrecision = 0.01;
   private static final int minTargetCount = 2; // For calculating odometry
   private static final double extraLatencySecs = 0.06; // Approximate camera + network latency

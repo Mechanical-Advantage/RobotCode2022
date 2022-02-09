@@ -32,7 +32,8 @@ public class Drive extends SubsystemBase {
   private static final double maxCoastVelocityMetersPerSec = 0.05; // Need to be under this to
                                                                    // switch to coast when disabling
   private static final Transform2d vehicleToCamera = new Transform2d(
-      new Translation2d(Units.inchesToMeters(1.875), 0.0), new Rotation2d());
+      new Translation2d(Units.inchesToMeters(6.0), Units.inchesToMeters(4.5)),
+      Rotation2d.fromDegrees(180.0));
   private static final int poseHistoryCapacity = 500;
   private static final double maxNoVisionLog = 0.1; // How long to wait with no vision data before
                                                     // clearing log visualization
@@ -174,6 +175,9 @@ public class Drive extends SubsystemBase {
               lastVisionPose.getRotation().getRadians()});
       Logger.getInstance().recordOutput("Odometry/VisionTarget", new double[] {
           FieldConstants.fieldLength / 2.0, FieldConstants.fieldWidth / 2.0});
+      Logger.getInstance().recordOutput("Vision/DistanceInches",
+          Units.metersToInches(lastVisionPose.getTranslation()
+              .getDistance(FieldConstants.hubCenter)));
 
     }
 

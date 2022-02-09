@@ -43,6 +43,15 @@ public class AutoAim extends CommandBase {
     this.vision = vision;
 
     switch (Constants.getRobot()) {
+      case ROBOT_2022P:
+        kP.setDefault(0.005);
+        kI.setDefault(0.0);
+        kD.setDefault(0.0001);
+        integralMaxError.setDefault(0.0);
+        minVelocity.setDefault(0.0);
+        toleranceDegrees.setDefault(3.0);
+        toleranceTime.setDefault(0.3);
+        break;
       case ROBOT_2020:
         kP.setDefault(0.018);
         kI.setDefault(0.005);
@@ -119,6 +128,7 @@ public class AutoAim extends CommandBase {
     drive.drivePercent(output * -1, output);
     Logger.getInstance().recordOutput("AutoAim/ErrorDegrees",
         controller.getPositionError());
+    Logger.getInstance().recordOutput("AutoAim/OutputPercent", output);
   }
 
   // Called once the command ends or is interrupted.
