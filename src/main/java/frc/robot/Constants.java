@@ -20,7 +20,7 @@ import frc.robot.util.Alert.AlertType;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-  private static final Robot robot = Robot.ROBOT_2020;
+  private static final Robot robot = Robot.ROBOT_2022C;
   public static final double loopPeriodSecs = 0.02;
   public static final boolean tuningMode = false;
 
@@ -58,8 +58,9 @@ public final class Constants {
     }
   }
 
-  public static final Map<Robot, String> logFolders = Map.of(Robot.ROBOT_2020,
-      "/media/sda2/", Robot.ROBOT_KITBOT, "/media/sda1/");
+  public static final Map<Robot, String> logFolders =
+      Map.of(Robot.ROBOT_2022C, "/media/sda2/", Robot.ROBOT_2022P,
+          "/media/sda1/", Robot.ROBOT_2020, "/media/sda2/");
 
   public static enum Robot {
     ROBOT_2022C, ROBOT_2022P, ROBOT_2020, ROBOT_KITBOT, ROBOT_SIMBOT, ROBOT_ROMI
