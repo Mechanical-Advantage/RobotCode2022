@@ -24,21 +24,23 @@ public class TwoPointPoseController {
                                                                              // is allowed
 
   private Pose2d target = new Pose2d();
+  private boolean linearAtSetpoint = false;
   private final double convergenceFactor;
   private final double maxLinearAngleRadians;
   private final PIDController linearController;
+  private final Translation2d linearTolerance;
   private final PIDController angularController;
 
   /**
    * Creates a new TwoPointPoseController with default convergence factor and max linear angle.
    * 
    * @param linearController PID controller for correcting distance to target
-   * @param linearToleranceMeters Acceptable target distance in meters
+   * @param linearToleranceMeters Acceptable target distance in meters (x and y)
    * @param angularController PID controller for correcting angle to target
    * @param angularToleranceRadians Acceptable angular error in radians
    */
   public TwoPointPoseController(PIDController linearController,
-      double linearToleranceMeters, PIDController angularController,
+      Translation2d linearToleranceMeters, PIDController angularController,
       double angularToleranceRadians) {
     this(defaultConvergenceFactor, defaultMaxLinearAngleRadians,
         linearController, linearToleranceMeters, angularController,
@@ -53,18 +55,18 @@ public class TwoPointPoseController {
    * @param maxLinearAngleRadians Maximum allowable error on the angular controller where linear
    *        velocity is used, allows for turning in place
    * @param linearController PID controller for correcting distance to target
-   * @param linearToleranceMeters Acceptable target distance in meters
+   * @param linearToleranceMeters Acceptable target distance in meters (x and y)
    * @param angularController PID controller for correcting angle to target
    * @param angularToleranceRadians Acceptable angular error in radians
    */
   public TwoPointPoseController(double convergenceFactor,
       double maxLinearAngleRadians, PIDController linearController,
-      double linearToleranceMeters, PIDController angularController,
+      Translation2d linearToleranceMeters, PIDController angularController,
       double angularToleranceRadians) {
     this.convergenceFactor = convergenceFactor;
     this.maxLinearAngleRadians = maxLinearAngleRadians;
     this.linearController = linearController;
-    linearController.setTolerance(linearToleranceMeters);
+    this.linearTolerance = linearToleranceMeters;
     linearController.setSetpoint(0);
     linearController.disableContinuousInput();
     this.angularController = angularController;
@@ -87,6 +89,7 @@ public class TwoPointPoseController {
   public void reset() {
     linearController.reset();
     angularController.reset();
+    linearAtSetpoint = false;
   }
 
   /**
@@ -108,13 +111,14 @@ public class TwoPointPoseController {
     // Calculate relative target positions
     Translation2d relativeIntermediateTarget =
         intermediateTarget.minus(currentPose.getTranslation());
-    Translation2d relativeTarget =
-        target.getTranslation().minus(currentPose.getTranslation());
+    Pose2d relativeTarget = target.relativeTo(currentPose);
 
     // Run PID controllers
-    output.vxMetersPerSecond = linearController
-        .calculate(relativeTarget.getNorm() * (xDist > 0 ? 1 : -1));
-    if (linearController.atSetpoint()) { // We're at the target, point in final direction
+    output.vxMetersPerSecond = linearController.calculate(
+        relativeTarget.getTranslation().getNorm() * (xDist > 0 ? 1 : -1));
+    linearAtSetpoint = Math.abs(relativeTarget.getX()) < linearTolerance.getX()
+        && Math.abs(relativeTarget.getY()) < linearTolerance.getY();
+    if (linearAtSetpoint) { // We're at the target, point in final direction
       output.vxMetersPerSecond = 0;
       angularController.setSetpoint(target.getRotation().getRadians());
     } else { // Not at the target yet, point at the intermediate target
@@ -141,6 +145,6 @@ public class TwoPointPoseController {
    * Checks whether the robot is at the target (distance and heading)
    */
   public boolean atTarget() {
-    return linearController.atSetpoint() && angularController.atSetpoint();
+    return linearAtSetpoint && angularController.atSetpoint();
   }
 }

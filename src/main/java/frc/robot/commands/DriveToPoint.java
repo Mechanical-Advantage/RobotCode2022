@@ -5,6 +5,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
@@ -26,14 +27,14 @@ public class DriveToPoint extends CommandBase {
 
     switch (Constants.getRobot()) {
       case ROBOT_2022P:
-        controller =
-            new TwoPointPoseController(new PIDController(6.0, 0.0, 0.0), 0.05,
-                new PIDController(3.0, 0.0, 0.0), 0.15);
+        controller = new TwoPointPoseController(
+            new PIDController(6.0, 0.0, 0.0), new Translation2d(0.05, 2.0),
+            new PIDController(3.0, 0.0, 0.0), 0.15);
         break;
       default:
         controller =
-            new TwoPointPoseController(new PIDController(0.0, 0.0, 0.0), 0.0,
-                new PIDController(0.0, 0.0, 0.0), 0.0);
+            new TwoPointPoseController(new PIDController(0.0, 0.0, 0.0),
+                new Translation2d(), new PIDController(0.0, 0.0, 0.0), 0.0);
     }
     controller.setTarget(target);
     kinematics = new DifferentialDriveKinematics(drive.getTrackWidthMeters());
