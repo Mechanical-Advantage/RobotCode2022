@@ -110,7 +110,7 @@ public class RobotContainer {
         case ROBOT_2022C:
           drive = new Drive(new DriveIOSparkMAX());
           vision = new Vision(new VisionIO() {});
-          flywheels = new Flywheels(new FlywheelsIO() {});
+          flywheels = new Flywheels(new FlywheelsIOSim());
           hood = new Hood(new HoodIO() {});
           kicker = new Kicker(new KickerIO() {});
           tower = new Tower(new TowerIO() {});
@@ -118,12 +118,12 @@ public class RobotContainer {
           break;
         case ROBOT_2022P:
           drive = new Drive(new DriveIOSparkMAX());
-          vision = new Vision(new VisionIO() {});
-          flywheels = new Flywheels(new FlywheelsIO() {});
+          vision = new Vision(new VisionIOPhotonVision());
+          flywheels = new Flywheels(new FlywheelsIOSim());
           hood = new Hood(new HoodIO() {});
           kicker = new Kicker(new KickerIO() {});
           tower = new Tower(new TowerIO() {});
-          intake = new Intake(new IntakeIOSparkMAX());
+          intake = new Intake(new IntakeIO() {});
           break;
         case ROBOT_2020:
           drive = new Drive(new DriveIOSparkMAX());
