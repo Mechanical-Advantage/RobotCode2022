@@ -78,4 +78,8 @@ public interface HandheldOI {
   public default Trigger getTowerDownButton() {
     return new Trigger();
   }
+
+  public default double getClimbStick() {
+    return 0.0;
+  }
 }

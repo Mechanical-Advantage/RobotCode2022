@@ -101,4 +101,9 @@ public class DualHandheldOI implements HandheldOI {
   public Trigger getTowerDownButton() {
     return new Trigger(() -> operatorController.getPOV() == 180);
   }
+
+  @Override
+  public double getClimbStick() {
+    return operatorController.getLeftY() * -1;
+  }
 }
