@@ -6,10 +6,10 @@ import java.util.List;
 import edu.wpi.first.wpilibj.SerialPort;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
-import frc.robot.Constants.Robot;
+import frc.robot.Constants.RobotType;
 
 public class BatteryTracker {
-  private static final List<Robot> supportedRobots = List.of();
+  private static final List<RobotType> supportedRobots = List.of();
 
   private static final int nameLength = 12;
   private static final byte[] scanCommand = new byte[] {0x7e, 0x00, 0x08, 0x01,

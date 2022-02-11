@@ -20,7 +20,7 @@ import frc.robot.util.Alert.AlertType;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-  private static final Robot robot = Robot.ROBOT_2022C;
+  private static final RobotType robot = RobotType.ROBOT_2022C;
   public static final double loopPeriodSecs = 0.02;
   public static final boolean tuningMode = false;
 
@@ -28,11 +28,12 @@ public final class Constants {
       new Alert("Invalid robot selected, using competition robot as default.",
           AlertType.ERROR);
 
-  public static Robot getRobot() {
+  public static RobotType getRobot() {
     if (RobotBase.isReal()) {
-      if (robot == Robot.ROBOT_SIMBOT || robot == Robot.ROBOT_ROMI) { // Invalid robot selected
+      if (robot == RobotType.ROBOT_SIMBOT || robot == RobotType.ROBOT_ROMI) { // Invalid robot
+                                                                              // selected
         invalidRobotAlert.set(true);
-        return Robot.ROBOT_2022C;
+        return RobotType.ROBOT_2022C;
       } else {
         return robot;
       }
@@ -58,11 +59,11 @@ public final class Constants {
     }
   }
 
-  public static final Map<Robot, String> logFolders =
-      Map.of(Robot.ROBOT_2022C, "/media/sda2/", Robot.ROBOT_2022P,
-          "/media/sda1/", Robot.ROBOT_2020, "/media/sda2/");
+  public static final Map<RobotType, String> logFolders =
+      Map.of(RobotType.ROBOT_2022C, "/media/sda2/", RobotType.ROBOT_2022P,
+          "/media/sda1/", RobotType.ROBOT_2020, "/media/sda2/");
 
-  public static enum Robot {
+  public static enum RobotType {
     ROBOT_2022C, ROBOT_2022P, ROBOT_2020, ROBOT_KITBOT, ROBOT_SIMBOT, ROBOT_ROMI
   }
 

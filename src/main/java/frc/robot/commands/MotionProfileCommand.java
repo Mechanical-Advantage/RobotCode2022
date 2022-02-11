@@ -65,6 +65,7 @@ public class MotionProfileCommand extends CommandBase {
     double maxVoltage, maxVelocityMetersPerSec, maxAccelerationMetersPerSec2,
         maxCentripetalAccelerationMetersPerSec2;
     switch (Constants.getRobot()) {
+      case ROBOT_2022C:
       case ROBOT_2022P:
       case ROBOT_SIMBOT:
         maxVoltage = 10.0;
