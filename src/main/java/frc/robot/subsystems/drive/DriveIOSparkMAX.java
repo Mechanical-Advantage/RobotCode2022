@@ -42,7 +42,7 @@ public class DriveIOSparkMAX implements DriveIO {
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
         afterEncoderReduction = 6.0; // Internal encoders
-        hasExternalEncoders = false;
+        hasExternalEncoders = true;
         hasThreeControllers = true;
         leftInverted = true;
         rightInverted = false;
@@ -53,6 +53,11 @@ public class DriveIOSparkMAX implements DriveIO {
         rightLeader = new CANSparkMax(7, MotorType.kBrushless);
         rightFollower = new CANSparkMax(8, MotorType.kBrushless);
         rightFollower2 = new CANSparkMax(9, MotorType.kBrushless);
+
+        leftExternalEncoder = new Encoder(2, 3);
+        rightExternalEncoder = new Encoder(0, 1);
+        leftExternalEncoder.setDistancePerPulse(-1.0 / 2048.0);
+        rightExternalEncoder.setDistancePerPulse(1.0 / 2048.0);
         break;
       case ROBOT_2022P:
         afterEncoderReduction = 6.0; // Internal encoders
@@ -165,6 +170,7 @@ public class DriveIOSparkMAX implements DriveIO {
     inputs.rightVelocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(
         rightInternalEncoder.getVelocity()) / afterEncoderReduction;
 
+    inputs.externalAvailable = hasExternalEncoders;
     if (hasExternalEncoders) {
       inputs.externalLeftPositionRad =
           leftExternalEncoder.getDistance() * (2.0 * Math.PI);
