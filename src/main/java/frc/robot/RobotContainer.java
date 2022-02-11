@@ -109,12 +109,12 @@ public class RobotContainer {
       switch (Constants.getRobot()) {
         case ROBOT_2022C:
           drive = new Drive(new DriveIOSparkMAX());
-          vision = new Vision(new VisionIOPhotonVision());
-          flywheels = new Flywheels(new FlywheelsIOSparkMAX());
-          hood = new Hood(new HoodIOReal());
-          kicker = new Kicker(new KickerIOSparkMAX());
-          tower = new Tower(new TowerIOSparkMAX());
-          intake = new Intake(new IntakeIOSparkMAX());
+          vision = new Vision(new VisionIO() {});
+          flywheels = new Flywheels(new FlywheelsIO() {});
+          hood = new Hood(new HoodIO() {});
+          kicker = new Kicker(new KickerIO() {});
+          tower = new Tower(new TowerIO() {});
+          intake = new Intake(new IntakeIO() {});
           break;
         case ROBOT_2022P:
           drive = new Drive(new DriveIOSparkMAX());
