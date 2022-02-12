@@ -27,7 +27,7 @@ public class Taxi extends CommandBase {
     this.isLong = isLong;
 
     longDuration.setDefault(1.0);
-    shortDuration.setDefault(0.5);
+    shortDuration.setDefault(0.7);
     speed.setDefault(0.5);
   }
 

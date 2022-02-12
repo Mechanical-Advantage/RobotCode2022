@@ -43,7 +43,9 @@ public class FourCargoAuto extends SequentialCommandGroup {
                 sequence(
                     new MotionProfileCommand(drive, 0.0, List.of(
                         TwoCargoAuto.shootPositions.get(AutoPosition.TARMAC_D),
-                        TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_C),
+                        TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_C)
+                            .transformBy(new Transform2d(new Translation2d(),
+                                Rotation2d.fromDegrees(-20.0))),
                         terminalCargoApproachPosition, terminalCargoPosition),
                         0.0, false),
                     new MotionProfileCommand(drive, 0.0,
