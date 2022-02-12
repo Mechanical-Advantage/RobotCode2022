@@ -51,6 +51,9 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.kicker.KickerIO;
+import frc.robot.subsystems.pneumatics.Pneumatics;
+import frc.robot.subsystems.pneumatics.PneumaticsIO;
+import frc.robot.subsystems.pneumatics.PneumaticsIOCTRE;
 import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.tower.TowerIO;
 import frc.robot.subsystems.vision.Vision;
@@ -79,6 +82,7 @@ public class RobotContainer {
   private final Tower tower;
   private final Intake intake;
   private final Climber climber;
+  private final Pneumatics pneumatics;
 
   // OI objects
   private OverrideOI overrideOI = new OverrideOI();
@@ -104,6 +108,7 @@ public class RobotContainer {
       tower = new Tower(new TowerIO() {});
       intake = new Intake(new IntakeIO() {});
       climber = new Climber(new ClimberIO() {});
+      pneumatics = new Pneumatics(new PneumaticsIO() {});
     } else {
       switch (Constants.getRobot()) {
         case ROBOT_2022C:
@@ -115,6 +120,7 @@ public class RobotContainer {
           tower = new Tower(new TowerIO() {});
           intake = new Intake(new IntakeIO() {});
           climber = new Climber(new ClimberIO() {});
+          pneumatics = new Pneumatics(new PneumaticsIO() {});
           break;
         case ROBOT_2022P:
           drive = new Drive(new DriveIOSparkMAX());
@@ -125,6 +131,7 @@ public class RobotContainer {
           tower = new Tower(new TowerIO() {});
           intake = new Intake(new IntakeIO() {});
           climber = new Climber(new ClimberIO() {});
+          pneumatics = new Pneumatics(new PneumaticsIO() {});
           break;
         case ROBOT_2020:
           drive = new Drive(new DriveIOSparkMAX());
@@ -135,6 +142,7 @@ public class RobotContainer {
           tower = new Tower(new TowerIO() {});
           intake = new Intake(new IntakeIO() {});
           climber = new Climber(new ClimberIO() {});
+          pneumatics = new Pneumatics(new PneumaticsIOCTRE());
           break;
         case ROBOT_KITBOT:
           drive = new Drive(new DriveIOTalonSRX());
@@ -145,6 +153,7 @@ public class RobotContainer {
           tower = new Tower(new TowerIO() {});
           intake = new Intake(new IntakeIO() {});
           climber = new Climber(new ClimberIO() {});
+          pneumatics = new Pneumatics(new PneumaticsIO() {});
           break;
         case ROBOT_SIMBOT:
           drive = new Drive(new DriveIOSim());
@@ -155,6 +164,7 @@ public class RobotContainer {
           tower = new Tower(new TowerIO() {});
           intake = new Intake(new IntakeIO() {});
           climber = new Climber(new ClimberIO() {});
+          pneumatics = new Pneumatics(new PneumaticsIO() {});
           break;
         case ROBOT_ROMI:
           drive = new Drive(new DriveIORomi());
@@ -165,6 +175,7 @@ public class RobotContainer {
           tower = new Tower(new TowerIO() {});
           intake = new Intake(new IntakeIO() {});
           climber = new Climber(new ClimberIO() {});
+          pneumatics = new Pneumatics(new PneumaticsIO() {});
           break;
         default:
           drive = new Drive(new DriveIO() {});
@@ -175,6 +186,7 @@ public class RobotContainer {
           tower = new Tower(new TowerIO() {});
           intake = new Intake(new IntakeIO() {});
           climber = new Climber(new ClimberIO() {});
+          pneumatics = new Pneumatics(new PneumaticsIO() {});
           break;
       }
     }
