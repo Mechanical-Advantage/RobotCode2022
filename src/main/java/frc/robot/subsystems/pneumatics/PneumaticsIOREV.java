@@ -18,6 +18,8 @@ public class PneumaticsIOREV implements PneumaticsIO {
       default:
         throw new RuntimeException("Invalid robot for PneumaticsIOREV!");
     }
+
+    pneumatics.enableCompressorAnalog(80, 120);
   }
 
   @Override
