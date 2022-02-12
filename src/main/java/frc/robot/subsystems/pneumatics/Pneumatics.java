@@ -15,6 +15,7 @@ import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
 
 public class Pneumatics extends SubsystemBase {
+  public static final int revModuleID = 50; // CAN ID for pneumatics hub
 
   private final PneumaticsIO io;
   private final PneumaticsIOInputs inputs = new PneumaticsIOInputs();

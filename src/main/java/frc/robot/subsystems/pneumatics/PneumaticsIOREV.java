@@ -13,7 +13,7 @@ public class PneumaticsIOREV implements PneumaticsIO {
   public PneumaticsIOREV() {
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
-        pneumatics = new PneumaticHub(60);
+        pneumatics = new PneumaticHub(Pneumatics.revModuleID);
         break;
       default:
         throw new RuntimeException("Invalid robot for PneumaticsIOREV!");

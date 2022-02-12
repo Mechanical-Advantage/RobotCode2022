@@ -13,6 +13,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import frc.robot.Constants;
+import frc.robot.subsystems.pneumatics.Pneumatics;
 import frc.robot.util.SparkMAXBurnManager;
 
 public class ClimberIOSparkMAX implements ClimberIO {
@@ -29,7 +30,8 @@ public class ClimberIOSparkMAX implements ClimberIO {
   public ClimberIOSparkMAX() {
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
-        solenoid = new Solenoid(PneumaticsModuleType.REVPH, 0);
+        solenoid =
+            new Solenoid(Pneumatics.revModuleID, PneumaticsModuleType.REVPH, 0);
         leader = new CANSparkMax(0, MotorType.kBrushless);
         follower = new CANSparkMax(0, MotorType.kBrushless);
         invert = false;
