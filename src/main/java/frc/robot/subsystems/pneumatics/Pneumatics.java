@@ -6,6 +6,7 @@ package frc.robot.subsystems.pneumatics;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -18,9 +19,11 @@ public class Pneumatics extends SubsystemBase {
   private final PneumaticsIO io;
   private final PneumaticsIOInputs inputs = new PneumaticsIOInputs();
 
+  private final LinearFilter filter = LinearFilter.movingAverage(10);
+  private double pressureSmoothedPsi = 0.0;
+
   private Timer noPressureTimer = new Timer();
   private Timer compressorEnabledTimer = new Timer();
-
   private Alert dumpValveAlert = new Alert(
       "Cannot build pressure. Is the dump value open?", AlertType.WARNING);
 
@@ -31,12 +34,18 @@ public class Pneumatics extends SubsystemBase {
     compressorEnabledTimer.start();
   }
 
+  public double getPressure() {
+    return pressureSmoothedPsi;
+  }
+
   @Override
   public void periodic() {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Pneumatics", inputs);
 
-    SmartDashboard.putNumber("Pressure", inputs.pressurePsi);
+    pressureSmoothedPsi = filter.calculate(inputs.pressurePsi);
+    Logger.getInstance().recordOutput("PressurePsi", pressureSmoothedPsi);
+    SmartDashboard.putNumber("Pressure", pressureSmoothedPsi);
 
     // Detect if dump value is open
     if (inputs.pressurePsi > 1) {

@@ -23,8 +23,6 @@ public class PneumaticsIOCTRE implements PneumaticsIO {
       default:
         throw new RuntimeException("Invalid robot for PneumaticsIOCTRE!");
     }
-
-    sensor.setAverageBits(4);
   }
 
   @Override

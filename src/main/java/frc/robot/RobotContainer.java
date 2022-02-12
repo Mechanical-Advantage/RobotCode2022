@@ -55,6 +55,7 @@ import frc.robot.subsystems.kicker.KickerIO;
 import frc.robot.subsystems.pneumatics.Pneumatics;
 import frc.robot.subsystems.pneumatics.PneumaticsIO;
 import frc.robot.subsystems.pneumatics.PneumaticsIOCTRE;
+import frc.robot.subsystems.pneumatics.PneumaticsIOREV;
 import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.tower.TowerIO;
 import frc.robot.subsystems.vision.Vision;
@@ -121,7 +122,7 @@ public class RobotContainer {
           tower = new Tower(new TowerIO() {});
           intake = new Intake(new IntakeIO() {});
           climber = new Climber(new ClimberIO() {});
-          pneumatics = new Pneumatics(new PneumaticsIO() {});
+          pneumatics = new Pneumatics(new PneumaticsIOREV());
           break;
         case ROBOT_2022P:
           drive = new Drive(new DriveIOSparkMAX());
