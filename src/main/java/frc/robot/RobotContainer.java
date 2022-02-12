@@ -11,7 +11,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Mode;
 import frc.robot.commands.AutoAim;
@@ -22,6 +21,7 @@ import frc.robot.commands.FiveCargoAuto;
 import frc.robot.commands.FourCargoAuto;
 import frc.robot.commands.OneCargoAuto;
 import frc.robot.commands.PrepareShooter;
+import frc.robot.commands.RunClimber;
 import frc.robot.commands.RunIntake;
 import frc.robot.commands.RunTower;
 import frc.robot.commands.Shoot;
@@ -34,6 +34,8 @@ import frc.robot.commands.PrepareShooter.ShooterPreset;
 import frc.robot.oi.HandheldOI;
 import frc.robot.oi.OISelector;
 import frc.robot.oi.OverrideOI;
+import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.climber.ClimberIO;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveIO;
 import frc.robot.subsystems.drive.DriveIORomi;
@@ -43,19 +45,17 @@ import frc.robot.subsystems.drive.DriveIOTalonSRX;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.flywheels.FlywheelsIO;
 import frc.robot.subsystems.flywheels.FlywheelsIOSim;
-import frc.robot.subsystems.flywheels.FlywheelsIOSparkMAX;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.hood.HoodIO;
-import frc.robot.subsystems.hood.HoodIOReal;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
-import frc.robot.subsystems.intake.IntakeIOSparkMAX;
 import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.kicker.KickerIO;
-import frc.robot.subsystems.kicker.KickerIOSparkMAX;
+import frc.robot.subsystems.pneumatics.Pneumatics;
+import frc.robot.subsystems.pneumatics.PneumaticsIO;
+import frc.robot.subsystems.pneumatics.PneumaticsIOCTRE;
 import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.tower.TowerIO;
-import frc.robot.subsystems.tower.TowerIOSparkMAX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
@@ -81,6 +81,8 @@ public class RobotContainer {
   private final Kicker kicker;
   private final Tower tower;
   private final Intake intake;
+  private final Climber climber;
+  private final Pneumatics pneumatics;
 
   // OI objects
   private OverrideOI overrideOI = new OverrideOI();
@@ -105,25 +107,31 @@ public class RobotContainer {
       kicker = new Kicker(new KickerIO() {});
       tower = new Tower(new TowerIO() {});
       intake = new Intake(new IntakeIO() {});
+      climber = new Climber(new ClimberIO() {});
+      pneumatics = new Pneumatics(new PneumaticsIO() {});
     } else {
       switch (Constants.getRobot()) {
         case ROBOT_2022C:
           drive = new Drive(new DriveIOSparkMAX());
-          vision = new Vision(new VisionIOPhotonVision());
-          flywheels = new Flywheels(new FlywheelsIOSparkMAX());
-          hood = new Hood(new HoodIOReal());
-          kicker = new Kicker(new KickerIOSparkMAX());
-          tower = new Tower(new TowerIOSparkMAX());
-          intake = new Intake(new IntakeIOSparkMAX());
-          break;
-        case ROBOT_2022P:
-          drive = new Drive(new DriveIOSparkMAX());
           vision = new Vision(new VisionIO() {});
-          flywheels = new Flywheels(new FlywheelsIO() {});
+          flywheels = new Flywheels(new FlywheelsIOSim());
           hood = new Hood(new HoodIO() {});
           kicker = new Kicker(new KickerIO() {});
           tower = new Tower(new TowerIO() {});
-          intake = new Intake(new IntakeIOSparkMAX());
+          intake = new Intake(new IntakeIO() {});
+          climber = new Climber(new ClimberIO() {});
+          pneumatics = new Pneumatics(new PneumaticsIO() {});
+          break;
+        case ROBOT_2022P:
+          drive = new Drive(new DriveIOSparkMAX());
+          vision = new Vision(new VisionIOPhotonVision());
+          flywheels = new Flywheels(new FlywheelsIOSim());
+          hood = new Hood(new HoodIO() {});
+          kicker = new Kicker(new KickerIO() {});
+          tower = new Tower(new TowerIO() {});
+          intake = new Intake(new IntakeIO() {});
+          climber = new Climber(new ClimberIO() {});
+          pneumatics = new Pneumatics(new PneumaticsIO() {});
           break;
         case ROBOT_2020:
           drive = new Drive(new DriveIOSparkMAX());
@@ -133,6 +141,8 @@ public class RobotContainer {
           kicker = new Kicker(new KickerIO() {});
           tower = new Tower(new TowerIO() {});
           intake = new Intake(new IntakeIO() {});
+          climber = new Climber(new ClimberIO() {});
+          pneumatics = new Pneumatics(new PneumaticsIOCTRE());
           break;
         case ROBOT_KITBOT:
           drive = new Drive(new DriveIOTalonSRX());
@@ -142,6 +152,8 @@ public class RobotContainer {
           kicker = new Kicker(new KickerIO() {});
           tower = new Tower(new TowerIO() {});
           intake = new Intake(new IntakeIO() {});
+          climber = new Climber(new ClimberIO() {});
+          pneumatics = new Pneumatics(new PneumaticsIO() {});
           break;
         case ROBOT_SIMBOT:
           drive = new Drive(new DriveIOSim());
@@ -151,6 +163,8 @@ public class RobotContainer {
           kicker = new Kicker(new KickerIO() {});
           tower = new Tower(new TowerIO() {});
           intake = new Intake(new IntakeIO() {});
+          climber = new Climber(new ClimberIO() {});
+          pneumatics = new Pneumatics(new PneumaticsIO() {});
           break;
         case ROBOT_ROMI:
           drive = new Drive(new DriveIORomi());
@@ -160,6 +174,8 @@ public class RobotContainer {
           kicker = new Kicker(new KickerIO() {});
           tower = new Tower(new TowerIO() {});
           intake = new Intake(new IntakeIO() {});
+          climber = new Climber(new ClimberIO() {});
+          pneumatics = new Pneumatics(new PneumaticsIO() {});
           break;
         default:
           drive = new Drive(new DriveIO() {});
@@ -169,6 +185,8 @@ public class RobotContainer {
           kicker = new Kicker(new KickerIO() {});
           tower = new Tower(new TowerIO() {});
           intake = new Intake(new IntakeIO() {});
+          climber = new Climber(new ClimberIO() {});
+          pneumatics = new Pneumatics(new PneumaticsIO() {});
           break;
       }
     }
@@ -185,6 +203,8 @@ public class RobotContainer {
     vision.setTranslationConsumer(drive::addVisionMeasurement);
     tower.setDefaultCommand(
         new AutoIndex(tower, () -> overrideOI.getAutoIndexDisable()));
+    climber.setDefaultCommand(
+        new RunClimber(climber, () -> handheldOI.getClimbStick()));
 
     // Set up auto routines
     autoRoutineMap.put("Do Nothing", new AutoRoutine(AutoPosition.ORIGIN,
@@ -347,6 +367,10 @@ public class RobotContainer {
         .whileActiveContinuous(new RunTower(tower, true));
     handheldOI.getTowerDownButton()
         .whileActiveContinuous(new RunTower(tower, false));
+
+    Trigger climbDeploy = new Trigger(overrideOI::getClimbDeploy);
+    climbDeploy.whenActive(climber::unlock);
+    climbDeploy.whenInactive(climber::lock);
   }
 
   /**

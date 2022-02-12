@@ -65,6 +65,7 @@ public class MotionProfileCommand extends CommandBase {
     double maxVoltage, maxVelocityMetersPerSec, maxAccelerationMetersPerSec2,
         maxCentripetalAccelerationMetersPerSec2;
     switch (Constants.getRobot()) {
+      case ROBOT_2022C:
       case ROBOT_2022P:
       case ROBOT_SIMBOT:
         maxVoltage = 10.0;
@@ -94,21 +95,21 @@ public class MotionProfileCommand extends CommandBase {
 
     // Set up trajectory configuration
     kinematics = new DifferentialDriveKinematics(drive.getTrackWidthMeters());
-    DifferentialDriveVoltageConstraint voltageConstraint =
-        new DifferentialDriveVoltageConstraint(
-            new SimpleMotorFeedforward(drive.getKs(), drive.getKv(),
-                drive.getKa()),
-            kinematics, maxVoltage);
     CentripetalAccelerationConstraint centripetalAccelerationConstraint =
         new CentripetalAccelerationConstraint(
             maxCentripetalAccelerationMetersPerSec2);
     TrajectoryConfig config = new TrajectoryConfig(maxVelocityMetersPerSec,
         maxAccelerationMetersPerSec2).setKinematics(kinematics)
-            .addConstraint(voltageConstraint)
             .addConstraint(centripetalAccelerationConstraint)
             .addConstraints(constraints)
             .setStartVelocity(startVelocityMetersPerSec)
             .setEndVelocity(endVelocityMetersPerSec).setReversed(reversed);
+    if (drive.getKa() != 0) {
+      config.addConstraint(new DifferentialDriveVoltageConstraint(
+          new SimpleMotorFeedforward(drive.getKs(), drive.getKv(),
+              drive.getKa()),
+          kinematics, maxVoltage));
+    }
 
     // Generate trajectory
     Trajectory generatedTrajectory;

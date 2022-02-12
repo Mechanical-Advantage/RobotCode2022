@@ -7,15 +7,18 @@ package frc.robot;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggedNetworkTables;
+import org.littletonrobotics.junction.inputs.LoggedSystemStats;
 import org.littletonrobotics.junction.io.ByteLogReceiver;
 import org.littletonrobotics.junction.io.ByteLogReplay;
 import org.littletonrobotics.junction.io.LogSocketServer;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.Mode;
+import frc.robot.Constants.RobotType;
 import frc.robot.util.Alert;
 import frc.robot.util.BatteryTracker;
 import frc.robot.util.Alert.AlertType;
@@ -89,6 +92,10 @@ public class Robot extends LoggedRobot {
           logNoFileAlert.set(true);
         }
         logger.addDataReceiver(new LogSocketServer(5800));
+        if (Constants.getRobot() == RobotType.ROBOT_2022C) {
+          LoggedSystemStats.getInstance().setPowerDistributionConfig(50,
+              ModuleType.kRev);
+        }
         break;
 
       case SIM:

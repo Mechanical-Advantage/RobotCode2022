@@ -129,6 +129,10 @@ public class DriveWithJoysticks extends CommandBase {
     return false;
   }
 
+  public static double getDeadband() {
+    return deadband.get();
+  }
+
   /** Represents a left and right percentage. */
   private static class WheelSpeeds {
     public double left;

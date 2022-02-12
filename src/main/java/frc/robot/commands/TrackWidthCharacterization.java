@@ -7,17 +7,20 @@ package frc.robot.commands;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
 public class TrackWidthCharacterization extends CommandBase {
-  private static final double spinVoltage = 2.0;
+  private static final double rampRateVoltsPerSec = 0.1;
+  private static final double maxVolts = 2.0;
 
   private final BiConsumer<Double, Double> voltageConsumer;
   private final Supplier<Double> leftPositionSupplier;
   private final Supplier<Double> rightPositionSupplier;
   private final Supplier<Double> gyroPositionSupplier;
 
+  private Timer timer = new Timer();
   private double basePositionLeft;
   private double basePositionRight;
   private double baseGyroPosition;
@@ -38,7 +41,8 @@ public class TrackWidthCharacterization extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    voltageConsumer.accept(spinVoltage, spinVoltage * -1);
+    timer.reset();
+    timer.start();
     basePositionLeft = leftPositionSupplier.get();
     basePositionRight = rightPositionSupplier.get();
     baseGyroPosition = gyroPositionSupplier.get();
@@ -46,12 +50,17 @@ public class TrackWidthCharacterization extends CommandBase {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    double voltage = timer.get() * rampRateVoltsPerSec;
+    voltage = voltage > maxVolts ? maxVolts : voltage;
+    voltageConsumer.accept(voltage, voltage * -1);
+  }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     voltageConsumer.accept(0.0, 0.0);
+    timer.stop();
 
     double leftDistance =
         Math.abs(leftPositionSupplier.get() - basePositionLeft);

@@ -51,11 +51,18 @@ public class OverrideOI {
     return VisionLEDMode.AUTO;
   }
 
+  public boolean getClimbDeploy() {
+    if (overrides == null) {
+      return false;
+    }
+    return overrides.getRawButton(8);
+  }
+
   public boolean getAutoIndexDisable() {
     if (overrides == null) {
       return false;
     }
-    return overrides.getRawButton(6);
+    return overrides.getRawButton(9);
   }
 
   public static enum VisionLEDMode {
