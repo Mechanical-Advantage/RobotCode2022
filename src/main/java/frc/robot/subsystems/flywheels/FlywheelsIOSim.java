@@ -13,9 +13,10 @@ import frc.robot.Constants;
 /** Flywheels subsystem hardware interface for WPILib flywheel sim. */
 public class FlywheelsIOSim implements FlywheelsIO {
 
-  private FlywheelSim bigSim = new FlywheelSim(DCMotor.getNEO(2), 1.5, 0.05);
-  private FlywheelSim littleSim =
-      new FlywheelSim(DCMotor.getNEO(1), 1.5, 0.005);
+  private FlywheelSim bigSim =
+      new FlywheelSim(DCMotor.getNEO(1), (48.0 / 24.0), 0.004096955);
+  private FlywheelSim littleSim = new FlywheelSim(DCMotor.getNEO(1),
+      (34.0 / 68.0) * (20.0 / 36.0), 0.000102424);
 
   private PIDController bigPID = new PIDController(0.0, 0.0, 0.0);
   private PIDController littlePID = new PIDController(0.0, 0.0, 0.0);

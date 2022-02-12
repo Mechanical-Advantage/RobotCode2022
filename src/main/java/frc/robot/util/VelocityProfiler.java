@@ -8,18 +8,8 @@ import frc.robot.Constants;
 
 /** Ramps up and down to setpoint for velocity closed loop control */
 public class VelocityProfiler {
-  private final double dv;
   private double currentSetpoint = 0;
   private double goalSetpoint = 0;
-
-  /**
-   * Creates a new VelocityProfiler
-   * 
-   * @param acceleration RPM per second
-   */
-  public VelocityProfiler(double acceleration) {
-    dv = acceleration * Constants.loopPeriodSecs;
-  }
 
   /**
    * Sets the target setpoint
@@ -52,9 +42,11 @@ public class VelocityProfiler {
   /**
    * Returns the current setpoint to send to motors
    * 
+   * @param acceleration Max acceleration per second
    * @return Setpoint to send to motors
    */
-  public double getSetpoint() {
+  public double getSetpoint(double acceleration) {
+    double dv = acceleration * Constants.loopPeriodSecs;
     if (goalSetpoint > currentSetpoint) {
       currentSetpoint += dv;
       if (currentSetpoint > goalSetpoint) {

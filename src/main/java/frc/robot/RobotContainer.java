@@ -300,7 +300,7 @@ public class RobotContainer {
                 flywheels::getCharacterizationVelocityBig)));
 
     FeedForwardCharacterizationData littleFlywheelData =
-        new FeedForwardCharacterizationData("Big Flywheel");
+        new FeedForwardCharacterizationData("Little Flywheel");
     autoRoutineMap.put("FF Characterization (Little Flywheel/Forwards)",
         new AutoRoutine(AutoPosition.ORIGIN,
             new FeedForwardCharacterization(flywheels, true, littleFlywheelData,

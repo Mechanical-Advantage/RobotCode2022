@@ -23,6 +23,10 @@ public class Flywheels extends SubsystemBase {
       new TunableNumber("Flywheels/BigMaxVelocityRPM");
   private final TunableNumber littleMaxVelocityRpm =
       new TunableNumber("Flywheels/LittleMaxVelocityRPM");
+  private final TunableNumber bigAccelerationRpmPerSec =
+      new TunableNumber("Flywheels/BigAccelerationRPMPerSec");
+  private final TunableNumber littleAccelerationRpmPerSec =
+      new TunableNumber("Flywheels/LittleAccelerationRPMPerSec");
   private final SimpleMotorFeedforward bigFFModel;
   private final SimpleMotorFeedforward littleFFModel;
   private final TunableNumber bigKp = new TunableNumber("Flywheels/BigKp");
@@ -36,8 +40,8 @@ public class Flywheels extends SubsystemBase {
   private final TunableNumber littleToleranceRpm =
       new TunableNumber("Flywheels/LittleToleranceRPM");
 
-  private final VelocityProfiler bigProfiler = new VelocityProfiler(1000.0);
-  private final VelocityProfiler littleProfiler = new VelocityProfiler(1000.0);
+  private final VelocityProfiler bigProfiler = new VelocityProfiler();
+  private final VelocityProfiler littleProfiler = new VelocityProfiler();
   private boolean closedLoop = false;
 
   /** Creates a new Flywheels. */
@@ -47,26 +51,30 @@ public class Flywheels extends SubsystemBase {
       case ROBOT_2022C:
       case ROBOT_2022P:
       case ROBOT_SIMBOT:
-        bigMaxVelocityRpm.setDefault(3800.0);
-        bigFFModel = new SimpleMotorFeedforward(0.0, 0.028214, 0.094281);
-        bigKp.setDefault(5.0);
+        bigMaxVelocityRpm.setDefault(2800.0);
+        bigAccelerationRpmPerSec.setDefault(8000.0);
+        bigFFModel = new SimpleMotorFeedforward(0.0574, 0.03979);
+        bigKp.setDefault(0.6);
         bigKd.setDefault(0.0);
         bigToleranceRpm.setDefault(50.0);
 
-        littleMaxVelocityRpm.setDefault(3800.0);
-        littleFFModel = new SimpleMotorFeedforward(0.0, 0.029752, 0.015384);
-        littleKp.setDefault(1.0);
+        littleMaxVelocityRpm.setDefault(20700.0);
+        littleAccelerationRpmPerSec.setDefault(20000.0);
+        littleFFModel = new SimpleMotorFeedforward(0.06896, 0.00556);
+        littleKp.setDefault(0.06);
         littleKd.setDefault(0.0);
         littleToleranceRpm.setDefault(50.0);
         break;
       default:
         bigMaxVelocityRpm.setDefault(0.0);
+        bigAccelerationRpmPerSec.setDefault(0.0);
         bigFFModel = new SimpleMotorFeedforward(0.0, 0.0, 0.0);
         bigKp.setDefault(0.0);
         bigKd.setDefault(0.0);
         bigToleranceRpm.setDefault(0.0);
 
         littleMaxVelocityRpm.setDefault(0.0);
+        littleAccelerationRpmPerSec.setDefault(0.0);
         littleFFModel = new SimpleMotorFeedforward(0.0, 0.0, 0.0);
         littleKp.setDefault(0.0);
         littleKd.setDefault(0.0);
@@ -93,10 +101,19 @@ public class Flywheels extends SubsystemBase {
         .radiansPerSecondToRotationsPerMinute(inputs.littleVelocityRadPerSec));
 
     if (closedLoop) {
+      double bigSetpointRpm =
+          bigProfiler.getSetpoint(bigAccelerationRpmPerSec.get());
+      double littleSetpointRpm =
+          littleProfiler.getSetpoint(littleAccelerationRpmPerSec.get());
+      Logger.getInstance().recordOutput("Flywheels/BigSetpointRPM",
+          bigSetpointRpm);
+      Logger.getInstance().recordOutput("Flywheels/LittleSetpointRPM",
+          littleSetpointRpm);
+
       double bigVelocityRadPerSec =
-          Units.rotationsPerMinuteToRadiansPerSecond(bigProfiler.getSetpoint());
-      double littleVelocityRadPerSec = Units
-          .rotationsPerMinuteToRadiansPerSecond(littleProfiler.getSetpoint());
+          Units.rotationsPerMinuteToRadiansPerSecond(bigSetpointRpm);
+      double littleVelocityRadPerSec =
+          Units.rotationsPerMinuteToRadiansPerSecond(littleSetpointRpm);
       io.setVelocity(bigVelocityRadPerSec, littleVelocityRadPerSec,
           bigFFModel.calculate(bigVelocityRadPerSec),
           littleFFModel.calculate(littleVelocityRadPerSec));
