@@ -21,6 +21,7 @@ import frc.robot.commands.FiveCargoAuto;
 import frc.robot.commands.FourCargoAuto;
 import frc.robot.commands.OneCargoAuto;
 import frc.robot.commands.PrepareShooter;
+import frc.robot.commands.RunClimber;
 import frc.robot.commands.RunIntake;
 import frc.robot.commands.RunTower;
 import frc.robot.commands.Shoot;
@@ -33,6 +34,8 @@ import frc.robot.commands.PrepareShooter.ShooterPreset;
 import frc.robot.oi.HandheldOI;
 import frc.robot.oi.OISelector;
 import frc.robot.oi.OverrideOI;
+import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.climber.ClimberIO;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveIO;
 import frc.robot.subsystems.drive.DriveIORomi;
@@ -75,6 +78,7 @@ public class RobotContainer {
   private final Kicker kicker;
   private final Tower tower;
   private final Intake intake;
+  private final Climber climber;
 
   // OI objects
   private OverrideOI overrideOI = new OverrideOI();
@@ -99,6 +103,7 @@ public class RobotContainer {
       kicker = new Kicker(new KickerIO() {});
       tower = new Tower(new TowerIO() {});
       intake = new Intake(new IntakeIO() {});
+      climber = new Climber(new ClimberIO() {});
     } else {
       switch (Constants.getRobot()) {
         case ROBOT_2022C:
@@ -109,6 +114,7 @@ public class RobotContainer {
           kicker = new Kicker(new KickerIO() {});
           tower = new Tower(new TowerIO() {});
           intake = new Intake(new IntakeIO() {});
+          climber = new Climber(new ClimberIO() {});
           break;
         case ROBOT_2022P:
           drive = new Drive(new DriveIOSparkMAX());
@@ -118,6 +124,7 @@ public class RobotContainer {
           kicker = new Kicker(new KickerIO() {});
           tower = new Tower(new TowerIO() {});
           intake = new Intake(new IntakeIO() {});
+          climber = new Climber(new ClimberIO() {});
           break;
         case ROBOT_2020:
           drive = new Drive(new DriveIOSparkMAX());
@@ -127,6 +134,7 @@ public class RobotContainer {
           kicker = new Kicker(new KickerIO() {});
           tower = new Tower(new TowerIO() {});
           intake = new Intake(new IntakeIO() {});
+          climber = new Climber(new ClimberIO() {});
           break;
         case ROBOT_KITBOT:
           drive = new Drive(new DriveIOTalonSRX());
@@ -136,6 +144,7 @@ public class RobotContainer {
           kicker = new Kicker(new KickerIO() {});
           tower = new Tower(new TowerIO() {});
           intake = new Intake(new IntakeIO() {});
+          climber = new Climber(new ClimberIO() {});
           break;
         case ROBOT_SIMBOT:
           drive = new Drive(new DriveIOSim());
@@ -145,6 +154,7 @@ public class RobotContainer {
           kicker = new Kicker(new KickerIO() {});
           tower = new Tower(new TowerIO() {});
           intake = new Intake(new IntakeIO() {});
+          climber = new Climber(new ClimberIO() {});
           break;
         case ROBOT_ROMI:
           drive = new Drive(new DriveIORomi());
@@ -154,6 +164,7 @@ public class RobotContainer {
           kicker = new Kicker(new KickerIO() {});
           tower = new Tower(new TowerIO() {});
           intake = new Intake(new IntakeIO() {});
+          climber = new Climber(new ClimberIO() {});
           break;
         default:
           drive = new Drive(new DriveIO() {});
@@ -163,6 +174,7 @@ public class RobotContainer {
           kicker = new Kicker(new KickerIO() {});
           tower = new Tower(new TowerIO() {});
           intake = new Intake(new IntakeIO() {});
+          climber = new Climber(new ClimberIO() {});
           break;
       }
     }
@@ -179,6 +191,8 @@ public class RobotContainer {
     vision.setTranslationConsumer(drive::addVisionMeasurement);
     tower.setDefaultCommand(
         new AutoIndex(tower, () -> overrideOI.getAutoIndexDisable()));
+    climber.setDefaultCommand(
+        new RunClimber(climber, () -> handheldOI.getClimbStick()));
 
     // Set up auto routines
     autoRoutineMap.put("Do Nothing", new AutoRoutine(AutoPosition.ORIGIN,
@@ -341,6 +355,10 @@ public class RobotContainer {
         .whileActiveContinuous(new RunTower(tower, true));
     handheldOI.getTowerDownButton()
         .whileActiveContinuous(new RunTower(tower, false));
+
+    Trigger climbDeploy = new Trigger(overrideOI::getClimbDeploy);
+    climbDeploy.whenActive(climber::unlock);
+    climbDeploy.whenInactive(climber::lock);
   }
 
   /**
