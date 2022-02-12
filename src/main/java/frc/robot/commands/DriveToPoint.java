@@ -29,7 +29,7 @@ public class DriveToPoint extends CommandBase {
       case ROBOT_2022P:
         controller = new TwoPointPoseController(
             new PIDController(6.0, 0.0, 0.0), new Translation2d(0.05, 2.0),
-            new PIDController(3.0, 0.0, 0.0), 0.15);
+            new PIDController(3.0, 0.0, 0.0), 0.1);
         break;
       default:
         controller =
