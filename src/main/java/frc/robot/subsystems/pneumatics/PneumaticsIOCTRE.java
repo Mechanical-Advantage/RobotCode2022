@@ -27,9 +27,8 @@ public class PneumaticsIOCTRE implements PneumaticsIO {
 
   @Override
   public void updateInputs(PneumaticsIOInputs inputs) {
-    double pressure =
+    inputs.pressurePsi =
         ((sensor.getAverageVoltage() / supplyNormalized) * 250) - 25;
-    inputs.pressurePsi = pressure < 0 ? 0 : pressure;
     inputs.compressorActive = pneumatics.getCompressor();
     inputs.compressorCurrentAmps = pneumatics.getCompressorCurrent();
   }

@@ -43,7 +43,8 @@ public class Pneumatics extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Pneumatics", inputs);
 
-    pressureSmoothedPsi = filter.calculate(inputs.pressurePsi);
+    pressureSmoothedPsi =
+        filter.calculate(inputs.pressurePsi < 0 ? 0 : inputs.pressurePsi);
     Logger.getInstance().recordOutput("PressurePsi", pressureSmoothedPsi);
     SmartDashboard.putNumber("Pressure", pressureSmoothedPsi);
 
