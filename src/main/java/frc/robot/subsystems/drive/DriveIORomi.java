@@ -4,6 +4,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.romi.RomiGyro;
 import edu.wpi.first.wpilibj.romi.RomiMotor;
+import frc.robot.Constants;
 
 public class DriveIORomi implements DriveIO {
 
@@ -12,8 +13,10 @@ public class DriveIORomi implements DriveIO {
   private final Encoder leftEncoder = new Encoder(4, 5);
   private final Encoder rightEncoder = new Encoder(6, 7);
   private final RomiGyro gyro = new RomiGyro();
-  private PIDController leftPID = new PIDController(0.0, 0.0, 0.0);
-  private PIDController rightPID = new PIDController(0.0, 0.0, 0.0);
+  private PIDController leftPID =
+      new PIDController(0.0, 0.0, 0.0, Constants.loopPeriodSecs);
+  private PIDController rightPID =
+      new PIDController(0.0, 0.0, 0.0, Constants.loopPeriodSecs);
 
   private boolean closedLoop = false;
   private double leftFFVolts = 0.0;

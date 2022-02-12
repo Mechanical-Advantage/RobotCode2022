@@ -18,8 +18,10 @@ public class FlywheelsIOSim implements FlywheelsIO {
   private FlywheelSim littleSim = new FlywheelSim(DCMotor.getNEO(1),
       (34.0 / 68.0) * (20.0 / 36.0), 0.000102424);
 
-  private PIDController bigPID = new PIDController(0.0, 0.0, 0.0);
-  private PIDController littlePID = new PIDController(0.0, 0.0, 0.0);
+  private PIDController bigPID =
+      new PIDController(0.0, 0.0, 0.0, Constants.loopPeriodSecs);
+  private PIDController littlePID =
+      new PIDController(0.0, 0.0, 0.0, Constants.loopPeriodSecs);
 
   private boolean closedLoop = false;
   private double bigFFVolts = 0.0;

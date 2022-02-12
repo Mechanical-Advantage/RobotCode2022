@@ -19,8 +19,10 @@ public class DriveIOSim implements DriveIO {
   private DifferentialDrivetrainSim sim =
       DifferentialDrivetrainSim.createKitbotSim(KitbotMotor.kDualCIMPerSide,
           KitbotGearing.k10p71, KitbotWheelSize.kSixInch, null);
-  private PIDController leftPID = new PIDController(0.0, 0.0, 0.0);
-  private PIDController rightPID = new PIDController(0.0, 0.0, 0.0);
+  private PIDController leftPID =
+      new PIDController(0.0, 0.0, 0.0, Constants.loopPeriodSecs);
+  private PIDController rightPID =
+      new PIDController(0.0, 0.0, 0.0, Constants.loopPeriodSecs);
 
   private boolean closedLoop = false;
   private double leftFFVolts = 0.0;

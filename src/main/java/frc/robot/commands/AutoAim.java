@@ -74,7 +74,8 @@ public class AutoAim extends CommandBase {
         break;
     }
 
-    controller = new PIDController(kP.get(), kI.get(), kD.get());
+    controller = new PIDController(kP.get(), kI.get(), kD.get(),
+        Constants.loopPeriodSecs);
     controller.setTolerance(toleranceDegrees.get());
     controller.enableContinuousInput(-180, 180);
   }
