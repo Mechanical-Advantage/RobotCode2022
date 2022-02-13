@@ -32,7 +32,7 @@ public class IntakeIOSparkMAX implements IntakeIO {
       case ROBOT_2022C:
         // solenoid = new Solenoid(PneumaticsModuleType.CTREPCM, 0);
         hopperAfterEncoderReduction = 9.0 * (48.0 / 24.0);
-        rollerAfterEncoderReduction = 48.0 / 16.0;
+        rollerAfterEncoderReduction = 60.0 / 16.0;
         rollerMotor = new CANSparkMax(4, MotorType.kBrushless);
         hopperMotor = new CANSparkMax(9, MotorType.kBrushed);
         invertRoller = true;
