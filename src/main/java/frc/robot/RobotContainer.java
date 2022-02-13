@@ -76,15 +76,15 @@ import frc.robot.util.Alert.AlertType;
 public class RobotContainer {
 
   // Subsystems
-  private final Drive drive;
-  private final Vision vision;
-  private final Flywheels flywheels;
-  private final Hood hood;
-  private final Kicker kicker;
-  private final Tower tower;
-  private final Intake intake;
-  private final Climber climber;
-  private final Pneumatics pneumatics;
+  private Drive drive;
+  private Vision vision;
+  private Flywheels flywheels;
+  private Hood hood;
+  private Kicker kicker;
+  private Tower tower;
+  private Intake intake;
+  private Climber climber;
+  private Pneumatics pneumatics;
 
   // OI objects
   private OverrideOI overrideOI = new OverrideOI();
@@ -100,98 +100,48 @@ public class RobotContainer {
     // Check if flash should be burned
     SparkMAXBurnManager.update();
 
-    // Instantiate subsystems
-    if (Constants.getMode() == Mode.REPLAY) {
-      drive = new Drive(new DriveIO() {});
-      vision = new Vision(new VisionIO() {});
-      flywheels = new Flywheels(new FlywheelsIO() {});
-      hood = new Hood(new HoodIO() {});
-      kicker = new Kicker(new KickerIO() {});
-      tower = new Tower(new TowerIO() {});
-      intake = new Intake(new IntakeIO() {});
-      climber = new Climber(new ClimberIO() {});
-      pneumatics = new Pneumatics(new PneumaticsIO() {});
-    } else {
+    // Instantiate active subsystems
+    if (Constants.getMode() != Mode.REPLAY) {
       switch (Constants.getRobot()) {
         case ROBOT_2022C:
           drive = new Drive(new DriveIOSparkMAX());
-          vision = new Vision(new VisionIO() {});
           flywheels = new Flywheels(new FlywheelsIOSim());
-          hood = new Hood(new HoodIO() {});
-          kicker = new Kicker(new KickerIO() {});
-          tower = new Tower(new TowerIO() {});
-          intake = new Intake(new IntakeIO() {});
-          climber = new Climber(new ClimberIO() {});
           pneumatics = new Pneumatics(new PneumaticsIOREV());
           break;
         case ROBOT_2022P:
           drive = new Drive(new DriveIOSparkMAX());
           vision = new Vision(new VisionIOPhotonVision());
           flywheels = new Flywheels(new FlywheelsIOSim());
-          hood = new Hood(new HoodIO() {});
-          kicker = new Kicker(new KickerIO() {});
-          tower = new Tower(new TowerIO() {});
-          intake = new Intake(new IntakeIO() {});
-          climber = new Climber(new ClimberIO() {});
-          pneumatics = new Pneumatics(new PneumaticsIO() {});
           break;
         case ROBOT_2020:
           drive = new Drive(new DriveIOSparkMAX());
-          vision = new Vision(new VisionIOPhotonVision());
-          flywheels = new Flywheels(new FlywheelsIO() {});
-          hood = new Hood(new HoodIO() {});
-          kicker = new Kicker(new KickerIO() {});
-          tower = new Tower(new TowerIO() {});
-          intake = new Intake(new IntakeIO() {});
-          climber = new Climber(new ClimberIO() {});
           pneumatics = new Pneumatics(new PneumaticsIOCTRE());
           break;
         case ROBOT_KITBOT:
           drive = new Drive(new DriveIOTalonSRX());
-          vision = new Vision(new VisionIO() {});
-          flywheels = new Flywheels(new FlywheelsIO() {});
-          hood = new Hood(new HoodIO() {});
-          kicker = new Kicker(new KickerIO() {});
-          tower = new Tower(new TowerIO() {});
-          intake = new Intake(new IntakeIO() {});
-          climber = new Climber(new ClimberIO() {});
-          pneumatics = new Pneumatics(new PneumaticsIO() {});
           break;
         case ROBOT_SIMBOT:
           drive = new Drive(new DriveIOSim());
-          vision = new Vision(new VisionIO() {});
           flywheels = new Flywheels(new FlywheelsIOSim());
-          hood = new Hood(new HoodIO() {});
-          kicker = new Kicker(new KickerIO() {});
-          tower = new Tower(new TowerIO() {});
-          intake = new Intake(new IntakeIO() {});
-          climber = new Climber(new ClimberIO() {});
-          pneumatics = new Pneumatics(new PneumaticsIO() {});
           break;
         case ROBOT_ROMI:
           drive = new Drive(new DriveIORomi());
-          vision = new Vision(new VisionIO() {});
-          flywheels = new Flywheels(new FlywheelsIO() {});
-          hood = new Hood(new HoodIO() {});
-          kicker = new Kicker(new KickerIO() {});
-          tower = new Tower(new TowerIO() {});
-          intake = new Intake(new IntakeIO() {});
-          climber = new Climber(new ClimberIO() {});
-          pneumatics = new Pneumatics(new PneumaticsIO() {});
-          break;
-        default:
-          drive = new Drive(new DriveIO() {});
-          vision = new Vision(new VisionIO() {});
-          flywheels = new Flywheels(new FlywheelsIO() {});
-          hood = new Hood(new HoodIO() {});
-          kicker = new Kicker(new KickerIO() {});
-          tower = new Tower(new TowerIO() {});
-          intake = new Intake(new IntakeIO() {});
-          climber = new Climber(new ClimberIO() {});
-          pneumatics = new Pneumatics(new PneumaticsIO() {});
           break;
       }
     }
+
+    // Instantiate missing subsystems
+    drive = drive != null ? drive : new Drive(new DriveIO() {});
+    vision = vision != null ? vision : new Vision(new VisionIO() {});
+    flywheels =
+        flywheels != null ? flywheels : new Flywheels(new FlywheelsIO() {});
+    hood = hood != null ? hood : new Hood(new HoodIO() {});
+    kicker = kicker != null ? kicker : new Kicker(new KickerIO() {});
+    tower = tower != null ? tower : new Tower(new TowerIO() {});
+    intake = intake != null ? intake : new Intake(new IntakeIO() {});
+    climber = climber != null ? climber : new Climber(new ClimberIO() {});
+    pneumatics =
+        pneumatics != null ? pneumatics : new Pneumatics(new PneumaticsIO() {});
 
     // Set up subsystems
     drive.setOverrides(() -> overrideOI.getDriveDisable(),
