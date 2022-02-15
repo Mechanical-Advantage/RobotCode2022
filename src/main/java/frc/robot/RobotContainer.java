@@ -343,7 +343,6 @@ public class RobotContainer {
         .toggleWhenActive(new RunClimberToPosition(climber, true));
     handheldOI.getClimbBottom().and(climbMode).and(climbClosedLoop)
         .toggleWhenActive(new RunClimberToPosition(climber, true));
-
   }
 
   /**
