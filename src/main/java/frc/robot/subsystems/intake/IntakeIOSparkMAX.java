@@ -83,8 +83,9 @@ public class IntakeIOSparkMAX implements IntakeIO {
   public void updateInputs(IntakeIOInputs inputs) {
     // inputs.extended = solenoid.get();
 
-    inputs.rollerPositionRad = rollerEncoder.getPosition() * (2.0 * Math.PI)
-        / rollerAfterEncoderReduction;
+    inputs.rollerPositionRad =
+        Units.rotationsToRadians(rollerEncoder.getPosition())
+            / rollerAfterEncoderReduction;
     inputs.rollerVelocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(rollerEncoder.getVelocity())
             / rollerAfterEncoderReduction;
@@ -92,8 +93,9 @@ public class IntakeIOSparkMAX implements IntakeIO {
     inputs.rollerCurrentAmps = new double[] {rollerMotor.getOutputCurrent()};
     inputs.rollerTempCelcius = new double[] {rollerMotor.getMotorTemperature()};
 
-    inputs.hopperPositionRad = hopperEncoder.getPosition() * (2.0 * Math.PI)
-        / hopperAfterEncoderReduction;
+    inputs.hopperPositionRad =
+        Units.rotationsToRadians(hopperEncoder.getPosition())
+            / hopperAfterEncoderReduction;
     inputs.hopperVelocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(hopperEncoder.getVelocity())
             / hopperAfterEncoderReduction;

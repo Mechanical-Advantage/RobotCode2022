@@ -71,10 +71,10 @@ public class ClimberIOSparkMAX implements ClimberIO {
   public void updateInputs(ClimberIOInputs inputs) {
     inputs.locked = !solenoid.get();
     inputs.positionRad =
-        encoder.getPosition() * (2.0 * Math.PI) / afterEncoderReduction;
+        Units.rotationsToRadians(encoder.getPosition()) / afterEncoderReduction;
     inputs.velocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity())
-            * (2.0 * Math.PI) / afterEncoderReduction;
+            / afterEncoderReduction;
     inputs.appliedVolts = leader.getAppliedOutput() * 12.0;
     inputs.currentAmps = new double[] {leader.getOutputCurrent()};
     inputs.tempCelcius = new double[] {leader.getMotorTemperature()};

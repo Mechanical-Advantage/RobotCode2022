@@ -156,10 +156,12 @@ public class DriveIOSparkMAX implements DriveIO {
 
   @Override
   public void updateInputs(DriveIOInputs inputs) {
-    inputs.leftPositionRad = leftInternalEncoder.getPosition() * (2.0 * Math.PI)
-        / afterEncoderReduction;
-    inputs.rightPositionRad = rightInternalEncoder.getPosition()
-        * (2.0 * Math.PI) / afterEncoderReduction;
+    inputs.leftPositionRad =
+        Units.rotationsToRadians(leftInternalEncoder.getPosition())
+            / afterEncoderReduction;
+    inputs.rightPositionRad =
+        Units.rotationsToRadians(rightInternalEncoder.getPosition())
+            / afterEncoderReduction;
     inputs.leftVelocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(
         leftInternalEncoder.getVelocity()) / afterEncoderReduction;
     inputs.rightVelocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(
@@ -168,13 +170,13 @@ public class DriveIOSparkMAX implements DriveIO {
     inputs.externalAvailable = hasExternalEncoders;
     if (hasExternalEncoders) {
       inputs.externalLeftPositionRad =
-          leftExternalEncoder.getDistance() * (2.0 * Math.PI);
+          Units.rotationsToRadians(leftExternalEncoder.getDistance());
       inputs.externalRightPositionRad =
-          rightExternalEncoder.getDistance() * (2.0 * Math.PI);
+          Units.rotationsToRadians(rightExternalEncoder.getDistance());
       inputs.externalLeftVelocityRadPerSec =
-          leftExternalEncoder.getRate() * (2.0 * Math.PI);
+          Units.rotationsToRadians(leftExternalEncoder.getRate());
       inputs.externalRightVelocityRadPerSec =
-          rightExternalEncoder.getRate() * (2.0 * Math.PI);
+          Units.rotationsToRadians(rightExternalEncoder.getRate());
     }
 
     inputs.leftAppliedVolts = leftLeader.getAppliedOutput() * 12.0;

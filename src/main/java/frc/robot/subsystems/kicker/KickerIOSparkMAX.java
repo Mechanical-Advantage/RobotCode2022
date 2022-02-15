@@ -51,10 +51,10 @@ public class KickerIOSparkMAX implements KickerIO {
   @Override
   public void updateInputs(KickerIOInputs inputs) {
     inputs.positionRad =
-        encoder.getPosition() * (2.0 * Math.PI) / afterEncoderReduction;
+        Units.rotationsToRadians(encoder.getPosition()) / afterEncoderReduction;
     inputs.velocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity())
-            * (2.0 * Math.PI) / afterEncoderReduction;
+            / afterEncoderReduction;
     inputs.appliedVolts = motor.getAppliedOutput() * 12.0;
     inputs.currentAmps = new double[] {motor.getOutputCurrent()};
     inputs.tempCelcius = new double[] {motor.getMotorTemperature()};
