@@ -56,6 +56,7 @@ public class ClimberIOSparkMAX implements ClimberIO {
     follower.enableVoltageCompensation(12.0);
 
     encoder = leader.getEncoder();
+    encoder.setPosition(0.0);
 
     leader.setCANTimeout(0);
     follower.setCANTimeout(0);

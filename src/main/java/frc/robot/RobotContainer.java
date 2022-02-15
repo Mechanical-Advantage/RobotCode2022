@@ -23,6 +23,7 @@ import frc.robot.commands.FourCargoAuto;
 import frc.robot.commands.OneCargoAuto;
 import frc.robot.commands.PrepareShooter;
 import frc.robot.commands.RunClimber;
+import frc.robot.commands.RunClimberToPosition;
 import frc.robot.commands.RunIntake;
 import frc.robot.commands.RunTower;
 import frc.robot.commands.Shoot;
@@ -151,12 +152,11 @@ public class RobotContainer {
         () -> handheldOI.getLeftDriveY(), () -> handheldOI.getRightDriveX(),
         () -> handheldOI.getRightDriveY(),
         () -> handheldOI.getSniperModeButton().get()));
-    vision.setOverrides(() -> overrideOI.getVisionLEDMode());
+    vision.setOverrides(() -> overrideOI.getVisionLEDMode(),
+        () -> overrideOI.getClimbMode());
     vision.setTranslationConsumer(drive::addVisionMeasurement);
     tower.setDefaultCommand(
         new AutoIndex(tower, () -> overrideOI.getAutoIndexDisable()));
-    climber.setDefaultCommand(
-        new RunClimber(climber, () -> handheldOI.getClimbStick()));
 
     // Set up auto routines
     autoRoutineMap.put("Do Nothing",
@@ -287,18 +287,23 @@ public class RobotContainer {
     overrideOI = OISelector.findOverrideOI();
     handheldOI = OISelector.findHandheldOI();
 
-    // Bind new buttons
+    // *** DRIVER CONTROLS ***
     handheldOI.getAutoAimButton().whileActiveOnce(new AutoAim(drive, vision));
-
     Trigger flywheelsReady = new Trigger(flywheels::atSetpoints);
     handheldOI.getShootButton().and(flywheelsReady)
         .whileActiveContinuous(new Shoot(tower, kicker));
 
-    handheldOI.getIntakeExtendButton().whenActive(intake::extend, intake);
-    handheldOI.getIntakeRetractButton().whenActive(intake::retract, intake);
-    handheldOI.getIntakeForwardsButton()
+    // *** OPERATOR CONTROLS ***
+    Trigger climbMode = new Trigger(overrideOI::getClimbMode);
+    Trigger normalMode = climbMode.negate();
+
+    handheldOI.getIntakeExtendButton().and(normalMode)
+        .whenActive(intake::extend, intake);
+    handheldOI.getIntakeRetractButton().and(normalMode)
+        .whenActive(intake::retract, intake);
+    handheldOI.getIntakeForwardsButton().and(normalMode)
         .whileActiveContinuous(new RunIntake(intake, true));
-    handheldOI.getIntakeBackwardsButton()
+    handheldOI.getIntakeBackwardsButton().and(normalMode)
         .whileActiveContinuous(new RunIntake(intake, false));
 
     Command lowerFenderCommand =
@@ -308,21 +313,37 @@ public class RobotContainer {
     Command upperTarmacCommand =
         new PrepareShooter(flywheels, hood, ShooterPreset.UPPER_TARMAC);
 
-    handheldOI.getStartLowerFenderButton().whenActive(lowerFenderCommand);
-    handheldOI.getStartUpperFenderButton().whenActive(upperFenderCommand);
-    handheldOI.getStartUpperTarmacButton().whenActive(upperTarmacCommand);
-    handheldOI.getStopFlywheelButton().cancelWhenActive(lowerFenderCommand)
+    handheldOI.getStartLowerFenderButton().and(normalMode)
+        .whenActive(lowerFenderCommand);
+    handheldOI.getStartUpperFenderButton().and(normalMode)
+        .whenActive(upperFenderCommand);
+    handheldOI.getStartUpperTarmacButton().and(normalMode)
+        .whenActive(upperTarmacCommand);
+    handheldOI.getStopFlywheelButton().and(normalMode)
+        .cancelWhenActive(lowerFenderCommand)
         .cancelWhenActive(upperFenderCommand)
         .cancelWhenActive(upperTarmacCommand);
 
-    handheldOI.getTowerUpButton()
+    handheldOI.getTowerUpButton().and(normalMode)
         .whileActiveContinuous(new RunTower(tower, true));
-    handheldOI.getTowerDownButton()
+    handheldOI.getTowerDownButton().and(normalMode)
         .whileActiveContinuous(new RunTower(tower, false));
 
-    Trigger climbDeploy = new Trigger(overrideOI::getClimbDeploy);
-    climbDeploy.whenActive(climber::unlock);
-    climbDeploy.whenInactive(climber::lock);
+    // *** CLIMB CONTROLS ***
+    climbMode.whenActive(climber::unlock).whenInactive(climber::lock);
+    climbMode.cancelWhenActive(lowerFenderCommand)
+        .cancelWhenActive(upperFenderCommand)
+        .cancelWhenActive(upperTarmacCommand);
+    climbMode.whileActiveContinuous(new RunClimber(climber,
+        handheldOI::getClimbStick, overrideOI::getClimbOpenLoop));
+
+    Trigger climbClosedLoop =
+        new Trigger(overrideOI::getClimbOpenLoop).negate();
+    handheldOI.getClimbTop().and(climbMode).and(climbClosedLoop)
+        .toggleWhenActive(new RunClimberToPosition(climber, true));
+    handheldOI.getClimbBottom().and(climbMode).and(climbClosedLoop)
+        .toggleWhenActive(new RunClimberToPosition(climber, true));
+
   }
 
   /**

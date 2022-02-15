@@ -79,6 +79,14 @@ public interface HandheldOI {
     return new Trigger();
   }
 
+  public default Trigger getClimbTop() {
+    return new Trigger();
+  }
+
+  public default Trigger getClimbBottom() {
+    return new Trigger();
+  }
+
   public default double getClimbStick() {
     return 0.0;
   }

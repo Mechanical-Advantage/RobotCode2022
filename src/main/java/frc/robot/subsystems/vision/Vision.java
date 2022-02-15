@@ -42,6 +42,7 @@ public class Vision extends SubsystemBase {
 
   private double lastCaptureTimestamp = 0.0;
   private Supplier<VisionLEDMode> modeSupplier;
+  private Supplier<Boolean> climbModeSupplier;
   private Consumer<TimestampedTranslation2d> translationConsumer;
 
   private boolean ledsOn = false;
@@ -54,8 +55,10 @@ public class Vision extends SubsystemBase {
     targetGraceTimer.start();
   }
 
-  public void setOverrides(Supplier<VisionLEDMode> supplier) {
-    this.modeSupplier = supplier;
+  public void setOverrides(Supplier<VisionLEDMode> modeSupplier,
+      Supplier<Boolean> climbModeSupplier) {
+    this.modeSupplier = modeSupplier;
+    this.climbModeSupplier = climbModeSupplier;
   }
 
   public void setTranslationConsumer(
@@ -96,6 +99,8 @@ public class Vision extends SubsystemBase {
           ledsOn = false;
         } else if (DriverStation.isAutonomous()) {
           ledsOn = true;
+        } else if (climbModeSupplier.get()) {
+          ledsOn = false;
         } else {
           ledsOn = idleOn;
         }

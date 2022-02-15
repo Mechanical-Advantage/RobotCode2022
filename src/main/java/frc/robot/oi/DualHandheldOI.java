@@ -49,7 +49,7 @@ public class DualHandheldOI implements HandheldOI {
 
   @Override
   public Trigger getShootButton() {
-    return new Trigger(driverController::getXButton);
+    return new Trigger(driverController::getAButton);
   }
 
   @Override
@@ -100,6 +100,16 @@ public class DualHandheldOI implements HandheldOI {
   @Override
   public Trigger getTowerDownButton() {
     return new Trigger(() -> operatorController.getPOV() == 180);
+  }
+
+  @Override
+  public Trigger getClimbTop() {
+    return new Trigger(operatorController::getBButton);
+  }
+
+  @Override
+  public Trigger getClimbBottom() {
+    return new Trigger(operatorController::getAButton);
   }
 
   @Override
