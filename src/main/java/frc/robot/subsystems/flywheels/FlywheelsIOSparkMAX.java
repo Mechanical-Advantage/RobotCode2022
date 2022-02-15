@@ -34,11 +34,12 @@ public class FlywheelsIOSparkMAX implements FlywheelsIO {
   public FlywheelsIOSparkMAX() {
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
-        bigMotor = new CANSparkMax(0, MotorType.kBrushless);
-        littleMotor = new CANSparkMax(2, MotorType.kBrushless);
-        bigInvert = false;
+        bigMotor = new CANSparkMax(2, MotorType.kBrushless);
+        littleMotor = new CANSparkMax(3, MotorType.kBrushless);
+        bigInvert = true;
         bigAfterEncoderReduction = (48.0 / 24.0);
-        littleAfterEncoderReduction = (34.0 / 68.0) * (20.0 / 36.0);
+        littleInvert = false;
+        littleAfterEncoderReduction = (1.0 / 2.0);
         break;
       default:
         throw new RuntimeException("Invalid robot for FlywheelsIOSparkMax!");
@@ -72,20 +73,21 @@ public class FlywheelsIOSparkMAX implements FlywheelsIO {
 
   @Override
   public void updateInputs(FlywheelsIOInputs inputs) {
-    inputs.bigPositionRad =
-        bigEncoder.getPosition() * (2.0 * Math.PI) / bigAfterEncoderReduction;
+    inputs.bigPositionRad = Units.rotationsToRadians(bigEncoder.getPosition())
+        / bigAfterEncoderReduction;
     inputs.bigVelocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(bigEncoder.getVelocity())
-            * (2.0 * Math.PI) / bigAfterEncoderReduction;
+            / bigAfterEncoderReduction;
     inputs.bigAppliedVolts = bigMotor.getAppliedOutput() * 12.0;
     inputs.bigCurrentAmps = new double[] {bigMotor.getOutputCurrent(),};
     inputs.bigTempCelcius = new double[] {bigMotor.getMotorTemperature(),};
 
-    inputs.littlePositionRad = littleEncoder.getPosition() * (2.0 * Math.PI)
-        / littleAfterEncoderReduction;
+    inputs.littlePositionRad =
+        Units.rotationsToRadians(littleEncoder.getPosition())
+            / littleAfterEncoderReduction;
     inputs.littleVelocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(littleEncoder.getVelocity())
-            * (2.0 * Math.PI) / littleAfterEncoderReduction;
+            / littleAfterEncoderReduction;
     inputs.littleAppliedVolts = littleMotor.getAppliedOutput() * 12.0;
     inputs.littleCurrentAmps = new double[] {littleMotor.getOutputCurrent()};
     inputs.littleTempCelcius = new double[] {littleMotor.getMotorTemperature()};

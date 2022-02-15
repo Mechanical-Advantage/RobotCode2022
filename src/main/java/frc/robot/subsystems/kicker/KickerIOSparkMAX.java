@@ -23,7 +23,7 @@ public class KickerIOSparkMAX implements KickerIO {
   public KickerIOSparkMAX() {
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
-        motor = new CANSparkMax(0, MotorType.kBrushless);
+        motor = new CANSparkMax(1, MotorType.kBrushless);
         invert = false;
         afterEncoderReduction = 60.0 / 12.0;
         break;

@@ -25,7 +25,7 @@ public class TowerIOSparkMAX implements TowerIO {
   public TowerIOSparkMAX() {
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
-        motor = new CANSparkMax(0, MotorType.kBrushless);
+        motor = new CANSparkMax(30, MotorType.kBrushless);
         cargoSensor = new DigitalInput(0);
         invert = false;
         afterEncoderReduction = 9.0;

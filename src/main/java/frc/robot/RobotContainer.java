@@ -47,18 +47,21 @@ import frc.robot.subsystems.drive.DriveIOTalonSRX;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.flywheels.FlywheelsIO;
 import frc.robot.subsystems.flywheels.FlywheelsIOSim;
+import frc.robot.subsystems.flywheels.FlywheelsIOSparkMAX;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.hood.HoodIO;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.kicker.KickerIO;
+import frc.robot.subsystems.kicker.KickerIOSparkMAX;
 import frc.robot.subsystems.pneumatics.Pneumatics;
 import frc.robot.subsystems.pneumatics.PneumaticsIO;
 import frc.robot.subsystems.pneumatics.PneumaticsIOCTRE;
 import frc.robot.subsystems.pneumatics.PneumaticsIOREV;
 import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.tower.TowerIO;
+import frc.robot.subsystems.tower.TowerIOSparkMAX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
@@ -106,7 +109,9 @@ public class RobotContainer {
       switch (Constants.getRobot()) {
         case ROBOT_2022C:
           drive = new Drive(new DriveIOSparkMAX());
-          flywheels = new Flywheels(new FlywheelsIOSim());
+          flywheels = new Flywheels(new FlywheelsIOSparkMAX());
+          kicker = new Kicker(new KickerIOSparkMAX());
+          tower = new Tower(new TowerIOSparkMAX());
           pneumatics = new Pneumatics(new PneumaticsIOREV());
           break;
         case ROBOT_2022P:
@@ -155,8 +160,6 @@ public class RobotContainer {
     vision.setOverrides(() -> overrideOI.getVisionLEDMode(),
         () -> overrideOI.getClimbMode());
     vision.setTranslationConsumer(drive::addVisionMeasurement);
-    tower.setDefaultCommand(
-        new AutoIndex(tower, () -> overrideOI.getAutoIndexDisable()));
 
     // Set up auto routines
     autoRoutineMap.put("Do Nothing",

@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.drive.Drive;
 
 public class WaitForVision extends CommandBase {
-  private static final double timeoutSecs = 0.0;
+  private static final double timeoutSecs = 0.5;
 
   private final Drive drive;
   private Timer timer = new Timer();
