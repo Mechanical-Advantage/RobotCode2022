@@ -20,12 +20,11 @@ public class OneCargoAuto extends SequentialCommandGroup {
   /** Creates a new OneCargoAuto. */
   public OneCargoAuto(boolean longTaxi, Drive drive, Vision vision,
       Flywheels flywheels, Hood hood, Tower tower, Kicker kicker) {
-    addCommands(
-        deadline(
-            sequence(new WaitForVision(drive), new AutoAim(drive, vision),
-                new WaitUntilCommand(flywheels::atSetpoints),
-                new Shoot(tower, kicker).withTimeout(shootDurationSecs)),
-            new PrepareShooter(flywheels, hood, ShooterPreset.UPPER_FENDER)),
+    addCommands(deadline(
+        sequence(new WaitForVision(drive), new AutoAim(drive, vision),
+            new WaitUntilCommand(flywheels::atSetpoints),
+            new Shoot(tower, kicker).withTimeout(shootDurationSecs)),
+        new PrepareShooter(drive, flywheels, hood, ShooterPreset.UPPER_FENDER)),
         new Taxi(drive, longTaxi));
   }
 }

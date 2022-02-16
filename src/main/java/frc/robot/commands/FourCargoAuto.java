@@ -57,6 +57,7 @@ public class FourCargoAuto extends SequentialCommandGroup {
                 new WaitUntilCommand(flywheels::atSetpoints),
                 new Shoot(tower, kicker)
                     .withTimeout(OneCargoAuto.shootDurationSecs)),
-            new PrepareShooter(flywheels, hood, ShooterPreset.UPPER_FENDER)));
+            new PrepareShooter(drive, flywheels, hood,
+                ShooterPreset.UPPER_FENDER)));
   }
 }

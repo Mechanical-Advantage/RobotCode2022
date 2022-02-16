@@ -310,11 +310,11 @@ public class RobotContainer {
         .whileActiveContinuous(new RunIntake(false, intake, tower, kicker));
 
     Command lowerFenderCommand =
-        new PrepareShooter(flywheels, hood, ShooterPreset.LOWER_FENDER);
+        new PrepareShooter(drive, flywheels, hood, ShooterPreset.LOWER_FENDER);
     Command upperFenderCommand =
-        new PrepareShooter(flywheels, hood, ShooterPreset.UPPER_FENDER);
+        new PrepareShooter(drive, flywheels, hood, ShooterPreset.UPPER_FENDER);
     Command upperTarmacCommand =
-        new PrepareShooter(flywheels, hood, ShooterPreset.UPPER_TARMAC);
+        new PrepareShooter(drive, flywheels, hood, ShooterPreset.UPPER_TARMAC);
 
     handheldOI.getStartLowerFenderButton().and(normalMode)
         .whenActive(lowerFenderCommand);

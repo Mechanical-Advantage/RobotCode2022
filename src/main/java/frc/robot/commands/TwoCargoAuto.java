@@ -72,7 +72,8 @@ public class TwoCargoAuto extends SequentialCommandGroup {
                         new RunIntake(true, intake, tower, kicker)),
             new WaitUntilCommand(flywheels::atSetpoints),
             new Shoot(tower, kicker).withTimeout(shootDurationSecs)),
-        new PrepareShooter(flywheels, hood, ShooterPreset.UPPER_FENDER)));
+        new PrepareShooter(drive, flywheels, hood,
+            ShooterPreset.UPPER_FENDER)));
   }
 
   public static Pose2d calcAimedPose(Pose2d pose) {

@@ -103,7 +103,7 @@ public class FiveCargoAuto extends SequentialCommandGroup {
     // Combine all commands
     addCommands(new InstantCommand(intake::extend, intake),
         new WaitForVision(drive),
-        deadline(parallel(driveSequence, shootSequence),
-            new PrepareShooter(flywheels, hood, ShooterPreset.UPPER_FENDER)));
+        deadline(parallel(driveSequence, shootSequence), new PrepareShooter(
+            drive, flywheels, hood, ShooterPreset.UPPER_FENDER)));
   }
 }

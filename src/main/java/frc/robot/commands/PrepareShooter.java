@@ -4,33 +4,32 @@
 
 package frc.robot.commands;
 
-import java.util.Map;
-
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.FieldConstants;
+import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
+import frc.robot.util.PolynomialRegression;
 import frc.robot.util.TunableNumber;
 
 public class PrepareShooter extends CommandBase {
 
-  private static final Map<ShooterPreset, Boolean> raisedMap =
-      Map.of(ShooterPreset.LOWER_FENDER, false, ShooterPreset.UPPER_FENDER,
-          true, ShooterPreset.UPPER_TARMAC, true);
-  private static final Map<ShooterPreset, TunableNumber> bigRpmMap =
-      Map.of(ShooterPreset.LOWER_FENDER,
-          new TunableNumber("PrepareShooter/LowerFenderBigRPM"),
-          ShooterPreset.UPPER_FENDER,
-          new TunableNumber("PrepareShooter/UpperFenderBigRPM"),
-          ShooterPreset.UPPER_TARMAC,
-          new TunableNumber("PrepareShooter/UpperTarmacBigRPM"));
-  private static final Map<ShooterPreset, TunableNumber> littleRpmMap =
-      Map.of(ShooterPreset.LOWER_FENDER,
-          new TunableNumber("PrepareShooter/LowerFenderLittleRPM"),
-          ShooterPreset.UPPER_FENDER,
-          new TunableNumber("PrepareShooter/UpperFenderLittleRPM"),
-          ShooterPreset.UPPER_TARMAC,
-          new TunableNumber("PrepareShooter/UpperTarmacLittleRPM"));
+  private static final TunableNumber lowerFenderBigRpm =
+      new TunableNumber("PrepareShooter/LowerFenderBigRPM");
+  private static final TunableNumber lowerFenderLitteRpm =
+      new TunableNumber("PrepareShooter/LowerFenderLittleRPM");
 
+  private static final TunableNumber upperFenderBigRpm =
+      new TunableNumber("PrepareShooter/UpperFenderBigRPM");
+  private static final TunableNumber upperFenderLittleRpm =
+      new TunableNumber("PrepareShooter/UpperFenderLittleRPM");
+
+  private static final PolynomialRegression upperTarmacBigRegression =
+      new PolynomialRegression(new double[] {0.0}, new double[] {0.0}, 2, "x");
+  private static final PolynomialRegression upperTarmacLittleRegression =
+      new PolynomialRegression(new double[] {0.0}, new double[] {0.0}, 2, "x");
+
+  private final Drive drive;
   private final Flywheels flywheels;
   private final Hood hood;
   private final ShooterPreset preset;
@@ -39,33 +38,52 @@ public class PrepareShooter extends CommandBase {
    * Creates a new PrepareShooter. Runs the flywheel and sets the hood position for the given
    * preset.
    */
-  public PrepareShooter(Flywheels flywheels, Hood hood, ShooterPreset preset) {
+  public PrepareShooter(Drive drive, Flywheels flywheels, Hood hood,
+      ShooterPreset preset) {
     addRequirements(flywheels, hood);
+    this.drive = drive;
     this.flywheels = flywheels;
     this.hood = hood;
     this.preset = preset;
 
-    bigRpmMap.get(ShooterPreset.LOWER_FENDER).setDefault(0);
-    littleRpmMap.get(ShooterPreset.LOWER_FENDER).setDefault(0);
+    lowerFenderBigRpm.setDefault(2000.0);
+    lowerFenderLitteRpm.setDefault(2000.0);
 
-    bigRpmMap.get(ShooterPreset.UPPER_FENDER).setDefault(2000);
-    littleRpmMap.get(ShooterPreset.UPPER_FENDER).setDefault(2000);
-
-    bigRpmMap.get(ShooterPreset.UPPER_TARMAC).setDefault(0);
-    littleRpmMap.get(ShooterPreset.UPPER_TARMAC).setDefault(0);
+    upperFenderBigRpm.setDefault(2000.0);
+    upperFenderLittleRpm.setDefault(2000.0);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-    hood.setRaised(raisedMap.get(preset));
-    flywheels.runVelocity(bigRpmMap.get(preset).get(),
-        littleRpmMap.get(preset).get());
-  }
+  public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    boolean raised = false;
+    double bigSpeed = 0.0, littleSpeed = 0.0;
+    switch (preset) {
+      case LOWER_FENDER:
+        raised = true;
+        bigSpeed = lowerFenderBigRpm.get();
+        littleSpeed = lowerFenderLitteRpm.get();
+        break;
+      case UPPER_FENDER:
+        raised = false;
+        bigSpeed = upperFenderBigRpm.get();
+        littleSpeed = upperFenderLittleRpm.get();
+        break;
+      case UPPER_TARMAC:
+        raised = false;
+        double distance = drive.getPose().getTranslation()
+            .getDistance(FieldConstants.hubCenter);
+        bigSpeed = upperTarmacBigRegression.predict(distance);
+        littleSpeed = upperTarmacLittleRegression.predict(distance);
+        break;
+    }
+    hood.setRaised(raised);
+    flywheels.runVelocity(bigSpeed, littleSpeed);
+  }
 
   // Called once the command ends or is interrupted.
   @Override
