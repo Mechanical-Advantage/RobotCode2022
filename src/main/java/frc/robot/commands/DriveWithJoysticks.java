@@ -110,6 +110,8 @@ public class DriveWithJoysticks extends CommandBase {
 
     double leftPercent = MathUtil.clamp(speeds.left, -1.0, 1.0);
     double rightPercent = MathUtil.clamp(speeds.right, -1.0, 1.0);
+    Logger.getInstance().recordOutput("ActiveCommands/DriveWithJoysticks",
+        true);
     Logger.getInstance().recordOutput("DriveWithJoysticks/LeftPercent",
         leftPercent);
     Logger.getInstance().recordOutput("DriveWithJoysticks/RightPercent",

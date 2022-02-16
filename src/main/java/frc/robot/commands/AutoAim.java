@@ -127,6 +127,9 @@ public class AutoAim extends CommandBase {
       output = Math.copySign(minVelocity.get(), output);
     }
     drive.drivePercent(output * -1, output);
+
+    // Log data
+    Logger.getInstance().recordOutput("ActiveCommands/AutoAim", true);
     Logger.getInstance().recordOutput("AutoAim/ErrorDegrees",
         controller.getPositionError());
     Logger.getInstance().recordOutput("AutoAim/OutputPercent", output);

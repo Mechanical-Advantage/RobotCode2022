@@ -129,7 +129,7 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().run();
 
     // Log scheduled commands
-    Logger.getInstance().recordOutput("Commands",
+    Logger.getInstance().recordOutput("ActiveCommands/Scheduler",
         NetworkTableInstance.getDefault()
             .getEntry("/LiveWindow/Ungrouped/Scheduler/Names")
             .getStringArray(new String[] {}));

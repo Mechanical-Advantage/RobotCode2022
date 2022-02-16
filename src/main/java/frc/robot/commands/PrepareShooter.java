@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.FieldConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -83,6 +85,7 @@ public class PrepareShooter extends CommandBase {
     }
     hood.setRaised(raised);
     flywheels.runVelocity(bigSpeed, littleSpeed);
+    Logger.getInstance().recordOutput("ActiveCommands/PrepareShooter", true);
   }
 
   // Called once the command ends or is interrupted.

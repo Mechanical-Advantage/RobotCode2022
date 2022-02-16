@@ -41,7 +41,7 @@ public class Shoot extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Logger.getInstance().recordOutput("Shoot/Active", true);
+    Logger.getInstance().recordOutput("ActiveCommands/Shoot", true);
   }
 
   // Called once the command ends or is interrupted.
