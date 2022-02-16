@@ -15,13 +15,13 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Mode;
 import frc.robot.commands.AutoAim;
-import frc.robot.commands.AutoIndex;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FiveCargoAuto;
 import frc.robot.commands.FourCargoAuto;
 import frc.robot.commands.OneCargoAuto;
 import frc.robot.commands.PrepareShooter;
+import frc.robot.commands.ResetClimber;
 import frc.robot.commands.RunClimber;
 import frc.robot.commands.RunClimberToPosition;
 import frc.robot.commands.RunIntake;
@@ -346,6 +346,11 @@ public class RobotContainer {
         .toggleWhenActive(new RunClimberToPosition(climber, true));
     handheldOI.getClimbBottom().and(climbMode).and(climbClosedLoop)
         .toggleWhenActive(new RunClimberToPosition(climber, true));
+  }
+
+  /** Called at the start of teleop to begin zeroing the climber. */
+  public void resetClimber() {
+    new ResetClimber(climber).schedule();
   }
 
   /**
