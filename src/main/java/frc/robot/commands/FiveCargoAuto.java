@@ -90,12 +90,13 @@ public class FiveCargoAuto extends SequentialCommandGroup {
             + secondCargoToSecondShot.getDuration() + secondShotStationarySecs
             + secondShotToTerminal.getDuration() + terminalWaitSecs
             + terminalToThirdShot.getDuration() - thirdShotEarlySecs;
-    Command shootSequence = sequence(new WaitCommand(firstShotStart),
+    Command shootSequence = sequence(
+        new RunIntake(true, intake, tower, kicker).withTimeout(firstShotStart),
         new Shoot(tower, kicker).withTimeout(firstShotDurationSecs),
-        new WaitCommand(
+        new RunIntake(true, intake, tower, kicker).withTimeout(
             secondShotStart - firstShotStart - firstShotDurationSecs),
         new Shoot(tower, kicker).withTimeout(secondShotDurationSecs),
-        new WaitCommand(
+        new RunIntake(true, intake, tower, kicker).withTimeout(
             thirdShotStart - secondShotStart - secondShotDurationSecs),
         new Shoot(tower, kicker).withTimeout(thirdShotDurationSecs));
 
@@ -103,7 +104,6 @@ public class FiveCargoAuto extends SequentialCommandGroup {
     addCommands(new InstantCommand(intake::extend, intake),
         new WaitForVision(drive),
         deadline(parallel(driveSequence, shootSequence),
-            new RunIntake(intake, true),
             new PrepareShooter(flywheels, hood, ShooterPreset.UPPER_FENDER)));
   }
 }

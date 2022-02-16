@@ -31,16 +31,13 @@ public class Intake extends SubsystemBase {
     io.setRollerVoltage(percent * 12.0);
   }
 
-  public void stopRoller() {
-    runRollerPercent(0.0);
-  }
-
   /** Run the hopper at the specified percentage. */
   public void runHopperPercent(double percent) {
     io.setHopperVoltage(percent * 12.0);
   }
 
-  public void stopHopper() {
+  public void stop() {
+    runRollerPercent(0.0);
     runHopperPercent(0.0);
   }
 

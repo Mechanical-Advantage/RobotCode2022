@@ -8,34 +8,48 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.kicker.Kicker;
+import frc.robot.subsystems.tower.Tower;
 import frc.robot.util.TunableNumber;
 
 public class RunIntake extends CommandBase {
 
   private static final TunableNumber rollerForwardsSpeed =
       new TunableNumber("RunIntake/RollerForwardsSpeed");
-  private static final TunableNumber rollerBackwardsSpeed =
-      new TunableNumber("RunIntake/RollerBackwardsSpeed");
-
   private static final TunableNumber hopperForwardsSpeed =
       new TunableNumber("RunIntake/HopperForwardsSpeed");
+  private static final TunableNumber towerForwardsSpeed =
+      new TunableNumber("RunIntake/TowerForwardsSpeed");
+  private static final TunableNumber kickerForwardsSpeed =
+      new TunableNumber("RunIntake/KickerForwardsSpeed");
+
+  private static final TunableNumber rollerBackwardsSpeed =
+      new TunableNumber("RunIntake/RollerBackwardsSpeed");
   private static final TunableNumber hopperBackwardsSpeed =
       new TunableNumber("RunIntake/HopperBackwardsSpeed");
 
-  private final Intake intake;
   private final boolean forwards;
+  private final Intake intake;
+  private final Tower tower;
+  private final Kicker kicker;
 
   /**
    * Creates a new RunIntake. Runs the intake forwards or backwards, intended for operator controls.
    */
-  public RunIntake(Intake intake, boolean forwards) {
-    addRequirements(intake);
-    this.intake = intake;
+  public RunIntake(boolean forwards, Intake intake, Tower tower,
+      Kicker kicker) {
+    addRequirements(intake, tower, kicker);
     this.forwards = forwards;
+    this.intake = intake;
+    this.tower = tower;
+    this.kicker = kicker;
 
     rollerForwardsSpeed.setDefault(1.0);
-    rollerBackwardsSpeed.setDefault(1.0);
     hopperForwardsSpeed.setDefault(1.0);
+    towerForwardsSpeed.setDefault(1.0);
+    kickerForwardsSpeed.setDefault(1.0);
+
+    rollerBackwardsSpeed.setDefault(1.0);
     hopperBackwardsSpeed.setDefault(1.0);
   }
 
@@ -45,6 +59,8 @@ public class RunIntake extends CommandBase {
     if (forwards) {
       intake.runRollerPercent(rollerForwardsSpeed.get());
       intake.runHopperPercent(hopperForwardsSpeed.get());
+      tower.runPercent(towerForwardsSpeed.get());
+      kicker.runPercent(kickerForwardsSpeed.get());
     } else {
       intake.runRollerPercent(rollerBackwardsSpeed.get());
       intake.runHopperPercent(hopperBackwardsSpeed.get());
@@ -60,8 +76,9 @@ public class RunIntake extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    intake.stopRoller();
-    intake.stopHopper();
+    intake.stop();
+    tower.stop();
+    kicker.stop();
   }
 
   // Returns true when the command should end.
