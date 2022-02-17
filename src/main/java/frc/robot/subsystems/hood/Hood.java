@@ -23,6 +23,7 @@ public class Hood extends SubsystemBase {
     this.io = io;
     movingTimer.reset();
     movingTimer.start();
+    setRaised(false);
   }
 
   @Override

@@ -18,6 +18,7 @@ public class Intake extends SubsystemBase {
     this.io = io;
     io.setRollerBrakeMode(false);
     io.setHopperBrakeMode(false);
+    retract();
   }
 
   @Override
