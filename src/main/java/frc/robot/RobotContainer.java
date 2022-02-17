@@ -150,15 +150,16 @@ public class RobotContainer {
         pneumatics != null ? pneumatics : new Pneumatics(new PneumaticsIO() {});
 
     // Set up subsystems
-    drive.setOverrides(() -> overrideOI.getDriveDisable(),
-        () -> overrideOI.getOpenLoop(), () -> overrideOI.getInternalEncoders());
+    drive.setSuppliers(() -> overrideOI.getDriveDisable(),
+        () -> overrideOI.getOpenLoop(), () -> overrideOI.getInternalEncoders(),
+        hood::getState);
     drive.setDefaultCommand(new DriveWithJoysticks(drive,
         () -> choosers.getJoystickMode(), () -> handheldOI.getLeftDriveX(),
         () -> handheldOI.getLeftDriveY(), () -> handheldOI.getRightDriveX(),
         () -> handheldOI.getRightDriveY(),
         () -> handheldOI.getSniperModeButton().get()));
-    vision.setOverrides(() -> overrideOI.getVisionLEDMode(),
-        () -> overrideOI.getClimbMode());
+    vision.setSuppliers(() -> overrideOI.getVisionLEDMode(),
+        () -> overrideOI.getClimbMode(), hood::getState);
     vision.setTranslationConsumer(drive::addVisionMeasurement);
 
     // Set up auto routines

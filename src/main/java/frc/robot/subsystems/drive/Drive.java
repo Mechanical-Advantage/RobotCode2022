@@ -22,7 +22,10 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
+import frc.robot.VisionConstants;
+import frc.robot.VisionConstants.CameraPosition;
 import frc.robot.subsystems.drive.DriveIO.DriveIOInputs;
+import frc.robot.subsystems.hood.Hood.HoodState;
 import frc.robot.subsystems.vision.Vision.TimestampedTranslation2d;
 import frc.robot.util.GeomUtil;
 import frc.robot.util.PoseHistory;
@@ -31,9 +34,6 @@ import frc.robot.util.TunableNumber;
 public class Drive extends SubsystemBase {
   private static final double maxCoastVelocityMetersPerSec = 0.05; // Need to be under this to
                                                                    // switch to coast when disabling
-  private static final Transform2d vehicleToCamera = new Transform2d(
-      new Translation2d(Units.inchesToMeters(6.0), Units.inchesToMeters(4.5)),
-      Rotation2d.fromDegrees(180.0));
   private static final int poseHistoryCapacity = 500;
   private static final double maxNoVisionLog = 0.1; // How long to wait with no vision data before
                                                     // clearing log visualization
@@ -56,6 +56,7 @@ public class Drive extends SubsystemBase {
   private Supplier<Boolean> disableOverride = () -> false;
   private Supplier<Boolean> openLoopOverride = () -> false;
   private Supplier<Boolean> internalEncoderOverride = () -> false;
+  private Supplier<HoodState> hoodStateSupplier;
 
   private final DifferentialDriveOdometry odometry =
       new DifferentialDriveOdometry(new Rotation2d(), new Pose2d());
@@ -140,13 +141,15 @@ public class Drive extends SubsystemBase {
     noVisionTimer.start();
   }
 
-  /** Set boolean supplier for the override switches. */
-  public void setOverrides(Supplier<Boolean> disableOverride,
+  /** Set suppliers for external data. */
+  public void setSuppliers(Supplier<Boolean> disableOverride,
       Supplier<Boolean> openLoopOverride,
-      Supplier<Boolean> internalEncoderOverride) {
+      Supplier<Boolean> internalEncoderOverride,
+      Supplier<HoodState> hoodStateSupplier) {
     this.disableOverride = disableOverride;
     this.openLoopOverride = openLoopOverride;
     this.internalEncoderOverride = internalEncoderOverride;
+    this.hoodStateSupplier = hoodStateSupplier;
   }
 
   @Override
@@ -329,16 +332,23 @@ public class Drive extends SubsystemBase {
     Optional<Pose2d> historicalFieldToTarget = poseHistory.get(data.timestamp);
     if (historicalFieldToTarget.isPresent()) {
 
+      // Get camera constants
+      CameraPosition cameraPosition =
+          VisionConstants.getCameraPosition(hoodStateSupplier.get());
+      if (cameraPosition == null) { // Hood is moving, don't process frame
+        return;
+      }
+
       // Calculate new robot pose
       Rotation2d robotRotation = historicalFieldToTarget.get().getRotation();
       Rotation2d cameraRotation =
-          robotRotation.rotateBy(vehicleToCamera.getRotation());
+          robotRotation.rotateBy(cameraPosition.vehicleToCamera.getRotation());
       Transform2d fieldToTargetRotated =
           new Transform2d(FieldConstants.hubCenter, cameraRotation);
       Transform2d fieldToCamera = fieldToTargetRotated.plus(
           GeomUtil.transformFromTranslation(data.translation.unaryMinus()));
-      Pose2d visionFieldToTarget = GeomUtil
-          .transformToPose(fieldToCamera.plus(vehicleToCamera.inverse()));
+      Pose2d visionFieldToTarget = GeomUtil.transformToPose(
+          fieldToCamera.plus(cameraPosition.vehicleToCamera.inverse()));
 
       // Save vision pose for logging
       noVisionTimer.reset();

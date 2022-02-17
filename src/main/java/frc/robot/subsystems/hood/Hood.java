@@ -6,16 +6,23 @@ package frc.robot.subsystems.hood;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.hood.HoodIO.HoodIOInputs;
 
 public class Hood extends SubsystemBase {
+  private static final double moveTimeSecs = 1.0;
+
   private final HoodIO io;
   private final HoodIOInputs inputs = new HoodIOInputs();
+
+  private final Timer movingTimer = new Timer();
 
   /** Creates a new Kicker. */
   public Hood(HoodIO io) {
     this.io = io;
+    movingTimer.reset();
+    movingTimer.start();
   }
 
   @Override
@@ -25,6 +32,20 @@ public class Hood extends SubsystemBase {
   }
 
   public void setRaised(boolean raised) {
-    io.setRaised(raised);
+    if (raised != inputs.raised) {
+      io.setRaised(raised);
+      movingTimer.reset();
+    }
+  }
+
+  public HoodState getState() {
+    if (!movingTimer.hasElapsed(moveTimeSecs)) {
+      return HoodState.MOVING;
+    }
+    return inputs.raised ? HoodState.RAISED : HoodState.LOWER;
+  }
+
+  public static enum HoodState {
+    LOWER, RAISED, MOVING
   }
 }

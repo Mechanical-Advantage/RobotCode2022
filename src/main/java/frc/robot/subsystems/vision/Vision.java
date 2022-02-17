@@ -18,14 +18,14 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FieldConstants;
+import frc.robot.VisionConstants;
+import frc.robot.VisionConstants.CameraPosition;
 import frc.robot.oi.OverrideOI.VisionLEDMode;
+import frc.robot.subsystems.hood.Hood.HoodState;
 import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
 import frc.robot.util.CircleFitter;
 
 public class Vision extends SubsystemBase {
-  private static final Rotation2d horizontalPlaneToLens =
-      Rotation2d.fromDegrees(41.0);
-  private static final double lensHeightMeters = Units.inchesToMeters(24.25);
   private static final double circleFitPrecision = 0.01;
   private static final int minTargetCount = 2; // For calculating odometry
   private static final double extraLatencySecs = 0.06; // Approximate camera + network latency
@@ -34,8 +34,10 @@ public class Vision extends SubsystemBase {
   private static final double blinkLengthSecs = 0.5;
 
   // FOV constants
-  private static final double vpw = 2.0 * Math.tan(Math.toRadians(59.6 / 2.0));
-  private static final double vph = 2.0 * Math.tan(Math.toRadians(49.7 / 2.0));
+  private static final double vpw =
+      2.0 * Math.tan(VisionConstants.fovHorizontal.getRadians() / 2.0);
+  private static final double vph =
+      2.0 * Math.tan(VisionConstants.fovVertical.getRadians() / 2.0);
 
   private final VisionIO io;
   private final VisionIOInputs inputs = new VisionIOInputs();
@@ -43,6 +45,7 @@ public class Vision extends SubsystemBase {
   private double lastCaptureTimestamp = 0.0;
   private Supplier<VisionLEDMode> modeSupplier;
   private Supplier<Boolean> climbModeSupplier;
+  private Supplier<HoodState> hoodStateSupplier;
   private Consumer<TimestampedTranslation2d> translationConsumer;
 
   private boolean ledsOn = false;
@@ -55,10 +58,12 @@ public class Vision extends SubsystemBase {
     targetGraceTimer.start();
   }
 
-  public void setOverrides(Supplier<VisionLEDMode> modeSupplier,
-      Supplier<Boolean> climbModeSupplier) {
+  public void setSuppliers(Supplier<VisionLEDMode> modeSupplier,
+      Supplier<Boolean> climbModeSupplier,
+      Supplier<HoodState> hoodStateSupplier) {
     this.modeSupplier = modeSupplier;
     this.climbModeSupplier = climbModeSupplier;
+    this.hoodStateSupplier = hoodStateSupplier;
   }
 
   public void setTranslationConsumer(
@@ -117,6 +122,13 @@ public class Vision extends SubsystemBase {
     }
     lastCaptureTimestamp = inputs.captureTimestamp;
 
+    // Get camera constants
+    CameraPosition cameraPosition =
+        VisionConstants.getCameraPosition(hoodStateSupplier.get());
+    if (cameraPosition == null) { // Hood is moving, don't process frame
+      return;
+    }
+
     // Calculate camera to target translation
     if (targetCount >= minTargetCount) {
       List<Translation2d> cameraToTargetTranslations = new ArrayList<>();
@@ -137,7 +149,8 @@ public class Vision extends SubsystemBase {
         for (int i = 0; i < corners.size(); i++) {
           Translation2d translation = solveCameraToTargetTranslation(
               corners.get(i), i < 2 ? FieldConstants.visionTargetHeightUpper
-                  : FieldConstants.visionTargetHeightLower);
+                  : FieldConstants.visionTargetHeightLower,
+              cameraPosition);
           if (translation != null) {
             cameraToTargetTranslations.add(translation);
           }
@@ -223,21 +236,20 @@ public class Vision extends SubsystemBase {
   }
 
   private Translation2d solveCameraToTargetTranslation(VisionPoint corner,
-      double goalHeight) {
-    double yPixels = corner.x;
-    double zPixels = corner.y;
+      double goalHeight, CameraPosition cameraPosition) {
 
-    // Robot frame of reference
-    double nY = -((yPixels - 480.0) / 480.0);
-    double nZ = -((zPixels - 360.0) / 360.0);
+    double halfWidthPixels = VisionConstants.widthPixels / 2.0;
+    double halfHeightPixels = VisionConstants.heightPixels / 2.0;
+    double nY = -((corner.x - halfWidthPixels) / halfWidthPixels);
+    double nZ = -((corner.y - halfHeightPixels) / halfHeightPixels);
 
-    Translation2d xzPlaneTranslation =
-        new Translation2d(1.0, vph / 2.0 * nZ).rotateBy(horizontalPlaneToLens);
+    Translation2d xzPlaneTranslation = new Translation2d(1.0, vph / 2.0 * nZ)
+        .rotateBy(cameraPosition.verticalRotation);
     double x = xzPlaneTranslation.getX();
     double y = vpw / 2.0 * nY;
     double z = xzPlaneTranslation.getY();
 
-    double differentialHeight = lensHeightMeters - goalHeight;
+    double differentialHeight = cameraPosition.cameraHeight - goalHeight;
     if ((z < 0.0) == (differentialHeight > 0.0)) {
       double scaling = differentialHeight / -z;
       double distance = Math.hypot(x, y) * scaling;
