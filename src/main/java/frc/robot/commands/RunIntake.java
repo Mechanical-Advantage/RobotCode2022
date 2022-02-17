@@ -46,11 +46,11 @@ public class RunIntake extends CommandBase {
 
     rollerForwardsSpeed.setDefault(1.0);
     hopperForwardsSpeed.setDefault(1.0);
-    towerForwardsSpeed.setDefault(1.0);
-    kickerForwardsSpeed.setDefault(1.0);
+    towerForwardsSpeed.setDefault(0.5);
+    kickerForwardsSpeed.setDefault(-1.0);
 
-    rollerBackwardsSpeed.setDefault(1.0);
-    hopperBackwardsSpeed.setDefault(1.0);
+    rollerBackwardsSpeed.setDefault(-1.0);
+    hopperBackwardsSpeed.setDefault(-1.0);
   }
 
   // Called when the command is initially scheduled.

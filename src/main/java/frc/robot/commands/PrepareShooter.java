@@ -48,11 +48,11 @@ public class PrepareShooter extends CommandBase {
     this.hood = hood;
     this.preset = preset;
 
-    lowerFenderBigRpm.setDefault(2000.0);
-    lowerFenderLitteRpm.setDefault(2000.0);
+    lowerFenderBigRpm.setDefault(0.0);
+    lowerFenderLitteRpm.setDefault(0.0);
 
-    upperFenderBigRpm.setDefault(2000.0);
-    upperFenderLittleRpm.setDefault(2000.0);
+    upperFenderBigRpm.setDefault(0.0);
+    upperFenderLittleRpm.setDefault(0.0);
   }
 
   // Called when the command is initially scheduled.
