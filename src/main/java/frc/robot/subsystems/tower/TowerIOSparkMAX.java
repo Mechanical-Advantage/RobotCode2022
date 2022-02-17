@@ -20,15 +20,23 @@ public class TowerIOSparkMAX implements TowerIO {
 
   private final CANSparkMax motor;
   private final RelativeEncoder encoder;
-  private final DigitalInput cargoSensor;
+
+  private final DigitalInput lowerCargoSensor1;
+  private final DigitalInput lowerCargoSensor2;
+  private final DigitalInput upperCargoSensor1;
+  private final DigitalInput upperCargoSensor2;
 
   public TowerIOSparkMAX() {
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
         motor = new CANSparkMax(30, MotorType.kBrushless);
-        cargoSensor = new DigitalInput(0);
         invert = false;
         afterEncoderReduction = 9.0;
+
+        lowerCargoSensor1 = new DigitalInput(4);
+        lowerCargoSensor2 = new DigitalInput(5);
+        upperCargoSensor1 = new DigitalInput(6);
+        upperCargoSensor2 = new DigitalInput(7);
         break;
       default:
         throw new RuntimeException("Invalid robot for TowerIOSparkMax!");
@@ -53,7 +61,12 @@ public class TowerIOSparkMAX implements TowerIO {
 
   @Override
   public void updateInputs(TowerIOInputs inputs) {
-    inputs.cargoSensor = cargoSensor.get();
+    inputs.cargoSensorsAvailable = true;
+    inputs.lowerCargoSensor1 = lowerCargoSensor1.get();
+    inputs.lowerCargoSensor2 = lowerCargoSensor2.get();
+    inputs.upperCargoSensor1 = upperCargoSensor1.get();
+    inputs.upperCargoSensor2 = upperCargoSensor2.get();
+
     inputs.positionRad =
         Units.rotationsToRadians(encoder.getPosition()) / afterEncoderReduction;
     inputs.velocityRadPerSec =

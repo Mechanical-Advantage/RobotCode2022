@@ -11,7 +11,12 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 public interface TowerIO {
   /** Contains all of the input data received from hardware. */
   public static class TowerIOInputs implements LoggableInputs {
-    public boolean cargoSensor = false;
+    public boolean cargoSensorsAvailable = false;
+    public boolean lowerCargoSensor1 = false;
+    public boolean lowerCargoSensor2 = false;
+    public boolean upperCargoSensor1 = false;
+    public boolean upperCargoSensor2 = false;
+
     public double positionRad = 0.0;
     public double velocityRadPerSec = 0.0;
     public double appliedVolts = 0.0;
@@ -19,7 +24,12 @@ public interface TowerIO {
     public double[] tempCelcius = new double[] {};
 
     public void toLog(LogTable table) {
-      table.put("CargoSensor", cargoSensor);
+      table.put("CargoSensorAvailable", cargoSensorsAvailable);
+      table.put("LowerCargoSensor1", lowerCargoSensor1);
+      table.put("LowerCargoSensor2", lowerCargoSensor2);
+      table.put("UpperCargoSensor1", upperCargoSensor1);
+      table.put("UpperCargoSensor2", upperCargoSensor1);
+
       table.put("PositionRad", positionRad);
       table.put("VelocityRadPerSec", velocityRadPerSec);
       table.put("AppliedVolts", appliedVolts);
@@ -28,7 +38,17 @@ public interface TowerIO {
     }
 
     public void fromLog(LogTable table) {
-      cargoSensor = table.getBoolean("CargoSensor", cargoSensor);
+      cargoSensorsAvailable =
+          table.getBoolean("CargoSensorsAvailable", cargoSensorsAvailable);
+      lowerCargoSensor1 =
+          table.getBoolean("LowerCargoSensor1", lowerCargoSensor1);
+      lowerCargoSensor2 =
+          table.getBoolean("LowerCargoSensor1", lowerCargoSensor2);
+      upperCargoSensor1 =
+          table.getBoolean("UpperCargoSensor1", upperCargoSensor1);
+      upperCargoSensor2 =
+          table.getBoolean("UpperCargoSensor2", upperCargoSensor2);
+
       positionRad = table.getDouble("PositionRad", positionRad);
       velocityRadPerSec =
           table.getDouble("VelocityRadPerSec", velocityRadPerSec);

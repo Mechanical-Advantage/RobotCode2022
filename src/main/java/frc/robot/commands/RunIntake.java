@@ -55,22 +55,25 @@ public class RunIntake extends CommandBase {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-    if (forwards) {
-      intake.runRollerPercent(rollerForwardsSpeed.get());
-      intake.runHopperPercent(hopperForwardsSpeed.get());
-      tower.runPercent(towerForwardsSpeed.get());
-      kicker.runPercent(kickerForwardsSpeed.get());
-    } else {
-      intake.runRollerPercent(rollerBackwardsSpeed.get());
-      intake.runHopperPercent(hopperBackwardsSpeed.get());
-    }
-  }
+  public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     Logger.getInstance().recordOutput("ActiveCommands/RunIntake", true);
+
+    if (forwards) {
+      intake.runRollerPercent(rollerForwardsSpeed.get());
+      intake.runHopperPercent(hopperForwardsSpeed.get());
+
+      boolean stopTower =
+          tower.getLowerCargoSensor() && tower.getUpperCargoSensor();
+      tower.runPercent(stopTower ? 0.0 : towerForwardsSpeed.get());
+      kicker.runPercent(stopTower ? 0.0 : kickerForwardsSpeed.get());
+    } else {
+      intake.runRollerPercent(rollerBackwardsSpeed.get());
+      intake.runHopperPercent(hopperBackwardsSpeed.get());
+    }
   }
 
   // Called once the command ends or is interrupted.

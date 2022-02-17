@@ -8,10 +8,19 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.tower.TowerIO.TowerIOInputs;
+import frc.robot.util.Alert;
+import frc.robot.util.Alert.AlertType;
 
 public class Tower extends SubsystemBase {
   private final TowerIO io;
   private final TowerIOInputs inputs = new TowerIOInputs();
+
+  private final Alert lowerDisconnectedAlert =
+      new Alert("Invalid data from lower cargo sensor. Is is connected?",
+          AlertType.ERROR);
+  private final Alert upperDisconnectedAlert =
+      new Alert("Invalid data from upper cargo sensor. Is is connected?",
+          AlertType.ERROR);
 
   /** Creates a new Tower. */
   public Tower(TowerIO io) {
@@ -23,6 +32,11 @@ public class Tower extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Tower", inputs);
+
+    lowerDisconnectedAlert.set(inputs.cargoSensorsAvailable
+        && (inputs.lowerCargoSensor1 == inputs.lowerCargoSensor2));
+    upperDisconnectedAlert.set(inputs.cargoSensorsAvailable
+        && (inputs.upperCargoSensor1 == inputs.upperCargoSensor2));
   }
 
   /** Run at the specified percentage. */
@@ -34,7 +48,11 @@ public class Tower extends SubsystemBase {
     runPercent(0.0);
   }
 
-  public boolean getCargoSensorTripped() {
-    return !inputs.cargoSensor;
+  public boolean getLowerCargoSensor() {
+    return !inputs.lowerCargoSensor1;
+  }
+
+  public boolean getUpperCargoSensor() {
+    return !inputs.upperCargoSensor1;
   }
 }

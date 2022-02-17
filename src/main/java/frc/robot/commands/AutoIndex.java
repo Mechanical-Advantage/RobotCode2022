@@ -53,7 +53,7 @@ public class AutoIndex extends CommandBase {
 
     Logger.getInstance().recordOutput("ActiveCommands/AutoIndex", true);
 
-    if (tower.getCargoSensorTripped()) {
+    if (tower.getLowerCargoSensor()) {
       graceTimer.reset();
     }
     if (graceTimer.hasElapsed(graceSecs.get())) {
