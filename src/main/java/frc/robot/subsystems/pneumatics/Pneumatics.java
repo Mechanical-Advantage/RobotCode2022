@@ -4,9 +4,11 @@
 
 package frc.robot.subsystems.pneumatics;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.littletonrobotics.junction.Logger;
 
-import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -16,11 +18,12 @@ import frc.robot.util.Alert.AlertType;
 
 public class Pneumatics extends SubsystemBase {
   public static final int revModuleID = 60; // CAN ID for pneumatics hub
+  private static final int averagingTaps = 40;
 
   private final PneumaticsIO io;
   private final PneumaticsIOInputs inputs = new PneumaticsIOInputs();
 
-  private final LinearFilter filter = LinearFilter.movingAverage(10);
+  private final List<Double> filterData = new ArrayList<>();
   private double pressureSmoothedPsi = 0.0;
 
   private Timer noPressureTimer = new Timer();
@@ -44,8 +47,12 @@ public class Pneumatics extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Pneumatics", inputs);
 
-    pressureSmoothedPsi =
-        filter.calculate(inputs.pressurePsi < 0 ? 0 : inputs.pressurePsi);
+    filterData.add(inputs.pressurePsi < 0 ? 0 : inputs.pressurePsi);
+    if (filterData.size() > averagingTaps) {
+      filterData.remove(0);
+    }
+    pressureSmoothedPsi = filterData.stream().mapToDouble(a -> a)
+        .summaryStatistics().getAverage();
     Logger.getInstance().recordOutput("PressurePsi", pressureSmoothedPsi);
     SmartDashboard.putNumber("Pressure", pressureSmoothedPsi);
 
