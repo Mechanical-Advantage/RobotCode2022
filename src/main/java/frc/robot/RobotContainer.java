@@ -19,6 +19,7 @@ import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FiveCargoAuto;
 import frc.robot.commands.FourCargoAuto;
+import frc.robot.commands.IdleHood;
 import frc.robot.commands.OneCargoAuto;
 import frc.robot.commands.PrepareShooter;
 import frc.robot.commands.ResetClimber;
@@ -161,6 +162,8 @@ public class RobotContainer {
     vision.setSuppliers(() -> overrideOI.getVisionLEDMode(),
         () -> overrideOI.getClimbMode(), hood::getState);
     vision.setTranslationConsumer(drive::addVisionMeasurement);
+    hood.setDefaultCommand(
+        new IdleHood(hood, drive, () -> overrideOI.getVisionLEDMode()));
 
     // Set up auto routines
     autoRoutineMap.put("Do Nothing",
