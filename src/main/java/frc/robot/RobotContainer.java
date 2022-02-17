@@ -118,7 +118,6 @@ public class RobotContainer {
           break;
         case ROBOT_2022P:
           drive = new Drive(new DriveIOSparkMAX());
-          vision = new Vision(new VisionIOPhotonVision());
           flywheels = new Flywheels(new FlywheelsIOSim());
           break;
         case ROBOT_2020:
