@@ -19,6 +19,7 @@ import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FiveCargoAuto;
 import frc.robot.commands.FourCargoAuto;
+import frc.robot.commands.HPPractice;
 import frc.robot.commands.IdleHood;
 import frc.robot.commands.OneCargoAuto;
 import frc.robot.commands.PrepareShooter;
@@ -221,6 +222,9 @@ public class RobotContainer {
         new AutoRoutine(AutoPosition.FENDER_A, new Taxi(drive, true)));
     autoRoutineMap.put("Taxi (FB)",
         new AutoRoutine(AutoPosition.FENDER_B, new Taxi(drive, true)));
+
+    autoRoutineMap.put("HP Practice", new AutoRoutine(AutoPosition.ORIGIN,
+        new HPPractice(drive, intake, tower, kicker)));
 
     autoRoutineMap.put("Track Width Characterization",
         new AutoRoutine(AutoPosition.ORIGIN,
