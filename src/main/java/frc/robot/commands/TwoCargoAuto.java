@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.FieldConstants;
 import frc.robot.RobotContainer.AutoPosition;
-import frc.robot.commands.PrepareShooter.ShooterPreset;
+import frc.robot.commands.PrepareShooterPreset.ShooterPreset;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
@@ -72,8 +72,7 @@ public class TwoCargoAuto extends SequentialCommandGroup {
                         new RunIntake(true, intake, tower, kicker)),
             new WaitUntilCommand(flywheels::atSetpoints),
             new Shoot(tower, kicker).withTimeout(shootDurationSecs)),
-        new PrepareShooter(drive, flywheels, hood,
-            ShooterPreset.UPPER_FENDER)));
+        new PrepareShooterPreset(flywheels, hood, ShooterPreset.UPPER_FENDER)));
   }
 
   public static Pose2d calcAimedPose(Pose2d pose) {

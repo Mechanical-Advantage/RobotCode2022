@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.FieldConstants;
 import frc.robot.RobotContainer.AutoPosition;
-import frc.robot.commands.PrepareShooter.ShooterPreset;
+import frc.robot.commands.PrepareShooterPreset.ShooterPreset;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
@@ -57,7 +57,7 @@ public class FourCargoAuto extends SequentialCommandGroup {
                 new WaitUntilCommand(flywheels::atSetpoints),
                 new Shoot(tower, kicker)
                     .withTimeout(OneCargoAuto.shootDurationSecs)),
-            new PrepareShooter(drive, flywheels, hood,
+            new PrepareShooterPreset(flywheels, hood,
                 ShooterPreset.UPPER_FENDER)));
   }
 }

@@ -88,7 +88,7 @@ public class DualHandheldOI implements HandheldOI {
   }
 
   @Override
-  public Trigger getStartUpperTarmacButton() {
+  public Trigger getStartUpperAutoButton() {
     return new Trigger(operatorController::getXButton);
   }
 
