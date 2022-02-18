@@ -12,19 +12,24 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.subsystems.pneumatics.PneumaticsIO.PneumaticsIOInputs;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
 
 public class Pneumatics extends SubsystemBase {
   public static final int revModuleID = 60; // CAN ID for pneumatics hub
-  private static final int normalAveragingTaps = 25;
-  private static final int compressorAveragingTaps = 100;
+  private static final int normalAveragingTaps = 20;
+  private static final int compressorAveragingTaps = 150;
+  private static final int maxTapRemoval = 2; // Per cycle, smoothss data when compressor stops
+  private static final double compressorRatePsiPerSec = 3.0;
 
   private final PneumaticsIO io;
   private final PneumaticsIOInputs inputs = new PneumaticsIOInputs();
 
   private final List<Double> filterData = new ArrayList<>();
+  private boolean lastCompressorActive = false;
+  private int compressorStateCycles = 0;
   private double pressureSmoothedPsi = 0.0;
 
   private Timer noPressureTimer = new Timer();
@@ -48,14 +53,40 @@ public class Pneumatics extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Pneumatics", inputs);
 
+    // Run averaging filter
     filterData.add(inputs.pressurePsi < 0.0 ? 0.0 : inputs.pressurePsi);
     int averagingTaps =
         inputs.compressorActive ? compressorAveragingTaps : normalAveragingTaps;
-    while (filterData.size() > averagingTaps) {
+    int i = 0;
+    while (filterData.size() > averagingTaps && i < maxTapRemoval) {
+      i++;
       filterData.remove(0);
     }
-    pressureSmoothedPsi = filterData.stream().mapToDouble(a -> a)
+    double averagePsi = filterData.stream().mapToDouble(a -> a)
         .summaryStatistics().getAverage();
+
+    // Compensate for latency when compressor is active
+    if (inputs.compressorActive != lastCompressorActive) {
+      compressorStateCycles = 0;
+      lastCompressorActive = inputs.compressorActive;
+    } else {
+      compressorStateCycles++;
+    }
+    int latencyCycles = filterData.size() / 2;
+    if (inputs.compressorActive) {
+      latencyCycles =
+          compressorStateCycles < latencyCycles ? compressorStateCycles
+              : latencyCycles;
+    } else {
+      latencyCycles = compressorStateCycles < latencyCycles
+          ? latencyCycles - compressorStateCycles
+          : 0;
+    }
+    double compensationPsi =
+        latencyCycles * compressorRatePsiPerSec * Constants.loopPeriodSecs;
+    pressureSmoothedPsi = averagePsi + compensationPsi;
+
+    // Log pressure
     Logger.getInstance().recordOutput("PressurePsi", pressureSmoothedPsi);
     SmartDashboard.putNumber("Pressure", pressureSmoothedPsi);
 
