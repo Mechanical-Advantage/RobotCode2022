@@ -19,18 +19,20 @@ import frc.robot.util.Alert.AlertType;
 
 public class Pneumatics extends SubsystemBase {
   public static final int revModuleID = 60; // CAN ID for pneumatics hub
-  private static final int normalAveragingTaps = 20;
-  private static final int compressorAveragingTaps = 150;
-  private static final int maxTapRemoval = 2; // Per cycle, smoothss data when compressor stops
+  private static final int normalAveragingTaps = 25;
+  private static final int compressorAveragingTaps = 50;
   private static final double compressorRatePsiPerSec = 3.0;
 
   private final PneumaticsIO io;
   private final PneumaticsIOInputs inputs = new PneumaticsIOInputs();
 
   private final List<Double> filterData = new ArrayList<>();
-  private boolean lastCompressorActive = false;
-  private int compressorStateCycles = 0;
   private double pressureSmoothedPsi = 0.0;
+
+  private double lastPressurePsi = 0.0;
+  private boolean lastPressureIncreasing = false;
+  private double compressorMaxPoint = 0.0;
+  private double compressorMinPoint = 0.0;
 
   private Timer noPressureTimer = new Timer();
   private Timer compressorEnabledTimer = new Timer();
@@ -53,38 +55,49 @@ public class Pneumatics extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Pneumatics", inputs);
 
+    // Calculate input pressure for averaging filter
+    double limitedPressure =
+        inputs.pressurePsi < 0.0 ? 0.0 : inputs.pressurePsi;
+    double processedPressure = 0.0;
+    if (inputs.compressorActive) {
+
+      // When compressor is active, average the most recent min and max points
+      if (limitedPressure != lastPressurePsi) {
+        boolean increasing = limitedPressure > lastPressurePsi;
+        if (increasing != lastPressureIncreasing) {
+          if (increasing) {
+            compressorMinPoint = lastPressurePsi;
+          } else {
+            compressorMaxPoint = lastPressurePsi;
+          }
+        }
+        lastPressurePsi = limitedPressure;
+        lastPressureIncreasing = increasing;
+      }
+      processedPressure = (compressorMinPoint + compressorMaxPoint) / 2.0;
+
+      // Apply latency compensation
+      processedPressure += (compressorAveragingTaps / 2.0)
+          * Constants.loopPeriodSecs * compressorRatePsiPerSec;
+    } else {
+
+      // When compressor is inactive, reset min/max status and use normal pressure
+      lastPressurePsi = limitedPressure;
+      lastPressureIncreasing = false;
+      compressorMaxPoint = limitedPressure;
+      compressorMinPoint = limitedPressure;
+      processedPressure = limitedPressure;
+    }
+
     // Run averaging filter
-    filterData.add(inputs.pressurePsi < 0.0 ? 0.0 : inputs.pressurePsi);
-    int averagingTaps =
-        inputs.compressorActive ? compressorAveragingTaps : normalAveragingTaps;
-    int i = 0;
-    while (filterData.size() > averagingTaps && i < maxTapRemoval) {
-      i++;
+    filterData.add(processedPressure);
+    while (filterData
+        .size() > (inputs.compressorActive ? compressorAveragingTaps
+            : normalAveragingTaps)) {
       filterData.remove(0);
     }
-    double averagePsi = filterData.stream().mapToDouble(a -> a)
+    pressureSmoothedPsi = filterData.stream().mapToDouble(a -> a)
         .summaryStatistics().getAverage();
-
-    // Compensate for latency when compressor is active
-    if (inputs.compressorActive != lastCompressorActive) {
-      compressorStateCycles = 0;
-      lastCompressorActive = inputs.compressorActive;
-    } else {
-      compressorStateCycles++;
-    }
-    int latencyCycles = filterData.size() / 2;
-    if (inputs.compressorActive) {
-      latencyCycles =
-          compressorStateCycles < latencyCycles ? compressorStateCycles
-              : latencyCycles;
-    } else {
-      latencyCycles = compressorStateCycles < latencyCycles
-          ? latencyCycles - compressorStateCycles
-          : 0;
-    }
-    double compensationPsi =
-        latencyCycles * compressorRatePsiPerSec * Constants.loopPeriodSecs;
-    pressureSmoothedPsi = averagePsi + compensationPsi;
 
     // Log pressure
     Logger.getInstance().recordOutput("PressurePsi", pressureSmoothedPsi);
