@@ -23,15 +23,19 @@ import edu.wpi.first.math.trajectory.constraint.CentripetalAccelerationConstrain
 import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.math.trajectory.constraint.TrajectoryConstraint;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.util.Alert;
+import frc.robot.util.Alert.AlertType;
 
 public class MotionProfileCommand extends CommandBase {
   private static final double ramseteB = 2;
   private static final double ramseteZeta = 0.7;
+
+  private static final Alert generatorAlert = new Alert(
+      "Failed to generate all trajectories, check constants.", AlertType.ERROR);
 
   private final Drive drive;
   private final DifferentialDriveKinematics kinematics;
@@ -62,6 +66,7 @@ public class MotionProfileCommand extends CommandBase {
     this.drive = drive;
 
     // Select max velocity & acceleration
+    boolean supportedRobot = true;
     double maxVoltage, maxVelocityMetersPerSec, maxAccelerationMetersPerSec2,
         maxCentripetalAccelerationMetersPerSec2;
     switch (Constants.getRobot()) {
@@ -86,6 +91,7 @@ public class MotionProfileCommand extends CommandBase {
         maxCentripetalAccelerationMetersPerSec2 = 1.0;
         break;
       default:
+        supportedRobot = false;
         maxVoltage = 10.0;
         maxVelocityMetersPerSec = 0.0;
         maxAccelerationMetersPerSec2 = 0.0;
@@ -118,8 +124,9 @@ public class MotionProfileCommand extends CommandBase {
           TrajectoryGenerator.generateTrajectory(waypoints, config);
     } catch (TrajectoryGenerationException exception) {
       generatedTrajectory = new Trajectory();
-      DriverStation
-          .reportError("Failed to generate trajectory, check constants", false);
+      if (supportedRobot) {
+        generatorAlert.set(true);
+      }
     }
     trajectory = generatedTrajectory;
   }

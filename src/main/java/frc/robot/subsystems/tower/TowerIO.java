@@ -12,10 +12,10 @@ public interface TowerIO {
   /** Contains all of the input data received from hardware. */
   public static class TowerIOInputs implements LoggableInputs {
     public boolean cargoSensorsAvailable = false;
-    public boolean lowerCargoSensor1 = false;
-    public boolean lowerCargoSensor2 = false;
-    public boolean upperCargoSensor1 = false;
-    public boolean upperCargoSensor2 = false;
+    public boolean lowerCargoSensor1 = true;
+    public boolean lowerCargoSensor2 = true;
+    public boolean upperCargoSensor1 = true;
+    public boolean upperCargoSensor2 = true;
 
     public double positionRad = 0.0;
     public double velocityRadPerSec = 0.0;

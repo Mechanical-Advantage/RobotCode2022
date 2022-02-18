@@ -14,7 +14,7 @@ import frc.robot.util.Alert.AlertType;
 public class OISelector {
   private static final String overrideName = "Generic   USB  Joystick";
   private static String[] lastJoystickNames =
-      new String[] {"", "", "", "", "", ""};
+      new String[] {null, null, null, null, null, null};
   private static final Alert noOverrideWarning =
       new Alert("No override controller connected.", AlertType.INFO);
   private static final Alert noHandheldWarning =
