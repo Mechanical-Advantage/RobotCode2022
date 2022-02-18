@@ -37,6 +37,11 @@ public class Tower extends SubsystemBase {
         && (inputs.lowerCargoSensor1 == inputs.lowerCargoSensor2));
     upperDisconnectedAlert.set(inputs.cargoSensorsAvailable
         && (inputs.upperCargoSensor1 == inputs.upperCargoSensor2));
+
+    Logger.getInstance().recordOutput("Tower/LowerCargoSensor",
+        getLowerCargoSensor());
+    Logger.getInstance().recordOutput("Tower/UpperCargoSensor",
+        getUpperCargoSensor());
   }
 
   /** Run at the specified percentage. */

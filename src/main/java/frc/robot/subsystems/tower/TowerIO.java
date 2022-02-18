@@ -28,7 +28,7 @@ public interface TowerIO {
       table.put("LowerCargoSensor1", lowerCargoSensor1);
       table.put("LowerCargoSensor2", lowerCargoSensor2);
       table.put("UpperCargoSensor1", upperCargoSensor1);
-      table.put("UpperCargoSensor2", upperCargoSensor1);
+      table.put("UpperCargoSensor2", upperCargoSensor2);
 
       table.put("PositionRad", positionRad);
       table.put("VelocityRadPerSec", velocityRadPerSec);
@@ -43,7 +43,7 @@ public interface TowerIO {
       lowerCargoSensor1 =
           table.getBoolean("LowerCargoSensor1", lowerCargoSensor1);
       lowerCargoSensor2 =
-          table.getBoolean("LowerCargoSensor1", lowerCargoSensor2);
+          table.getBoolean("LowerCargoSensor2", lowerCargoSensor2);
       upperCargoSensor1 =
           table.getBoolean("UpperCargoSensor1", upperCargoSensor1);
       upperCargoSensor2 =
