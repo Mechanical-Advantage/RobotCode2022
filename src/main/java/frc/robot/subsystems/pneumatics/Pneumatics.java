@@ -18,7 +18,8 @@ import frc.robot.util.Alert.AlertType;
 
 public class Pneumatics extends SubsystemBase {
   public static final int revModuleID = 60; // CAN ID for pneumatics hub
-  private static final int averagingTaps = 40;
+  private static final int normalAveragingTaps = 25;
+  private static final int compressorAveragingTaps = 100;
 
   private final PneumaticsIO io;
   private final PneumaticsIOInputs inputs = new PneumaticsIOInputs();
@@ -47,8 +48,10 @@ public class Pneumatics extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Pneumatics", inputs);
 
-    filterData.add(inputs.pressurePsi < 0 ? 0 : inputs.pressurePsi);
-    if (filterData.size() > averagingTaps) {
+    filterData.add(inputs.pressurePsi < 0.0 ? 0.0 : inputs.pressurePsi);
+    int averagingTaps =
+        inputs.compressorActive ? compressorAveragingTaps : normalAveragingTaps;
+    while (filterData.size() > averagingTaps) {
       filterData.remove(0);
     }
     pressureSmoothedPsi = filterData.stream().mapToDouble(a -> a)
