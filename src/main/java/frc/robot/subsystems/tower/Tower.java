@@ -33,10 +33,14 @@ public class Tower extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Tower", inputs);
 
-    lowerDisconnectedAlert.set(inputs.cargoSensorsAvailable
-        && (inputs.lowerCargoSensor1 == inputs.lowerCargoSensor2));
-    upperDisconnectedAlert.set(inputs.cargoSensorsAvailable
-        && (inputs.upperCargoSensor1 == inputs.upperCargoSensor2));
+    if (inputs.cargoSensorsAvailable) {
+      if (inputs.lowerCargoSensor1 == inputs.lowerCargoSensor2) {
+        lowerDisconnectedAlert.set(true);
+      }
+      if (inputs.upperCargoSensor1 == inputs.upperCargoSensor2) {
+        upperDisconnectedAlert.set(true);
+      }
+    }
 
     Logger.getInstance().recordOutput("Tower/LowerCargoSensor",
         getLowerCargoSensor());
@@ -53,10 +57,12 @@ public class Tower extends SubsystemBase {
     runPercent(0.0);
   }
 
+  /** Returns whether the lower cargo sensor is tripped, defaults to false if disconnected. */
   public boolean getLowerCargoSensor() {
     return !inputs.lowerCargoSensor1;
   }
 
+  /** Returns whether the upper cargo sensor is tripped, defaults to false if disconnected. */
   public boolean getUpperCargoSensor() {
     return !inputs.upperCargoSensor1;
   }
