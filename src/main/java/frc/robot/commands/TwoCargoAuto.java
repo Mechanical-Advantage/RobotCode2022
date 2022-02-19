@@ -33,7 +33,7 @@ public class TwoCargoAuto extends SequentialCommandGroup {
               .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0)),
           AutoPosition.TARMAC_C,
           FieldConstants.cargoD.transformBy(new Transform2d(
-              new Translation2d(0.1, 0.0), Rotation2d.fromDegrees(-45.0))),
+              new Translation2d(0.25, 0.0), Rotation2d.fromDegrees(-45.0))),
           AutoPosition.TARMAC_D, FieldConstants.cargoE
               .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0)));
   public static final Map<AutoPosition, Pose2d> shootPositions =
@@ -42,7 +42,7 @@ public class TwoCargoAuto extends SequentialCommandGroup {
               .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0))),
           AutoPosition.TARMAC_C,
           calcAimedPose(AutoPosition.TARMAC_C.getPose()
-              .transformBy(GeomUtil.transformFromTranslation(-0.4, 0.4))),
+              .transformBy(GeomUtil.transformFromTranslation(-0.4, 0.6))),
           AutoPosition.TARMAC_D, calcAimedPose(AutoPosition.TARMAC_D.getPose()
               .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0))));
 

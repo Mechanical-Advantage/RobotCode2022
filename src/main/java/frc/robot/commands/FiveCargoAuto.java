@@ -21,9 +21,9 @@ import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.vision.Vision;
 
 public class FiveCargoAuto extends SequentialCommandGroup {
-  public static final double firstShotStationarySecs = 1.0; // How long to stay still
-  public static final double firstShotDurationSecs = 1.0; // How long to feed
-  public static final double firstShotEarlySecs = 0.0; // How long before stop to begin feeding
+  public static final double firstShotStationarySecs = 0.0; // How long to stay still
+  public static final double firstShotDurationSecs = 2.0; // How long to feed
+  public static final double firstShotEarlySecs = 0.5; // How long before stop to begin feeding
 
   public static final double secondShotStationarySecs = 0.0; // How long to stay still
   public static final double secondShotDurationSecs = 1.0; // How long to feed
@@ -32,7 +32,7 @@ public class FiveCargoAuto extends SequentialCommandGroup {
   public static final double thirdShotDurationSecs = 2.0; // How long to feed
   public static final double thirdShotEarlySecs = 1.0; // How long before stop to begin feeding
 
-  public static final double terminalWaitSecs = 0.5;
+  public static final double terminalWaitSecs = 1.5;
 
   /** Creates a new FiveCargoAuto. */
   public FiveCargoAuto(Drive drive, Vision vision, Flywheels flywheels,
@@ -75,7 +75,8 @@ public class FiveCargoAuto extends SequentialCommandGroup {
     Command driveSequence = sequence(startToFirstCargo, firstCargoToFirstShot,
         new WaitCommand(firstShotStationarySecs), firstShotToSecondCargo,
         secondCargoToSecondShot, new WaitCommand(secondShotStationarySecs),
-        secondShotToTerminal, terminalToThirdShot);
+        secondShotToTerminal, new WaitCommand(terminalWaitSecs),
+        terminalToThirdShot);
 
     // Shooting sequence, runs in parallel
     double firstShotStart = startToFirstCargo.getDuration()
