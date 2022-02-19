@@ -52,8 +52,8 @@ public class FlywheelsIOSparkMAX implements FlywheelsIO {
 
     bigMotor.setInverted(bigInvert);
     littleMotor.setInverted(littleInvert);
-    bigMotor.setSmartCurrentLimit(30);
-    littleMotor.setSmartCurrentLimit(30);
+    bigMotor.setSmartCurrentLimit(50);
+    littleMotor.setSmartCurrentLimit(40);
     bigMotor.enableVoltageCompensation(12.0);
     littleMotor.enableVoltageCompensation(12.0);
 
@@ -104,11 +104,11 @@ public class FlywheelsIOSparkMAX implements FlywheelsIO {
       double littleVelocityRadPerSec, double bigFFVolts, double littleFFVolts) {
     bigPID.setReference(
         Units.radiansPerSecondToRotationsPerMinute(bigVelocityRadPerSec)
-            / bigAfterEncoderReduction,
+            * bigAfterEncoderReduction,
         ControlType.kVelocity, 0, bigFFVolts, ArbFFUnits.kVoltage);
     littlePID.setReference(
         Units.radiansPerSecondToRotationsPerMinute(littleVelocityRadPerSec)
-            / littleAfterEncoderReduction,
+            * littleAfterEncoderReduction,
         ControlType.kVelocity, 0, littleFFVolts, ArbFFUnits.kVoltage);
   }
 

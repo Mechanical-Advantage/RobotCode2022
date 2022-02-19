@@ -28,8 +28,8 @@ public class RunTower extends CommandBase {
     this.tower = tower;
     this.up = up;
 
-    upSpeed.setDefault(1.0);
-    downSpeed.setDefault(1.0);
+    upSpeed.setDefault(0.5);
+    downSpeed.setDefault(-0.5);
   }
 
   // Called when the command is initially scheduled.

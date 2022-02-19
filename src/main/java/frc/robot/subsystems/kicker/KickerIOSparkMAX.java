@@ -36,7 +36,7 @@ public class KickerIOSparkMAX implements KickerIO {
     }
 
     motor.setInverted(invert);
-    motor.setSmartCurrentLimit(30);
+    motor.setSmartCurrentLimit(20);
     motor.enableVoltageCompensation(12.0);
 
     encoder = motor.getEncoder();

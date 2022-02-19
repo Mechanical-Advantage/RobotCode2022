@@ -49,19 +49,19 @@ public class Flywheels extends SubsystemBase {
     this.io = io;
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
-        bigMaxVelocityRpm.setDefault(2700.0);
-        bigAccelerationRpmPerSec.setDefault(1000.0);
-        bigFFModel = new SimpleMotorFeedforward(0.19112, 0.04186);
-        bigKp.setDefault(0.0);
+        bigMaxVelocityRpm.setDefault(2650.0);
+        bigAccelerationRpmPerSec.setDefault(2000.0);
+        bigFFModel = new SimpleMotorFeedforward(0.16265, 0.04284);
+        bigKp.setDefault(0.0002);
         bigKd.setDefault(0.0);
-        bigToleranceRpm.setDefault(50.0);
+        bigToleranceRpm.setDefault(200.0);
 
-        littleMaxVelocityRpm.setDefault(10200.0);
-        littleAccelerationRpmPerSec.setDefault(1000.0);
-        littleFFModel = new SimpleMotorFeedforward(0.44686, 0.01117);
-        littleKp.setDefault(0.0);
-        littleKd.setDefault(0.0);
-        littleToleranceRpm.setDefault(50.0);
+        littleMaxVelocityRpm.setDefault(9500.0);
+        littleAccelerationRpmPerSec.setDefault(4000.0);
+        littleFFModel = new SimpleMotorFeedforward(0.43513, 0.01149);
+        littleKp.setDefault(0.0002);
+        littleKd.setDefault(0.003);
+        littleToleranceRpm.setDefault(200.0);
         break;
       case ROBOT_2022P:
       case ROBOT_SIMBOT:

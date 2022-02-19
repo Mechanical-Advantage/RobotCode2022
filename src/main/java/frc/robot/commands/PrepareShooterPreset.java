@@ -38,8 +38,8 @@ public class PrepareShooterPreset extends CommandBase {
     this.hood = hood;
     this.preset = preset;
 
-    lowerFenderBigRpm.setDefault(0.0);
-    lowerFenderLitteRpm.setDefault(0.0);
+    lowerFenderBigRpm.setDefault(500.0);
+    lowerFenderLitteRpm.setDefault(1500.0);
 
     upperFenderBigRpm.setDefault(0.0);
     upperFenderLittleRpm.setDefault(0.0);

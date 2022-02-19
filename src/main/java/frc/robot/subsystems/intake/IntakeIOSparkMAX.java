@@ -59,7 +59,7 @@ public class IntakeIOSparkMAX implements IntakeIO {
     rollerMotor.enableVoltageCompensation(12.0);
 
     hopperMotor.setInverted(invertHopper);
-    hopperMotor.setSmartCurrentLimit(30);
+    hopperMotor.setSmartCurrentLimit(20);
     hopperMotor.enableVoltageCompensation(12.0);
 
     rollerMotor.setCANTimeout(0);
