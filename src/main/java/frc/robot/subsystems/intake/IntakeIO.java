@@ -34,6 +34,8 @@ public interface IntakeIO {
       table.put("RollerCurrentAmps", rollerCurrentAmps);
       table.put("RollerTempCelcius", rollerTempCelcius);
 
+      table.put("HopperPositionRad", hopperPositionRad);
+      table.put("HopperVelocityRadPerSec", hopperVelocityRadPerSec);
       table.put("HopperAppliedVolts", hopperAppliedVolts);
       table.put("HopperCurrentAmps", hopperCurrentAmps);
       table.put("HopperTempCelcius", hopperTempCelcius);
