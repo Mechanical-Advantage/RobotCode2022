@@ -41,8 +41,8 @@ public class PrepareShooterPreset extends CommandBase {
     lowerFenderBigRpm.setDefault(500.0);
     lowerFenderLitteRpm.setDefault(1500.0);
 
-    upperFenderBigRpm.setDefault(0.0);
-    upperFenderLittleRpm.setDefault(0.0);
+    upperFenderBigRpm.setDefault(1700.0);
+    upperFenderLittleRpm.setDefault(6000.0);
   }
 
   // Called when the command is initially scheduled.

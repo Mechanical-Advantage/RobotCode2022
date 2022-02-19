@@ -53,12 +53,12 @@ public class RunIntake extends CommandBase {
     this.tower = tower;
     this.kicker = kicker;
 
-    sensorDelay.setDefault(0.15);
+    sensorDelay.setDefault(0.2);
 
     rollerForwardsSpeed.setDefault(1.0);
     hopperForwardsSpeed.setDefault(1.0);
     towerForwardsSpeed.setDefault(0.5);
-    kickerForwardsSpeed.setDefault(-1.0);
+    kickerForwardsSpeed.setDefault(-0.5);
 
     rollerBackwardsSpeed.setDefault(-1.0);
     hopperBackwardsSpeed.setDefault(-1.0);

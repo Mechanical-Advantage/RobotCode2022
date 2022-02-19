@@ -109,10 +109,10 @@ public class Flywheels extends SubsystemBase {
           littleKd.get());
     }
 
-    Logger.getInstance().recordOutput("Flywheels/BigRPM", Units
-        .radiansPerSecondToRotationsPerMinute(inputs.bigVelocityRadPerSec));
-    Logger.getInstance().recordOutput("Flywheels/LittleRPM", Units
-        .radiansPerSecondToRotationsPerMinute(inputs.littleVelocityRadPerSec));
+    Logger.getInstance().recordOutput("Flywheels/BigRPM", getBigVelocity());
+    Logger.getInstance().recordOutput("Flywheels/LittleRPM",
+        getLittleVelocity());
+    Logger.getInstance().recordOutput("Flywheels/AtSetpoints", atSetpoints());
 
     if (closedLoop) {
       double bigSetpointRpm =

@@ -6,6 +6,7 @@ package frc.robot.subsystems.tower;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.tower.TowerIO.TowerIOInputs;
 import frc.robot.util.Alert;
@@ -46,6 +47,10 @@ public class Tower extends SubsystemBase {
         getLowerCargoSensor());
     Logger.getInstance().recordOutput("Tower/UpperCargoSensor",
         getUpperCargoSensor());
+
+    SmartDashboard.putBoolean("Tower/One Cargo", getUpperCargoSensor());
+    SmartDashboard.putBoolean("Tower/Two Cargo",
+        getUpperCargoSensor() && getLowerCargoSensor());
   }
 
   /** Run at the specified percentage. */

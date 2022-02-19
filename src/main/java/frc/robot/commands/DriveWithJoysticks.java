@@ -60,7 +60,7 @@ public class DriveWithJoysticks extends CommandBase {
     deadband.setDefault(0.08);
     sniperLevel.setDefault(0.5);
     maxAcceleration.setDefault(99999.0);
-    maxJerk.setDefault(60.0);
+    maxJerk.setDefault(200.0);
     curvatureThreshold.setDefault(0.15);
     curvatureArcadeTurnScale.setDefault(0.5);
   }
