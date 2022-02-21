@@ -10,6 +10,7 @@ import frc.robot.subsystems.hood.Hood.HoodState;
 
 /** Constants for the vision camera. */
 public final class VisionConstants {
+  public static final String cameraName = "limelight";
   public static final int widthPixels = 960;
   public static final int heightPixels = 720;
   public static final Rotation2d fovHorizontal = Rotation2d.fromDegrees(59.6);
