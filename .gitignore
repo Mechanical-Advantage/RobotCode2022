@@ -109,7 +109,7 @@ Temporary Items
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-!.vscode/wpilib-style.xml
+!.vscode/style.xml
 
 ### Windows ###
 # Windows thumbnail cache files

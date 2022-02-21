@@ -40,5 +40,5 @@
   "java.format.enabled": true,
   "java.format.comments.enabled": true,
   "java.format.onType.enabled": true,
-  "java.format.settings.url": ".vscode/wpilib-style.xml"
+  "java.format.settings.url": ".vscode/style.xml"
 }
