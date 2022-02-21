@@ -18,6 +18,8 @@ import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.tower.Tower;
 
 public class HPPractice extends SequentialCommandGroup {
+  private static final double terminalWaitSecs = 1.5;
+
   /** Creates a new HPPractice. */
   public HPPractice(Drive drive, Intake intake, Tower tower, Kicker kicker) {
     addCommands(new InstantCommand(intake::extend, intake),
@@ -28,7 +30,7 @@ public class HPPractice extends SequentialCommandGroup {
                         new Pose2d(new Translation2d(5.0, 0.0),
                             new Rotation2d())),
                     0.0, false),
-                new WaitCommand(FiveCargoAuto.terminalWaitSecs),
+                new WaitCommand(terminalWaitSecs),
                 new MotionProfileCommand(drive, 0.0,
                     List.of(new Pose2d(new Translation2d(5.0, 0.0),
                         new Rotation2d()), new Pose2d()),

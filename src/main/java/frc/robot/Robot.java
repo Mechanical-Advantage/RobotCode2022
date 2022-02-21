@@ -13,6 +13,7 @@ import org.littletonrobotics.junction.io.ByteLogReplay;
 import org.littletonrobotics.junction.io.LogSocketServer;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -140,6 +141,21 @@ public class Robot extends LoggedRobot {
       logOpenFileAlert.set(logReceiver.getOpenFault());
       logWriteAlert.set(logReceiver.getWriteFault());
     }
+
+    // Print auto duration
+    if (autoCommand != null) {
+      if (!autoCommand.isScheduled() && !autoMessagePrinted) {
+        if (DriverStation.isAutonomousEnabled()) {
+          System.out.println(String.format("*** Auto finished in %.2f secs ***",
+              Timer.getFPGATimestamp() - autoStart));
+        } else {
+          System.out
+              .println(String.format("*** Auto cancelled in %.2f secs ***",
+                  Timer.getFPGATimestamp() - autoStart));
+        }
+        autoMessagePrinted = true;
+      }
+    }
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -164,15 +180,7 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {
-    if (autoCommand != null) {
-      if (!autoCommand.isScheduled() && !autoMessagePrinted) {
-        System.out.println(String.format("Auto finished in %.2f secs",
-            Timer.getFPGATimestamp() - autoStart));
-        autoMessagePrinted = true;
-      }
-    }
-  }
+  public void autonomousPeriodic() {}
 
   @Override
   public void teleopInit() {

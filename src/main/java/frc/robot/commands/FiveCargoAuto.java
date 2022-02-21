@@ -8,6 +8,7 @@ import java.util.List;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.RobotContainer.AutoPosition;
@@ -29,10 +30,10 @@ public class FiveCargoAuto extends SequentialCommandGroup {
   public static final double secondShotDurationSecs = 1.0; // How long to feed
   public static final double secondShotEarlySecs = 0.5; // How long before stop to begin feeding
 
-  public static final double thirdShotDurationSecs = 2.0; // How long to feed
-  public static final double thirdShotEarlySecs = 1.0; // How long before stop to begin feeding
+  public static final double thirdShotDurationSecs = 1.0; // How long to feed
+  public static final double thirdShotEarlySecs = 0.5; // How long before stop to begin feeding
 
-  public static final double terminalWaitSecs = 1.5;
+  public static final double endTime = 14.9; // Finish routine at this time (includes some margin)
 
   /** Creates a new FiveCargoAuto. */
   public FiveCargoAuto(Drive drive, Vision vision, Flywheels flywheels,
@@ -72,6 +73,15 @@ public class FiveCargoAuto extends SequentialCommandGroup {
             0.0, true);
 
     // Full driving seqeuence, including waits
+    double terminalArrivalTime =
+        startToFirstCargo.getDuration() + firstCargoToFirstShot.getDuration()
+            + firstShotStationarySecs + firstShotToSecondCargo.getDuration()
+            + secondCargoToSecondShot.getDuration() + secondShotStationarySecs
+            + secondShotToTerminal.getDuration();
+    double terminalLeaveTime = endTime - thirdShotDurationSecs
+        + thirdShotEarlySecs - terminalToThirdShot.getDuration();
+    double terminalWaitSecs = terminalLeaveTime - terminalArrivalTime;
+    terminalWaitSecs = terminalWaitSecs < 0 ? 0 : terminalWaitSecs;
     Command driveSequence = sequence(startToFirstCargo, firstCargoToFirstShot,
         new WaitCommand(firstShotStationarySecs), firstShotToSecondCargo,
         secondCargoToSecondShot, new WaitCommand(secondShotStationarySecs),
@@ -85,12 +95,7 @@ public class FiveCargoAuto extends SequentialCommandGroup {
         startToFirstCargo.getDuration() + firstCargoToFirstShot.getDuration()
             + firstShotStationarySecs + firstShotToSecondCargo.getDuration()
             + secondCargoToSecondShot.getDuration() - secondShotEarlySecs;
-    double thirdShotStart =
-        startToFirstCargo.getDuration() + firstCargoToFirstShot.getDuration()
-            + firstShotStationarySecs + firstShotToSecondCargo.getDuration()
-            + secondCargoToSecondShot.getDuration() + secondShotStationarySecs
-            + secondShotToTerminal.getDuration() + terminalWaitSecs
-            + terminalToThirdShot.getDuration() - thirdShotEarlySecs;
+    double thirdShotStart = endTime - thirdShotDurationSecs;
     Command shootSequence = sequence(
         new RunIntake(true, intake, tower, kicker).withTimeout(firstShotStart),
         new Shoot(tower, kicker).withTimeout(firstShotDurationSecs),
@@ -103,9 +108,11 @@ public class FiveCargoAuto extends SequentialCommandGroup {
 
     // Combine all commands
     addCommands(new InstantCommand(intake::extend, intake),
-        new WaitForVision(drive),
         deadline(parallel(driveSequence, shootSequence),
             new PrepareShooterPreset(flywheels, hood,
-                ShooterPreset.UPPER_FENDER)));
+                ShooterPreset.UPPER_FENDER)),
+        new PrintCommand(String.format(
+            "*** Five cargo auto completed with %.2f sec terminal wait ***",
+            terminalWaitSecs)));
   }
 }
