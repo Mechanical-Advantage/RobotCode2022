@@ -11,6 +11,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Solenoid;
 import frc.robot.Constants;
 import frc.robot.subsystems.pneumatics.Pneumatics;
@@ -75,7 +76,8 @@ public class ClimberIOSparkMAX implements ClimberIO {
     inputs.velocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity())
             / afterEncoderReduction;
-    inputs.appliedVolts = leader.getAppliedOutput() * 12.0;
+    inputs.appliedVolts =
+        leader.getAppliedOutput() * RobotController.getBatteryVoltage();
     inputs.currentAmps = new double[] {leader.getOutputCurrent()};
     inputs.tempCelcius = new double[] {leader.getMotorTemperature()};
   }

@@ -11,6 +11,7 @@ import com.revrobotics.SparkMaxPIDController.ArbFFUnits;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
 import frc.robot.Constants;
 import frc.robot.util.SparkMAXBurnManager;
@@ -184,8 +185,10 @@ public class DriveIOSparkMAX implements DriveIO {
           Units.rotationsToRadians(rightExternalEncoder.getRate());
     }
 
-    inputs.leftAppliedVolts = leftLeader.getAppliedOutput() * 12.0;
-    inputs.rightAppliedVolts = rightLeader.getAppliedOutput() * 12.0;
+    inputs.leftAppliedVolts =
+        leftLeader.getAppliedOutput() * RobotController.getBatteryVoltage();
+    inputs.rightAppliedVolts =
+        rightLeader.getAppliedOutput() * RobotController.getBatteryVoltage();
 
     if (hasThreeControllers) {
       inputs.leftCurrentAmps = new double[] {leftLeader.getOutputCurrent(),

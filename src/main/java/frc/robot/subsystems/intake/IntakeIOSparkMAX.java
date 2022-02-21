@@ -12,6 +12,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import frc.robot.Constants;
 import frc.robot.subsystems.pneumatics.Pneumatics;
@@ -81,7 +82,8 @@ public class IntakeIOSparkMAX implements IntakeIO {
     inputs.rollerVelocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(rollerEncoder.getVelocity())
             / rollerAfterEncoderReduction;
-    inputs.rollerAppliedVolts = rollerMotor.getAppliedOutput() * 12.0;
+    inputs.rollerAppliedVolts =
+        rollerMotor.getAppliedOutput() * RobotController.getBatteryVoltage();
     inputs.rollerCurrentAmps = new double[] {rollerMotor.getOutputCurrent()};
     inputs.rollerTempCelcius = new double[] {rollerMotor.getMotorTemperature()};
 
@@ -91,7 +93,8 @@ public class IntakeIOSparkMAX implements IntakeIO {
     inputs.hopperVelocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(hopperEncoder.getVelocity())
             / hopperAfterEncoderReduction;
-    inputs.hopperAppliedVolts = hopperMotor.getAppliedOutput() * 12.0;
+    inputs.hopperAppliedVolts =
+        hopperMotor.getAppliedOutput() * RobotController.getBatteryVoltage();
     inputs.hopperCurrentAmps = new double[] {hopperMotor.getOutputCurrent()};
     inputs.hopperTempCelcius = new double[] {hopperMotor.getMotorTemperature()};
   }

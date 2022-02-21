@@ -13,6 +13,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxPIDController.ArbFFUnits;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants;
 import frc.robot.util.SparkMAXBurnManager;
 
@@ -78,7 +79,8 @@ public class FlywheelsIOSparkMAX implements FlywheelsIO {
     inputs.bigVelocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(bigEncoder.getVelocity())
             / bigAfterEncoderReduction;
-    inputs.bigAppliedVolts = bigMotor.getAppliedOutput() * 12.0;
+    inputs.bigAppliedVolts =
+        bigMotor.getAppliedOutput() * RobotController.getBatteryVoltage();
     inputs.bigCurrentAmps = new double[] {bigMotor.getOutputCurrent(),};
     inputs.bigTempCelcius = new double[] {bigMotor.getMotorTemperature(),};
 
@@ -88,7 +90,8 @@ public class FlywheelsIOSparkMAX implements FlywheelsIO {
     inputs.littleVelocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(littleEncoder.getVelocity())
             / littleAfterEncoderReduction;
-    inputs.littleAppliedVolts = littleMotor.getAppliedOutput() * 12.0;
+    inputs.littleAppliedVolts =
+        littleMotor.getAppliedOutput() * RobotController.getBatteryVoltage();
     inputs.littleCurrentAmps = new double[] {littleMotor.getOutputCurrent()};
     inputs.littleTempCelcius = new double[] {littleMotor.getMotorTemperature()};
   }

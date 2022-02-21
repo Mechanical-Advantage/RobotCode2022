@@ -11,6 +11,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants;
 import frc.robot.util.SparkMAXBurnManager;
 
@@ -72,7 +73,8 @@ public class TowerIOSparkMAX implements TowerIO {
     inputs.velocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity())
             / afterEncoderReduction;
-    inputs.appliedVolts = motor.getAppliedOutput() * 12.0;
+    inputs.appliedVolts =
+        motor.getAppliedOutput() * RobotController.getBatteryVoltage();
     inputs.currentAmps = new double[] {motor.getOutputCurrent()};
     inputs.tempCelcius = new double[] {motor.getMotorTemperature()};
   }
