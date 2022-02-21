@@ -53,6 +53,14 @@ public class DualHandheldOI implements HandheldOI {
   }
 
   @Override
+  public Trigger getLogMarkerButton() {
+    return new Trigger(driverController::getStartButton)
+        .or(new Trigger(driverController::getBackButton))
+        .or(new Trigger(operatorController::getStartButton))
+        .or(new Trigger(operatorController::getBackButton));
+  }
+
+  @Override
   public Trigger getIntakeExtendButton() {
     return new Trigger(operatorController::getRightBumper);
   }

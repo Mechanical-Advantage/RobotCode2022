@@ -39,6 +39,10 @@ public interface HandheldOI {
     return new Trigger();
   }
 
+  public default Trigger getLogMarkerButton() {
+    return new Trigger();
+  }
+
   public default Trigger getIntakeExtendButton() {
     return new Trigger();
   }
