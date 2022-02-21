@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.RobotContainer.AutoPosition;
 import frc.robot.commands.PrepareShooterPreset.ShooterPreset;
@@ -20,10 +21,11 @@ import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.util.LedSelector;
 
 public class FiveCargoAuto extends SequentialCommandGroup {
   public static final double firstShotStationarySecs = 0.0; // How long to stay still
-  public static final double firstShotDurationSecs = 2.0; // How long to feed
+  public static final double firstShotDurationSecs = 1.0; // How long to feed
   public static final double firstShotEarlySecs = 0.5; // How long before stop to begin feeding
 
   public static final double secondShotStationarySecs = 0.0; // How long to stay still
@@ -33,11 +35,12 @@ public class FiveCargoAuto extends SequentialCommandGroup {
   public static final double thirdShotDurationSecs = 1.0; // How long to feed
   public static final double thirdShotEarlySecs = 0.5; // How long before stop to begin feeding
 
+  public static final double alertEarlySecs = 0.5; // How long before terminal arrival to light LEDs
   public static final double endTime = 14.9; // Finish routine at this time (includes some margin)
 
   /** Creates a new FiveCargoAuto. */
   public FiveCargoAuto(Drive drive, Vision vision, Flywheels flywheels,
-      Hood hood, Tower tower, Kicker kicker, Intake intake) {
+      Hood hood, Tower tower, Kicker kicker, Intake intake, LedSelector leds) {
 
     // Set up motion profiles
     MotionProfileCommand startToFirstCargo =
@@ -98,17 +101,24 @@ public class FiveCargoAuto extends SequentialCommandGroup {
     double thirdShotStart = endTime - thirdShotDurationSecs;
     Command shootSequence = sequence(
         new RunIntake(true, intake, tower, kicker).withTimeout(firstShotStart),
-        new Shoot(tower, kicker).withTimeout(firstShotDurationSecs),
+        new Shoot(tower, kicker, leds).withTimeout(firstShotDurationSecs),
         new RunIntake(true, intake, tower, kicker).withTimeout(
             secondShotStart - firstShotStart - firstShotDurationSecs),
-        new Shoot(tower, kicker).withTimeout(secondShotDurationSecs),
+        new Shoot(tower, kicker, leds).withTimeout(secondShotDurationSecs),
         new RunIntake(true, intake, tower, kicker).withTimeout(
             thirdShotStart - secondShotStart - secondShotDurationSecs),
-        new Shoot(tower, kicker).withTimeout(thirdShotDurationSecs));
+        new Shoot(tower, kicker, leds).withTimeout(thirdShotDurationSecs));
+
+    // LED sequence, runs in parallel
+    double alertStart = terminalArrivalTime - alertEarlySecs;
+    double alertDuration = terminalLeaveTime - alertStart;
+    Command ledSequence = sequence(new WaitCommand(alertStart),
+        new StartEndCommand(() -> leds.setAutoAlert(true),
+            () -> leds.setAutoAlert(false)).withTimeout(alertDuration));
 
     // Combine all commands
     addCommands(new InstantCommand(intake::extend, intake),
-        deadline(parallel(driveSequence, shootSequence),
+        deadline(parallel(driveSequence, shootSequence, ledSequence),
             new PrepareShooterPreset(flywheels, hood,
                 ShooterPreset.UPPER_FENDER)),
         new PrintCommand(String.format(

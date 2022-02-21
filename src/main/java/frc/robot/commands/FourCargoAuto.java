@@ -23,6 +23,7 @@ import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.GeomUtil;
+import frc.robot.util.LedSelector;
 
 public class FourCargoAuto extends SequentialCommandGroup {
   public static final Pose2d terminalCargoPosition =
@@ -34,10 +35,10 @@ public class FourCargoAuto extends SequentialCommandGroup {
 
   /** Creates a new FourCargoAuto. */
   public FourCargoAuto(Drive drive, Vision vision, Flywheels flywheels,
-      Hood hood, Tower tower, Kicker kicker, Intake intake) {
+      Hood hood, Tower tower, Kicker kicker, Intake intake, LedSelector leds) {
     addCommands(
         new TwoCargoAuto(AutoPosition.TARMAC_D, drive, vision, flywheels, hood,
-            tower, kicker, intake),
+            tower, kicker, intake, leds),
         deadline(
             sequence(
                 sequence(
@@ -55,7 +56,7 @@ public class FourCargoAuto extends SequentialCommandGroup {
                         0.0, true)).deadlineWith(
                             new RunIntake(true, intake, tower, kicker)),
                 new WaitUntilCommand(flywheels::atSetpoints),
-                new Shoot(tower, kicker)
+                new Shoot(tower, kicker, leds)
                     .withTimeout(OneCargoAuto.shootDurationSecs)),
             new PrepareShooterPreset(flywheels, hood,
                 ShooterPreset.UPPER_FENDER)));

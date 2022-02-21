@@ -25,6 +25,7 @@ import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.GeomUtil;
+import frc.robot.util.LedSelector;
 
 public class TwoCargoAuto extends SequentialCommandGroup {
   public static final Map<AutoPosition, Pose2d> cargoPositions =
@@ -48,16 +49,16 @@ public class TwoCargoAuto extends SequentialCommandGroup {
 
   /** Creates a new TwoCargoAuto. */
   public TwoCargoAuto(AutoPosition position, Drive drive, Vision vision,
-      Flywheels flywheels, Hood hood, Tower tower, Kicker kicker,
-      Intake intake) {
+      Flywheels flywheels, Hood hood, Tower tower, Kicker kicker, Intake intake,
+      LedSelector leds) {
     this(position.getPose(), OneCargoAuto.shootDurationSecs, position, drive,
-        vision, flywheels, hood, tower, kicker, intake);
+        vision, flywheels, hood, tower, kicker, intake, leds);
   }
 
   /** Creates a new TwoCargoAuto. */
   public TwoCargoAuto(Pose2d startingPose, double shootDurationSecs,
       AutoPosition position, Drive drive, Vision vision, Flywheels flywheels,
-      Hood hood, Tower tower, Kicker kicker, Intake intake) {
+      Hood hood, Tower tower, Kicker kicker, Intake intake, LedSelector leds) {
     addCommands(deadline(
         sequence(new InstantCommand(intake::extend, intake),
             new WaitForVision(drive),
@@ -71,7 +72,7 @@ public class TwoCargoAuto extends SequentialCommandGroup {
                     0.0, true)).deadlineWith(
                         new RunIntake(true, intake, tower, kicker)),
             new WaitUntilCommand(flywheels::atSetpoints),
-            new Shoot(tower, kicker).withTimeout(shootDurationSecs)),
+            new Shoot(tower, kicker, leds).withTimeout(shootDurationSecs)),
         new PrepareShooterPreset(flywheels, hood, ShooterPreset.UPPER_FENDER)));
   }
 

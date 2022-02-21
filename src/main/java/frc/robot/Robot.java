@@ -129,6 +129,9 @@ public class Robot extends LoggedRobot {
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
 
+    // Update LED mode
+    robotContainer.updateLeds();
+
     // Log scheduled commands
     Logger.getInstance().recordOutput("ActiveCommands/Scheduler",
         NetworkTableInstance.getDefault()

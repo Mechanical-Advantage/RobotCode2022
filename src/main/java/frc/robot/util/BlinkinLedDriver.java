@@ -17,7 +17,7 @@ public class BlinkinLedDriver {
   }
 
   public void setMode(BlinkinLedMode mode) {
-    pwm.setSpeed(mode.getValue());
+    pwm.setSpeed(mode.value);
   }
 
   public static enum BlinkinLedMode {
@@ -139,10 +139,6 @@ public class BlinkinLedDriver {
 
     BlinkinLedMode(double value) {
       this.value = value;
-    }
-
-    public double getValue() {
-      return value;
     }
   }
 }
