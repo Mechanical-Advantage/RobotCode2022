@@ -5,6 +5,7 @@
 package frc.robot.oi;
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /** Class for controlling the robot with a single Xbox controller. */
@@ -36,12 +37,93 @@ public class SingleHandheldOI implements HandheldOI {
   }
 
   @Override
-  public Trigger getSniperModeButton() {
-    return new Trigger(controller::getRightBumper);
+  public Trigger getShootButton() {
+    return new Trigger(controller::getXButton);
   }
 
   @Override
   public Trigger getAutoAimButton() {
+    return new Trigger(() -> controller.getPOV() == 270);
+  }
+
+  @Override
+  public Trigger getSniperModeButton() {
+    return new Trigger(() -> controller.getPOV() == 90);
+  }
+
+  @Override
+  public Trigger getLogMarkerButton() {
+    return new Trigger(controller::getStartButton)
+        .or(new Trigger(controller::getBackButton));
+  }
+
+  @Override
+  public Trigger getIntakeExtendButton() {
+    return new Trigger(controller::getRightBumper);
+  }
+
+  @Override
+  public Trigger getIntakeRetractButton() {
     return new Trigger(controller::getLeftBumper);
+  }
+
+  @Override
+  public Trigger getIntakeForwardsButton() {
+    return new Trigger(() -> controller.getRightTriggerAxis() > 0.5);
+  }
+
+  @Override
+  public Trigger getIntakeBackwardsButton() {
+    return new Trigger(() -> controller.getLeftTriggerAxis() > 0.5);
+  }
+
+  @Override
+  public Trigger getStopFlywheelButton() {
+    return new Trigger(controller::getYButton);
+  }
+
+  @Override
+  public Trigger getStartLowerFenderButton() {
+    return new Trigger(controller::getBButton);
+  }
+
+  @Override
+  public Trigger getStartUpperFenderButton() {
+    return new Trigger(controller::getAButton);
+  }
+
+  @Override
+  public Trigger getTowerUpButton() {
+    return new Trigger(() -> controller.getPOV() == 0);
+  }
+
+  @Override
+  public Trigger getTowerDownButton() {
+    return new Trigger(() -> controller.getPOV() == 180);
+  }
+
+  @Override
+  public Trigger getClimbTop() {
+    return new Trigger(controller::getBButton);
+  }
+
+  @Override
+  public Trigger getClimbBottom() {
+    return new Trigger(controller::getAButton);
+  }
+
+  @Override
+  public double getClimbStick() {
+    return controller.getLeftY() * -1;
+  }
+
+  @Override
+  public void setDriverRumble(double percent) {
+    controller.setRumble(RumbleType.kRightRumble, percent);
+  }
+
+  @Override
+  public void setOperatorRumble(double percent) {
+    controller.setRumble(RumbleType.kRightRumble, percent);
   }
 }
