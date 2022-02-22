@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.FieldConstants;
-import frc.robot.oi.OverrideOI.VisionLEDMode;
+import frc.robot.oi.OverrideOI.VisionLedMode;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.hood.Hood.HoodState;
@@ -22,11 +22,11 @@ public class IdleHood extends CommandBase {
 
   private final Hood hood;
   private final Drive drive;
-  private final Supplier<VisionLEDMode> visionModeSupplier;
+  private final Supplier<VisionLedMode> visionModeSupplier;
 
   /** Creates a new IdleHood. */
   public IdleHood(Hood hood, Drive drive,
-      Supplier<VisionLEDMode> visionModeSupplier) {
+      Supplier<VisionLedMode> visionModeSupplier) {
     addRequirements(hood);
     this.hood = hood;
     this.drive = drive;
@@ -43,7 +43,7 @@ public class IdleHood extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (visionModeSupplier.get() == VisionLEDMode.ALWAYS_OFF) {
+    if (visionModeSupplier.get() == VisionLedMode.ALWAYS_OFF) {
       return;
     }
 

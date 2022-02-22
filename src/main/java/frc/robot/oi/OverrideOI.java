@@ -39,16 +39,16 @@ public class OverrideOI {
     return overrides.getRawButton(3);
   }
 
-  public VisionLEDMode getVisionLEDMode() {
+  public VisionLedMode getVisionLedMode() {
     if (overrides != null) {
       if (overrides.getRawButton(4)) {
-        return VisionLEDMode.ALWAYS_ON;
+        return VisionLedMode.ALWAYS_ON;
       }
       if (overrides.getRawButton(5)) {
-        return VisionLEDMode.ALWAYS_OFF;
+        return VisionLedMode.ALWAYS_OFF;
       }
     }
-    return VisionLEDMode.AUTO;
+    return VisionLedMode.AUTO;
   }
 
   public boolean getClimbMode() {
@@ -72,7 +72,7 @@ public class OverrideOI {
     return overrides.getRawButton(10);
   }
 
-  public static enum VisionLEDMode {
+  public static enum VisionLedMode {
     AUTO, ALWAYS_ON, ALWAYS_OFF
   }
 }

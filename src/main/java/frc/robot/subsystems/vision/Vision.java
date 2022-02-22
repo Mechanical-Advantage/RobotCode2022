@@ -13,14 +13,13 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FieldConstants;
 import frc.robot.VisionConstants;
 import frc.robot.VisionConstants.CameraPosition;
-import frc.robot.oi.OverrideOI.VisionLEDMode;
+import frc.robot.oi.OverrideOI.VisionLedMode;
 import frc.robot.subsystems.hood.Hood.HoodState;
 import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
 import frc.robot.util.CircleFitter;
@@ -43,7 +42,7 @@ public class Vision extends SubsystemBase {
   private final VisionIOInputs inputs = new VisionIOInputs();
 
   private double lastCaptureTimestamp = 0.0;
-  private Supplier<VisionLEDMode> modeSupplier;
+  private Supplier<VisionLedMode> modeSupplier;
   private Supplier<Boolean> climbModeSupplier;
   private Supplier<HoodState> hoodStateSupplier;
   private Consumer<TimestampedTranslation2d> translationConsumer;
@@ -58,7 +57,7 @@ public class Vision extends SubsystemBase {
     targetGraceTimer.start();
   }
 
-  public void setSuppliers(Supplier<VisionLEDMode> modeSupplier,
+  public void setSuppliers(Supplier<VisionLedMode> modeSupplier,
       Supplier<Boolean> climbModeSupplier,
       Supplier<HoodState> hoodStateSupplier) {
     this.modeSupplier = modeSupplier;

@@ -172,11 +172,11 @@ public class RobotContainer {
         () -> handheldOI.getLeftDriveY(), () -> handheldOI.getRightDriveX(),
         () -> handheldOI.getRightDriveY(),
         () -> handheldOI.getSniperModeButton().get()));
-    vision.setSuppliers(() -> overrideOI.getVisionLEDMode(),
+    vision.setSuppliers(() -> overrideOI.getVisionLedMode(),
         () -> overrideOI.getClimbMode(), hood::getState);
     vision.setTranslationConsumer(drive::addVisionMeasurement);
     hood.setDefaultCommand(
-        new IdleHood(hood, drive, () -> overrideOI.getVisionLEDMode()));
+        new IdleHood(hood, drive, () -> overrideOI.getVisionLedMode()));
 
     // Set up auto routines
     autoRoutineMap.put("Do Nothing",
