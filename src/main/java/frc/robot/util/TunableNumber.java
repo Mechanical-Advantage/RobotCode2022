@@ -43,6 +43,8 @@ public class TunableNumber {
       // This makes sure the data is on NetworkTables but will not change it
       SmartDashboard.putNumber(key,
           SmartDashboard.getNumber(key, defaultValue));
+    } else {
+      SmartDashboard.delete(key);
     }
   }
 
