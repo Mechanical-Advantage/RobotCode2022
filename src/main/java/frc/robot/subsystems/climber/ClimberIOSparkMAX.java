@@ -33,8 +33,8 @@ public class ClimberIOSparkMAX implements ClimberIO {
       case ROBOT_2022C:
         solenoid =
             new Solenoid(Pneumatics.revModuleID, PneumaticsModuleType.REVPH, 0);
-        leader = new CANSparkMax(0, MotorType.kBrushless);
-        follower = new CANSparkMax(0, MotorType.kBrushless);
+        leader = new CANSparkMax(6, MotorType.kBrushless);
+        follower = new CANSparkMax(14, MotorType.kBrushless);
         invert = false;
         invertFollower = false;
         afterEncoderReduction = 20.0 * (50.0 / 20.0);
@@ -70,7 +70,7 @@ public class ClimberIOSparkMAX implements ClimberIO {
 
   @Override
   public void updateInputs(ClimberIOInputs inputs) {
-    inputs.locked = !solenoid.get();
+    inputs.unlocked = solenoid.get();
     inputs.positionRad =
         Units.rotationsToRadians(encoder.getPosition()) / afterEncoderReduction;
     inputs.velocityRadPerSec =
@@ -94,7 +94,7 @@ public class ClimberIOSparkMAX implements ClimberIO {
   }
 
   @Override
-  public void setLocked(boolean locked) {
-    solenoid.set(!locked);
+  public void setUnlocked(boolean unlocked) {
+    solenoid.set(unlocked);
   }
 }

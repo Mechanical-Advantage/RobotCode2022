@@ -50,7 +50,7 @@ public class RunClimber extends CommandBase {
     if (openLoopSupplier.get()) {
       climber.runPercent(scaledValue);
     } else {
-      climber.setGoal(climber.getPosition() + (scaledValue
+      climber.setGoal(climber.getGoal() + (scaledValue
           * maxVelocityRadPerSec.get() * Constants.loopPeriodSecs));
     }
   }

@@ -38,8 +38,6 @@ public class Climber extends SubsystemBase {
   /** Creates a new Climber. */
   public Climber(ClimberIO io) {
     this.io = io;
-    io.setBrakeMode(true);
-
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
         positionLimitRad.setDefault(0.0);
@@ -58,6 +56,9 @@ public class Climber extends SubsystemBase {
         maxAcceleration.setDefault(0.0);
         break;
     }
+
+    io.setBrakeMode(true);
+    io.setUnlocked(false);
   }
 
   @Override
@@ -84,11 +85,9 @@ public class Climber extends SubsystemBase {
     }
 
     // Run PID controller
-    if (closedLoop) {
-      double volts = controller.calculate(inputs.positionRad - basePositionRad);
-      if (!inputs.locked) {
-        io.setVoltage(volts);
-      }
+    if (closedLoop && inputs.unlocked) {
+      double volts = controller.calculate(getPosition());
+      io.setVoltage(volts);
     }
   }
 
@@ -98,10 +97,10 @@ public class Climber extends SubsystemBase {
    * @param percent Percent of full voltage
    */
   public void runPercent(double percent) {
-    closedLoop = false;
-    if (!inputs.locked) {
+    if (inputs.unlocked) {
       io.setVoltage(percent * 12.0);
     }
+    closedLoop = false;
   }
 
   /**
@@ -110,8 +109,11 @@ public class Climber extends SubsystemBase {
    * @param positionRad Position in radians (between 0 and max height)
    */
   public void setGoal(double positionRad) {
-    closedLoop = true;
+    if (!closedLoop) {
+      controller.reset(getPosition());
+    }
     controller.setGoal(MathUtil.clamp(positionRad, 0, positionLimitRad.get()));
+    closedLoop = true;
   }
 
   /** Returns whether the climber is at the current goal */
@@ -120,6 +122,15 @@ public class Climber extends SubsystemBase {
       return controller.atGoal();
     } else {
       return false;
+    }
+  }
+
+  /** Returns the position goal in radians */
+  public double getGoal() {
+    if (closedLoop) {
+      return controller.getGoal().position;
+    } else {
+      return getPosition();
     }
   }
 
@@ -139,11 +150,11 @@ public class Climber extends SubsystemBase {
   }
 
   public void lock() {
-    io.setLocked(true);
+    io.setUnlocked(false);
     io.setVoltage(0.0);
   }
 
   public void unlock() {
-    io.setLocked(false);
+    io.setUnlocked(true);
   }
 }

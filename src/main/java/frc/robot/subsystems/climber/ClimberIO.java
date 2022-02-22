@@ -11,7 +11,7 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 public interface ClimberIO {
   /** Contains all of the input data received from hardware. */
   public static class ClimberIOInputs implements LoggableInputs {
-    public boolean locked = true;
+    public boolean unlocked = false;
     public double positionRad = 0.0;
     public double velocityRadPerSec = 0.0;
     public double appliedVolts = 0.0;
@@ -19,7 +19,7 @@ public interface ClimberIO {
     public double[] tempCelcius = new double[] {};
 
     public void toLog(LogTable table) {
-      table.put("Locked", locked);
+      table.put("Unlocked", unlocked);
       table.put("PositionRad", positionRad);
       table.put("VelocityRadPerSec", velocityRadPerSec);
       table.put("AppliedVolts", appliedVolts);
@@ -28,7 +28,7 @@ public interface ClimberIO {
     }
 
     public void fromLog(LogTable table) {
-      locked = table.getBoolean("Locked", locked);
+      unlocked = table.getBoolean("Unlocked", unlocked);
       positionRad = table.getDouble("PositionRad", positionRad);
       velocityRadPerSec =
           table.getDouble("VelocityRadPerSec", velocityRadPerSec);
@@ -48,5 +48,5 @@ public interface ClimberIO {
   public default void setBrakeMode(boolean enable) {}
 
   /** Lock or unlock pistons. */
-  public default void setLocked(boolean locked) {}
+  public default void setUnlocked(boolean unlocked) {}
 }
