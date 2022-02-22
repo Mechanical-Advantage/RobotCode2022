@@ -45,6 +45,7 @@ import frc.robot.oi.OISelector;
 import frc.robot.oi.OverrideOI;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIO;
+import frc.robot.subsystems.climber.ClimberIOSparkMAX;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveIO;
 import frc.robot.subsystems.drive.DriveIORomi;
@@ -125,6 +126,7 @@ public class RobotContainer {
           kicker = new Kicker(new KickerIOSparkMAX());
           tower = new Tower(new TowerIOSparkMAX());
           intake = new Intake(new IntakeIOSparkMAX());
+          climber = new Climber(new ClimberIOSparkMAX());
           pneumatics = new Pneumatics(new PneumaticsIOREV());
           break;
         case ROBOT_2022P:
@@ -357,14 +359,15 @@ public class RobotContainer {
         .whileActiveContinuous(new RunTower(tower, false));
 
     // *** CLIMB CONTROLS ***
-    climbMode.whenActive(climber::unlock).whenInactive(climber::lock);
+    climbMode.whileActiveContinuous(
+        new StartEndCommand(climber::unlock, climber::lock));
+    climbMode.whileActiveContinuous(new StartEndCommand(
+        () -> leds.setClimbing(true), () -> leds.setClimbing(false)));
+    climbMode.whileActiveContinuous(new RunClimber(climber,
+        handheldOI::getClimbStick, overrideOI::getClimbOpenLoop));
     climbMode.cancelWhenActive(lowerFenderCommand)
         .cancelWhenActive(upperFenderCommand)
         .cancelWhenActive(upperAutoCommand);
-    climbMode.whileActiveContinuous(new RunClimber(climber,
-        handheldOI::getClimbStick, overrideOI::getClimbOpenLoop));
-    climbMode.whileActiveContinuous(new StartEndCommand(
-        () -> leds.setClimbing(true), () -> leds.setClimbing(false)));
 
     Trigger climbClosedLoop =
         new Trigger(overrideOI::getClimbOpenLoop).negate();
@@ -376,7 +379,7 @@ public class RobotContainer {
 
   /** Called at the start of teleop to begin zeroing the climber. */
   public void resetClimber() {
-    new ResetClimber(climber).schedule();
+    // new ResetClimber(climber).schedule();
   }
 
   /** Updates the LED mode periodically. */

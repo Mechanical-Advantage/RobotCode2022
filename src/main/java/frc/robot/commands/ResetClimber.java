@@ -27,6 +27,7 @@ public class ResetClimber extends CommandBase {
     addRequirements(climber);
     this.climber = climber;
 
+    speedPercent.setDefault(-0.1);
     graceSecs.setDefault(0.25);
     velocityThresholdRadPerSec.setDefault(1.0);
   }

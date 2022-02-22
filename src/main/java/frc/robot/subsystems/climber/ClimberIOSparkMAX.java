@@ -36,7 +36,7 @@ public class ClimberIOSparkMAX implements ClimberIO {
         leader = new CANSparkMax(6, MotorType.kBrushless);
         follower = new CANSparkMax(14, MotorType.kBrushless);
         invert = false;
-        invertFollower = false;
+        invertFollower = true;
         afterEncoderReduction = 20.0 * (50.0 / 20.0);
         break;
       default:
