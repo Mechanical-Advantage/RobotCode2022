@@ -5,6 +5,7 @@
 package frc.robot.oi;
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /** Class for controlling the robot with two Xbox controllers. */
@@ -123,5 +124,15 @@ public class DualHandheldOI implements HandheldOI {
   @Override
   public double getClimbStick() {
     return operatorController.getLeftY() * -1;
+  }
+
+  @Override
+  public void setDriverRumble(double percent) {
+    driverController.setRumble(RumbleType.kRightRumble, percent);
+  }
+
+  @Override
+  public void setOperatorRumble(double percent) {
+    operatorController.setRumble(RumbleType.kRightRumble, percent);
   }
 }

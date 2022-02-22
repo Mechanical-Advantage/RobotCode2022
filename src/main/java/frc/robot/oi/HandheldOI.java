@@ -94,4 +94,8 @@ public interface HandheldOI {
   public default double getClimbStick() {
     return 0.0;
   }
+
+  public default void setDriverRumble(double percent) {}
+
+  public default void setOperatorRumble(double percent) {}
 }

@@ -316,8 +316,8 @@ public class RobotContainer {
     // *** DRIVER CONTROLS ***
     handheldOI.getAutoAimButton().whileActiveOnce(new AutoAim(drive, vision));
     Trigger flywheelsReady = new Trigger(flywheels::atSetpoints);
-    handheldOI.getShootButton().and(flywheelsReady)
-        .whileActiveContinuous(new Shoot(tower, kicker, leds));
+    handheldOI.getShootButton().and(flywheelsReady).whileActiveContinuous(
+        new Shoot(tower, kicker, leds, handheldOI::setDriverRumble));
 
     // *** OPERATOR CONTROLS ***
     Trigger climbMode = new Trigger(overrideOI::getClimbMode);
@@ -328,9 +328,11 @@ public class RobotContainer {
     handheldOI.getIntakeRetractButton().and(normalMode)
         .whenActive(intake::retract, intake);
     handheldOI.getIntakeForwardsButton().and(normalMode)
-        .whileActiveContinuous(new RunIntake(true, intake, tower, kicker));
+        .whileActiveContinuous(new RunIntake(true, intake, tower, kicker,
+            handheldOI::setOperatorRumble));
     handheldOI.getIntakeBackwardsButton().and(normalMode)
-        .whileActiveContinuous(new RunIntake(false, intake, tower, kicker));
+        .whileActiveContinuous(new RunIntake(false, intake, tower, kicker,
+            handheldOI::setOperatorRumble));
 
     Command lowerFenderCommand =
         new PrepareShooterPreset(flywheels, hood, ShooterPreset.LOWER_FENDER);

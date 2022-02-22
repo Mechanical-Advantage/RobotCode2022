@@ -4,8 +4,11 @@
 
 package frc.robot.commands;
 
+import java.util.function.Consumer;
+
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.tower.Tower;
@@ -13,22 +16,43 @@ import frc.robot.util.LedSelector;
 import frc.robot.util.TunableNumber;
 
 public class Shoot extends CommandBase {
+  private static final boolean enableRumble = true;
+  private static final TunableNumber rumblePercent =
+      new TunableNumber("Shoot/RumblePercent");
+  private static final TunableNumber rumbleDurationSecs =
+      new TunableNumber("Shoot/RumbleDuration");
 
   private static final TunableNumber towerSpeed =
-      new TunableNumber("Shooter/TowerSpeed");
+      new TunableNumber("Shoot/TowerSpeed");
   private static final TunableNumber kickerSpeed =
-      new TunableNumber("Shooter/KickerSpeed");
+      new TunableNumber("Shoot/KickerSpeed");
 
   private final Tower tower;
   private final Kicker kicker;
   private final LedSelector leds;
 
+  private final Consumer<Double> rumbleConsumer;
+  private boolean rumbleLastTripped = false;
+  private boolean rumbleActive = false;
+  private final Timer rumbleTimer = new Timer();
+
   /** Creates a new Shoot. Runs the tower and kicker to fire cargo. */
   public Shoot(Tower tower, Kicker kicker, LedSelector leds) {
+    this(tower, kicker, leds, x -> {
+    });
+  }
+
+  /** Creates a new Shoot. Runs the tower and kicker to fire cargo. */
+  public Shoot(Tower tower, Kicker kicker, LedSelector leds,
+      Consumer<Double> rumbleConsumer) {
     addRequirements(tower, kicker);
     this.tower = tower;
     this.kicker = kicker;
     this.leds = leds;
+    this.rumbleConsumer = rumbleConsumer;
+
+    rumblePercent.setDefault(0.5);
+    rumbleDurationSecs.setDefault(0.2);
 
     towerSpeed.setDefault(1.0);
     kickerSpeed.setDefault(1.0);
@@ -40,12 +64,28 @@ public class Shoot extends CommandBase {
     tower.runPercent(towerSpeed.get());
     kicker.runPercent(kickerSpeed.get());
     leds.setShooting(true);
+
+    rumbleLastTripped = tower.getUpperCargoSensor();
+    rumbleActive = false;
+    rumbleTimer.reset();
+    rumbleTimer.start();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     Logger.getInstance().recordOutput("ActiveCommands/Shoot", true);
+    boolean rumbleTripped = tower.getUpperCargoSensor();
+    if (rumbleLastTripped && !rumbleTripped && enableRumble) {
+      rumbleActive = true;
+      rumbleTimer.reset();
+    }
+    if (rumbleActive && !rumbleTimer.hasElapsed(rumbleDurationSecs.get())) {
+      rumbleConsumer.accept(rumblePercent.get());
+    } else {
+      rumbleConsumer.accept(0.0);
+    }
+    rumbleLastTripped = rumbleTripped;
   }
 
   // Called once the command ends or is interrupted.
@@ -54,6 +94,7 @@ public class Shoot extends CommandBase {
     tower.stop();
     kicker.stop();
     leds.setShooting(false);
+    rumbleTimer.stop();
   }
 
   // Returns true when the command should end.

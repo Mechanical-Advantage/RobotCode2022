@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import java.util.function.Consumer;
+
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -14,8 +16,14 @@ import frc.robot.subsystems.tower.Tower;
 import frc.robot.util.TunableNumber;
 
 public class RunIntake extends CommandBase {
-  private static final TunableNumber sensorDelay =
-      new TunableNumber("RunIntake/SensorDelay");
+  private static final boolean enableRumbleFirstCargo = true;
+  private static final boolean enableRumbleSecondCargo = true;
+  private static final TunableNumber rumblePercent =
+      new TunableNumber("RunIntake/RumblePercent");
+  private static final TunableNumber rumbleDurationSecs =
+      new TunableNumber("RunIntake/RumbleDuration");
+  private static final TunableNumber sensorStopDelay =
+      new TunableNumber("RunIntake/SensorStopDelay");
 
   private static final TunableNumber rollerForwardsSpeed =
       new TunableNumber("RunIntake/RollerForwardsSpeed");
@@ -36,14 +44,32 @@ public class RunIntake extends CommandBase {
   private final Tower tower;
   private final Kicker kicker;
 
-  private final Timer timer = new Timer();
-  boolean stopTower = false;
+  private final Consumer<Double> rumbleConsumer;
+
+  private final Timer sensorStopTimer = new Timer();
+  private boolean stopTower = false;
+
+  private boolean rumbleLastOneTripped = false;
+  private boolean rumbleLastTwoTripped = false;
+  private boolean rumbleOneActive = false;
+  private boolean rumbleTwoActive = false;
+  private final Timer rumbleOneTimer = new Timer();
+  private final Timer rumbleTwoTimer = new Timer();
 
   /**
    * Creates a new RunIntake. Runs the intake forwards or backwards, intended for operator controls.
    */
   public RunIntake(boolean forwards, Intake intake, Tower tower,
       Kicker kicker) {
+    this(forwards, intake, tower, kicker, x -> {
+    });
+  }
+
+  /**
+   * Creates a new RunIntake. Runs the intake forwards or backwards, intended for operator controls.
+   */
+  public RunIntake(boolean forwards, Intake intake, Tower tower, Kicker kicker,
+      Consumer<Double> rumbleConsumer) {
     addRequirements(intake);
     if (forwards) {
       addRequirements(tower, kicker);
@@ -52,8 +78,11 @@ public class RunIntake extends CommandBase {
     this.intake = intake;
     this.tower = tower;
     this.kicker = kicker;
+    this.rumbleConsumer = rumbleConsumer;
 
-    sensorDelay.setDefault(0.2);
+    rumblePercent.setDefault(0.5);
+    rumbleDurationSecs.setDefault(0.2);
+    sensorStopDelay.setDefault(0.2);
 
     rollerForwardsSpeed.setDefault(0.35);
     hopperForwardsSpeed.setDefault(1.0);
@@ -68,8 +97,18 @@ public class RunIntake extends CommandBase {
   @Override
   public void initialize() {
     stopTower = tower.getLowerCargoSensor() && tower.getUpperCargoSensor();
-    timer.reset();
-    timer.start();
+    sensorStopTimer.reset();
+    sensorStopTimer.start();
+
+    rumbleLastOneTripped = tower.getUpperCargoSensor();
+    rumbleLastTwoTripped =
+        tower.getLowerCargoSensor() && tower.getUpperCargoSensor();
+    rumbleOneActive = false;
+    rumbleTwoActive = false;
+    rumbleOneTimer.reset();
+    rumbleTwoTimer.reset();
+    rumbleOneTimer.start();
+    rumbleTwoTimer.start();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -84,13 +123,38 @@ public class RunIntake extends CommandBase {
       boolean sensorsTripped =
           tower.getLowerCargoSensor() && tower.getUpperCargoSensor();
       if (!sensorsTripped) {
-        timer.reset();
+        sensorStopTimer.reset();
       }
-      if (timer.hasElapsed(sensorDelay.get())) {
+      if (sensorStopTimer.hasElapsed(sensorStopDelay.get())) {
         stopTower = true;
       }
       tower.runPercent(stopTower ? 0.0 : towerForwardsSpeed.get());
       kicker.runPercent(stopTower ? 0.0 : kickerForwardsSpeed.get());
+
+      // Manage rumble
+      boolean rumbleOneTripped = tower.getUpperCargoSensor();
+      boolean rumbleTwoTripped =
+          tower.getUpperCargoSensor() && tower.getLowerCargoSensor();
+      if (rumbleOneTripped && !rumbleLastOneTripped && enableRumbleFirstCargo) {
+        rumbleOneActive = true;
+        rumbleOneTimer.reset();
+      }
+      if (rumbleTwoTripped && !rumbleLastTwoTripped
+          && enableRumbleSecondCargo) {
+        rumbleTwoActive = true;
+        rumbleTwoTimer.reset();
+      }
+      if ((rumbleOneActive
+          && !rumbleOneTimer.hasElapsed(rumbleDurationSecs.get()))
+          || (rumbleTwoActive
+              && !rumbleTwoTimer.hasElapsed(rumbleDurationSecs.get()))) {
+        rumbleConsumer.accept(rumblePercent.get());
+      } else {
+        rumbleConsumer.accept(0.0);
+      }
+      rumbleLastOneTripped = rumbleOneTripped;
+      rumbleLastTwoTripped = rumbleTwoTripped;
+
     } else {
       intake.runRollerPercent(rollerBackwardsSpeed.get());
       intake.runHopperPercent(hopperBackwardsSpeed.get());
@@ -100,7 +164,9 @@ public class RunIntake extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    timer.stop();
+    sensorStopTimer.stop();
+    rumbleOneTimer.stop();
+    rumbleTwoTimer.stop();
     intake.stop();
     tower.stop();
     kicker.stop();
