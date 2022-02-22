@@ -65,13 +65,6 @@ public class OverrideOI {
     return overrides.getRawButton(9);
   }
 
-  public boolean getAutoIndexDisable() {
-    if (overrides == null) {
-      return false;
-    }
-    return overrides.getRawButton(10);
-  }
-
   public static enum VisionLedMode {
     AUTO, ALWAYS_ON, ALWAYS_OFF
   }
