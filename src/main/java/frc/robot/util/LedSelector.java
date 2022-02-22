@@ -4,13 +4,18 @@
 
 package frc.robot.util;
 
+import java.util.function.Supplier;
+
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.util.Alert.AlertType;
 import frc.robot.util.BlinkinLedDriver.BlinkinLedMode;
 
 /** Manages the pattern of the LEDs based on robot state. */
 public class LedSelector {
+  public static final boolean testMode = false; // Select LED mode from the dashboard
+
   private static final BlinkinLedMode defaultTeleopMode =
       BlinkinLedMode.BOTH_WAVES;
   private static final BlinkinLedMode defaultAutoMode =
@@ -22,6 +27,7 @@ public class LedSelector {
       BlinkinLedMode.FIXED_CONFETTI;
 
   private final BlinkinLedDriver blinkin;
+  private Supplier<String> testModeSupplier;
 
   // Robot state tracking
   private boolean autoAlert = false;
@@ -30,13 +36,28 @@ public class LedSelector {
 
   public LedSelector(int blinkinChannel) {
     blinkin = new BlinkinLedDriver(blinkinChannel);
+
+    if (testMode) {
+      new Alert("LED test mode active, pattern must be set from the dashboard.",
+          AlertType.INFO).set(true);
+    }
+  }
+
+  public void setTestModeSupplier(Supplier<String> testModeSupplier) {
+    this.testModeSupplier = testModeSupplier;
   }
 
   /** Updates the current LED mode based on robot state. */
   public void update() {
     if (DriverStation.isEnabled()) {
       BlinkinLedMode mode;
-      if (autoAlert) {
+      if (testMode) {
+        try {
+          mode = BlinkinLedMode.valueOf(testModeSupplier.get());
+        } catch (IllegalArgumentException e) {
+          mode = BlinkinLedMode.SOLID_BLACK;
+        }
+      } else if (autoAlert) {
         mode = autoAlertMode;
       } else if (shooting) {
         mode = shootingMode;

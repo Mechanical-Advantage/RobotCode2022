@@ -5,6 +5,8 @@
 package frc.robot.util;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.Logger;
@@ -13,6 +15,7 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.BlinkinLedDriver.BlinkinLedMode;
 
 /** Manages all SendableChoosers, including replaying values without NT. */
 public class LoggedChoosers extends SubsystemBase {
@@ -20,6 +23,8 @@ public class LoggedChoosers extends SubsystemBase {
   private final SendableChooser<String> joystickModeChooser =
       new SendableChooser<String>();
   private final SendableChooser<String> autoRoutineChooser =
+      new SendableChooser<String>();
+  private final SendableChooser<String> ledTestModeChooser =
       new SendableChooser<String>();
 
   private final ChooserData data = new ChooserData();
@@ -42,6 +47,12 @@ public class LoggedChoosers extends SubsystemBase {
 
     SmartDashboard.putData("Joystick Mode", joystickModeChooser);
     SmartDashboard.putData("Auto Routine", autoRoutineChooser);
+
+    if (LedSelector.testMode) {
+      addOptions(ledTestModeChooser, Stream.of(BlinkinLedMode.values())
+          .map(BlinkinLedMode::toString).collect(Collectors.toList()));
+      SmartDashboard.putData("LED Test Mode", ledTestModeChooser);
+    }
   }
 
   /** Adds a set of options to a SendableChooser. */
@@ -62,17 +73,20 @@ public class LoggedChoosers extends SubsystemBase {
   private static class ChooserData implements LoggableInputs {
     public String joystickMode = "";
     public String autoRoutine = "";
+    public String ledTestMode = "";
 
     @Override
     public void toLog(LogTable table) {
       table.put("JoystickMode", joystickMode);
       table.put("AutoRoutine", autoRoutine);
+      table.put("LedTestMode", ledTestMode);
     }
 
     @Override
     public void fromLog(LogTable table) {
       joystickMode = table.getString("JoystickMode", joystickMode);
       autoRoutine = table.getString("AutoRoutine", autoRoutine);
+      ledTestMode = table.getString("LedTestMode", ledTestMode);
     }
   }
 
@@ -82,6 +96,9 @@ public class LoggedChoosers extends SubsystemBase {
     if (!Logger.getInstance().hasReplaySource()) {
       data.joystickMode = joystickModeChooser.getSelected();
       data.autoRoutine = autoRoutineChooser.getSelected();
+      if (LedSelector.testMode) {
+        data.ledTestMode = ledTestModeChooser.getSelected();
+      }
     }
     Logger.getInstance().processInputs("Choosers", data);
   }
@@ -92,5 +109,9 @@ public class LoggedChoosers extends SubsystemBase {
 
   public String getAutoRoutine() {
     return data.autoRoutine;
+  }
+
+  public String getLedTestMode() {
+    return data.ledTestMode;
   }
 }
