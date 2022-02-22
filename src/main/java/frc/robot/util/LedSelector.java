@@ -17,12 +17,14 @@ public class LedSelector {
   public static final boolean testMode = false; // Select LED mode from the dashboard
 
   private static final BlinkinLedMode defaultTeleopMode =
-      BlinkinLedMode.BOTH_WAVES;
+      BlinkinLedMode.SOLID_BLACK;
   private static final BlinkinLedMode defaultAutoMode =
-      BlinkinLedMode.BOTH_BEATS;
+      BlinkinLedMode.BOTH_WAVES;
   private static final BlinkinLedMode autoAlertMode = BlinkinLedMode.SOLID_LIME;
   private static final BlinkinLedMode shootingMode =
       BlinkinLedMode.FIXED_CHASE_BLUE;
+  private static final BlinkinLedMode towerFullMode =
+      BlinkinLedMode.FIXED_STROBE_WHITE;
   private static final BlinkinLedMode climbingMode =
       BlinkinLedMode.FIXED_CONFETTI;
 
@@ -32,6 +34,7 @@ public class LedSelector {
   // Robot state tracking
   private boolean autoAlert = false;
   private boolean shooting = false;
+  private boolean towerFull = false;
   private boolean climbing = false;
 
   public LedSelector(int blinkinChannel) {
@@ -61,6 +64,8 @@ public class LedSelector {
         mode = autoAlertMode;
       } else if (shooting) {
         mode = shootingMode;
+      } else if (towerFull) {
+        mode = towerFullMode;
       } else if (climbing) {
         mode = climbingMode;
       } else if (DriverStation.isAutonomous()) {
@@ -79,6 +84,10 @@ public class LedSelector {
 
   public void setShooting(boolean active) {
     shooting = active;
+  }
+
+  public void setTowerFull(boolean active) {
+    towerFull = active;
   }
 
   public void setClimbing(boolean active) {

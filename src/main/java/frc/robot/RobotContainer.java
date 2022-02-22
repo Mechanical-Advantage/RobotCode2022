@@ -177,6 +177,8 @@ public class RobotContainer {
     vision.setTranslationConsumer(drive::addVisionMeasurement);
     hood.setDefaultCommand(
         new IdleHood(hood, drive, () -> overrideOI.getVisionLedMode()));
+    tower.setLeds(leds);
+    tower.setOverride(() -> overrideOI.getCargoSensorDisable());
     leds.setTestModeSupplier(() -> choosers.getLedTestMode());
 
     // Set up auto routines

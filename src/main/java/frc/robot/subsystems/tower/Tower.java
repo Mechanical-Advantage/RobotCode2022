@@ -4,12 +4,15 @@
 
 package frc.robot.subsystems.tower;
 
+import java.util.function.Supplier;
+
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.tower.TowerIO.TowerIOInputs;
 import frc.robot.util.Alert;
+import frc.robot.util.LedSelector;
 import frc.robot.util.Alert.AlertType;
 
 public class Tower extends SubsystemBase {
@@ -23,10 +26,21 @@ public class Tower extends SubsystemBase {
       new Alert("Invalid data from upper cargo sensor. Is is connected?",
           AlertType.ERROR);
 
+  private LedSelector leds;
+  private Supplier<Boolean> cargoSensorDisableSupplier = () -> false;
+
   /** Creates a new Tower. */
   public Tower(TowerIO io) {
     this.io = io;
     io.setBrakeMode(false);
+  }
+
+  public void setLeds(LedSelector leds) {
+    this.leds = leds;
+  }
+
+  public void setOverride(Supplier<Boolean> cargoSensorDisableSupplier) {
+    this.cargoSensorDisableSupplier = cargoSensorDisableSupplier;
   }
 
   @Override
@@ -51,6 +65,7 @@ public class Tower extends SubsystemBase {
     SmartDashboard.putBoolean("Tower/One Cargo", getUpperCargoSensor());
     SmartDashboard.putBoolean("Tower/Two Cargo",
         getUpperCargoSensor() && getLowerCargoSensor());
+    leds.setTowerFull(getUpperCargoSensor() && getLowerCargoSensor());
   }
 
   /** Run at the specified percentage. */
@@ -64,11 +79,11 @@ public class Tower extends SubsystemBase {
 
   /** Returns whether the lower cargo sensor is tripped, defaults to false if disconnected. */
   public boolean getLowerCargoSensor() {
-    return !inputs.lowerCargoSensor1;
+    return !cargoSensorDisableSupplier.get() && !inputs.lowerCargoSensor1;
   }
 
   /** Returns whether the upper cargo sensor is tripped, defaults to false if disconnected. */
   public boolean getUpperCargoSensor() {
-    return !inputs.upperCargoSensor1;
+    return !cargoSensorDisableSupplier.get() && !inputs.upperCargoSensor1;
   }
 }
