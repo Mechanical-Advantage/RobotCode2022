@@ -6,6 +6,7 @@ package frc.robot.subsystems.hood;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.hood.HoodIO.HoodIOInputs;
@@ -17,6 +18,7 @@ public class Hood extends SubsystemBase {
   private final HoodIOInputs inputs = new HoodIOInputs();
 
   private final Timer movingTimer = new Timer();
+  private HoodState currentState = HoodState.UNKNOWN;
 
   /** Creates a new Kicker. */
   public Hood(HoodIO io) {
@@ -30,10 +32,18 @@ public class Hood extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Hood", inputs);
+
+    // State is unknown when the robot is disabled
+    if (DriverStation.isEnabled()) {
+      currentState = inputs.raised ? HoodState.RAISED : HoodState.LOWER;
+    }
+
+    Logger.getInstance().recordOutput("HoodState", getState().toString());
   }
 
   public void setRaised(boolean raised) {
-    if (raised != inputs.raised) {
+    HoodState newState = raised ? HoodState.RAISED : HoodState.LOWER;
+    if (newState != currentState) {
       io.setRaised(raised);
       movingTimer.reset();
     }
@@ -43,10 +53,10 @@ public class Hood extends SubsystemBase {
     if (!movingTimer.hasElapsed(moveTimeSecs)) {
       return HoodState.MOVING;
     }
-    return inputs.raised ? HoodState.RAISED : HoodState.LOWER;
+    return currentState;
   }
 
   public static enum HoodState {
-    LOWER, RAISED, MOVING
+    LOWER, RAISED, MOVING, UNKNOWN
   }
 }

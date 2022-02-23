@@ -124,7 +124,7 @@ public class Vision extends SubsystemBase {
     // Get camera constants
     CameraPosition cameraPosition =
         VisionConstants.getCameraPosition(hoodStateSupplier.get());
-    if (cameraPosition == null) { // Hood is moving, don't process frame
+    if (cameraPosition == null) { // Hood is moving or unknown, don't process frame
       return;
     }
 

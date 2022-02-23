@@ -55,10 +55,10 @@ public class IdleHood extends CommandBase {
     double distance =
         drive.getPose().getTranslation().getDistance(FieldConstants.hubCenter);
     boolean shouldRaise;
-    if (hoodState == HoodState.LOWER) {
-      shouldRaise = distance > farThresholdMeters.get();
-    } else {
+    if (hoodState == HoodState.RAISED) {
       shouldRaise = distance > nearThresholdMeters.get();
+    } else {
+      shouldRaise = distance > farThresholdMeters.get();
     }
     hood.setRaised(shouldRaise);
   }
