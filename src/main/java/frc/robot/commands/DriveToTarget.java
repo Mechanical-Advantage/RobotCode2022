@@ -1,0 +1,144 @@
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
+
+package frc.robot.commands;
+
+import java.util.function.Supplier;
+
+import org.littletonrobotics.junction.Logger;
+
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants;
+import frc.robot.FieldConstants;
+import frc.robot.commands.DriveWithJoysticks.AxisProcessor;
+import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.util.GeomUtil;
+import frc.robot.util.TunableNumber;
+
+public class DriveToTarget extends CommandBase {
+  private final Drive drive;
+  private final Vision vision;
+  private final Supplier<Double> speedSupplier;
+
+  private static final TunableNumber convergenceFactor =
+      new TunableNumber("DriveToTarget/ConvergenceFactor");
+  private static final TunableNumber maxAngularSpeed =
+      new TunableNumber("DriveToTarget/MaxAngularSpeed");
+  private static final TunableNumber kP = new TunableNumber("DriveToTarget/kP");
+  private static final TunableNumber kD = new TunableNumber("DriveToTarget/kD");
+
+  private final AxisProcessor axisProcessor = new AxisProcessor();
+  private final PIDController angularController =
+      new PIDController(0.0, 0.0, 0.0);
+  private Rotation2d closestRotation = new Rotation2d();
+
+  private static final Pose2d[] fenderPoses =
+      new Pose2d[] {FieldConstants.fenderA, FieldConstants.fenderB,
+          FieldConstants.fenderC, FieldConstants.fenderD};
+
+  /** Creates a new DriveToTarget. */
+  public DriveToTarget(Drive drive, Vision vision,
+      Supplier<Double> speedSupplier) {
+    addRequirements(drive, vision);
+    this.drive = drive;
+    this.vision = vision;
+    this.speedSupplier = speedSupplier;
+    angularController.enableContinuousInput(-180.0, 180.0);
+
+    convergenceFactor.setDefault(0.75);
+    switch (Constants.getRobot()) {
+      case ROBOT_2022C:
+      case ROBOT_2022P:
+        maxAngularSpeed.setDefault(0.25);
+        kP.setDefault(0.01);
+        kD.setDefault(0.0);
+        break;
+      case ROBOT_SIMBOT:
+        maxAngularSpeed.setDefault(0.25);
+        kP.setDefault(0.1);
+        kD.setDefault(0.0);
+        break;
+      default:
+        maxAngularSpeed.setDefault(0.0);
+        kP.setDefault(0.0);
+        kD.setDefault(0.0);
+    }
+  }
+
+  // Called when the command is initially scheduled.
+  @Override
+  public void initialize() {
+    axisProcessor.reset(speedSupplier.get());
+    angularController.reset();
+    vision.setForceLeds(true);
+
+    // Find closest rotation
+    double closestDistance = Double.POSITIVE_INFINITY;
+    for (Pose2d i : fenderPoses) {
+      double distance =
+          i.getTranslation().getDistance(drive.getPose().getTranslation());
+      if (distance < closestDistance) {
+        closestRotation = i.getRotation();
+        closestDistance = distance;
+      }
+    }
+  }
+
+  // Called every time the scheduler runs while the command is scheduled.
+  @Override
+  public void execute() {
+    // Find target rotation w/ intermediate point
+    double linearSpeed = axisProcessor.process(speedSupplier.get());
+    Translation2d intermediatePoint = getIntermediatePoint(drive.getPose());
+    Rotation2d targetRotation = GeomUtil
+        .direction(intermediatePoint.minus(drive.getPose().getTranslation()));
+    Logger.getInstance().recordOutput("Odometry/DriveToTargetPoint",
+        new double[] {intermediatePoint.getX(), intermediatePoint.getY(), 0.0});
+
+    // Update PID gains
+    if (kP.hasChanged()) {
+      angularController.setP(kP.get());
+    }
+    if (kD.hasChanged()) {
+      angularController.setP(kD.get());
+    }
+
+    // Run angular controller
+    angularController.setSetpoint(targetRotation.getDegrees());
+    double angularSpeed = angularController.calculate(
+        drive.getRotation().plus(Rotation2d.fromDegrees(180.0)).getDegrees());
+    angularSpeed = MathUtil.clamp(angularSpeed, -maxAngularSpeed.get(),
+        maxAngularSpeed.get());
+    drive.drivePercent(linearSpeed - angularSpeed, linearSpeed + angularSpeed);
+  }
+
+  private Translation2d getIntermediatePoint(Pose2d robotPose) {
+    double centerDistance =
+        FieldConstants.hubCenter.getDistance(robotPose.getTranslation());
+    Pose2d intermediatePose =
+        new Pose2d(FieldConstants.hubCenter, closestRotation)
+            .transformBy(GeomUtil.transformFromTranslation(
+                centerDistance * convergenceFactor.get(), 0.0));
+    return intermediatePose.getTranslation();
+  }
+
+  // Called once the command ends or is interrupted.
+  @Override
+  public void end(boolean interrupted) {
+    drive.stop();
+    vision.setForceLeds(false);
+  }
+
+  // Returns true when the command should end.
+  @Override
+  public boolean isFinished() {
+    return false;
+  }
+}

@@ -67,7 +67,12 @@ public class DriveWithJoysticks extends CommandBase {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    leftXProcessor.reset(leftXSupplier.get());
+    leftYProcessor.reset(leftYSupplier.get());
+    rightXProcessor.reset(rightXSupplier.get());
+    rightYProcessor.reset(rightYSupplier.get());
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -157,8 +162,12 @@ public class DriveWithJoysticks extends CommandBase {
   }
 
   /** Cleans up a series of axis value (deadband + squaring + profile) */
-  private static class AxisProcessor {
+  public static class AxisProcessor {
     private TrapezoidProfile.State state = new TrapezoidProfile.State();
+
+    public void reset(double value) {
+      state = new TrapezoidProfile.State(value, 0.0);
+    }
 
     public double process(double value) {
       double scaledValue = 0.0;

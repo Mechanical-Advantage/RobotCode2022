@@ -57,6 +57,10 @@ public final class FieldConstants {
       referenceARotation.rotateBy(Rotation2d.fromDegrees(360.0 / 16.0));
   public static final Rotation2d fenderBRotation =
       fenderARotation.rotateBy(Rotation2d.fromDegrees(90.0));
+  public static final Rotation2d fenderCRotation =
+      fenderBRotation.rotateBy(Rotation2d.fromDegrees(90.0));
+  public static final Rotation2d fenderDRotation =
+      fenderCRotation.rotateBy(Rotation2d.fromDegrees(90.0));
 
   // Reference points (centered of the sides of the tarmac if they formed a complete octagon, plus
   // edges of fender)
@@ -77,6 +81,12 @@ public final class FieldConstants {
           GeomUtil.transformFromTranslation(hubSquareLength / 2.0, 0.0));
   public static final Pose2d fenderB =
       new Pose2d(hubCenter, fenderBRotation).transformBy(
+          GeomUtil.transformFromTranslation(hubSquareLength / 2.0, 0.0));
+  public static final Pose2d fenderC =
+      new Pose2d(hubCenter, fenderCRotation).transformBy(
+          GeomUtil.transformFromTranslation(hubSquareLength / 2.0, 0.0));
+  public static final Pose2d fenderD =
+      new Pose2d(hubCenter, fenderDRotation).transformBy(
           GeomUtil.transformFromTranslation(hubSquareLength / 2.0, 0.0));
 
   // Cargo points

@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Mode;
-import frc.robot.commands.AutoAim;
+import frc.robot.commands.DriveToTarget;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FiveCargoAuto;
@@ -319,7 +319,8 @@ public class RobotContainer {
         () -> Logger.getInstance().recordOutput("Marker", true)));
 
     // *** DRIVER CONTROLS ***
-    handheldOI.getAutoAimButton().whileActiveOnce(new AutoAim(drive, vision));
+    handheldOI.getAutoAimButton().whileActiveContinuous(
+        new DriveToTarget(drive, vision, handheldOI::getLeftDriveY));
     Trigger flywheelsReady = new Trigger(flywheels::atSetpoints);
     handheldOI.getShootButton().and(flywheelsReady).whileActiveContinuous(
         new Shoot(tower, kicker, leds, handheldOI::setDriverRumble));
