@@ -23,6 +23,7 @@ import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FiveCargoAuto;
 import frc.robot.commands.FourCargoAuto;
+import frc.robot.commands.FourCargoAutoCross;
 import frc.robot.commands.HPPractice;
 import frc.robot.commands.IdleHood;
 import frc.robot.commands.OneCargoAuto;
@@ -188,9 +189,12 @@ public class RobotContainer {
     autoRoutineMap.put("Five cargo (TD)",
         new AutoRoutine(AutoPosition.TARMAC_D, new FiveCargoAuto(drive, vision,
             flywheels, hood, tower, kicker, intake, leds)));
-    autoRoutineMap.put("Four cargo (TD)",
+    autoRoutineMap.put("Four cargo, standard (TD)",
         new AutoRoutine(AutoPosition.TARMAC_D, new FourCargoAuto(drive, vision,
             flywheels, hood, tower, kicker, intake, leds)));
+    autoRoutineMap.put("Four cargo, cross field (TA)",
+        new AutoRoutine(AutoPosition.TARMAC_A, new FourCargoAutoCross(drive,
+            vision, flywheels, hood, tower, kicker, intake, leds)));
     autoRoutineMap.put("Three cargo (TD)",
         new AutoRoutine(AutoPosition.TARMAC_D, new ThreeCargoAuto(drive, vision,
             flywheels, hood, tower, kicker, intake, leds)));

@@ -43,7 +43,7 @@ public class DriveToTarget extends CommandBase {
       new Pose2d[] {FieldConstants.fenderA, FieldConstants.fenderB,
           FieldConstants.fenderC, FieldConstants.fenderD};
 
-  /** Creates a new DriveToTarget. */
+  /** Creates a new DriveToTarget. Guides the driver to a fender using odometry data. */
   public DriveToTarget(Drive drive, Vision vision,
       Supplier<Double> speedSupplier) {
     addRequirements(drive, vision);
@@ -99,8 +99,6 @@ public class DriveToTarget extends CommandBase {
     Translation2d intermediatePoint = getIntermediatePoint(drive.getPose());
     Rotation2d targetRotation = GeomUtil
         .direction(intermediatePoint.minus(drive.getPose().getTranslation()));
-    Logger.getInstance().recordOutput("Odometry/DriveToTargetPoint",
-        new double[] {intermediatePoint.getX(), intermediatePoint.getY(), 0.0});
 
     // Update PID gains
     if (kP.hasChanged()) {
@@ -117,6 +115,12 @@ public class DriveToTarget extends CommandBase {
     angularSpeed = MathUtil.clamp(angularSpeed, -maxAngularSpeed.get(),
         maxAngularSpeed.get());
     drive.drivePercent(linearSpeed - angularSpeed, linearSpeed + angularSpeed);
+
+    // Log data
+    Logger.getInstance().recordOutput("ActiveCommands/DriveToTarget", true);
+    Logger.getInstance().recordOutput("Odometry/DriveToTargetPoint",
+        new double[] {intermediatePoint.getX(), intermediatePoint.getY(),
+            closestRotation.getRadians()});
   }
 
   private Translation2d getIntermediatePoint(Pose2d robotPose) {

@@ -16,7 +16,7 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.LedSelector;
 
 public class OneCargoAuto extends SequentialCommandGroup {
-  public static final double shootDurationSecs = 2.0;
+  public static final double shootDurationSecs = 1.5;
 
   /** Creates a new OneCargoAuto. */
   public OneCargoAuto(boolean longTaxi, Drive drive, Vision vision,
