@@ -54,7 +54,7 @@ public class Shoot extends CommandBase {
     rumblePercent.setDefault(0.5);
     rumbleDurationSecs.setDefault(0.2);
 
-    towerSpeed.setDefault(1.0);
+    towerSpeed.setDefault(0.6);
     kickerSpeed.setDefault(1.0);
   }
 
