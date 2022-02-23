@@ -334,10 +334,10 @@ public class RobotContainer {
     handheldOI.getIntakeRetractButton().and(normalMode)
         .whenActive(intake::retract, intake);
     handheldOI.getIntakeForwardsButton().and(normalMode)
-        .whileActiveContinuous(new RunIntake(true, intake, tower, kicker,
+        .whileActiveContinuous(new RunIntake(true, intake, tower, kicker, leds,
             handheldOI::setOperatorRumble));
     handheldOI.getIntakeBackwardsButton().and(normalMode)
-        .whileActiveContinuous(new RunIntake(false, intake, tower, kicker,
+        .whileActiveContinuous(new RunIntake(false, intake, tower, kicker, leds,
             handheldOI::setOperatorRumble));
 
     Command lowerFenderCommand =

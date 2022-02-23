@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.tower.Tower;
+import frc.robot.util.LedSelector;
 import frc.robot.util.TunableNumber;
 
 public class RunIntake extends CommandBase {
@@ -43,6 +44,7 @@ public class RunIntake extends CommandBase {
   private final Intake intake;
   private final Tower tower;
   private final Kicker kicker;
+  private final LedSelector leds;
 
   private final Consumer<Double> rumbleConsumer;
 
@@ -59,9 +61,9 @@ public class RunIntake extends CommandBase {
   /**
    * Creates a new RunIntake. Runs the intake forwards or backwards, intended for operator controls.
    */
-  public RunIntake(boolean forwards, Intake intake, Tower tower,
-      Kicker kicker) {
-    this(forwards, intake, tower, kicker, x -> {
+  public RunIntake(boolean forwards, Intake intake, Tower tower, Kicker kicker,
+      LedSelector leds) {
+    this(forwards, intake, tower, kicker, leds, x -> {
     });
   }
 
@@ -69,7 +71,7 @@ public class RunIntake extends CommandBase {
    * Creates a new RunIntake. Runs the intake forwards or backwards, intended for operator controls.
    */
   public RunIntake(boolean forwards, Intake intake, Tower tower, Kicker kicker,
-      Consumer<Double> rumbleConsumer) {
+      LedSelector leds, Consumer<Double> rumbleConsumer) {
     addRequirements(intake);
     if (forwards) {
       addRequirements(tower, kicker);
@@ -78,6 +80,7 @@ public class RunIntake extends CommandBase {
     this.intake = intake;
     this.tower = tower;
     this.kicker = kicker;
+    this.leds = leds;
     this.rumbleConsumer = rumbleConsumer;
 
     rumblePercent.setDefault(0.5);
@@ -96,6 +99,7 @@ public class RunIntake extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    leds.setIntaking(true);
     stopTower = tower.getLowerCargoSensor() && tower.getUpperCargoSensor();
     sensorStopTimer.reset();
     sensorStopTimer.start();
@@ -164,6 +168,7 @@ public class RunIntake extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    leds.setIntaking(false);
     sensorStopTimer.stop();
     rumbleOneTimer.stop();
     rumbleTwoTimer.stop();

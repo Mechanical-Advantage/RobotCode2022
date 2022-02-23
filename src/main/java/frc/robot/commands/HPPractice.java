@@ -44,6 +44,6 @@ public class HPPractice extends SequentialCommandGroup {
                 new StartEndCommand(() -> leds.setAutoAlert(true),
                     () -> leds.setAutoAlert(false)).withTimeout(
                         FiveCargoAuto.alertEarlySecs + terminalWaitSecs)),
-            new RunIntake(true, intake, tower, kicker)));
+            new RunIntake(true, intake, tower, kicker, leds)));
   }
 }

@@ -19,14 +19,15 @@ public class LedSelector {
   private static final BlinkinLedMode defaultTeleopMode =
       BlinkinLedMode.SOLID_BLACK;
   private static final BlinkinLedMode defaultAutoMode =
-      BlinkinLedMode.BOTH_WAVES;
-  private static final BlinkinLedMode autoAlertMode = BlinkinLedMode.SOLID_LIME;
-  private static final BlinkinLedMode shootingMode =
-      BlinkinLedMode.FIXED_CHASE_BLUE;
+      BlinkinLedMode.TWO_HEARTBEAT_FAST;
+  private static final BlinkinLedMode autoAlertMode =
+      BlinkinLedMode.SOLID_GREEN;
+  private static final BlinkinLedMode shootingMode = BlinkinLedMode.ONE_STROBE;
   private static final BlinkinLedMode towerFullMode =
-      BlinkinLedMode.FIXED_STROBE_WHITE;
+      BlinkinLedMode.SOLID_GREEN;
+  private static final BlinkinLedMode intakingMode = BlinkinLedMode.SOLID_BLUE;
   private static final BlinkinLedMode climbingMode =
-      BlinkinLedMode.FIXED_CONFETTI;
+      BlinkinLedMode.FIXED_RAINBOW_PARTY;
 
   private final BlinkinLedDriver blinkin;
   private Supplier<String> testModeSupplier;
@@ -35,6 +36,7 @@ public class LedSelector {
   private boolean autoAlert = false;
   private boolean shooting = false;
   private boolean towerFull = false;
+  private boolean intaking = false;
   private boolean climbing = false;
 
   public LedSelector(int blinkinChannel) {
@@ -64,8 +66,10 @@ public class LedSelector {
         mode = autoAlertMode;
       } else if (shooting) {
         mode = shootingMode;
-      } else if (towerFull) {
+      } else if (towerFull && DriverStation.isTeleop()) {
         mode = towerFullMode;
+      } else if (intaking && DriverStation.isTeleop()) {
+        mode = intakingMode;
       } else if (climbing) {
         mode = climbingMode;
       } else if (DriverStation.isAutonomous()) {
@@ -88,6 +92,10 @@ public class LedSelector {
 
   public void setTowerFull(boolean active) {
     towerFull = active;
+  }
+
+  public void setIntaking(boolean active) {
+    intaking = active;
   }
 
   public void setClimbing(boolean active) {

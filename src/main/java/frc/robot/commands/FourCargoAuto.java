@@ -54,7 +54,7 @@ public class FourCargoAuto extends SequentialCommandGroup {
                             TwoCargoAuto.shootPositions
                                 .get(AutoPosition.TARMAC_C)),
                         0.0, true)).deadlineWith(
-                            new RunIntake(true, intake, tower, kicker)),
+                            new RunIntake(true, intake, tower, kicker, leds)),
                 new WaitUntilCommand(flywheels::atSetpoints),
                 new Shoot(tower, kicker, leds)
                     .withTimeout(OneCargoAuto.shootDurationSecs)),
