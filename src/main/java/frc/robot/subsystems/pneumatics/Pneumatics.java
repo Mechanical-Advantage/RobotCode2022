@@ -21,7 +21,7 @@ public class Pneumatics extends SubsystemBase {
   public static final int revModuleID = 60; // CAN ID for pneumatics hub
   private static final int normalAveragingTaps = 25;
   private static final int compressorAveragingTaps = 50;
-  private static final double compressorRatePsiPerSec = 3.0;
+  private static final double compressorRatePsiPerSec = 1.5;
 
   private final PneumaticsIO io;
   private final PneumaticsIOInputs inputs = new PneumaticsIOInputs();
