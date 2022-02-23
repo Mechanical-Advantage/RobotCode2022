@@ -18,7 +18,8 @@ public class Hood extends SubsystemBase {
   private final HoodIOInputs inputs = new HoodIOInputs();
 
   private final Timer movingTimer = new Timer();
-  private HoodState currentState = HoodState.UNKNOWN;
+  private boolean resetComplete = false; // Reset on first enable
+  private boolean raised = false;
 
   /** Creates a new Kicker. */
   public Hood(HoodIO io) {
@@ -33,19 +34,21 @@ public class Hood extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Hood", inputs);
 
-    // State is unknown when the robot is disabled
-    if (DriverStation.isEnabled()) {
-      currentState = inputs.raised ? HoodState.RAISED : HoodState.LOWER;
+    // Start moving timer on first reset
+    if (DriverStation.isEnabled() && !resetComplete) {
+      movingTimer.reset();
+      resetComplete = true;
     }
 
+    // Log current state
     Logger.getInstance().recordOutput("HoodState", getState().toString());
   }
 
   public void setRaised(boolean raised) {
-    HoodState newState = raised ? HoodState.RAISED : HoodState.LOWER;
-    if (newState != currentState) {
+    if (raised != this.raised && DriverStation.isEnabled()) {
       io.setRaised(raised);
       movingTimer.reset();
+      this.raised = raised;
     }
   }
 
@@ -53,7 +56,10 @@ public class Hood extends SubsystemBase {
     if (!movingTimer.hasElapsed(moveTimeSecs)) {
       return HoodState.MOVING;
     }
-    return currentState;
+    if (!resetComplete) {
+      return HoodState.UNKNOWN;
+    }
+    return raised ? HoodState.RAISED : HoodState.LOWER;
   }
 
   public static enum HoodState {
