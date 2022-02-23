@@ -163,7 +163,6 @@ public class Drive extends SubsystemBase {
         getLeftPositionMeters() - baseDistanceLeftRad,
         getRightPositionMeters() - baseDistanceRightRad);
 
-
     // Log robot pose
     Pose2d robotPose = odometry.getPoseMeters();
     poseHistory.insert(Timer.getFPGATimestamp(), robotPose);
