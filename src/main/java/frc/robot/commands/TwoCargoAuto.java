@@ -61,7 +61,6 @@ public class TwoCargoAuto extends SequentialCommandGroup {
       Hood hood, Tower tower, Kicker kicker, Intake intake, LedSelector leds) {
     addCommands(deadline(
         sequence(new InstantCommand(intake::extend, intake),
-            new WaitForVision(drive),
             sequence(
                 new MotionProfileCommand(drive, 0.0,
                     List.of(startingPose, cargoPositions.get(position)), 0.0,
