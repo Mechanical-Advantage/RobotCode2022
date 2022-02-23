@@ -4,7 +4,7 @@
 
 package frc.robot.commands;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -118,8 +118,8 @@ public class FeedForwardCharacterization extends CommandBase {
 
   public static class FeedForwardCharacterizationData {
     private final String name;
-    private final List<Double> velocityData = new ArrayList<>();
-    private final List<Double> voltageData = new ArrayList<>();
+    private final List<Double> velocityData = new LinkedList<>();
+    private final List<Double> voltageData = new LinkedList<>();
 
     public FeedForwardCharacterizationData(String name) {
       this.name = name;
