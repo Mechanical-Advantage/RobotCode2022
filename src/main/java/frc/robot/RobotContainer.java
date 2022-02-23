@@ -321,7 +321,7 @@ public class RobotContainer {
     // *** DRIVER CONTROLS ***
     handheldOI.getAutoAimButton().whileActiveContinuous(
         new DriveToTarget(drive, vision, handheldOI::getLeftDriveY));
-    Trigger flywheelsReady = new Trigger(flywheels::atSetpoints);
+    Trigger flywheelsReady = new Trigger(flywheels::profilesComplete);
     handheldOI.getShootButton().and(flywheelsReady).whileActiveContinuous(
         new Shoot(tower, kicker, leds, handheldOI::setDriverRumble));
 

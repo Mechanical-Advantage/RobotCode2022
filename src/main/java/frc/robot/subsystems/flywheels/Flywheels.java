@@ -46,6 +46,8 @@ public class Flywheels extends SubsystemBase {
   private final VelocityProfiler bigProfiler = new VelocityProfiler();
   private final VelocityProfiler littleProfiler = new VelocityProfiler();
   private boolean closedLoop = false;
+  private boolean bigProfileComplete = false;
+  private boolean littleProfileComplete = false;
 
   /** Creates a new Flywheels. */
   public Flywheels(FlywheelsIO io) {
@@ -129,10 +131,17 @@ public class Flywheels extends SubsystemBase {
           bigProfiler.getSetpoint(bigAccelerationRpmPerSec.get());
       double littleSetpointRpm =
           littleProfiler.getSetpoint(littleAccelerationRpmPerSec.get());
+      bigProfileComplete = bigSetpointRpm == bigProfiler.getSetpointGoal();
+      littleProfileComplete =
+          littleSetpointRpm == littleProfiler.getSetpointGoal();
       Logger.getInstance().recordOutput("Flywheels/BigSetpointRPM",
           bigSetpointRpm);
       Logger.getInstance().recordOutput("Flywheels/LittleSetpointRPM",
           littleSetpointRpm);
+      Logger.getInstance().recordOutput("Flywheels/BigProfileComplete",
+          bigProfileComplete);
+      Logger.getInstance().recordOutput("Flywheels/LittleProfileComplete",
+          littleProfileComplete);
 
       double bigVelocityRadPerSec =
           Units.rotationsPerMinuteToRadiansPerSecond(bigSetpointRpm);
@@ -141,6 +150,9 @@ public class Flywheels extends SubsystemBase {
       io.setVelocity(bigVelocityRadPerSec, littleVelocityRadPerSec,
           bigFFModel.calculate(bigVelocityRadPerSec),
           littleFFModel.calculate(littleVelocityRadPerSec));
+    } else {
+      bigProfileComplete = false;
+      littleProfileComplete = false;
     }
   }
 
@@ -196,6 +208,11 @@ public class Flywheels extends SubsystemBase {
     } else {
       return false;
     }
+  }
+
+  /** Returns whether the velocity setpoints have reached the goals. */
+  public boolean profilesComplete() {
+    return bigProfileComplete && littleProfileComplete;
   }
 
   /** Returns velocity of big flywheel in radians per second. Only use for characterization. */
