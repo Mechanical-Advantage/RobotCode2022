@@ -56,7 +56,7 @@ public class DriveToTarget extends CommandBase {
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
       case ROBOT_2022P:
-        maxAngularSpeed.setDefault(0.25);
+        maxAngularSpeed.setDefault(0.5);
         kP.setDefault(0.01);
         kD.setDefault(0.0);
         break;

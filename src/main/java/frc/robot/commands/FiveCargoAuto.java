@@ -24,18 +24,18 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.LedSelector;
 
 public class FiveCargoAuto extends SequentialCommandGroup {
-  public static final double firstShotStationarySecs = 0.0; // How long to stay still
-  public static final double firstShotDurationSecs = 1.0; // How long to feed
+  public static final double firstShotStationarySecs = 0.2; // How long to stay still
+  public static final double firstShotDurationSecs = 2.0; // How long to feed
   public static final double firstShotEarlySecs = 0.5; // How long before stop to begin feeding
 
   public static final double secondShotStationarySecs = 0.0; // How long to stay still
   public static final double secondShotDurationSecs = 1.0; // How long to feed
-  public static final double secondShotEarlySecs = 0.5; // How long before stop to begin feeding
+  public static final double secondShotEarlySecs = 0.0; // How long before stop to begin feeding
 
-  public static final double thirdShotDurationSecs = 1.0; // How long to feed
-  public static final double thirdShotEarlySecs = 0.5; // How long before stop to begin feeding
+  public static final double thirdShotDurationSecs = 1.5; // How long to feed
+  public static final double thirdShotEarlySecs = 0.75; // How long before stop to begin feeding
 
-  public static final double alertEarlySecs = 0.5; // How long before terminal arrival to light LEDs
+  public static final double alertEarlySecs = 1.0; // How long before terminal arrival to light LEDs
   public static final double endTime = 14.9; // Finish routine at this time (includes some margin)
 
   /** Creates a new FiveCargoAuto. */

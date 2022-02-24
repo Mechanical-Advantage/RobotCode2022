@@ -71,7 +71,7 @@ public interface HandheldOI {
     return new Trigger();
   }
 
-  public default Trigger getStartUpperAutoButton() {
+  public default Trigger getStartUpperTarmacButton() {
     return new Trigger();
   }
 

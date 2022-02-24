@@ -27,7 +27,6 @@ import frc.robot.commands.FourCargoAutoCross;
 import frc.robot.commands.HPPractice;
 import frc.robot.commands.IdleHood;
 import frc.robot.commands.OneCargoAuto;
-import frc.robot.commands.PrepareShooterAuto;
 import frc.robot.commands.PrepareShooterPreset;
 import frc.robot.commands.ResetClimber;
 import frc.robot.commands.RunClimber;
@@ -350,18 +349,19 @@ public class RobotContainer {
         new PrepareShooterPreset(flywheels, hood, ShooterPreset.LOWER_FENDER);
     Command upperFenderCommand =
         new PrepareShooterPreset(flywheels, hood, ShooterPreset.UPPER_FENDER);
-    Command upperAutoCommand = new PrepareShooterAuto(flywheels, hood, drive);
+    Command upperTarmacCommand =
+        new PrepareShooterPreset(flywheels, hood, ShooterPreset.UPPER_TARMAC);
 
     handheldOI.getStartLowerFenderButton().and(normalMode)
         .whenActive(lowerFenderCommand);
     handheldOI.getStartUpperFenderButton().and(normalMode)
         .whenActive(upperFenderCommand);
-    handheldOI.getStartUpperAutoButton().and(normalMode)
-        .whenActive(upperAutoCommand);
+    handheldOI.getStartUpperTarmacButton().and(normalMode)
+        .whenActive(upperTarmacCommand);
     handheldOI.getStopFlywheelButton().and(normalMode)
         .cancelWhenActive(lowerFenderCommand)
         .cancelWhenActive(upperFenderCommand)
-        .cancelWhenActive(upperAutoCommand);
+        .cancelWhenActive(upperTarmacCommand);
 
     handheldOI.getTowerUpButton().and(normalMode)
         .whileActiveContinuous(new RunTower(tower, true));
@@ -375,7 +375,7 @@ public class RobotContainer {
         handheldOI::getClimbStick, overrideOI::getClimbOpenLoop));
     climbMode.cancelWhenActive(lowerFenderCommand)
         .cancelWhenActive(upperFenderCommand)
-        .cancelWhenActive(upperAutoCommand);
+        .cancelWhenActive(upperTarmacCommand);
 
     Trigger climbClosedLoop =
         new Trigger(overrideOI::getClimbOpenLoop).negate();

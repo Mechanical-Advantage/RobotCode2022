@@ -104,7 +104,7 @@ public class Pneumatics extends SubsystemBase {
     SmartDashboard.putNumber("Pressure", pressureSmoothedPsi);
 
     // Detect if dump value is open
-    if (inputs.pressurePsi > 1) {
+    if (inputs.pressurePsi > 3) {
       noPressureTimer.reset();
     }
     if (!inputs.compressorActive) {

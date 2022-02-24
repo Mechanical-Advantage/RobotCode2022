@@ -40,12 +40,12 @@ public class TwoCargoAuto extends SequentialCommandGroup {
   public static final Map<AutoPosition, Pose2d> shootPositions =
       Map.of(AutoPosition.TARMAC_A,
           calcAimedPose(AutoPosition.TARMAC_A.getPose()
-              .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0))),
+              .transformBy(GeomUtil.transformFromTranslation(-0.7, 0.0))),
           AutoPosition.TARMAC_C,
           calcAimedPose(AutoPosition.TARMAC_C.getPose()
-              .transformBy(GeomUtil.transformFromTranslation(-0.4, 0.6))),
+              .transformBy(GeomUtil.transformFromTranslation(-0.6, 0.6))),
           AutoPosition.TARMAC_D, calcAimedPose(AutoPosition.TARMAC_D.getPose()
-              .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0))));
+              .transformBy(GeomUtil.transformFromTranslation(-0.7, 0.0))));
 
   /** Creates a new TwoCargoAuto. */
   public TwoCargoAuto(AutoPosition position, Drive drive, Vision vision,

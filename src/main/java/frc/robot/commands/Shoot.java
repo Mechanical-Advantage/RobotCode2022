@@ -11,6 +11,7 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.hood.Hood;
+import frc.robot.subsystems.hood.Hood.HoodState;
 import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.tower.Tower;
 import frc.robot.util.LedSelector;
@@ -57,15 +58,13 @@ public class Shoot extends CommandBase {
     rumblePercent.setDefault(0.5);
     rumbleDurationSecs.setDefault(0.2);
 
-    towerSpeed.setDefault(0.6);
+    towerSpeed.setDefault(0.35);
     kickerSpeed.setDefault(1.0);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    tower.runPercent(towerSpeed.get());
-    kicker.runPercent(kickerSpeed.get());
     hood.moveToShootPosition();
     leds.setShooting(true);
 
@@ -79,6 +78,11 @@ public class Shoot extends CommandBase {
   @Override
   public void execute() {
     Logger.getInstance().recordOutput("ActiveCommands/Shoot", true);
+
+    boolean shouldShoot = hood.getState() != HoodState.MOVING;
+    tower.runPercent(shouldShoot ? towerSpeed.get() : 0);
+    kicker.runPercent(shouldShoot ? kickerSpeed.get() : 0);
+
     boolean rumbleTripped = tower.getUpperCargoSensor();
     if (rumbleLastTripped && !rumbleTripped && enableRumble) {
       rumbleActive = true;

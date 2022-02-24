@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.hood.Hood.HoodState;
+import frc.robot.util.TunableNumber;
 
 /** Constants for the vision camera. */
 public final class VisionConstants {
@@ -18,21 +19,33 @@ public final class VisionConstants {
   public static final Rotation2d fovHorizontal = Rotation2d.fromDegrees(59.6);
   public static final Rotation2d fovVertical = Rotation2d.fromDegrees(49.7);
 
-  public static final CameraPosition lowerPosition = new CameraPosition(
-      Units.inchesToMeters(37.108), Rotation2d.fromDegrees(42.454),
-      new Transform2d(new Translation2d(Units.inchesToMeters(12.058), 0.0),
-          Rotation2d.fromDegrees(180.0)));
-  public static final CameraPosition raisedPosition = new CameraPosition(
-      Units.inchesToMeters(43.077), Rotation2d.fromDegrees(18.29),
-      new Transform2d(new Translation2d(Units.inchesToMeters(8.827), 0.0),
-          Rotation2d.fromDegrees(180.0)));
+  private static final double lowerCameraHeight = Units.inchesToMeters(37.108);
+  private static final TunableNumber lowerVerticalRotationDegrees =
+      new TunableNumber("VisionConstants/LowerVerticalRotationDegrees");
+  private static final double lowerOffsetX = Units.inchesToMeters(12.058);
+
+  private static final double upperCameraHeight = Units.inchesToMeters(43.077);
+  private static final TunableNumber upperVerticalRotationDegrees =
+      new TunableNumber("VisionConstants/UpperVerticalRotationDegrees");
+  private static final double upperOffsetX = Units.inchesToMeters(8.827);
+
+  static {
+    lowerVerticalRotationDegrees.setDefault(45.1);
+    upperVerticalRotationDegrees.setDefault(20.0);
+  }
 
   public static CameraPosition getCameraPosition(HoodState hoodState) {
     switch (hoodState) {
       case LOWER:
-        return lowerPosition;
+        return new CameraPosition(lowerCameraHeight,
+            Rotation2d.fromDegrees(lowerVerticalRotationDegrees.get()),
+            new Transform2d(new Translation2d(lowerOffsetX, 0.0),
+                Rotation2d.fromDegrees(180.0)));
       case RAISED:
-        return raisedPosition;
+        return new CameraPosition(upperCameraHeight,
+            Rotation2d.fromDegrees(upperVerticalRotationDegrees.get()),
+            new Transform2d(new Translation2d(upperOffsetX, 0.0),
+                Rotation2d.fromDegrees(180.0)));
       default:
         return null;
     }

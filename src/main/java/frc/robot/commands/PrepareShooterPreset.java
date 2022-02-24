@@ -12,16 +12,14 @@ import frc.robot.subsystems.hood.Hood;
 import frc.robot.util.TunableNumber;
 
 public class PrepareShooterPreset extends CommandBase {
+  private static final double littleMultiplier = 1.1 * 3.0;
 
   private static final TunableNumber lowerFenderBigRpm =
       new TunableNumber("PrepareShooter/LowerFenderBigRPM");
-  private static final TunableNumber lowerFenderLitteRpm =
-      new TunableNumber("PrepareShooter/LowerFenderLittleRPM");
-
   private static final TunableNumber upperFenderBigRpm =
       new TunableNumber("PrepareShooter/UpperFenderBigRPM");
-  private static final TunableNumber upperFenderLittleRpm =
-      new TunableNumber("PrepareShooter/UpperFenderLittleRPM");
+  private static final TunableNumber upperTarmacBigRpm =
+      new TunableNumber("PrepareShooter/UpperTarmacBigRPM");
 
   private final Flywheels flywheels;
   private final Hood hood;
@@ -39,10 +37,8 @@ public class PrepareShooterPreset extends CommandBase {
     this.preset = preset;
 
     lowerFenderBigRpm.setDefault(500.0);
-    lowerFenderLitteRpm.setDefault(2000.0);
-
-    upperFenderBigRpm.setDefault(1700.0);
-    upperFenderLittleRpm.setDefault(6000.0);
+    upperFenderBigRpm.setDefault(2000.0);
+    upperTarmacBigRpm.setDefault(2650.0);
   }
 
   // Called when the command is initially scheduled.
@@ -58,17 +54,20 @@ public class PrepareShooterPreset extends CommandBase {
       case LOWER_FENDER:
         raised = true;
         bigSpeed = lowerFenderBigRpm.get();
-        littleSpeed = lowerFenderLitteRpm.get();
         break;
       case UPPER_FENDER:
         raised = false;
         bigSpeed = upperFenderBigRpm.get();
-        littleSpeed = upperFenderLittleRpm.get();
+        break;
+      case UPPER_TARMAC:
+        raised = false;
+        bigSpeed = upperTarmacBigRpm.get();
         break;
       default:
         break;
     }
     hood.requestShootPosition(raised);
+    littleSpeed = bigSpeed * littleMultiplier;
     flywheels.runVelocity(bigSpeed, littleSpeed);
     Logger.getInstance().recordOutput("ActiveCommands/PrepareShooterPreset",
         true);
@@ -87,6 +86,6 @@ public class PrepareShooterPreset extends CommandBase {
   }
 
   public static enum ShooterPreset {
-    LOWER_FENDER, UPPER_FENDER
+    LOWER_FENDER, UPPER_FENDER, UPPER_TARMAC
   }
 }
