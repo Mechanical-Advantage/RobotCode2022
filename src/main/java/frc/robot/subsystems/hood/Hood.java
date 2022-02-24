@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.hood.HoodIO.HoodIOInputs;
 
 public class Hood extends SubsystemBase {
-  private static final double moveTimeSecs = 1.0;
+  private static final double moveTimeSecs = 0.5;
 
   private final HoodIO io;
   private final HoodIOInputs inputs = new HoodIOInputs();
