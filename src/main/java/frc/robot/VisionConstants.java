@@ -19,12 +19,12 @@ public final class VisionConstants {
   public static final Rotation2d fovVertical = Rotation2d.fromDegrees(49.7);
 
   public static final CameraPosition lowerPosition = new CameraPosition(
-      Units.inchesToMeters(36.642), Rotation2d.fromDegrees(67.454),
-      new Transform2d(new Translation2d(Units.inchesToMeters(11.902), 0.0),
+      Units.inchesToMeters(37.108), Rotation2d.fromDegrees(42.454),
+      new Transform2d(new Translation2d(Units.inchesToMeters(12.058), 0.0),
           Rotation2d.fromDegrees(180.0)));
   public static final CameraPosition raisedPosition = new CameraPosition(
-      Units.inchesToMeters(42.588), Rotation2d.fromDegrees(43.29),
-      new Transform2d(new Translation2d(Units.inchesToMeters(8.875), 0.0),
+      Units.inchesToMeters(43.077), Rotation2d.fromDegrees(18.29),
+      new Transform2d(new Translation2d(Units.inchesToMeters(8.827), 0.0),
           Rotation2d.fromDegrees(180.0)));
 
   public static CameraPosition getCameraPosition(HoodState hoodState) {
