@@ -10,6 +10,7 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.tower.Tower;
 import frc.robot.util.LedSelector;
@@ -29,6 +30,7 @@ public class Shoot extends CommandBase {
 
   private final Tower tower;
   private final Kicker kicker;
+  private final Hood hood;
   private final LedSelector leds;
 
   private final Consumer<Double> rumbleConsumer;
@@ -37,17 +39,18 @@ public class Shoot extends CommandBase {
   private final Timer rumbleTimer = new Timer();
 
   /** Creates a new Shoot. Runs the tower and kicker to fire cargo. */
-  public Shoot(Tower tower, Kicker kicker, LedSelector leds) {
-    this(tower, kicker, leds, x -> {
+  public Shoot(Tower tower, Kicker kicker, Hood hood, LedSelector leds) {
+    this(tower, kicker, hood, leds, x -> {
     });
   }
 
   /** Creates a new Shoot. Runs the tower and kicker to fire cargo. */
-  public Shoot(Tower tower, Kicker kicker, LedSelector leds,
+  public Shoot(Tower tower, Kicker kicker, Hood hood, LedSelector leds,
       Consumer<Double> rumbleConsumer) {
-    addRequirements(tower, kicker);
+    addRequirements(tower, kicker, hood);
     this.tower = tower;
     this.kicker = kicker;
+    this.hood = hood;
     this.leds = leds;
     this.rumbleConsumer = rumbleConsumer;
 
@@ -63,6 +66,7 @@ public class Shoot extends CommandBase {
   public void initialize() {
     tower.runPercent(towerSpeed.get());
     kicker.runPercent(kickerSpeed.get());
+    hood.moveToShootPosition();
     leds.setShooting(true);
 
     rumbleLastTripped = tower.getUpperCargoSensor();

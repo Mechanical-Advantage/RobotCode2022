@@ -101,14 +101,18 @@ public class FiveCargoAuto extends SequentialCommandGroup {
     double thirdShotStart = endTime - thirdShotDurationSecs;
     Command shootSequence = sequence(
         new RunIntake(true, intake, tower, kicker, leds)
-            .withTimeout(firstShotStart),
-        new Shoot(tower, kicker, leds).withTimeout(firstShotDurationSecs),
-        new RunIntake(true, intake, tower, kicker, leds).withTimeout(
-            secondShotStart - firstShotStart - firstShotDurationSecs),
-        new Shoot(tower, kicker, leds).withTimeout(secondShotDurationSecs),
-        new RunIntake(true, intake, tower, kicker, leds).withTimeout(
-            thirdShotStart - secondShotStart - secondShotDurationSecs),
-        new Shoot(tower, kicker, leds).withTimeout(thirdShotDurationSecs));
+            .alongWith(new IdleHood(hood, drive)).withTimeout(firstShotStart),
+        new Shoot(tower, kicker, hood, leds).withTimeout(firstShotDurationSecs),
+        new RunIntake(true, intake, tower, kicker, leds)
+            .alongWith(new IdleHood(hood, drive)).withTimeout(
+                secondShotStart - firstShotStart - firstShotDurationSecs),
+        new Shoot(tower, kicker, hood, leds)
+            .withTimeout(secondShotDurationSecs),
+        new RunIntake(true, intake, tower, kicker, leds)
+            .alongWith(new IdleHood(hood, drive)).withTimeout(
+                thirdShotStart - secondShotStart - secondShotDurationSecs),
+        new Shoot(tower, kicker, hood, leds)
+            .withTimeout(thirdShotDurationSecs));
 
     // LED sequence, runs in parallel
     double alertStart = terminalArrivalTime - alertEarlySecs;
@@ -121,7 +125,7 @@ public class FiveCargoAuto extends SequentialCommandGroup {
     addCommands(new InstantCommand(intake::extend, intake),
         deadline(parallel(driveSequence, shootSequence, ledSequence),
             new PrepareShooterPreset(flywheels, hood,
-                ShooterPreset.LOWER_FENDER)),
+                ShooterPreset.UPPER_FENDER)),
         new PrintCommand(String.format(
             "*** Five cargo auto completed with %.2f sec terminal wait ***",
             terminalWaitSecs)));

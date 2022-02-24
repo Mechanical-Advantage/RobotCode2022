@@ -6,6 +6,8 @@ package frc.robot.commands;
 
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.FieldConstants;
 import frc.robot.oi.OverrideOI.VisionLedMode;
@@ -25,6 +27,11 @@ public class IdleHood extends CommandBase {
   private final Supplier<VisionLedMode> visionModeSupplier;
 
   /** Creates a new IdleHood. */
+  public IdleHood(Hood hood, Drive drive) {
+    this(hood, drive, null);
+  }
+
+  /** Creates a new IdleHood. */
   public IdleHood(Hood hood, Drive drive,
       Supplier<VisionLedMode> visionModeSupplier) {
     addRequirements(hood);
@@ -33,7 +40,7 @@ public class IdleHood extends CommandBase {
     this.visionModeSupplier = visionModeSupplier;
 
     nearThresholdMeters.setDefault(3.0);
-    nearThresholdMeters.setDefault(3.5);
+    farThresholdMeters.setDefault(3.5);
   }
 
   // Called when the command is initially scheduled.
@@ -43,24 +50,28 @@ public class IdleHood extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (visionModeSupplier.get() == VisionLedMode.ALWAYS_OFF) {
-      return;
+    if (visionModeSupplier != null) {
+      if (visionModeSupplier.get() == VisionLedMode.ALWAYS_OFF) {
+        return;
+      }
     }
+
+    double distance =
+        drive.getPose().getTranslation().getDistance(FieldConstants.hubCenter);
+    Logger.getInstance().recordOutput("IdleHood/DistanceMeters", distance);
 
     HoodState hoodState = hood.getState();
     if (hoodState == HoodState.MOVING) {
       return;
     }
 
-    double distance =
-        drive.getPose().getTranslation().getDistance(FieldConstants.hubCenter);
     boolean shouldRaise;
     if (hoodState == HoodState.RAISED) {
       shouldRaise = distance > nearThresholdMeters.get();
     } else {
       shouldRaise = distance > farThresholdMeters.get();
     }
-    hood.setRaised(shouldRaise);
+    hood.moveToPosition(shouldRaise);
   }
 
   // Called once the command ends or is interrupted.

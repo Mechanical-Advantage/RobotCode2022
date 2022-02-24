@@ -69,9 +69,11 @@ public class TwoCargoAuto extends SequentialCommandGroup {
                     List.of(cargoPositions.get(position),
                         shootPositions.get(position)),
                     0.0, true)).deadlineWith(
-                        new RunIntake(true, intake, tower, kicker, leds)),
+                        new RunIntake(true, intake, tower, kicker, leds),
+                        new IdleHood(hood, drive)),
             new WaitUntilCommand(flywheels::atSetpoints),
-            new Shoot(tower, kicker, leds).withTimeout(shootDurationSecs)),
+            new Shoot(tower, kicker, hood, leds)
+                .withTimeout(shootDurationSecs)),
         new PrepareShooterPreset(flywheels, hood, ShooterPreset.UPPER_FENDER)));
   }
 

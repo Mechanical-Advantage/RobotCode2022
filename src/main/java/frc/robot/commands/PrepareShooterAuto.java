@@ -32,7 +32,7 @@ public class PrepareShooterAuto extends CommandBase {
    */
   public PrepareShooterAuto(Flywheels flywheels, Hood hood,
       Translation2d position) {
-    addRequirements(flywheels, hood);
+    addRequirements(flywheels);
     this.flywheels = flywheels;
     this.hood = hood;
     this.drive = null;
@@ -44,7 +44,7 @@ public class PrepareShooterAuto extends CommandBase {
    * shot based on odometry.
    */
   public PrepareShooterAuto(Flywheels flywheels, Hood hood, Drive drive) {
-    addRequirements(flywheels, hood);
+    addRequirements(flywheels);
     this.flywheels = flywheels;
     this.hood = hood;
     this.drive = drive;
@@ -54,7 +54,7 @@ public class PrepareShooterAuto extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    hood.setRaised(false);
+    hood.requestShootPosition(false);
     if (staticPosition != null) {
       update(staticPosition);
     }

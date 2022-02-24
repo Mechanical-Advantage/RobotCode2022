@@ -45,8 +45,9 @@ public class FourCargoAutoCross extends SequentialCommandGroup {
             sequence(
                 sequence(firstShotToTerminal, new WaitCommand(terminalWaitSecs),
                     terminalToSecondShot).deadlineWith(
-                        new RunIntake(true, intake, tower, kicker, leds)),
-                new Shoot(tower, kicker, leds)
+                        new RunIntake(true, intake, tower, kicker, leds),
+                        new IdleHood(hood, drive)),
+                new Shoot(tower, kicker, hood, leds)
                     .withTimeout(OneCargoAuto.shootDurationSecs)),
             sequence(
                 new WaitCommand(firstShotToTerminal.getDuration()

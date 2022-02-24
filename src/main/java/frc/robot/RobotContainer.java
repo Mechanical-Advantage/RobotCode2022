@@ -178,8 +178,8 @@ public class RobotContainer {
     vision.setSuppliers(() -> overrideOI.getVisionLedMode(),
         () -> overrideOI.getClimbMode(), hood::getState);
     vision.setTranslationConsumer(drive::addVisionMeasurement);
-    // hood.setDefaultCommand(
-    // new IdleHood(hood, drive, () -> overrideOI.getVisionLedMode()));
+    hood.setDefaultCommand(
+        new IdleHood(hood, drive, () -> overrideOI.getVisionLedMode()));
     tower.setLeds(leds);
     tower.setOverride(() -> overrideOI.getCargoSensorDisable());
     leds.setTestModeSupplier(() -> choosers.getLedTestMode());
@@ -329,7 +329,7 @@ public class RobotContainer {
         new DriveToTarget(drive, vision, handheldOI::getLeftDriveY));
     Trigger flywheelsReady = new Trigger(flywheels::profilesComplete);
     handheldOI.getShootButton().and(flywheelsReady).whileActiveContinuous(
-        new Shoot(tower, kicker, leds, handheldOI::setDriverRumble));
+        new Shoot(tower, kicker, hood, leds, handheldOI::setDriverRumble));
 
     // *** OPERATOR CONTROLS ***
     Trigger climbMode = new Trigger(overrideOI::getClimbMode);

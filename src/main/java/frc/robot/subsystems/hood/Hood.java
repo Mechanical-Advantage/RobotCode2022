@@ -20,6 +20,7 @@ public class Hood extends SubsystemBase {
   private final Timer movingTimer = new Timer();
   private boolean resetComplete = false; // Reset on first enable
   private boolean raised = false;
+  private boolean shootPosition = false;
 
   /** Creates a new Kicker. */
   public Hood(HoodIO io) {
@@ -44,12 +45,23 @@ public class Hood extends SubsystemBase {
     Logger.getInstance().recordOutput("HoodState", getState().toString());
   }
 
-  public void setRaised(boolean raised) {
+  /** Sets the hood position. */
+  public void moveToPosition(boolean raised) {
     if (raised != this.raised && DriverStation.isEnabled()) {
       io.setRaised(raised);
       movingTimer.reset();
       this.raised = raised;
     }
+  }
+
+  /** Saves a requested position for shooting, but doesn't cause any movement. */
+  public void requestShootPosition(boolean raised) {
+    shootPosition = raised;
+  }
+
+  /** Moves to the current requested shoot position. */
+  public void moveToShootPosition() {
+    moveToPosition(shootPosition);
   }
 
   public HoodState getState() {

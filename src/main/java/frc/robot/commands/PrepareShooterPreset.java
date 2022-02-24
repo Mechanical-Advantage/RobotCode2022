@@ -33,7 +33,7 @@ public class PrepareShooterPreset extends CommandBase {
    */
   public PrepareShooterPreset(Flywheels flywheels, Hood hood,
       ShooterPreset preset) {
-    addRequirements(flywheels, hood);
+    addRequirements(flywheels);
     this.flywheels = flywheels;
     this.hood = hood;
     this.preset = preset;
@@ -68,7 +68,7 @@ public class PrepareShooterPreset extends CommandBase {
       default:
         break;
     }
-    hood.setRaised(raised);
+    hood.requestShootPosition(raised);
     flywheels.runVelocity(bigSpeed, littleSpeed);
     Logger.getInstance().recordOutput("ActiveCommands/PrepareShooterPreset",
         true);
