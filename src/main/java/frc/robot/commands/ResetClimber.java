@@ -15,35 +15,51 @@ public class ResetClimber extends CommandBase {
   private static final TunableNumber speedPercent =
       new TunableNumber("ResetClimber/Speed");
   private static final TunableNumber graceSecs =
-      new TunableNumber("ResetClimber/Grace");
-  private static final TunableNumber velocityThresholdRadPerSec =
-      new TunableNumber("ResetClimber/VelocityThreshhold");
+      new TunableNumber("ResetClimber/GraceSecs");
+  private static final TunableNumber backSecs =
+      new TunableNumber("ResetClimber/BackSecs");
+  private static final TunableNumber currentThreshold =
+      new TunableNumber("ResetClimber/CurrentThreshhold");
 
   private final Climber climber;
-  private final Timer graceTimer = new Timer();
+  private final Timer timer = new Timer();
+  private boolean backwards = false;
 
   /** Creates a new ResetClimber. */
   public ResetClimber(Climber climber) {
     addRequirements(climber);
     this.climber = climber;
 
-    speedPercent.setDefault(-0.1);
-    graceSecs.setDefault(0.25);
-    velocityThresholdRadPerSec.setDefault(1.0);
+    speedPercent.setDefault(0.2);
+    graceSecs.setDefault(0.2);
+    backSecs.setDefault(0.2);
+    currentThreshold.setDefault(12.0);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    climber.runPercent(-speedPercent.get());
-    graceTimer.reset();
-    graceTimer.start();
+    timer.reset();
+    timer.start();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     Logger.getInstance().recordOutput("ActiveCommands/ResetClimber", true);
+
+    if (backwards) {
+      climber.runPercent(speedPercent.get());
+    } else {
+      climber.runPercent(-speedPercent.get());
+      if (timer.hasElapsed(graceSecs.get())) {
+        climber.runPercent(-speedPercent.get());
+        if (climber.getCurrentAmps() > currentThreshold.get()) {
+          backwards = true;
+          timer.reset();
+        }
+      }
+    }
   }
 
   // Called once the command ends or is interrupted.
@@ -51,13 +67,12 @@ public class ResetClimber extends CommandBase {
   public void end(boolean interrupted) {
     climber.runPercent(0.0);
     climber.resetPosition();
-    graceTimer.stop();
+    timer.stop();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return graceTimer.hasElapsed(graceSecs.get())
-        && -climber.getVelocity() < velocityThresholdRadPerSec.get();
+    return backwards && timer.hasElapsed(backSecs.get());
   }
 }

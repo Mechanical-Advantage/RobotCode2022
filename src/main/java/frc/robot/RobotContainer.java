@@ -369,8 +369,6 @@ public class RobotContainer {
         .whileActiveContinuous(new RunTower(tower, false));
 
     // *** CLIMB CONTROLS ***
-    climbMode.whileActiveContinuous(
-        new StartEndCommand(climber::unlock, climber::lock));
     climbMode.whileActiveContinuous(new StartEndCommand(
         () -> leds.setClimbing(true), () -> leds.setClimbing(false)));
     climbMode.whileActiveContinuous(new RunClimber(climber,
@@ -382,14 +380,14 @@ public class RobotContainer {
     Trigger climbClosedLoop =
         new Trigger(overrideOI::getClimbOpenLoop).negate();
     handheldOI.getClimbTop().and(climbMode).and(climbClosedLoop)
-        .toggleWhenActive(new RunClimberToPosition(climber, true));
+        .whenActive(new RunClimberToPosition(climber, true), false);
     handheldOI.getClimbBottom().and(climbMode).and(climbClosedLoop)
-        .toggleWhenActive(new RunClimberToPosition(climber, true));
+        .whenActive(new RunClimberToPosition(climber, false), false);
   }
 
   /** Called at the start of teleop to begin zeroing the climber. */
   public void resetClimber() {
-    // new ResetClimber(climber).schedule();
+    new ResetClimber(climber).schedule(false);
   }
 
   /** Updates the LED mode periodically. */

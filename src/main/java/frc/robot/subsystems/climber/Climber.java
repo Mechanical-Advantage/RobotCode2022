@@ -18,6 +18,10 @@ public class Climber extends SubsystemBase {
   private final ClimberIO io;
   private final ClimberIOInputs inputs = new ClimberIOInputs();
 
+  public final TunableNumber motionThresholdLowerVoltage =
+      new TunableNumber("Climber/MotionThresholdLower");
+  public final TunableNumber motionThresholdUpperVoltage =
+      new TunableNumber("Climber/MotionThresholdUpper");
   public final TunableNumber positionLimitRad =
       new TunableNumber("Climber/PositionLimit");
   private final TunableNumber kP = new TunableNumber("Climber/Kp");
@@ -40,18 +44,24 @@ public class Climber extends SubsystemBase {
     this.io = io;
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
-        positionLimitRad.setDefault(0.0);
-        kP.setDefault(0.0);
+        motionThresholdLowerVoltage.setDefault(0.3);
+        motionThresholdUpperVoltage.setDefault(0.35);
+        positionLimitRad.setDefault(40.0);
+        kP.setDefault(10.0);
         kI.setDefault(0.0);
         kD.setDefault(0.0);
-        maxVelocity.setDefault(0.0);
-        maxAcceleration.setDefault(0.0);
+        toleranceRad.setDefault(0.5);
+        maxVelocity.setDefault(12.0);
+        maxAcceleration.setDefault(25.0);
         break;
       default:
+        motionThresholdLowerVoltage.setDefault(0.0);
+        motionThresholdUpperVoltage.setDefault(0.0);
         positionLimitRad.setDefault(0.0);
         kP.setDefault(0.0);
         kI.setDefault(0.0);
         kD.setDefault(0.0);
+        toleranceRad.setDefault(0.0);
         maxVelocity.setDefault(0.0);
         maxAcceleration.setDefault(0.0);
         break;
@@ -65,6 +75,11 @@ public class Climber extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Climber", inputs);
+
+    // Log position
+    Logger.getInstance().recordOutput("Climber/Position", getPosition());
+    Logger.getInstance().recordOutput("Climber/PositionSetpoint",
+        controller.getSetpoint().position);
 
     // Update PID controller with tunable numbers
     if (kP.hasChanged()) {
@@ -85,10 +100,20 @@ public class Climber extends SubsystemBase {
     }
 
     // Run PID controller
-    if (closedLoop && inputs.unlocked) {
+    if (closedLoop) {
       double volts = controller.calculate(getPosition());
-      io.setVoltage(volts);
+      runVoltage(volts);
     }
+  }
+
+  /** Runs at the specified voltage, setting the lock appropriately */
+  private void runVoltage(double volts) {
+    double motionThresholdVoltage =
+        inputs.unlocked ? motionThresholdLowerVoltage.get()
+            : motionThresholdUpperVoltage.get();
+    boolean unlocked = Math.abs(volts) > motionThresholdVoltage;
+    io.setUnlocked(unlocked);
+    io.setVoltage(unlocked ? volts : 0.0);
   }
 
   /**
@@ -97,9 +122,7 @@ public class Climber extends SubsystemBase {
    * @param percent Percent of full voltage
    */
   public void runPercent(double percent) {
-    if (inputs.unlocked) {
-      io.setVoltage(percent * 12.0);
-    }
+    runVoltage(percent * 12.0);
     closedLoop = false;
   }
 
@@ -144,17 +167,13 @@ public class Climber extends SubsystemBase {
     return inputs.velocityRadPerSec;
   }
 
+  /** Returns the current draw in amps. */
+  public double getCurrentAmps() {
+    return inputs.currentAmps[0];
+  }
+
   /** Resets the current position to zero */
   public void resetPosition() {
     basePositionRad = inputs.positionRad;
-  }
-
-  public void lock() {
-    io.setUnlocked(false);
-    io.setVoltage(0.0);
-  }
-
-  public void unlock() {
-    io.setUnlocked(true);
   }
 }
