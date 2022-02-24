@@ -75,6 +75,7 @@ import frc.robot.subsystems.tower.TowerIO;
 import frc.robot.subsystems.tower.TowerIOSparkMAX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.util.Alert;
 import frc.robot.util.GeomUtil;
 import frc.robot.util.LedSelector;
@@ -122,6 +123,7 @@ public class RobotContainer {
       switch (Constants.getRobot()) {
         case ROBOT_2022C:
           drive = new Drive(new DriveIOSparkMAX());
+          vision = new Vision(new VisionIOPhotonVision());
           flywheels = new Flywheels(new FlywheelsIOSparkMAX());
           hood = new Hood(new HoodIOReal());
           kicker = new Kicker(new KickerIOSparkMAX());
@@ -176,8 +178,8 @@ public class RobotContainer {
     vision.setSuppliers(() -> overrideOI.getVisionLedMode(),
         () -> overrideOI.getClimbMode(), hood::getState);
     vision.setTranslationConsumer(drive::addVisionMeasurement);
-    hood.setDefaultCommand(
-        new IdleHood(hood, drive, () -> overrideOI.getVisionLedMode()));
+    // hood.setDefaultCommand(
+    // new IdleHood(hood, drive, () -> overrideOI.getVisionLedMode()));
     tower.setLeds(leds);
     tower.setOverride(() -> overrideOI.getCargoSensorDisable());
     leds.setTestModeSupplier(() -> choosers.getLedTestMode());
