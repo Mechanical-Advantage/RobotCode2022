@@ -9,6 +9,7 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.climber.ClimberIO.ClimberIOInputs;
@@ -44,8 +45,8 @@ public class Climber extends SubsystemBase {
     this.io = io;
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
-        motionThresholdLowerVoltage.setDefault(0.3);
-        motionThresholdUpperVoltage.setDefault(0.35);
+        motionThresholdLowerVoltage.setDefault(1.9);
+        motionThresholdUpperVoltage.setDefault(2.1);
         positionLimitRad.setDefault(40.0);
         kP.setDefault(10.0);
         kI.setDefault(0.0);
@@ -68,13 +69,17 @@ public class Climber extends SubsystemBase {
     }
 
     io.setBrakeMode(true);
-    io.setUnlocked(false);
   }
 
   @Override
   public void periodic() {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Climber", inputs);
+
+    // Unlock climber
+    if (DriverStation.isEnabled()) {
+      io.setUnlocked(true);
+    }
 
     // Log position
     Logger.getInstance().recordOutput("Climber/Position", getPosition());
@@ -102,18 +107,8 @@ public class Climber extends SubsystemBase {
     // Run PID controller
     if (closedLoop) {
       double volts = controller.calculate(getPosition());
-      runVoltage(volts);
+      io.setVoltage(volts);
     }
-  }
-
-  /** Runs at the specified voltage, setting the lock appropriately */
-  private void runVoltage(double volts) {
-    double motionThresholdVoltage =
-        inputs.unlocked ? motionThresholdLowerVoltage.get()
-            : motionThresholdUpperVoltage.get();
-    boolean unlocked = Math.abs(volts) > motionThresholdVoltage;
-    io.setUnlocked(unlocked);
-    io.setVoltage(unlocked ? volts : 0.0);
   }
 
   /**
@@ -122,7 +117,7 @@ public class Climber extends SubsystemBase {
    * @param percent Percent of full voltage
    */
   public void runPercent(double percent) {
-    runVoltage(percent * 12.0);
+    io.setVoltage(percent * 12.0);
     closedLoop = false;
   }
 
