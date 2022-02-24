@@ -164,7 +164,11 @@ public class Climber extends SubsystemBase {
 
   /** Returns the current draw in amps. */
   public double getCurrentAmps() {
-    return inputs.currentAmps[0];
+    if (inputs.currentAmps.length > 0) {
+      return inputs.currentAmps[0];
+    } else {
+      return 0.0;
+    }
   }
 
   /** Resets the current position to zero */

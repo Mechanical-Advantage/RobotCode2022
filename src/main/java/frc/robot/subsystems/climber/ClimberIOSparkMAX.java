@@ -78,8 +78,10 @@ public class ClimberIOSparkMAX implements ClimberIO {
             / afterEncoderReduction;
     inputs.appliedVolts =
         leader.getAppliedOutput() * RobotController.getBatteryVoltage();
-    inputs.currentAmps = new double[] {leader.getOutputCurrent()};
-    inputs.tempCelcius = new double[] {leader.getMotorTemperature()};
+    inputs.currentAmps =
+        new double[] {leader.getOutputCurrent(), follower.getOutputCurrent()};
+    inputs.tempCelcius = new double[] {leader.getMotorTemperature(),
+        follower.getMotorTemperature()};
   }
 
   @Override

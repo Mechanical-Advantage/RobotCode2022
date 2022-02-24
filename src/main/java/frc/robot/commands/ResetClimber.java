@@ -32,7 +32,7 @@ public class ResetClimber extends CommandBase {
 
     speedPercent.setDefault(0.2);
     graceSecs.setDefault(0.2);
-    backSecs.setDefault(0.2);
+    backSecs.setDefault(0.25);
     currentThreshold.setDefault(15.0);
   }
 
