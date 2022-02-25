@@ -35,7 +35,6 @@ public class LinearInterpolation {
     }
     for (int i = 0; i < points.size(); i++) {
       if (x >= points.get(i).x) {
-        System.out.println(i);
         return points.get(i).interpolate(points.get(i + 1), x);
       }
     }
