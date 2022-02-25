@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import java.util.List;
+
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Translation2d;
@@ -12,15 +14,19 @@ import frc.robot.FieldConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
-import frc.robot.util.PolynomialRegression;
+import frc.robot.util.LinearInterpolation;
 
 public class PrepareShooterAuto extends CommandBase {
 
-  private static final PolynomialRegression bigRegression =
-      new PolynomialRegression(new double[] {0.0}, new double[] {0.0}, 2, "x");
-  private static final PolynomialRegression littleRegression =
-      new PolynomialRegression(new double[] {0.0}, new double[] {0.0}, 2, "x");
+  private static final LinearInterpolation lowerInterpolation =
+      new LinearInterpolation(List.of(new LinearInterpolation.Point(1.0, 500.0),
+          new LinearInterpolation.Point(2.0, 700.0)));
+  private static final LinearInterpolation upperInterpolation =
+      new LinearInterpolation(
+          List.of(new LinearInterpolation.Point(1.0, 1100.0),
+              new LinearInterpolation.Point(2.0, 1175.0)));
 
+  private final boolean upper;
   private final Flywheels flywheels;
   private final Hood hood;
   private final Drive drive;
@@ -30,9 +36,10 @@ public class PrepareShooterAuto extends CommandBase {
    * Creates a new PrepareShooterAuto. Runs the flywheel and sets the hood position for the upper
    * shot based on a known shooting position.
    */
-  public PrepareShooterAuto(Flywheels flywheels, Hood hood,
+  public PrepareShooterAuto(boolean upper, Flywheels flywheels, Hood hood,
       Translation2d position) {
     addRequirements(flywheels);
+    this.upper = upper;
     this.flywheels = flywheels;
     this.hood = hood;
     this.drive = null;
@@ -43,8 +50,10 @@ public class PrepareShooterAuto extends CommandBase {
    * Creates a new PrepareShooterAuto. Runs the flywheel and sets the hood position for the upper
    * shot based on odometry.
    */
-  public PrepareShooterAuto(Flywheels flywheels, Hood hood, Drive drive) {
+  public PrepareShooterAuto(boolean upper, Flywheels flywheels, Hood hood,
+      Drive drive) {
     addRequirements(flywheels);
+    this.upper = upper;
     this.flywheels = flywheels;
     this.hood = hood;
     this.drive = drive;
@@ -72,9 +81,9 @@ public class PrepareShooterAuto extends CommandBase {
 
   public void update(Translation2d position) {
     double distance = position.getDistance(FieldConstants.hubCenter);
-    double bigSpeed = bigRegression.predict(distance);
-    double littleSpeed = littleRegression.predict(distance);
-    flywheels.runVelocity(bigSpeed, littleSpeed);
+    double speed = upper ? upperInterpolation.predict(distance)
+        : lowerInterpolation.predict(distance);
+    flywheels.runVelocity(speed);
   }
 
   // Called once the command ends or is interrupted.
