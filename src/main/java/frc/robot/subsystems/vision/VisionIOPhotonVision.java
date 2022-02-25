@@ -16,12 +16,11 @@ import org.photonvision.targeting.TargetCorner;
 
 import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import frc.robot.VisionConstants;
 
 /** Vision hardware implementation for PhotonVision. */
 public class VisionIOPhotonVision implements VisionIO {
-  private final PhotonCamera camera =
-      new PhotonCamera(VisionConstants.cameraName);
+  private static final String cameraName = "limelight";
+  private final PhotonCamera camera = new PhotonCamera(cameraName);
 
   private double captureTimestamp = 0.0;
   private double[] cornerX = new double[] {};
@@ -29,8 +28,7 @@ public class VisionIOPhotonVision implements VisionIO {
 
   public VisionIOPhotonVision() {
     NetworkTableInstance.getDefault()
-        .getEntry(
-            "/photonvision/" + VisionConstants.cameraName + "/latencyMillis")
+        .getEntry("/photonvision/" + cameraName + "/latencyMillis")
         .addListener(event -> {
           PhotonPipelineResult result = camera.getLatestResult();
           double timestamp = Logger.getInstance().getRealTimestamp()
