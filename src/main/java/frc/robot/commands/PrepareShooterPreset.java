@@ -58,7 +58,7 @@ public class PrepareShooterPreset extends CommandBase {
         speed = upperFenderRpm.get();
         break;
       case UPPER_TARMAC:
-        raised = false;
+        raised = true;
         speed = upperTarmacRpm.get();
         break;
       default:
