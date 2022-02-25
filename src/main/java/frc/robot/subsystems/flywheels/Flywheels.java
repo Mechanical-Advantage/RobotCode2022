@@ -24,43 +24,24 @@ public class Flywheels extends SubsystemBase {
 
   private final TunableNumber rpmHistoryLength =
       new TunableNumber("Flywheels/RPMHistoryLength");
-  private final TunableNumber bigVelocityRpm =
-      new TunableNumber("Flywheels/BigVelocityRPM");
-  private final TunableNumber littleVelocityRpm =
-      new TunableNumber("Flywheels/LittleVelocityRPM");
-  private final TunableNumber bigAccelerationRpmPerSec2 =
-      new TunableNumber("Flywheels/BigAccelerationRPMPerSec2");
-  private final TunableNumber littleAccelerationRpmPerSec2 =
-      new TunableNumber("Flywheels/LittleAccelerationRPMPerSec2");
-  private final TunableNumber bigJerkRpmPerSec3 =
-      new TunableNumber("Flywheels/BigJerkRPMPerSec3");
-  private final TunableNumber littleJerkRpmPerSec3 =
-      new TunableNumber("Flywheels/LittleJerkRPMPerSec3");
-  private final SimpleMotorFeedforward bigFFModel;
-  private final SimpleMotorFeedforward littleFFModel;
-  private final TunableNumber bigKp = new TunableNumber("Flywheels/BigKp");
-  private final TunableNumber bigKi = new TunableNumber("Flywheels/BigKi");
-  private final TunableNumber bigKd = new TunableNumber("Flywheels/BigKd");
-  private final TunableNumber littleKp =
-      new TunableNumber("Flywheels/LittleKp");
-  private final TunableNumber littleKi =
-      new TunableNumber("Flywheels/LittleKi");
-  private final TunableNumber littleKd =
-      new TunableNumber("Flywheels/LittleKd");
-  private final TunableNumber bigToleranceRpm =
-      new TunableNumber("Flywheels/BigToleranceRPM");
-  private final TunableNumber littleToleranceRpm =
-      new TunableNumber("Flywheels/LittleToleranceRPM");
+  private final TunableNumber maxVelocityRpm =
+      new TunableNumber("Flywheels/MaxVelocityRPM");
+  private final TunableNumber maxAccelerationRpmPerSec2 =
+      new TunableNumber("Flywheels/MaxAccelerationRPMPerSec2");
+  private final TunableNumber maxJerkRpmPerSec3 =
+      new TunableNumber("Flywheels/MaxJerkRPMPerSec3");
+  private final SimpleMotorFeedforward ffModel;
+  private final TunableNumber kP = new TunableNumber("Flywheels/kP");
+  private final TunableNumber kI = new TunableNumber("Flywheels/kI");
+  private final TunableNumber kD = new TunableNumber("Flywheels/kD");
+  private final TunableNumber toleranceRpm =
+      new TunableNumber("Flywheels/ToleranceRPM");
 
   private boolean closedLoop = false;
-  private List<Double> bigRpmHistory = new ArrayList<>();
-  private List<Double> littleRpmHistory = new ArrayList<>();
-  private TrapezoidProfile.State bigGoal = new TrapezoidProfile.State();
-  private TrapezoidProfile.State littleGoal = new TrapezoidProfile.State();
-  private TrapezoidProfile.State bigLastState = new TrapezoidProfile.State();
-  private TrapezoidProfile.State littleLastState = new TrapezoidProfile.State();
-  private boolean bigProfileComplete = false;
-  private boolean littleProfileComplete = false;
+  private List<Double> rpmHistory = new ArrayList<>();
+  private TrapezoidProfile.State goal = new TrapezoidProfile.State();
+  private TrapezoidProfile.State lastState = new TrapezoidProfile.State();
+  private boolean profileComplete = false;
 
   /** Creates a new Flywheels. */
   public Flywheels(FlywheelsIO io) {
@@ -69,62 +50,35 @@ public class Flywheels extends SubsystemBase {
     rpmHistoryLength.setDefault(10);
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
-        bigVelocityRpm.setDefault(2650.0);
-        bigAccelerationRpmPerSec2.setDefault(2000.0);
-        bigJerkRpmPerSec3.setDefault(2500.0);
-        bigFFModel = new SimpleMotorFeedforward(0.41440, 0.0425);
-        bigKp.setDefault(0.00006);
-        bigKi.setDefault(0.0);
-        bigKd.setDefault(0.0);
-        bigToleranceRpm.setDefault(50.0);
-
-        littleVelocityRpm.setDefault(9500.0);
-        littleAccelerationRpmPerSec2.setDefault(4000.0);
-        littleJerkRpmPerSec3.setDefault(6000.0);
-        littleFFModel = new SimpleMotorFeedforward(0.41783, 0.0105);
-        littleKp.setDefault(0.0003);
-        littleKi.setDefault(0.0);
-        littleKd.setDefault(0.0);
-        littleToleranceRpm.setDefault(100.0);
+        maxVelocityRpm.setDefault(2650.0);
+        maxAccelerationRpmPerSec2.setDefault(2000.0);
+        maxJerkRpmPerSec3.setDefault(2500.0);
+        ffModel = new SimpleMotorFeedforward(0.41440, 0.0425);
+        kP.setDefault(0.00006);
+        kI.setDefault(0.0);
+        kD.setDefault(0.0);
+        toleranceRpm.setDefault(50.0);
         break;
       case ROBOT_2022P:
       case ROBOT_SIMBOT:
-        bigVelocityRpm.setDefault(2800.0);
-        bigAccelerationRpmPerSec2.setDefault(8000.0);
-        bigJerkRpmPerSec3.setDefault(9999.9);
-        bigFFModel = new SimpleMotorFeedforward(0.0574, 0.03979);
-        bigKp.setDefault(0.6);
-        bigKi.setDefault(0.0);
-        bigKd.setDefault(0.0);
-        bigToleranceRpm.setDefault(50.0);
-
-        littleVelocityRpm.setDefault(20700.0);
-        littleAccelerationRpmPerSec2.setDefault(20000.0);
-        littleJerkRpmPerSec3.setDefault(9999.0);
-        littleFFModel = new SimpleMotorFeedforward(0.06896, 0.00556);
-        littleKp.setDefault(0.06);
-        littleKi.setDefault(0.0);
-        littleKd.setDefault(0.0);
-        littleToleranceRpm.setDefault(50.0);
+        maxVelocityRpm.setDefault(2800.0);
+        maxAccelerationRpmPerSec2.setDefault(8000.0);
+        maxJerkRpmPerSec3.setDefault(9999.9);
+        ffModel = new SimpleMotorFeedforward(0.0574, 0.03979);
+        kP.setDefault(0.6);
+        kI.setDefault(0.0);
+        kD.setDefault(0.0);
+        toleranceRpm.setDefault(50.0);
         break;
       default:
-        bigVelocityRpm.setDefault(0.0);
-        bigAccelerationRpmPerSec2.setDefault(0.0);
-        bigJerkRpmPerSec3.setDefault(0.0);
-        bigFFModel = new SimpleMotorFeedforward(0.0, 0.0, 0.0);
-        bigKp.setDefault(0.0);
-        bigKi.setDefault(0.0);
-        bigKd.setDefault(0.0);
-        bigToleranceRpm.setDefault(0.0);
-
-        littleVelocityRpm.setDefault(0.0);
-        littleAccelerationRpmPerSec2.setDefault(0.0);
-        littleJerkRpmPerSec3.setDefault(0.0);
-        littleFFModel = new SimpleMotorFeedforward(0.0, 0.0, 0.0);
-        littleKp.setDefault(0.0);
-        littleKi.setDefault(0.0);
-        littleKd.setDefault(0.0);
-        littleToleranceRpm.setDefault(0.0);
+        maxVelocityRpm.setDefault(0.0);
+        maxAccelerationRpmPerSec2.setDefault(0.0);
+        maxJerkRpmPerSec3.setDefault(0.0);
+        ffModel = new SimpleMotorFeedforward(0.0, 0.0, 0.0);
+        kP.setDefault(0.0);
+        kI.setDefault(0.0);
+        kD.setDefault(0.0);
+        toleranceRpm.setDefault(0.0);
     }
 
     io.setBrakeMode(false);
@@ -135,149 +89,89 @@ public class Flywheels extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Flywheels", inputs);
 
-    if (bigKp.hasChanged() | bigKi.hasChanged() | bigKd.hasChanged()
-        | littleKp.hasChanged() | littleKi.hasChanged()
-        | littleKd.hasChanged()) {
-      io.configurePID(bigKp.get(), bigKi.get(), bigKd.get(), littleKp.get(),
-          littleKi.get(), littleKd.get());
+    if (kP.hasChanged() | kI.hasChanged() | kD.hasChanged()) {
+      io.configurePID(kP.get(), kI.get(), kD.get());
     }
 
-    bigRpmHistory.add(getBigVelocity());
-    littleRpmHistory.add(getLittleVelocity());
-    while (bigRpmHistory.size() > rpmHistoryLength.get()) {
-      bigRpmHistory.remove(0);
-    }
-    while (littleRpmHistory.size() > rpmHistoryLength.get()) {
-      littleRpmHistory.remove(0);
+    rpmHistory.add(getVelocity());
+    while (rpmHistory.size() > rpmHistoryLength.get()) {
+      rpmHistory.remove(0);
     }
 
-    Logger.getInstance().recordOutput("Flywheels/BigRPM", getBigVelocity());
-    Logger.getInstance().recordOutput("Flywheels/LittleRPM",
-        getLittleVelocity());
-    Logger.getInstance().recordOutput("Flywheels/BigAcceleration",
-        getBigAcceleration());
-    Logger.getInstance().recordOutput("Flywheels/LittleAcceleration",
-        getLittleAcceleration());
-    Logger.getInstance().recordOutput("Flywheels/AtSetpoints", atSetpoints());
+    Logger.getInstance().recordOutput("Flywheels/RPM", getVelocity());
+    Logger.getInstance().recordOutput("Flywheels/Acceleration",
+        getAcceleration());
+    Logger.getInstance().recordOutput("Flywheels/AtSetpoint", atSetpoint());
 
     if (closedLoop) {
-      TrapezoidProfile bigProfile = new TrapezoidProfile(
-          new TrapezoidProfile.Constraints(bigAccelerationRpmPerSec2.get(),
-              bigJerkRpmPerSec3.get()),
-          bigGoal, bigLastState);
-      bigLastState = bigProfile.calculate(Constants.loopPeriodSecs);
-      double bigSetpointRpm = bigLastState.position;
+      TrapezoidProfile profile = new TrapezoidProfile(
+          new TrapezoidProfile.Constraints(maxAccelerationRpmPerSec2.get(),
+              maxJerkRpmPerSec3.get()),
+          goal, lastState);
+      lastState = profile.calculate(Constants.loopPeriodSecs);
+      double setpointRpm = lastState.position;
 
-      TrapezoidProfile littleProfile = new TrapezoidProfile(
-          new TrapezoidProfile.Constraints(littleAccelerationRpmPerSec2.get(),
-              littleJerkRpmPerSec3.get()),
-          littleGoal, littleLastState);
-      littleLastState = littleProfile.calculate(Constants.loopPeriodSecs);
-      double littleSetpointRpm = littleLastState.position;
+      profileComplete = setpointRpm == goal.position;
+      Logger.getInstance().recordOutput("Flywheels/SetpointRPM", setpointRpm);
+      Logger.getInstance().recordOutput("Flywheels/ProfileComplete",
+          profileComplete);
 
-      bigProfileComplete = bigSetpointRpm == bigGoal.position;
-      littleProfileComplete = littleSetpointRpm == littleGoal.position;
-      Logger.getInstance().recordOutput("Flywheels/BigSetpointRPM",
-          bigSetpointRpm);
-      Logger.getInstance().recordOutput("Flywheels/LittleSetpointRPM",
-          littleSetpointRpm);
-      Logger.getInstance().recordOutput("Flywheels/BigProfileComplete",
-          bigProfileComplete);
-      Logger.getInstance().recordOutput("Flywheels/LittleProfileComplete",
-          littleProfileComplete);
-
-      double bigVelocityRadPerSec =
-          Units.rotationsPerMinuteToRadiansPerSecond(bigSetpointRpm);
-      double littleVelocityRadPerSec =
-          Units.rotationsPerMinuteToRadiansPerSecond(littleSetpointRpm);
-      io.setVelocity(bigVelocityRadPerSec, littleVelocityRadPerSec,
-          bigFFModel.calculate(bigVelocityRadPerSec),
-          littleFFModel.calculate(littleVelocityRadPerSec));
+      double velocityRadPerSec =
+          Units.rotationsPerMinuteToRadiansPerSecond(setpointRpm);
+      io.setVelocity(velocityRadPerSec, ffModel.calculate(velocityRadPerSec));
     } else {
-      bigProfileComplete = false;
-      littleProfileComplete = false;
+      profileComplete = false;
     }
   }
 
   /** Run at the specified voltage with no other processing. Only use when characterizing. */
-  public void runVoltage(double bigVolts, double littleVolts) {
-    io.setVoltage(bigVolts, littleVolts);
+  public void runVoltage(double volts) {
+    io.setVoltage(volts);
     closedLoop = false;
   }
 
   /** Run at velocity with closed loop control. */
-  public void runVelocity(double bigRpm, double littleRpm) {
-    bigRpm =
-        MathUtil.clamp(bigRpm, -bigVelocityRpm.get(), bigVelocityRpm.get());
-    littleRpm = MathUtil.clamp(littleRpm, -littleVelocityRpm.get(),
-        littleVelocityRpm.get());
-    bigGoal = new TrapezoidProfile.State(bigRpm, 0.0);
-    littleGoal = new TrapezoidProfile.State(littleRpm, 0.0);
+  public void runVelocity(double rpm) {
+    rpm = MathUtil.clamp(rpm, -maxVelocityRpm.get(), maxVelocityRpm.get());
+    goal = new TrapezoidProfile.State(rpm, 0.0);
     if (!closedLoop) {
-      bigLastState =
-          new TrapezoidProfile.State(getBigVelocity(), getBigAcceleration());
-
-      // The little flywheel spins down so quickly that using the current acceleration causes
-      // undesirable behavior.
-      littleLastState = new TrapezoidProfile.State(getLittleVelocity(), 0.0);
+      lastState = new TrapezoidProfile.State(getVelocity(), getAcceleration());
     }
     closedLoop = true;
   }
 
   /** Stops by going to open loop. */
   public void stop() {
-    runVoltage(0.0, 0.0);
+    runVoltage(0.0);
   }
 
-  /** Returns the current velocity of the big flywheel in RPM. */
-  public double getBigVelocity() {
-    return Units
-        .radiansPerSecondToRotationsPerMinute(inputs.bigVelocityRadPerSec);
+  /** Returns the current velocity of the flywheel in RPM. */
+  public double getVelocity() {
+    return Units.radiansPerSecondToRotationsPerMinute(inputs.velocityRadPerSec);
   }
 
-  /** Returns the current velocity of the little flywheel in RPM. */
-  public double getLittleVelocity() {
-    return Units
-        .radiansPerSecondToRotationsPerMinute(inputs.littleVelocityRadPerSec);
-  }
-
-  /** Returns the current acceleration of the big flywheel in RPM per second. */
-  public double getBigAcceleration() {
-    return (getBigVelocity() - bigRpmHistory.get(0))
+  /** Returns the current acceleration of the flywheel in RPM per second. */
+  public double getAcceleration() {
+    return (getVelocity() - rpmHistory.get(0))
         / (Constants.loopPeriodSecs * rpmHistoryLength.get());
   }
 
-  /** Returns the current acceleration of the little flywheel in RPM per second. */
-  public double getLittleAcceleration() {
-    return (getLittleVelocity() - littleRpmHistory.get(0))
-        / (Constants.loopPeriodSecs * rpmHistoryLength.get());
-  }
-
-  /** Returns whether the velocity has reached the closed loop setpoint on both flywheels. */
-  public boolean atSetpoints() {
+  /** Returns whether the velocity has reached the closed loop setpoint. */
+  public boolean atSetpoint() {
     if (closedLoop) {
-      boolean bigAtSetpoint =
-          Math.abs(getBigVelocity() - bigGoal.position) < bigToleranceRpm.get();
-      boolean littleAtSetpoint = Math.abs(
-          getLittleVelocity() - littleGoal.position) < littleToleranceRpm.get();
-      return bigAtSetpoint && littleAtSetpoint;
+      return Math.abs(getVelocity() - goal.position) < toleranceRpm.get();
     } else {
       return false;
     }
   }
 
-  /** Returns whether the velocity setpoints have reached the goals. */
-  public boolean profilesComplete() {
-    return bigProfileComplete && littleProfileComplete;
+  /** Returns whether the velocity setpoint has reached the goal. */
+  public boolean profileComplete() {
+    return profileComplete;
   }
 
-  /** Returns velocity of big flywheel in radians per second. Only use for characterization. */
-  public double getCharacterizationVelocityBig() {
-    return inputs.bigVelocityRadPerSec;
-  }
-
-  /** Returns velocity of little flywheel in radians per second. Only use for characterization. */
-  public double getCharacterizationVelocityLittle() {
-    return inputs.littleVelocityRadPerSec;
+  /** Returns velocity of flywheel in radians per second. Only use for characterization. */
+  public double getCharacterizationVelocity() {
+    return inputs.velocityRadPerSec;
   }
 }

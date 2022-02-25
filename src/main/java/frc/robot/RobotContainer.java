@@ -271,31 +271,18 @@ public class RobotContainer {
                 drive::getCharacterizationVelocityLeft,
                 drive::getCharacterizationVelocityRight)));
 
-    FeedForwardCharacterizationData bigFlywheelData =
-        new FeedForwardCharacterizationData("Big Flywheel");
-    autoRoutineMap.put("FF Characterization (Big Flywheel/Forwards)",
+    FeedForwardCharacterizationData flywheelData =
+        new FeedForwardCharacterizationData("Flywheels");
+    autoRoutineMap.put("FF Characterization (Flywheels/Forwards)",
         new AutoRoutine(AutoPosition.ORIGIN,
-            new FeedForwardCharacterization(flywheels, true, bigFlywheelData,
-                volts -> flywheels.runVoltage(volts, 0.0),
-                flywheels::getCharacterizationVelocityBig)));
-    autoRoutineMap.put("FF Characterization (Big Flywheel/Backwards)",
+            new FeedForwardCharacterization(flywheels, true, flywheelData,
+                volts -> flywheels.runVoltage(volts),
+                flywheels::getCharacterizationVelocity)));
+    autoRoutineMap.put("FF Characterization (Flywheels/Backwards)",
         new AutoRoutine(AutoPosition.ORIGIN,
-            new FeedForwardCharacterization(flywheels, false, bigFlywheelData,
-                volts -> flywheels.runVoltage(volts, 0.0),
-                flywheels::getCharacterizationVelocityBig)));
-
-    FeedForwardCharacterizationData littleFlywheelData =
-        new FeedForwardCharacterizationData("Little Flywheel");
-    autoRoutineMap.put("FF Characterization (Little Flywheel/Forwards)",
-        new AutoRoutine(AutoPosition.ORIGIN,
-            new FeedForwardCharacterization(flywheels, true, littleFlywheelData,
-                volts -> flywheels.runVoltage(0.0, volts),
-                flywheels::getCharacterizationVelocityLittle)));
-    autoRoutineMap.put("FF Characterization (Little Flywheel/Backwards)",
-        new AutoRoutine(AutoPosition.ORIGIN,
-            new FeedForwardCharacterization(flywheels, false,
-                littleFlywheelData, volts -> flywheels.runVoltage(0.0, volts),
-                flywheels::getCharacterizationVelocityLittle)));
+            new FeedForwardCharacterization(flywheels, false, flywheelData,
+                volts -> flywheels.runVoltage(volts),
+                flywheels::getCharacterizationVelocity)));
 
     // Alert if in tuning mode
     if (Constants.tuningMode) {
@@ -326,7 +313,7 @@ public class RobotContainer {
     // *** DRIVER CONTROLS ***
     handheldOI.getAutoAimButton().whileActiveContinuous(
         new DriveToTarget(drive, vision, handheldOI::getLeftDriveY));
-    Trigger flywheelsReady = new Trigger(flywheels::profilesComplete);
+    Trigger flywheelsReady = new Trigger(flywheels::profileComplete);
     handheldOI.getShootButton().and(flywheelsReady).whileActiveContinuous(
         new Shoot(tower, kicker, hood, leds, handheldOI::setDriverRumble));
 

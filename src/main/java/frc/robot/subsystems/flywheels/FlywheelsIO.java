@@ -11,50 +11,27 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 public interface FlywheelsIO {
   /** Contains all of the input data received from hardware. */
   public static class FlywheelsIOInputs implements LoggableInputs {
-    public double bigPositionRad = 0.0;
-    public double bigVelocityRadPerSec = 0.0;
-    public double bigAppliedVolts = 0.0;
-    public double[] bigCurrentAmps = new double[] {};
-    public double[] bigTempCelcius = new double[] {};
-
-    public double littlePositionRad = 0.0;
-    public double littleVelocityRadPerSec = 0.0;
-    public double littleAppliedVolts = 0.0;
-    public double[] littleCurrentAmps = new double[] {};
-    public double[] littleTempCelcius = new double[] {};
+    public double positionRad = 0.0;
+    public double velocityRadPerSec = 0.0;
+    public double appliedVolts = 0.0;
+    public double[] currentAmps = new double[] {};
+    public double[] tempCelcius = new double[] {};
 
     public void toLog(LogTable table) {
-      table.put("BigPositionRad", bigPositionRad);
-      table.put("BigVelocityRadPerSec", bigVelocityRadPerSec);
-      table.put("BigAppliedVolts", bigAppliedVolts);
-      table.put("BigCurrentAmps", bigCurrentAmps);
-      table.put("BigTempCelcius", bigTempCelcius);
-
-      table.put("LittlePositionRad", littlePositionRad);
-      table.put("LittleVelocityRadPerSec", littleVelocityRadPerSec);
-      table.put("LittleAppliedVolts", littleAppliedVolts);
-      table.put("LittleCurrentAmps", littleCurrentAmps);
-      table.put("LittleTempCelcius", littleTempCelcius);
+      table.put("PositionRad", positionRad);
+      table.put("VelocityRadPerSec", velocityRadPerSec);
+      table.put("AppliedVolts", appliedVolts);
+      table.put("CurrentAmps", currentAmps);
+      table.put("TempCelcius", tempCelcius);
     }
 
     public void fromLog(LogTable table) {
-      bigPositionRad = table.getDouble("BigPositionRad", bigPositionRad);
-      bigVelocityRadPerSec =
-          table.getDouble("BigVelocityRadPerSec", bigVelocityRadPerSec);
-      bigAppliedVolts = table.getDouble("BigAppliedVolts", bigAppliedVolts);
-      bigCurrentAmps = table.getDoubleArray("BigCurrentAmps", bigCurrentAmps);
-      bigTempCelcius = table.getDoubleArray("BigTempCelcius", bigTempCelcius);
-
-      littlePositionRad =
-          table.getDouble("LittlePositionRad", littlePositionRad);
-      littleVelocityRadPerSec =
-          table.getDouble("LittleVelocityRadPerSec", littleVelocityRadPerSec);
-      littleAppliedVolts =
-          table.getDouble("LittleAppliedVolts", littleAppliedVolts);
-      littleCurrentAmps =
-          table.getDoubleArray("LittleCurrentAmps", littleCurrentAmps);
-      littleTempCelcius =
-          table.getDoubleArray("LittleTempCelcius", littleTempCelcius);
+      positionRad = table.getDouble("PositionRad", positionRad);
+      velocityRadPerSec =
+          table.getDouble("VelocityRadPerSec", velocityRadPerSec);
+      appliedVolts = table.getDouble("AppliedVolts", appliedVolts);
+      currentAmps = table.getDoubleArray("CurrentAmps", currentAmps);
+      tempCelcius = table.getDoubleArray("TempCelcius", tempCelcius);
     }
   }
 
@@ -62,17 +39,14 @@ public interface FlywheelsIO {
   public default void updateInputs(FlywheelsIOInputs inputs) {}
 
   /** Run open loop at the specified voltage. */
-  public default void setVoltage(double bigVolts, double littleVolts) {}
+  public default void setVoltage(double volts) {}
 
   /** Run closed loop at the specified velocity. */
-  public default void setVelocity(double bigVelocityRadPerSec,
-      double littleVelocityRadPerSec, double bigFFVolts,
-      double littleFFVolts) {}
+  public default void setVelocity(double velocityRadPerSec, double ffVolts) {}
 
   /** Enable or disable brake mode. */
   public default void setBrakeMode(boolean enable) {}
 
   /** Set velocity PID constants. */
-  public default void configurePID(double bigKp, double bigKi, double bigKd,
-      double littleKp, double littleKi, double littleKd) {}
+  public default void configurePID(double kP, double kI, double kD) {}
 }

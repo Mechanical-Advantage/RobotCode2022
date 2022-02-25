@@ -12,14 +12,12 @@ import frc.robot.subsystems.hood.Hood;
 import frc.robot.util.TunableNumber;
 
 public class PrepareShooterPreset extends CommandBase {
-  private static final double littleMultiplier = 1.1 * 3.0;
-
-  private static final TunableNumber lowerFenderBigRpm =
-      new TunableNumber("PrepareShooter/LowerFenderBigRPM");
-  private static final TunableNumber upperFenderBigRpm =
-      new TunableNumber("PrepareShooter/UpperFenderBigRPM");
-  private static final TunableNumber upperTarmacBigRpm =
-      new TunableNumber("PrepareShooter/UpperTarmacBigRPM");
+  private static final TunableNumber lowerFenderRpm =
+      new TunableNumber("PrepareShooter/LowerFenderRPM");
+  private static final TunableNumber upperFenderRpm =
+      new TunableNumber("PrepareShooter/UpperFenderRPM");
+  private static final TunableNumber upperTarmacRpm =
+      new TunableNumber("PrepareShooter/UpperTarmacRPM");
 
   private final Flywheels flywheels;
   private final Hood hood;
@@ -36,9 +34,9 @@ public class PrepareShooterPreset extends CommandBase {
     this.hood = hood;
     this.preset = preset;
 
-    lowerFenderBigRpm.setDefault(1175.0);
-    upperFenderBigRpm.setDefault(1100.0);
-    upperTarmacBigRpm.setDefault(2650.0);
+    lowerFenderRpm.setDefault(500.0);
+    upperFenderRpm.setDefault(1100.0);
+    upperTarmacRpm.setDefault(1175.0);
   }
 
   // Called when the command is initially scheduled.
@@ -49,26 +47,25 @@ public class PrepareShooterPreset extends CommandBase {
   @Override
   public void execute() {
     boolean raised = false;
-    double bigSpeed = 0.0, littleSpeed = 0.0;
+    double speed = 0.0;
     switch (preset) {
       case LOWER_FENDER:
         raised = true;
-        bigSpeed = lowerFenderBigRpm.get();
+        speed = lowerFenderRpm.get();
         break;
       case UPPER_FENDER:
         raised = false;
-        bigSpeed = upperFenderBigRpm.get();
+        speed = upperFenderRpm.get();
         break;
       case UPPER_TARMAC:
         raised = false;
-        bigSpeed = upperTarmacBigRpm.get();
+        speed = upperTarmacRpm.get();
         break;
       default:
         break;
     }
     hood.requestShootPosition(raised);
-    littleSpeed = bigSpeed * littleMultiplier;
-    flywheels.runVelocity(bigSpeed, littleSpeed);
+    flywheels.runVelocity(speed);
     Logger.getInstance().recordOutput("ActiveCommands/PrepareShooterPreset",
         true);
   }

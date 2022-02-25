@@ -42,10 +42,8 @@ public class LoggedChoosers extends SubsystemBase {
             "HP Practice", "Track Width Characterization",
             "FF Characterization (Drive/Forwards)",
             "FF Characterization (Drive/Backwards)",
-            "FF Characterization (Big Flywheel/Forwards)",
-            "FF Characterization (Big Flywheel/Backwards)",
-            "FF Characterization (Little Flywheel/Forwards)",
-            "FF Characterization (Little Flywheel/Backwards)"));
+            "FF Characterization (Flywheels/Forwards)",
+            "FF Characterization (Flywheels/Backwards)"));
 
     SmartDashboard.putData("Joystick Mode", joystickModeChooser);
     SmartDashboard.putData("Auto Routine", autoRoutineChooser);

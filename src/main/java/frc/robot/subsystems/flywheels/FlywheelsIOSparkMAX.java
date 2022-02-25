@@ -18,120 +18,78 @@ import frc.robot.Constants;
 import frc.robot.util.SparkMAXBurnManager;
 
 public class FlywheelsIOSparkMAX implements FlywheelsIO {
-  private boolean bigInvert = false;
-  private double bigAfterEncoderReduction = 1.0;
+  private boolean invert = false;
+  private double afterEncoderReduction = 1.0;
 
-  private boolean littleInvert = false;
-  private double littleAfterEncoderReduction = 1.0;
-
-  private CANSparkMax bigMotor;
-  private RelativeEncoder bigEncoder;
-  private SparkMaxPIDController bigPID;
-
-  private CANSparkMax littleMotor;
-  private RelativeEncoder littleEncoder;
-  private SparkMaxPIDController littlePID;
+  private CANSparkMax motor;
+  private RelativeEncoder encoder;
+  private SparkMaxPIDController pid;
 
   public FlywheelsIOSparkMAX() {
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
-        bigMotor = new CANSparkMax(2, MotorType.kBrushless);
-        littleMotor = new CANSparkMax(3, MotorType.kBrushless);
-        bigInvert = true;
-        bigAfterEncoderReduction = (48.0 / 24.0);
-        littleInvert = false;
-        littleAfterEncoderReduction = (1.0 / 2.0);
+        motor = new CANSparkMax(2, MotorType.kBrushless);
+        invert = true;
+        afterEncoderReduction = (48.0 / 24.0);
         break;
       default:
         throw new RuntimeException("Invalid robot for FlywheelsIOSparkMax!");
     }
 
     if (SparkMAXBurnManager.shouldBurn()) {
-      bigMotor.restoreFactoryDefaults();
-      littleMotor.restoreFactoryDefaults();
+      motor.restoreFactoryDefaults();
     }
 
-    bigMotor.setInverted(bigInvert);
-    littleMotor.setInverted(littleInvert);
-    bigMotor.setSmartCurrentLimit(50);
-    littleMotor.setSmartCurrentLimit(40);
-    bigMotor.enableVoltageCompensation(12.0);
-    littleMotor.enableVoltageCompensation(12.0);
+    motor.setInverted(invert);
+    motor.setSmartCurrentLimit(50);
+    motor.enableVoltageCompensation(12.0);
 
-    bigEncoder = bigMotor.getEncoder();
-    littleEncoder = littleMotor.getEncoder();
-    bigPID = bigMotor.getPIDController();
-    littlePID = littleMotor.getPIDController();
+    encoder = motor.getEncoder();
+    pid = motor.getPIDController();
 
-    bigMotor.setCANTimeout(0);
-    littleMotor.setCANTimeout(0);
+    motor.setCANTimeout(0);
 
     if (SparkMAXBurnManager.shouldBurn()) {
-      bigMotor.burnFlash();
-      littleMotor.burnFlash();
+      motor.burnFlash();
     }
   }
 
   @Override
   public void updateInputs(FlywheelsIOInputs inputs) {
-    inputs.bigPositionRad = Units.rotationsToRadians(bigEncoder.getPosition())
-        / bigAfterEncoderReduction;
-    inputs.bigVelocityRadPerSec =
-        Units.rotationsPerMinuteToRadiansPerSecond(bigEncoder.getVelocity())
-            / bigAfterEncoderReduction;
-    inputs.bigAppliedVolts =
-        bigMotor.getAppliedOutput() * RobotController.getBatteryVoltage();
-    inputs.bigCurrentAmps = new double[] {bigMotor.getOutputCurrent(),};
-    inputs.bigTempCelcius = new double[] {bigMotor.getMotorTemperature(),};
-
-    inputs.littlePositionRad =
-        Units.rotationsToRadians(littleEncoder.getPosition())
-            / littleAfterEncoderReduction;
-    inputs.littleVelocityRadPerSec =
-        Units.rotationsPerMinuteToRadiansPerSecond(littleEncoder.getVelocity())
-            / littleAfterEncoderReduction;
-    inputs.littleAppliedVolts =
-        littleMotor.getAppliedOutput() * RobotController.getBatteryVoltage();
-    inputs.littleCurrentAmps = new double[] {littleMotor.getOutputCurrent()};
-    inputs.littleTempCelcius = new double[] {littleMotor.getMotorTemperature()};
+    inputs.positionRad =
+        Units.rotationsToRadians(encoder.getPosition()) / afterEncoderReduction;
+    inputs.velocityRadPerSec =
+        Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity())
+            / afterEncoderReduction;
+    inputs.appliedVolts =
+        motor.getAppliedOutput() * RobotController.getBatteryVoltage();
+    inputs.currentAmps = new double[] {motor.getOutputCurrent(),};
+    inputs.tempCelcius = new double[] {motor.getMotorTemperature()};
   }
 
   @Override
-  public void setVoltage(double bigVolts, double littleVolts) {
-    bigMotor.setVoltage(bigVolts);
-    littleMotor.setVoltage(littleVolts);
+  public void setVoltage(double volts) {
+    motor.setVoltage(volts);
   }
 
   @Override
-  public void setVelocity(double bigVelocityRadPerSec,
-      double littleVelocityRadPerSec, double bigFFVolts, double littleFFVolts) {
-    bigPID.setReference(
-        Units.radiansPerSecondToRotationsPerMinute(bigVelocityRadPerSec)
-            * bigAfterEncoderReduction,
-        ControlType.kVelocity, 0, bigFFVolts, ArbFFUnits.kVoltage);
-    littlePID.setReference(
-        Units.radiansPerSecondToRotationsPerMinute(littleVelocityRadPerSec)
-            * littleAfterEncoderReduction,
-        ControlType.kVelocity, 0, littleFFVolts, ArbFFUnits.kVoltage);
+  public void setVelocity(double velocityRadPerSec, double ffVolts) {
+    pid.setReference(
+        Units.radiansPerSecondToRotationsPerMinute(velocityRadPerSec)
+            * afterEncoderReduction,
+        ControlType.kVelocity, 0, ffVolts, ArbFFUnits.kVoltage);
   }
 
   @Override
   public void setBrakeMode(boolean enable) {
-    bigMotor.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
-    littleMotor.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
+    motor.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
   }
 
   @Override
-  public void configurePID(double bigKp, double bigKi, double bigKd,
-      double littleKp, double littleKi, double littleKd) {
-    bigPID.setP(bigKp, 0);
-    bigPID.setI(bigKi, 0);
-    bigPID.setD(bigKd, 0);
-    bigPID.setFF(0, 0);
-
-    littlePID.setP(littleKp, 0);
-    littlePID.setI(littleKi, 0);
-    littlePID.setD(littleKd, 0);
-    littlePID.setFF(0, 0);
+  public void configurePID(double kP, double kI, double kD) {
+    pid.setP(kP, 0);
+    pid.setI(kI, 0);
+    pid.setD(kD, 0);
+    pid.setFF(0, 0);
   }
 }
