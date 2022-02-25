@@ -72,8 +72,8 @@ public class Flywheels extends SubsystemBase {
         bigVelocityRpm.setDefault(2650.0);
         bigAccelerationRpmPerSec2.setDefault(2000.0);
         bigJerkRpmPerSec3.setDefault(2500.0);
-        bigFFModel = new SimpleMotorFeedforward(0.12742, 0.04);
-        bigKp.setDefault(0.0004);
+        bigFFModel = new SimpleMotorFeedforward(0.41440, 0.0425);
+        bigKp.setDefault(0.00006);
         bigKi.setDefault(0.0);
         bigKd.setDefault(0.0);
         bigToleranceRpm.setDefault(50.0);

@@ -59,7 +59,7 @@ public class Shoot extends CommandBase {
     rumbleDurationSecs.setDefault(0.2);
 
     towerSpeed.setDefault(0.35);
-    kickerSpeed.setDefault(1.0);
+    kickerSpeed.setDefault(0.3);
   }
 
   // Called when the command is initially scheduled.
