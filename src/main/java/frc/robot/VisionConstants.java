@@ -18,19 +18,19 @@ public final class VisionConstants {
   public static final Rotation2d fovHorizontal = Rotation2d.fromDegrees(59.6);
   public static final Rotation2d fovVertical = Rotation2d.fromDegrees(49.7);
 
-  private static final double lowerCameraHeight = Units.inchesToMeters(37.108);
+  private static final double lowerCameraHeight = Units.inchesToMeters(37.2);
   private static final TunableNumber lowerVerticalRotationDegrees =
       new TunableNumber("VisionConstants/LowerVerticalRotationDegrees");
-  private static final double lowerOffsetX = Units.inchesToMeters(12.058);
+  private static final double lowerOffsetX = Units.inchesToMeters(12.0);
 
-  private static final double upperCameraHeight = Units.inchesToMeters(43.077);
+  private static final double upperCameraHeight = Units.inchesToMeters(42.5);
   private static final TunableNumber upperVerticalRotationDegrees =
       new TunableNumber("VisionConstants/UpperVerticalRotationDegrees");
-  private static final double upperOffsetX = Units.inchesToMeters(8.827);
+  private static final double upperOffsetX = Units.inchesToMeters(9.0);
 
   static {
-    lowerVerticalRotationDegrees.setDefault(45.1);
-    upperVerticalRotationDegrees.setDefault(20.0);
+    lowerVerticalRotationDegrees.setDefault(43.3);
+    upperVerticalRotationDegrees.setDefault(25.0);
   }
 
   public static CameraPosition getCameraPosition(HoodState hoodState) {

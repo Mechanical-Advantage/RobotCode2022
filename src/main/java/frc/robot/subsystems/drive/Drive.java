@@ -35,8 +35,8 @@ public class Drive extends SubsystemBase {
   private static final double maxCoastVelocityMetersPerSec = 0.05; // Need to be under this to
                                                                    // switch to coast when disabling
   private static final int poseHistoryCapacity = 500;
-  private static final double maxNoVisionLog = 0.1; // How long to wait with no vision data before
-                                                    // clearing log visualization
+  private static final double maxNoVisionLog = 0.25; // How long to wait with no vision data before
+                                                     // clearing log visualization
   private static final double visionNominalFramerate = 45;
   private static final double visionShiftPerSec = 0.85; // After one second of vision data, what %
   // of pose average should be vision

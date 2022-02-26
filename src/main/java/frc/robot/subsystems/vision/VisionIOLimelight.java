@@ -21,6 +21,8 @@ public class VisionIOLimelight implements VisionIO {
 
   private final NetworkTableEntry ledEntry = NetworkTableInstance.getDefault()
       .getTable("limelight").getEntry("ledMode");
+  private final NetworkTableEntry validEntry =
+      NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv");
   private final NetworkTableEntry latencyEntry =
       NetworkTableInstance.getDefault().getTable("limelight").getEntry("tl");
   private final NetworkTableEntry dataEntry = NetworkTableInstance.getDefault()
@@ -33,14 +35,16 @@ public class VisionIOLimelight implements VisionIO {
 
       List<Double> cornerXList = new ArrayList<>();
       List<Double> cornerYList = new ArrayList<>();
-      boolean isX = true;
-      for (double coordinate : dataEntry.getDoubleArray(new double[] {})) {
-        if (isX) {
-          cornerXList.add(coordinate);
-        } else {
-          cornerYList.add(coordinate);
+      if (validEntry.getDouble(0.0) == 1.0) {
+        boolean isX = true;
+        for (double coordinate : dataEntry.getDoubleArray(new double[] {})) {
+          if (isX) {
+            cornerXList.add(coordinate);
+          } else {
+            cornerYList.add(coordinate);
+          }
+          isX = !isX;
         }
-        isX = !isX;
       }
 
       synchronized (VisionIOLimelight.this) {
@@ -63,6 +67,6 @@ public class VisionIOLimelight implements VisionIO {
 
   @Override
   public void setLeds(boolean enabled) {
-    ledEntry.forceSetNumber(enabled ? 3 : 1);
+    ledEntry.forceSetDouble(enabled ? 3.0 : 1.0);
   }
 }

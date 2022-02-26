@@ -39,8 +39,8 @@ public class IdleHood extends CommandBase {
     this.drive = drive;
     this.visionModeSupplier = visionModeSupplier;
 
-    nearThresholdMeters.setDefault(2.4);
-    farThresholdMeters.setDefault(2.7);
+    nearThresholdMeters.setDefault(2.5);
+    farThresholdMeters.setDefault(3.5);
   }
 
   // Called when the command is initially scheduled.

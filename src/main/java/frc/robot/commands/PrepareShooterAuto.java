@@ -19,8 +19,8 @@ import frc.robot.util.LinearInterpolation;
 public class PrepareShooterAuto extends CommandBase {
 
   private static final LinearInterpolation lowerInterpolation =
-      new LinearInterpolation(List.of(new LinearInterpolation.Point(1.0, 500.0),
-          new LinearInterpolation.Point(2.0, 700.0)));
+      new LinearInterpolation(List.of(new LinearInterpolation.Point(1.4, 500.0),
+          new LinearInterpolation.Point(2.8, 900.0)));
   private static final LinearInterpolation upperInterpolation =
       new LinearInterpolation(
           List.of(new LinearInterpolation.Point(1.0, 1100.0),
@@ -63,7 +63,7 @@ public class PrepareShooterAuto extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    hood.requestShootPosition(false);
+    hood.requestShootPosition(!upper);
     if (staticPosition != null) {
       update(staticPosition);
     }

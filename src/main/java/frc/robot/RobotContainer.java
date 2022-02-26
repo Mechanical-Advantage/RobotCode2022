@@ -27,6 +27,7 @@ import frc.robot.commands.FourCargoAutoCross;
 import frc.robot.commands.HPPractice;
 import frc.robot.commands.IdleHood;
 import frc.robot.commands.OneCargoAuto;
+import frc.robot.commands.PrepareShooterAuto;
 import frc.robot.commands.PrepareShooterPreset;
 import frc.robot.commands.ResetClimber;
 import frc.robot.commands.RunClimber;
@@ -74,7 +75,7 @@ import frc.robot.subsystems.tower.TowerIO;
 import frc.robot.subsystems.tower.TowerIOSparkMAX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
-import frc.robot.subsystems.vision.VisionIOPhotonVision;
+import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.util.Alert;
 import frc.robot.util.GeomUtil;
 import frc.robot.util.LedSelector;
@@ -122,7 +123,7 @@ public class RobotContainer {
       switch (Constants.getRobot()) {
         case ROBOT_2022C:
           drive = new Drive(new DriveIOSparkMAX());
-          vision = new Vision(new VisionIOPhotonVision());
+          vision = new Vision(new VisionIOLimelight());
           flywheels = new Flywheels(new FlywheelsIOSparkMAX());
           hood = new Hood(new HoodIOReal());
           kicker = new Kicker(new KickerIOSparkMAX());
@@ -333,7 +334,7 @@ public class RobotContainer {
             handheldOI::setOperatorRumble));
 
     Command lowerFenderCommand =
-        new PrepareShooterPreset(flywheels, hood, ShooterPreset.LOWER_FENDER);
+        new PrepareShooterAuto(false, flywheels, hood, drive);
     Command upperFenderCommand =
         new PrepareShooterPreset(flywheels, hood, ShooterPreset.UPPER_FENDER);
     Command upperTarmacCommand =
