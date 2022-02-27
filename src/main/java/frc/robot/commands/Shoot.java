@@ -24,8 +24,6 @@ public class Shoot extends CommandBase {
   private static final TunableNumber rumbleDurationSecs =
       new TunableNumber("Shoot/RumbleDuration");
 
-  private static final TunableNumber towerSpeed =
-      new TunableNumber("Shoot/TowerSpeed");
   private static final TunableNumber kickerSpeed =
       new TunableNumber("Shoot/KickerSpeed");
 
@@ -57,8 +55,6 @@ public class Shoot extends CommandBase {
 
     rumblePercent.setDefault(0.5);
     rumbleDurationSecs.setDefault(0.2);
-
-    towerSpeed.setDefault(0.35);
     kickerSpeed.setDefault(0.3);
   }
 
@@ -80,8 +76,14 @@ public class Shoot extends CommandBase {
     Logger.getInstance().recordOutput("ActiveCommands/Shoot", true);
 
     boolean shouldShoot = hood.getState() != HoodState.MOVING;
-    tower.runPercent(shouldShoot ? towerSpeed.get() : 0);
-    kicker.runPercent(shouldShoot ? kickerSpeed.get() : 0);
+    Logger.getInstance().recordOutput("Shoot/HoodBlocked", !shouldShoot);
+    if (shouldShoot) {
+      tower.runShootSpeed();
+      kicker.runPercent(kickerSpeed.get());
+    } else {
+      tower.runPercent(0.0);
+      kicker.runPercent(0.0);
+    }
 
     boolean rumbleTripped = tower.getUpperCargoSensor();
     if (rumbleLastTripped && !rumbleTripped && enableRumble) {

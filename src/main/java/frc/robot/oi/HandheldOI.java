@@ -31,6 +31,10 @@ public interface HandheldOI {
     return new Trigger();
   }
 
+  public default Trigger getAutoDriveButton() {
+    return new Trigger();
+  }
+
   public default Trigger getAutoAimButton() {
     return new Trigger();
   }

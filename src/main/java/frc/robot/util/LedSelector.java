@@ -23,6 +23,8 @@ public class LedSelector {
   private static final BlinkinLedMode autoAlertMode =
       BlinkinLedMode.SOLID_GREEN;
   private static final BlinkinLedMode shootingMode = BlinkinLedMode.ONE_STROBE;
+  private static final BlinkinLedMode targetedMode =
+      BlinkinLedMode.FIXED_STROBE_WHITE;
   private static final BlinkinLedMode towerFullMode =
       BlinkinLedMode.SOLID_GREEN;
   private static final BlinkinLedMode intakingMode = BlinkinLedMode.SOLID_BLUE;
@@ -35,6 +37,8 @@ public class LedSelector {
   // Robot state tracking
   private boolean autoAlert = false;
   private boolean shooting = false;
+  private boolean driveTargeted = false;
+  private boolean flywheelsReady = false;
   private boolean towerFull = false;
   private boolean intaking = false;
   private boolean climbing = false;
@@ -66,6 +70,8 @@ public class LedSelector {
         mode = autoAlertMode;
       } else if (shooting) {
         mode = shootingMode;
+      } else if (driveTargeted && flywheelsReady && DriverStation.isTeleop()) {
+        mode = targetedMode;
       } else if (towerFull && DriverStation.isTeleop()) {
         mode = towerFullMode;
       } else if (intaking && DriverStation.isTeleop()) {
@@ -88,6 +94,14 @@ public class LedSelector {
 
   public void setShooting(boolean active) {
     shooting = active;
+  }
+
+  public void setDriveTargeted(boolean active) {
+    driveTargeted = active;
+  }
+
+  public void setFlywheelsReady(boolean active) {
+    flywheelsReady = active;
   }
 
   public void setTowerFull(boolean active) {

@@ -28,6 +28,7 @@ public class Tower extends SubsystemBase {
 
   private LedSelector leds;
   private Supplier<Boolean> cargoSensorDisableSupplier = () -> false;
+  private double shootSpeed = 0.0;
 
   /** Creates a new Tower. */
   public Tower(TowerIO io) {
@@ -71,6 +72,14 @@ public class Tower extends SubsystemBase {
   /** Run at the specified percentage. */
   public void runPercent(double percent) {
     io.setVoltage(percent * 12.0);
+  }
+
+  public void requestShootPercent(double percent) {
+    shootSpeed = percent;
+  }
+
+  public void runShootSpeed() {
+    runPercent(shootSpeed);
   }
 
   public void stop() {

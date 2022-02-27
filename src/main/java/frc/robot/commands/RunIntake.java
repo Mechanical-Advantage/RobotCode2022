@@ -90,7 +90,7 @@ public class RunIntake extends CommandBase {
     rollerForwardsSpeed.setDefault(0.35);
     hopperForwardsSpeed.setDefault(1.0);
     towerForwardsSpeed.setDefault(0.5);
-    kickerForwardsSpeed.setDefault(-0.5);
+    kickerForwardsSpeed.setDefault(-0.3);
 
     rollerBackwardsSpeed.setDefault(-1.0);
     hopperBackwardsSpeed.setDefault(-1.0);

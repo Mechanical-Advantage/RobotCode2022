@@ -49,6 +49,7 @@ public class Vision extends SubsystemBase {
 
   private boolean ledsOn = false;
   private boolean forceLeds = false;
+  private boolean autoEnabled = false;
   private Timer targetGraceTimer = new Timer();
 
   /** Creates a new Vision. */
@@ -66,13 +67,17 @@ public class Vision extends SubsystemBase {
   }
 
   public void setTranslationConsumer(
-      Consumer<TimestampedTranslation2d> consumer) {
-    translationConsumer = consumer;
+      Consumer<TimestampedTranslation2d> translationConsumer) {
+    this.translationConsumer = translationConsumer;
   }
 
   /** Use to enable LEDs continuously while override is "Auto" */
   public void setForceLeds(boolean on) {
     forceLeds = on;
+  }
+
+  public void setAutoEnabled(boolean enabled) {
+    autoEnabled = enabled;
   }
 
   @Override
@@ -102,7 +107,7 @@ public class Vision extends SubsystemBase {
         } else if (DriverStation.isDisabled()) {
           ledsOn = false;
         } else if (DriverStation.isAutonomous()) {
-          ledsOn = true;
+          ledsOn = autoEnabled;
         } else if (climbModeSupplier.get()) {
           ledsOn = false;
         } else {

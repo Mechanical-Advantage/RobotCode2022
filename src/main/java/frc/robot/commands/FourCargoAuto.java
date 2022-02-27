@@ -27,37 +27,40 @@ import frc.robot.util.LedSelector;
 public class FourCargoAuto extends SequentialCommandGroup {
   public static final Pose2d terminalCargoPosition =
       FieldConstants.cargoG.transformBy(new Transform2d(
-          new Translation2d(0.5, 0.0), Rotation2d.fromDegrees(180.0)));
+          new Translation2d(0.4, 0.1), Rotation2d.fromDegrees(180.0)));
   public static final Pose2d terminalCargoApproachPosition =
       terminalCargoPosition
-          .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0));
+          .transformBy(GeomUtil.transformFromTranslation(-0.8, 0.0));
 
   /** Creates a new FourCargoAuto. */
   public FourCargoAuto(Drive drive, Vision vision, Flywheels flywheels,
       Hood hood, Tower tower, Kicker kicker, Intake intake, LedSelector leds) {
     addCommands(
-        new TwoCargoAuto(AutoPosition.TARMAC_D, drive, vision, flywheels, hood,
-            tower, kicker, intake, leds),
+        new TwoCargoAuto(false, AutoPosition.TARMAC_D, drive, vision, flywheels,
+            hood, tower, kicker, intake, leds),
         deadline(
             sequence(
-                sequence(
-                    new MotionProfileCommand(drive, 0.0, List.of(
-                        TwoCargoAuto.shootPositions.get(AutoPosition.TARMAC_D),
-                        TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_C)
-                            .transformBy(new Transform2d(new Translation2d(),
-                                Rotation2d.fromDegrees(-20.0))),
-                        terminalCargoApproachPosition, terminalCargoPosition),
+                sequence(new TurnToAngleProfile(drive,
+                    TwoCargoAuto.cargoPositions.get(
+                        AutoPosition.TARMAC_D).getRotation(),
+                    ThreeCargoAuto.tarmacDCTurnPosition.getRotation()),
+                    new MotionProfileCommand(drive, 0.0,
+                        List.of(ThreeCargoAuto.tarmacDCTurnPosition,
+                            FieldConstants.cargoD.transformBy(
+                                new Transform2d(new Translation2d(),
+                                    Rotation2d.fromDegrees(-60.0))),
+                            terminalCargoApproachPosition,
+                            terminalCargoPosition),
                         0.0, false),
                     new MotionProfileCommand(drive, 0.0,
                         List.of(terminalCargoPosition,
-                            TwoCargoAuto.shootPositions
+                            TwoCargoAuto.cargoPositions
                                 .get(AutoPosition.TARMAC_C)),
                         0.0, true)).deadlineWith(
-                            new RunIntake(true, intake, tower, kicker, leds),
-                            new IdleHood(hood, drive)),
+                            new RunIntake(true, intake, tower, kicker, leds)),
                 new Shoot(tower, kicker, hood, leds)
                     .withTimeout(OneCargoAuto.shootDurationSecs)),
-            new PrepareShooterPreset(flywheels, hood,
-                ShooterPreset.UPPER_FENDER)));
+            new PrepareShooterPreset(flywheels, hood, tower,
+                ShooterPreset.UPPER_TARMAC_HIGH)));
   }
 }

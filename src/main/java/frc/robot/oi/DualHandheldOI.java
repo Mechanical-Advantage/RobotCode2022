@@ -44,8 +44,13 @@ public class DualHandheldOI implements HandheldOI {
   }
 
   @Override
+  public Trigger getAutoDriveButton() {
+    return new Trigger(() -> driverController.getLeftTriggerAxis() > 0.5);
+  }
+
+  @Override
   public Trigger getAutoAimButton() {
-    return new Trigger(driverController::getLeftBumper);
+    return new Trigger(() -> driverController.getRightTriggerAxis() > 0.5);
   }
 
   @Override

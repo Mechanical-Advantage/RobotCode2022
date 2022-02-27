@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Mode;
+import frc.robot.commands.AutoAim;
 import frc.robot.commands.DriveToTarget;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.FeedForwardCharacterization;
@@ -175,9 +176,11 @@ public class RobotContainer {
         () -> handheldOI.getLeftDriveY(), () -> handheldOI.getRightDriveX(),
         () -> handheldOI.getRightDriveY(),
         () -> handheldOI.getSniperModeButton().get()));
+    drive.setLeds(leds);
     vision.setSuppliers(() -> overrideOI.getVisionLedMode(),
         () -> overrideOI.getClimbMode(), hood::getState);
     vision.setTranslationConsumer(drive::addVisionMeasurement);
+    flywheels.setLeds(leds);
     hood.setDefaultCommand(
         new IdleHood(hood, drive, () -> overrideOI.getVisionLedMode()));
     tower.setLeds(leds);
@@ -186,71 +189,71 @@ public class RobotContainer {
 
     // Set up auto routines
     autoRoutineMap.put("Do Nothing",
-        new AutoRoutine(AutoPosition.ORIGIN, new InstantCommand()));
+        new AutoRoutine(AutoPosition.ORIGIN, true, new InstantCommand()));
 
     autoRoutineMap.put("Five cargo (TD)",
-        new AutoRoutine(AutoPosition.TARMAC_D, new FiveCargoAuto(drive, vision,
-            flywheels, hood, tower, kicker, intake, leds)));
-    autoRoutineMap.put("Four cargo, standard (TD)",
-        new AutoRoutine(AutoPosition.TARMAC_D, new FourCargoAuto(drive, vision,
-            flywheels, hood, tower, kicker, intake, leds)));
-    autoRoutineMap.put("Four cargo, cross field (TA)",
-        new AutoRoutine(AutoPosition.TARMAC_A, new FourCargoAutoCross(drive,
+        new AutoRoutine(AutoPosition.TARMAC_D, false, new FiveCargoAuto(drive,
             vision, flywheels, hood, tower, kicker, intake, leds)));
+    autoRoutineMap.put("Four cargo, standard (TD)",
+        new AutoRoutine(AutoPosition.TARMAC_D, false, new FourCargoAuto(drive,
+            vision, flywheels, hood, tower, kicker, intake, leds)));
+    autoRoutineMap.put("Four cargo, cross field (TA)",
+        new AutoRoutine(AutoPosition.TARMAC_A, false, new FourCargoAutoCross(
+            drive, vision, flywheels, hood, tower, kicker, intake, leds)));
     autoRoutineMap.put("Three cargo (TD)",
-        new AutoRoutine(AutoPosition.TARMAC_D, new ThreeCargoAuto(drive, vision,
-            flywheels, hood, tower, kicker, intake, leds)));
+        new AutoRoutine(AutoPosition.TARMAC_D, false, new ThreeCargoAuto(drive,
+            vision, flywheels, hood, tower, kicker, intake, leds)));
 
     autoRoutineMap.put("Two cargo (TA)",
-        new AutoRoutine(AutoPosition.TARMAC_A,
-            new TwoCargoAuto(AutoPosition.TARMAC_A, drive, vision, flywheels,
-                hood, tower, kicker, intake, leds)));
+        new AutoRoutine(AutoPosition.TARMAC_A, false,
+            new TwoCargoAuto(true, AutoPosition.TARMAC_A, drive, vision,
+                flywheels, hood, tower, kicker, intake, leds)));
     autoRoutineMap.put("Two cargo (TC)",
-        new AutoRoutine(AutoPosition.TARMAC_C,
-            new TwoCargoAuto(AutoPosition.TARMAC_C, drive, vision, flywheels,
-                hood, tower, kicker, intake, leds)));
+        new AutoRoutine(AutoPosition.TARMAC_C, false,
+            new TwoCargoAuto(true, AutoPosition.TARMAC_C, drive, vision,
+                flywheels, hood, tower, kicker, intake, leds)));
     autoRoutineMap.put("Two cargo (TD)",
-        new AutoRoutine(AutoPosition.TARMAC_D,
-            new TwoCargoAuto(AutoPosition.TARMAC_D, drive, vision, flywheels,
-                hood, tower, kicker, intake, leds)));
+        new AutoRoutine(AutoPosition.TARMAC_D, false,
+            new TwoCargoAuto(true, AutoPosition.TARMAC_D, drive, vision,
+                flywheels, hood, tower, kicker, intake, leds)));
 
     autoRoutineMap.put("One cargo (TA)",
-        new AutoRoutine(AutoPosition.TARMAC_A, new OneCargoAuto(false, drive,
-            vision, flywheels, hood, tower, kicker, leds)));
+        new AutoRoutine(AutoPosition.TARMAC_A, true, new OneCargoAuto(false,
+            drive, vision, flywheels, hood, tower, kicker, leds)));
     autoRoutineMap.put("One cargo (TB)",
-        new AutoRoutine(AutoPosition.TARMAC_B, new OneCargoAuto(false, drive,
-            vision, flywheels, hood, tower, kicker, leds)));
+        new AutoRoutine(AutoPosition.TARMAC_B, true, new OneCargoAuto(false,
+            drive, vision, flywheels, hood, tower, kicker, leds)));
     autoRoutineMap.put("One cargo (TC)",
-        new AutoRoutine(AutoPosition.TARMAC_C, new OneCargoAuto(false, drive,
-            vision, flywheels, hood, tower, kicker, leds)));
+        new AutoRoutine(AutoPosition.TARMAC_C, true, new OneCargoAuto(false,
+            drive, vision, flywheels, hood, tower, kicker, leds)));
     autoRoutineMap.put("One cargo (TD)",
-        new AutoRoutine(AutoPosition.TARMAC_D, new OneCargoAuto(false, drive,
-            vision, flywheels, hood, tower, kicker, leds)));
+        new AutoRoutine(AutoPosition.TARMAC_D, true, new OneCargoAuto(false,
+            drive, vision, flywheels, hood, tower, kicker, leds)));
     autoRoutineMap.put("One cargo (FA)",
-        new AutoRoutine(AutoPosition.FENDER_A, new OneCargoAuto(true, drive,
-            vision, flywheels, hood, tower, kicker, leds)));
+        new AutoRoutine(AutoPosition.FENDER_A, true, new OneCargoAuto(true,
+            drive, vision, flywheels, hood, tower, kicker, leds)));
     autoRoutineMap.put("One cargo (FB)",
-        new AutoRoutine(AutoPosition.FENDER_B, new OneCargoAuto(true, drive,
-            vision, flywheels, hood, tower, kicker, leds)));
+        new AutoRoutine(AutoPosition.FENDER_B, true, new OneCargoAuto(true,
+            drive, vision, flywheels, hood, tower, kicker, leds)));
 
     autoRoutineMap.put("Taxi (TA)",
-        new AutoRoutine(AutoPosition.TARMAC_A, new Taxi(drive, false)));
+        new AutoRoutine(AutoPosition.TARMAC_A, true, new Taxi(drive, false)));
     autoRoutineMap.put("Taxi (TB)",
-        new AutoRoutine(AutoPosition.TARMAC_B, new Taxi(drive, false)));
+        new AutoRoutine(AutoPosition.TARMAC_B, true, new Taxi(drive, false)));
     autoRoutineMap.put("Taxi (TC)",
-        new AutoRoutine(AutoPosition.TARMAC_C, new Taxi(drive, false)));
+        new AutoRoutine(AutoPosition.TARMAC_C, true, new Taxi(drive, false)));
     autoRoutineMap.put("Taxi (TD)",
-        new AutoRoutine(AutoPosition.TARMAC_D, new Taxi(drive, false)));
+        new AutoRoutine(AutoPosition.TARMAC_D, true, new Taxi(drive, false)));
     autoRoutineMap.put("Taxi (FA)",
-        new AutoRoutine(AutoPosition.FENDER_A, new Taxi(drive, true)));
+        new AutoRoutine(AutoPosition.FENDER_A, true, new Taxi(drive, true)));
     autoRoutineMap.put("Taxi (FB)",
-        new AutoRoutine(AutoPosition.FENDER_B, new Taxi(drive, true)));
+        new AutoRoutine(AutoPosition.FENDER_B, true, new Taxi(drive, true)));
 
     autoRoutineMap.put("HP Practice", new AutoRoutine(AutoPosition.ORIGIN,
-        new HPPractice(drive, intake, tower, kicker, leds)));
+        false, new HPPractice(drive, intake, tower, kicker, leds)));
 
     autoRoutineMap.put("Track Width Characterization",
-        new AutoRoutine(AutoPosition.ORIGIN,
+        new AutoRoutine(AutoPosition.ORIGIN, false,
             new TrackWidthCharacterization(drive, drive::driveVoltage,
                 drive::getLeftPositionMeters, drive::getRightPositionMeters,
                 drive::getCharacterizationGyroPosition)));
@@ -260,13 +263,13 @@ public class RobotContainer {
     FeedForwardCharacterizationData driveRightData =
         new FeedForwardCharacterizationData("Drive/Right");
     autoRoutineMap.put("FF Characterization (Drive/Forwards)",
-        new AutoRoutine(AutoPosition.ORIGIN,
+        new AutoRoutine(AutoPosition.ORIGIN, false,
             new FeedForwardCharacterization(drive, true, driveLeftData,
                 driveRightData, drive::driveVoltage,
                 drive::getCharacterizationVelocityLeft,
                 drive::getCharacterizationVelocityRight)));
     autoRoutineMap.put("FF Characterization (Drive/Backwards)",
-        new AutoRoutine(AutoPosition.ORIGIN,
+        new AutoRoutine(AutoPosition.ORIGIN, false,
             new FeedForwardCharacterization(drive, false, driveLeftData,
                 driveRightData, drive::driveVoltage,
                 drive::getCharacterizationVelocityLeft,
@@ -275,12 +278,12 @@ public class RobotContainer {
     FeedForwardCharacterizationData flywheelData =
         new FeedForwardCharacterizationData("Flywheels");
     autoRoutineMap.put("FF Characterization (Flywheels/Forwards)",
-        new AutoRoutine(AutoPosition.ORIGIN,
+        new AutoRoutine(AutoPosition.ORIGIN, false,
             new FeedForwardCharacterization(flywheels, true, flywheelData,
                 volts -> flywheels.runVoltage(volts),
                 flywheels::getCharacterizationVelocity)));
     autoRoutineMap.put("FF Characterization (Flywheels/Backwards)",
-        new AutoRoutine(AutoPosition.ORIGIN,
+        new AutoRoutine(AutoPosition.ORIGIN, false,
             new FeedForwardCharacterization(flywheels, false, flywheelData,
                 volts -> flywheels.runVoltage(volts),
                 flywheels::getCharacterizationVelocity)));
@@ -312,11 +315,14 @@ public class RobotContainer {
         () -> Logger.getInstance().recordOutput("Marker", true)));
 
     // *** DRIVER CONTROLS ***
-    handheldOI.getAutoAimButton().whileActiveContinuous(
+    handheldOI.getAutoDriveButton().whileActiveContinuous(
         new DriveToTarget(drive, vision, handheldOI::getLeftDriveY));
+    handheldOI.getAutoAimButton()
+        .whileActiveOnce(new AutoAim(drive, vision, handheldOI::getLeftDriveY));
     Trigger flywheelsReady = new Trigger(flywheels::profileComplete);
     handheldOI.getShootButton().and(flywheelsReady).whileActiveContinuous(
-        new Shoot(tower, kicker, hood, leds, handheldOI::setDriverRumble));
+        new Shoot(tower, kicker, hood, leds, handheldOI::setDriverRumble),
+        false);
 
     // *** OPERATOR CONTROLS ***
     Trigger climbMode = new Trigger(overrideOI::getClimbMode);
@@ -334,11 +340,11 @@ public class RobotContainer {
             handheldOI::setOperatorRumble));
 
     Command lowerFenderCommand =
-        new PrepareShooterAuto(false, flywheels, hood, drive);
-    Command upperFenderCommand =
-        new PrepareShooterPreset(flywheels, hood, ShooterPreset.UPPER_FENDER);
-    Command upperTarmacCommand =
-        new PrepareShooterPreset(flywheels, hood, ShooterPreset.UPPER_TARMAC);
+        new PrepareShooterAuto(false, flywheels, hood, tower, drive);
+    Command upperFenderCommand = new PrepareShooterPreset(flywheels, hood,
+        tower, ShooterPreset.UPPER_FENDER);
+    Command upperTarmacCommand = new PrepareShooterPreset(flywheels, hood,
+        tower, ShooterPreset.UPPER_TARMAC);
 
     handheldOI.getStartLowerFenderButton().and(normalMode)
         .whenActive(lowerFenderCommand);
@@ -394,6 +400,7 @@ public class RobotContainer {
       AutoRoutine routine = autoRoutineMap.get(routineString);
       drive.setPose(routine.position.getPose(), true);
       drive.resetOnNextVision();
+      vision.setAutoEnabled(routine.useVision);
       return routine.command;
 
     } else {
@@ -405,10 +412,13 @@ public class RobotContainer {
 
   private static class AutoRoutine {
     public final AutoPosition position;
+    public final boolean useVision;
     public final Command command;
 
-    public AutoRoutine(AutoPosition position, Command command) {
+    public AutoRoutine(AutoPosition position, boolean useVision,
+        Command command) {
       this.position = position;
+      this.useVision = useVision;
       this.command = command;
     }
   }

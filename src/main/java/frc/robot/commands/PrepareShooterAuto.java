@@ -14,6 +14,7 @@ import frc.robot.FieldConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
+import frc.robot.subsystems.tower.Tower;
 import frc.robot.util.LinearInterpolation;
 
 public class PrepareShooterAuto extends CommandBase {
@@ -29,6 +30,7 @@ public class PrepareShooterAuto extends CommandBase {
   private final boolean upper;
   private final Flywheels flywheels;
   private final Hood hood;
+  private final Tower tower;
   private final Drive drive;
   private final Translation2d staticPosition;
 
@@ -37,11 +39,12 @@ public class PrepareShooterAuto extends CommandBase {
    * shot based on a known shooting position.
    */
   public PrepareShooterAuto(boolean upper, Flywheels flywheels, Hood hood,
-      Translation2d position) {
+      Tower tower, Translation2d position) {
     addRequirements(flywheels);
     this.upper = upper;
     this.flywheels = flywheels;
     this.hood = hood;
+    this.tower = tower;
     this.drive = null;
     this.staticPosition = position;
   }
@@ -51,11 +54,12 @@ public class PrepareShooterAuto extends CommandBase {
    * shot based on odometry.
    */
   public PrepareShooterAuto(boolean upper, Flywheels flywheels, Hood hood,
-      Drive drive) {
+      Tower tower, Drive drive) {
     addRequirements(flywheels);
     this.upper = upper;
     this.flywheels = flywheels;
     this.hood = hood;
+    this.tower = tower;
     this.drive = drive;
     this.staticPosition = null;
   }
@@ -80,6 +84,11 @@ public class PrepareShooterAuto extends CommandBase {
   }
 
   public void update(Translation2d position) {
+    if (upper) {
+      tower.requestShootPercent(PrepareShooterPreset.upperTarmacTower.get());
+    } else {
+      tower.requestShootPercent(PrepareShooterPreset.lowerFenderTower.get());
+    }
     double distance = position.getDistance(FieldConstants.hubCenter);
     double speed = upper ? upperInterpolation.predict(distance)
         : lowerInterpolation.predict(distance);

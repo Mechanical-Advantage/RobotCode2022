@@ -16,6 +16,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.flywheels.FlywheelsIO.FlywheelsIOInputs;
+import frc.robot.util.LedSelector;
 import frc.robot.util.TunableNumber;
 
 public class Flywheels extends SubsystemBase {
@@ -42,6 +43,7 @@ public class Flywheels extends SubsystemBase {
   private TrapezoidProfile.State goal = new TrapezoidProfile.State();
   private TrapezoidProfile.State lastState = new TrapezoidProfile.State();
   private boolean profileComplete = false;
+  private LedSelector leds;
 
   /** Creates a new Flywheels. */
   public Flywheels(FlywheelsIO io) {
@@ -53,8 +55,8 @@ public class Flywheels extends SubsystemBase {
         maxVelocityRpm.setDefault(2650.0);
         maxAccelerationRpmPerSec2.setDefault(2000.0);
         maxJerkRpmPerSec3.setDefault(2500.0);
-        ffModel = new SimpleMotorFeedforward(0.41440, 0.0425);
-        kP.setDefault(0.00006);
+        ffModel = new SimpleMotorFeedforward(0.37699, 0.0416);
+        kP.setDefault(0.00008);
         kI.setDefault(0.0);
         kD.setDefault(0.0);
         toleranceRpm.setDefault(50.0);
@@ -84,25 +86,33 @@ public class Flywheels extends SubsystemBase {
     io.setBrakeMode(false);
   }
 
+  public void setLeds(LedSelector leds) {
+    this.leds = leds;
+  }
+
   @Override
   public void periodic() {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Flywheels", inputs);
 
+    // Update tuning constants
     if (kP.hasChanged() | kI.hasChanged() | kD.hasChanged()) {
       io.configurePID(kP.get(), kI.get(), kD.get());
     }
 
+    // Record RPM history
     rpmHistory.add(getVelocity());
     while (rpmHistory.size() > rpmHistoryLength.get()) {
       rpmHistory.remove(0);
     }
 
+    // Log data
     Logger.getInstance().recordOutput("Flywheels/RPM", getVelocity());
     Logger.getInstance().recordOutput("Flywheels/Acceleration",
         getAcceleration());
     Logger.getInstance().recordOutput("Flywheels/AtSetpoint", atSetpoint());
 
+    // Set closed loop setpoint
     if (closedLoop) {
       TrapezoidProfile profile = new TrapezoidProfile(
           new TrapezoidProfile.Constraints(maxAccelerationRpmPerSec2.get(),
@@ -122,6 +132,9 @@ public class Flywheels extends SubsystemBase {
     } else {
       profileComplete = false;
     }
+
+    // Update LED mode
+    leds.setFlywheelsReady(profileComplete);
   }
 
   /** Run at the specified voltage with no other processing. Only use when characterizing. */

@@ -9,11 +9,10 @@ import java.util.Map;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.FieldConstants;
 import frc.robot.RobotContainer.AutoPosition;
 import frc.robot.commands.PrepareShooterPreset.ShooterPreset;
@@ -28,53 +27,37 @@ import frc.robot.util.GeomUtil;
 import frc.robot.util.LedSelector;
 
 public class TwoCargoAuto extends SequentialCommandGroup {
+  public static final double intakeLengthSecs = 1.0;
+
   public static final Map<AutoPosition, Pose2d> cargoPositions =
       Map.of(AutoPosition.TARMAC_A,
-          FieldConstants.cargoB
-              .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0)),
+          calcAimedPose(FieldConstants.cargoB
+              .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0))),
           AutoPosition.TARMAC_C,
-          FieldConstants.cargoD.transformBy(new Transform2d(
-              new Translation2d(0.25, 0.0), Rotation2d.fromDegrees(-45.0))),
-          AutoPosition.TARMAC_D, FieldConstants.cargoE
-              .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0)));
-  public static final Map<AutoPosition, Pose2d> shootPositions =
-      Map.of(AutoPosition.TARMAC_A,
-          calcAimedPose(AutoPosition.TARMAC_A.getPose()
-              .transformBy(GeomUtil.transformFromTranslation(-0.7, 0.0))),
-          AutoPosition.TARMAC_C,
-          calcAimedPose(AutoPosition.TARMAC_C.getPose()
-              .transformBy(GeomUtil.transformFromTranslation(-0.6, 0.6))),
-          AutoPosition.TARMAC_D, calcAimedPose(AutoPosition.TARMAC_D.getPose()
-              .transformBy(GeomUtil.transformFromTranslation(-0.7, 0.0))));
+          calcAimedPose(FieldConstants.cargoD
+              .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0))),
+          AutoPosition.TARMAC_D, calcAimedPose(FieldConstants.cargoE
+              .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0))));
 
   /** Creates a new TwoCargoAuto. */
-  public TwoCargoAuto(AutoPosition position, Drive drive, Vision vision,
-      Flywheels flywheels, Hood hood, Tower tower, Kicker kicker, Intake intake,
-      LedSelector leds) {
-    this(position.getPose(), OneCargoAuto.shootDurationSecs, position, drive,
-        vision, flywheels, hood, tower, kicker, intake, leds);
-  }
-
-  /** Creates a new TwoCargoAuto. */
-  public TwoCargoAuto(Pose2d startingPose, double shootDurationSecs,
-      AutoPosition position, Drive drive, Vision vision, Flywheels flywheels,
-      Hood hood, Tower tower, Kicker kicker, Intake intake, LedSelector leds) {
-    addCommands(deadline(
-        sequence(new InstantCommand(intake::extend, intake),
-            sequence(
-                new MotionProfileCommand(drive, 0.0,
-                    List.of(startingPose, cargoPositions.get(position)), 0.0,
-                    false),
-                new MotionProfileCommand(drive, 0.0,
-                    List.of(cargoPositions.get(position),
-                        shootPositions.get(position)),
-                    0.0, true)).deadlineWith(
-                        new RunIntake(true, intake, tower, kicker, leds),
-                        new IdleHood(hood, drive)),
-            new WaitUntilCommand(flywheels::atSetpoint),
-            new Shoot(tower, kicker, hood, leds)
-                .withTimeout(shootDurationSecs)),
-        new PrepareShooterPreset(flywheels, hood, ShooterPreset.UPPER_FENDER)));
+  public TwoCargoAuto(boolean taxiFinish, AutoPosition position, Drive drive,
+      Vision vision, Flywheels flywheels, Hood hood, Tower tower, Kicker kicker,
+      Intake intake, LedSelector leds) {
+    addCommands(
+        deadline(
+            sequence(new InstantCommand(intake::extend, intake),
+                sequence(
+                    new MotionProfileCommand(drive, 0.0,
+                        List.of(position.getPose(),
+                            cargoPositions.get(position)),
+                        0.0, false),
+                    new WaitCommand(intakeLengthSecs)).deadlineWith(
+                        new RunIntake(true, intake, tower, kicker, leds)),
+                new Shoot(tower, kicker, hood, leds)
+                    .withTimeout(OneCargoAuto.shootDurationSecs)),
+            new PrepareShooterPreset(flywheels, hood, tower,
+                ShooterPreset.UPPER_TARMAC_HIGH)),
+        taxiFinish ? new Taxi(drive, false) : new InstantCommand());
   }
 
   public static Pose2d calcAimedPose(Pose2d pose) {

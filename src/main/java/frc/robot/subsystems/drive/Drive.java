@@ -24,10 +24,12 @@ import frc.robot.Constants;
 import frc.robot.FieldConstants;
 import frc.robot.VisionConstants;
 import frc.robot.VisionConstants.CameraPosition;
+import frc.robot.commands.AutoAim;
 import frc.robot.subsystems.drive.DriveIO.DriveIOInputs;
 import frc.robot.subsystems.hood.Hood.HoodState;
 import frc.robot.subsystems.vision.Vision.TimestampedTranslation2d;
 import frc.robot.util.GeomUtil;
+import frc.robot.util.LedSelector;
 import frc.robot.util.PoseHistory;
 import frc.robot.util.TunableNumber;
 
@@ -37,11 +39,15 @@ public class Drive extends SubsystemBase {
   private static final int poseHistoryCapacity = 500;
   private static final double maxNoVisionLog = 0.25; // How long to wait with no vision data before
                                                      // clearing log visualization
-  private static final double visionNominalFramerate = 45;
+  private static final double visionNominalFramerate = 22;
   private static final double visionShiftPerSec = 0.85; // After one second of vision data, what %
   // of pose average should be vision
   private static final double visionMaxAngularVelocity =
       Units.degreesToRadians(8.0); // Max angular velocity before vision data is rejected
+
+  // Thresholding for when to light LEDs and indicate robot is targeted
+  private static final double ledsAlignedRadius = 4.0;
+  private static final double ledsAlignedMaxDegrees = 5.0;
 
   private final double wheelRadiusMeters;
   private final double maxVelocityMetersPerSec;
@@ -57,6 +63,7 @@ public class Drive extends SubsystemBase {
   private Supplier<Boolean> openLoopOverride = () -> false;
   private Supplier<Boolean> internalEncoderOverride = () -> false;
   private Supplier<HoodState> hoodStateSupplier;
+  private LedSelector leds;
 
   private final DifferentialDriveOdometry odometry =
       new DifferentialDriveOdometry(new Rotation2d(), new Pose2d());
@@ -78,8 +85,8 @@ public class Drive extends SubsystemBase {
         trackWidthMeters = 0.65778;
         leftModel = new SimpleMotorFeedforward(0.23071, 0.12413);
         rightModel = new SimpleMotorFeedforward(0.23455, 0.12270);
-        kP.setDefault(0.000012);
-        kD.setDefault(0.0013);
+        kP.setDefault(0.00008);
+        kD.setDefault(0.0);
         break;
       case ROBOT_2022P:
         maxVelocityMetersPerSec = Units.inchesToMeters(210.0);
@@ -152,6 +159,10 @@ public class Drive extends SubsystemBase {
     this.hoodStateSupplier = hoodStateSupplier;
   }
 
+  public void setLeds(LedSelector leds) {
+    this.leds = leds;
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -180,8 +191,15 @@ public class Drive extends SubsystemBase {
       Logger.getInstance().recordOutput("Vision/DistanceInches",
           Units.metersToInches(lastVisionPose.getTranslation()
               .getDistance(FieldConstants.hubCenter)));
-
     }
+
+    // Check if robot is aligned for LEDs
+    boolean withinRadius = getPose().getTranslation()
+        .getDistance(FieldConstants.hubCenter) < ledsAlignedRadius;
+    boolean withinRotation =
+        Math.abs(AutoAim.getTargetRotation(getPose().getTranslation())
+            .minus(getRotation()).getDegrees()) < ledsAlignedMaxDegrees;
+    leds.setDriveTargeted(withinRadius && withinRotation);
 
     // Update brake mode
     if (DriverStation.isEnabled()) {

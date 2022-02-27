@@ -29,8 +29,8 @@ public final class VisionConstants {
   private static final double upperOffsetX = Units.inchesToMeters(9.0);
 
   static {
-    lowerVerticalRotationDegrees.setDefault(43.3);
-    upperVerticalRotationDegrees.setDefault(25.0);
+    lowerVerticalRotationDegrees.setDefault(43.05);
+    upperVerticalRotationDegrees.setDefault(24.6);
   }
 
   public static CameraPosition getCameraPosition(HoodState hoodState) {
