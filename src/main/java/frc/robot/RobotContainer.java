@@ -67,6 +67,9 @@ import frc.robot.subsystems.intake.IntakeIOSparkMAX;
 import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.kicker.KickerIO;
 import frc.robot.subsystems.kicker.KickerIOSparkMAX;
+import frc.robot.subsystems.leds.Leds;
+import frc.robot.subsystems.leds.LedsIO;
+import frc.robot.subsystems.leds.LedsIORio;
 import frc.robot.subsystems.pneumatics.Pneumatics;
 import frc.robot.subsystems.pneumatics.PneumaticsIO;
 import frc.robot.subsystems.pneumatics.PneumaticsIOCTRE;
@@ -79,7 +82,6 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.util.Alert;
 import frc.robot.util.GeomUtil;
-import frc.robot.util.LedSelector;
 import frc.robot.util.LoggedChoosers;
 import frc.robot.util.SparkMAXBurnManager;
 import frc.robot.util.Alert.AlertType;
@@ -102,8 +104,7 @@ public class RobotContainer {
   private Intake intake;
   private Climber climber;
   private Pneumatics pneumatics;
-
-  private LedSelector leds = new LedSelector(0);
+  private Leds leds;
 
   // OI objects
   private OverrideOI overrideOI = new OverrideOI();
@@ -132,6 +133,7 @@ public class RobotContainer {
           intake = new Intake(new IntakeIOSparkMAX());
           climber = new Climber(new ClimberIOSparkMAX());
           pneumatics = new Pneumatics(new PneumaticsIOREV());
+          leds = new Leds(new LedsIORio());
           break;
         case ROBOT_2022P:
           drive = new Drive(new DriveIOSparkMAX());
@@ -166,6 +168,7 @@ public class RobotContainer {
     climber = climber != null ? climber : new Climber(new ClimberIO() {});
     pneumatics =
         pneumatics != null ? pneumatics : new Pneumatics(new PneumaticsIO() {});
+    leds = leds != null ? leds : new Leds(new LedsIO() {});
 
     // Set up subsystems
     drive.setSuppliers(() -> overrideOI.getDriveDisable(),
@@ -185,7 +188,6 @@ public class RobotContainer {
         new IdleHood(hood, drive, () -> overrideOI.getVisionLedMode()));
     tower.setLeds(leds);
     tower.setOverride(() -> overrideOI.getCargoSensorDisable());
-    leds.setTestModeSupplier(() -> choosers.getLedTestMode());
 
     // Set up auto routines
     autoRoutineMap.put("Do Nothing",

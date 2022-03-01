@@ -13,8 +13,8 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.hood.Hood.HoodState;
 import frc.robot.subsystems.kicker.Kicker;
+import frc.robot.subsystems.leds.Leds;
 import frc.robot.subsystems.tower.Tower;
-import frc.robot.util.LedSelector;
 import frc.robot.util.TunableNumber;
 
 public class Shoot extends CommandBase {
@@ -30,7 +30,7 @@ public class Shoot extends CommandBase {
   private final Tower tower;
   private final Kicker kicker;
   private final Hood hood;
-  private final LedSelector leds;
+  private final Leds leds;
 
   private final Consumer<Double> rumbleConsumer;
   private boolean rumbleLastTripped = false;
@@ -38,13 +38,13 @@ public class Shoot extends CommandBase {
   private final Timer rumbleTimer = new Timer();
 
   /** Creates a new Shoot. Runs the tower and kicker to fire cargo. */
-  public Shoot(Tower tower, Kicker kicker, Hood hood, LedSelector leds) {
+  public Shoot(Tower tower, Kicker kicker, Hood hood, Leds leds) {
     this(tower, kicker, hood, leds, x -> {
     });
   }
 
   /** Creates a new Shoot. Runs the tower and kicker to fire cargo. */
-  public Shoot(Tower tower, Kicker kicker, Hood hood, LedSelector leds,
+  public Shoot(Tower tower, Kicker kicker, Hood hood, Leds leds,
       Consumer<Double> rumbleConsumer) {
     addRequirements(tower, kicker, hood);
     this.tower = tower;

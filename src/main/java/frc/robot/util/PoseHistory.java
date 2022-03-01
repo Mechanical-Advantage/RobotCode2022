@@ -20,6 +20,7 @@ public class PoseHistory {
       this.value = value;
     }
 
+    @SuppressWarnings("unused")
     public InterpolatingTimestamp interpolate(InterpolatingTimestamp other,
         double x) {
       double dydx = other.value - value;

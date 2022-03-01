@@ -19,10 +19,10 @@ import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.kicker.Kicker;
+import frc.robot.subsystems.leds.Leds;
 import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.GeomUtil;
-import frc.robot.util.LedSelector;
 
 public class ThreeCargoAuto extends SequentialCommandGroup {
   public static Pose2d tarmacDCTurnPosition =
@@ -37,7 +37,7 @@ public class ThreeCargoAuto extends SequentialCommandGroup {
 
   /** Creates a new ThreeCargoAuto. */
   public ThreeCargoAuto(Drive drive, Vision vision, Flywheels flywheels,
-      Hood hood, Tower tower, Kicker kicker, Intake intake, LedSelector leds) {
+      Hood hood, Tower tower, Kicker kicker, Intake intake, Leds leds) {
     addCommands(
         new TwoCargoAuto(false, AutoPosition.TARMAC_D, drive, vision, flywheels,
             hood, tower, kicker, intake, leds),

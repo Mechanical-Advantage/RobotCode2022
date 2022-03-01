@@ -16,15 +16,15 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.kicker.Kicker;
+import frc.robot.subsystems.leds.Leds;
 import frc.robot.subsystems.tower.Tower;
-import frc.robot.util.LedSelector;
 
 public class HPPractice extends SequentialCommandGroup {
   private static final double terminalWaitSecs = 1.5;
 
   /** Creates a new HPPractice. */
   public HPPractice(Drive drive, Intake intake, Tower tower, Kicker kicker,
-      LedSelector leds) {
+      Leds leds) {
     MotionProfileCommand driveForwards = new MotionProfileCommand(drive, 0.0,
         List.of(new Pose2d(),
             new Pose2d(new Translation2d(5.0, 0.0), new Rotation2d())),

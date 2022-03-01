@@ -12,8 +12,8 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.kicker.Kicker;
+import frc.robot.subsystems.leds.Leds;
 import frc.robot.subsystems.tower.Tower;
-import frc.robot.util.LedSelector;
 import frc.robot.util.TunableNumber;
 
 public class RunIntake extends CommandBase {
@@ -44,7 +44,7 @@ public class RunIntake extends CommandBase {
   private final Intake intake;
   private final Tower tower;
   private final Kicker kicker;
-  private final LedSelector leds;
+  private final Leds leds;
 
   private final Consumer<Double> rumbleConsumer;
 
@@ -62,7 +62,7 @@ public class RunIntake extends CommandBase {
    * Creates a new RunIntake. Runs the intake forwards or backwards, intended for operator controls.
    */
   public RunIntake(boolean forwards, Intake intake, Tower tower, Kicker kicker,
-      LedSelector leds) {
+      Leds leds) {
     this(forwards, intake, tower, kicker, leds, x -> {
     });
   }
@@ -71,7 +71,7 @@ public class RunIntake extends CommandBase {
    * Creates a new RunIntake. Runs the intake forwards or backwards, intended for operator controls.
    */
   public RunIntake(boolean forwards, Intake intake, Tower tower, Kicker kicker,
-      LedSelector leds, Consumer<Double> rumbleConsumer) {
+      Leds leds, Consumer<Double> rumbleConsumer) {
     addRequirements(intake);
     if (forwards) {
       addRequirements(tower, kicker);

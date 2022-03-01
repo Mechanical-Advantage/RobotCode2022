@@ -11,17 +11,16 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.kicker.Kicker;
+import frc.robot.subsystems.leds.Leds;
 import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.util.LedSelector;
 
 public class OneCargoAuto extends SequentialCommandGroup {
   public static final double shootDurationSecs = 1.5;
 
   /** Creates a new OneCargoAuto. */
   public OneCargoAuto(boolean longTaxi, Drive drive, Vision vision,
-      Flywheels flywheels, Hood hood, Tower tower, Kicker kicker,
-      LedSelector leds) {
+      Flywheels flywheels, Hood hood, Tower tower, Kicker kicker, Leds leds) {
     addCommands(deadline(
         sequence(new WaitForVision(drive), new AutoAim(drive, vision),
             new WaitUntilCommand(flywheels::atSetpoint),

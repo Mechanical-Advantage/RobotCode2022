@@ -21,9 +21,9 @@ import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.kicker.Kicker;
+import frc.robot.subsystems.leds.Leds;
 import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.util.LedSelector;
 
 public class FourCargoAutoCross extends SequentialCommandGroup {
   public static final double terminalWaitSecs = 1.5;
@@ -34,7 +34,7 @@ public class FourCargoAutoCross extends SequentialCommandGroup {
 
   /** Creates a new FourCargoAutoCross. */
   public FourCargoAutoCross(Drive drive, Vision vision, Flywheels flywheels,
-      Hood hood, Tower tower, Kicker kicker, Intake intake, LedSelector leds) {
+      Hood hood, Tower tower, Kicker kicker, Intake intake, Leds leds) {
     MotionProfileCommand firstShotToTerminal =
         new MotionProfileCommand(drive, 0.0,
             List.of(TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_A),

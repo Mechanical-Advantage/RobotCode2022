@@ -16,7 +16,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.flywheels.FlywheelsIO.FlywheelsIOInputs;
-import frc.robot.util.LedSelector;
+import frc.robot.subsystems.leds.Leds;
 import frc.robot.util.TunableNumber;
 
 public class Flywheels extends SubsystemBase {
@@ -43,7 +43,7 @@ public class Flywheels extends SubsystemBase {
   private TrapezoidProfile.State goal = new TrapezoidProfile.State();
   private TrapezoidProfile.State lastState = new TrapezoidProfile.State();
   private boolean profileComplete = false;
-  private LedSelector leds;
+  private Leds leds;
 
   /** Creates a new Flywheels. */
   public Flywheels(FlywheelsIO io) {
@@ -86,7 +86,7 @@ public class Flywheels extends SubsystemBase {
     io.setBrakeMode(false);
   }
 
-  public void setLeds(LedSelector leds) {
+  public void setLeds(Leds leds) {
     this.leds = leds;
   }
 

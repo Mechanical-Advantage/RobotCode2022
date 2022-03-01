@@ -4,8 +4,6 @@
 
 package frc.robot.util;
 
-import java.util.Vector;
-
 import edu.wpi.first.wpilibj.PWM;
 
 /** REV Robotics Blinkin LED Driver. */
@@ -141,44 +139,6 @@ public class BlinkinLedDriver {
 
     BlinkinLedMode(double value) {
       this.value = value;
-    }
-
-    public static final BlinkinLedMode[] fixedModes;
-    public static final BlinkinLedMode[] colorOneModes;
-    public static final BlinkinLedMode[] colorTwoModes;
-    public static final BlinkinLedMode[] colorBothModes;
-    public static final BlinkinLedMode[] solidModes;
-
-    static {
-      Vector<BlinkinLedMode> fixedModesVector = new Vector<BlinkinLedMode>();
-      Vector<BlinkinLedMode> colorOneModesVector = new Vector<BlinkinLedMode>();
-      Vector<BlinkinLedMode> colorTwoModesVector = new Vector<BlinkinLedMode>();
-      Vector<BlinkinLedMode> colorBothModesVector =
-          new Vector<BlinkinLedMode>();
-      Vector<BlinkinLedMode> solidModesVector = new Vector<BlinkinLedMode>();
-      for (BlinkinLedMode mode : values()) {
-        if (mode.toString().startsWith("FIXED")) {
-          fixedModesVector.addElement(mode);
-        } else if (mode.toString().startsWith("ONE")) {
-          colorOneModesVector.addElement(mode);
-        } else if (mode.toString().startsWith("TWO")) {
-          colorTwoModesVector.addElement(mode);
-        } else if (mode.toString().startsWith("BOTH")) {
-          colorBothModesVector.addElement(mode);
-        } else if (mode.toString().startsWith("SOLID")) {
-          solidModesVector.addElement(mode);
-        }
-      }
-      fixedModes = new BlinkinLedMode[fixedModesVector.size()];
-      fixedModesVector.copyInto(fixedModes);
-      colorOneModes = new BlinkinLedMode[colorOneModesVector.size()];
-      colorOneModesVector.copyInto(colorOneModes);
-      colorTwoModes = new BlinkinLedMode[colorTwoModesVector.size()];
-      colorTwoModesVector.copyInto(colorTwoModes);
-      colorBothModes = new BlinkinLedMode[colorBothModesVector.size()];
-      colorBothModesVector.copyInto(colorBothModes);
-      solidModes = new BlinkinLedMode[solidModesVector.size()];
-      solidModesVector.copyInto(solidModes);
     }
   }
 }

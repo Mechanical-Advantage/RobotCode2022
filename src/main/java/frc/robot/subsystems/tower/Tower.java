@@ -10,9 +10,9 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.leds.Leds;
 import frc.robot.subsystems.tower.TowerIO.TowerIOInputs;
 import frc.robot.util.Alert;
-import frc.robot.util.LedSelector;
 import frc.robot.util.Alert.AlertType;
 
 public class Tower extends SubsystemBase {
@@ -26,7 +26,7 @@ public class Tower extends SubsystemBase {
       new Alert("Invalid data from upper cargo sensor. Is is connected?",
           AlertType.ERROR);
 
-  private LedSelector leds;
+  private Leds leds;
   private Supplier<Boolean> cargoSensorDisableSupplier = () -> false;
   private double shootSpeed = 0.0;
 
@@ -36,7 +36,7 @@ public class Tower extends SubsystemBase {
     io.setBrakeMode(false);
   }
 
-  public void setLeds(LedSelector leds) {
+  public void setLeds(Leds leds) {
     this.leds = leds;
   }
 

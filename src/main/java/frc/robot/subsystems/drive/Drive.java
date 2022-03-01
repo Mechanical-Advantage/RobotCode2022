@@ -27,9 +27,9 @@ import frc.robot.VisionConstants.CameraPosition;
 import frc.robot.commands.AutoAim;
 import frc.robot.subsystems.drive.DriveIO.DriveIOInputs;
 import frc.robot.subsystems.hood.Hood.HoodState;
+import frc.robot.subsystems.leds.Leds;
 import frc.robot.subsystems.vision.Vision.TimestampedTranslation2d;
 import frc.robot.util.GeomUtil;
-import frc.robot.util.LedSelector;
 import frc.robot.util.PoseHistory;
 import frc.robot.util.TunableNumber;
 
@@ -63,7 +63,7 @@ public class Drive extends SubsystemBase {
   private Supplier<Boolean> openLoopOverride = () -> false;
   private Supplier<Boolean> internalEncoderOverride = () -> false;
   private Supplier<HoodState> hoodStateSupplier;
-  private LedSelector leds;
+  private Leds leds;
 
   private final DifferentialDriveOdometry odometry =
       new DifferentialDriveOdometry(new Rotation2d(), new Pose2d());
@@ -159,7 +159,7 @@ public class Drive extends SubsystemBase {
     this.hoodStateSupplier = hoodStateSupplier;
   }
 
-  public void setLeds(LedSelector leds) {
+  public void setLeds(Leds leds) {
     this.leds = leds;
   }
 
