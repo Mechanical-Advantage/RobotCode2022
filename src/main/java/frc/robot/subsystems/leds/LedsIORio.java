@@ -35,6 +35,9 @@ public class LedsIORio implements LedsIO {
   @Override
   public void setMode(LedMode mode) {
     switch (mode) {
+      case CLIMBING:
+        rainbow();
+        break;
       case AUTO_ALERT:
         solid(Color.kGreen);
         break;
@@ -49,9 +52,6 @@ public class LedsIORio implements LedsIO {
         break;
       case INTAKING:
         solid(Color.kBlue);
-        break;
-      case CLIMBING:
-        rainbow();
         break;
       case DEFAULT_AUTO:
         wave(Color.kYellow, Color.kDarkBlue, waveFastFullLength,

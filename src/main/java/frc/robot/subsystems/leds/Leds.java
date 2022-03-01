@@ -19,13 +19,13 @@ public class Leds {
   private final LedsIO io;
 
   // Robot state tracking
+  private boolean climbing = false;
   private boolean autoAlert = false;
   private boolean shooting = false;
   private boolean driveTargeted = false;
   private boolean flywheelsReady = false;
   private boolean towerFull = false;
   private boolean intaking = false;
-  private boolean climbing = false;
 
   public Leds(LedsIO io) {
     this.io = io;
@@ -36,6 +36,8 @@ public class Leds {
     LedMode mode;
     if (DriverStation.isDisabled()) {
       mode = LedMode.DEFAULT_DISABLED;
+    } else if (climbing) {
+      mode = LedMode.CLIMBING;
     } else if (autoAlert) {
       mode = LedMode.AUTO_ALERT;
     } else if (shooting) {
@@ -46,8 +48,6 @@ public class Leds {
       mode = LedMode.TOWER_FULL;
     } else if (intaking && DriverStation.isTeleop()) {
       mode = LedMode.INTAKING;
-    } else if (climbing) {
-      mode = LedMode.CLIMBING;
     } else if (DriverStation.isAutonomous()) {
       mode = LedMode.DEFAULT_AUTO;
     } else {
@@ -55,6 +55,10 @@ public class Leds {
     }
     io.setMode(mode);
     Logger.getInstance().recordOutput("LEDMode", mode.toString());
+  }
+
+  public void setClimbing(boolean active) {
+    climbing = active;
   }
 
   public void setAutoAlert(boolean active) {
@@ -79,9 +83,5 @@ public class Leds {
 
   public void setIntaking(boolean active) {
     intaking = active;
-  }
-
-  public void setClimbing(boolean active) {
-    climbing = active;
   }
 }
