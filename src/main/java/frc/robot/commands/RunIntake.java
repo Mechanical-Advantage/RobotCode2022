@@ -85,7 +85,7 @@ public class RunIntake extends CommandBase {
 
     rumblePercent.setDefault(0.5);
     rumbleDurationSecs.setDefault(0.2);
-    sensorStopDelay.setDefault(0.2);
+    sensorStopDelay.setDefault(0.0);
 
     rollerForwardsSpeed.setDefault(0.35);
     hopperForwardsSpeed.setDefault(1.0);
@@ -129,7 +129,9 @@ public class RunIntake extends CommandBase {
       if (!sensorsTripped) {
         sensorStopTimer.reset();
       }
-      if (sensorStopTimer.hasElapsed(sensorStopDelay.get())) {
+      if (sensorStopDelay.get() == 0.0) {
+        stopTower = sensorsTripped;
+      } else if (sensorStopTimer.hasElapsed(sensorStopDelay.get())) {
         stopTower = true;
       }
       tower.runPercent(stopTower ? 0.0 : towerForwardsSpeed.get());
@@ -168,6 +170,7 @@ public class RunIntake extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    rumbleConsumer.accept(0.0);
     leds.setIntaking(false);
     sensorStopTimer.stop();
     rumbleOneTimer.stop();

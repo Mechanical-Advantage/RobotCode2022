@@ -101,10 +101,11 @@ public class Shoot extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    tower.stop();
-    kicker.stop();
+    rumbleConsumer.accept(0.0);
     leds.setShooting(false);
     rumbleTimer.stop();
+    tower.stop();
+    kicker.stop();
   }
 
   // Returns true when the command should end.

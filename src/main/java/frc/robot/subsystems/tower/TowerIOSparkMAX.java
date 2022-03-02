@@ -48,7 +48,7 @@ public class TowerIOSparkMAX implements TowerIO {
     }
 
     motor.setInverted(invert);
-    motor.setSmartCurrentLimit(20);
+    motor.setSmartCurrentLimit(25);
     motor.enableVoltageCompensation(12.0);
 
     encoder = motor.getEncoder();

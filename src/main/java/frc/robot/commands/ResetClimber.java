@@ -57,6 +57,7 @@ public class ResetClimber extends CommandBase {
         if (climber.getCurrentAmps() > currentThreshold.get()) {
           backwards = true;
           timer.reset();
+          climber.resetPosition();
         }
       }
     }
@@ -66,7 +67,6 @@ public class ResetClimber extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     climber.runPercent(0.0);
-    climber.resetPosition();
     timer.stop();
   }
 
