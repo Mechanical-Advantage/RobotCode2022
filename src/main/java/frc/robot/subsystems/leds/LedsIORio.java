@@ -54,14 +54,14 @@ public class LedsIORio implements LedsIO {
         solid(Color.kBlue);
         break;
       case DEFAULT_AUTO:
-        wave(Color.kYellow, Color.kDarkBlue, waveFastFullLength,
+        wave(Color.kGold, Color.kDarkBlue, waveFastFullLength,
             waveFastDuration);
         break;
       case DEFAULT_TELEOP:
         solid(Color.kBlack);
         break;
       case DEFAULT_DISABLED:
-        wave(Color.kYellow, Color.kDarkBlue, waveSlowFullLength,
+        wave(Color.kGold, Color.kDarkBlue, waveSlowFullLength,
             waveSlowDuration);
         break;
       default:
