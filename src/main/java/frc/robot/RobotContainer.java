@@ -379,6 +379,9 @@ public class RobotContainer {
     climbMode.cancelWhenActive(lowerFenderCommand)
         .cancelWhenActive(upperFenderCommand)
         .cancelWhenActive(upperTarmacCommand);
+    climbMode.whenActive(intake::retract, intake);
+    climbMode.whileActiveContinuous(
+        new RunCommand(() -> hood.moveToPosition(false), hood));
 
     Trigger climbClosedLoop =
         new Trigger(overrideOI::getClimbOpenLoop).negate();
