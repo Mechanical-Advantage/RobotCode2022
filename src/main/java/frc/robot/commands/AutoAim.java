@@ -107,6 +107,9 @@ public class AutoAim extends CommandBase {
     if (kP.hasChanged()) {
       controller.setP(kP.get());
     }
+    if (kI.hasChanged()) {
+      controller.setI(kI.get());
+    }
     if (kD.hasChanged()) {
       controller.setD(kD.get());
     }

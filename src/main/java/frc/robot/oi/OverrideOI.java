@@ -72,6 +72,13 @@ public class OverrideOI {
     return overrides.getRawButton(10);
   }
 
+  public boolean getSimpleAutoAim() {
+    if (overrides == null) {
+      return false;
+    }
+    return overrides.getRawButton(11);
+  }
+
   public static enum VisionLedMode {
     AUTO, ALWAYS_ON, ALWAYS_OFF
   }

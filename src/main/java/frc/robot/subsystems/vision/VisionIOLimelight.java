@@ -18,6 +18,8 @@ public class VisionIOLimelight implements VisionIO {
   private double captureTimestamp = 0.0;
   private double[] cornerX = new double[] {};
   private double[] cornerY = new double[] {};
+  private boolean simpleValid = false;
+  private double simpleAngle = 0.0;
 
   private final NetworkTableEntry ledEntry = NetworkTableInstance.getDefault()
       .getTable("limelight").getEntry("ledMode");
@@ -27,6 +29,8 @@ public class VisionIOLimelight implements VisionIO {
       NetworkTableInstance.getDefault().getTable("limelight").getEntry("tl");
   private final NetworkTableEntry dataEntry = NetworkTableInstance.getDefault()
       .getTable("limelight").getEntry("tcornxy");
+  private final NetworkTableEntry simpleAngleEntry =
+      NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx");
 
   public VisionIOLimelight() {
     latencyEntry.addListener(event -> {
@@ -53,6 +57,8 @@ public class VisionIOLimelight implements VisionIO {
             cornerXList.stream().mapToDouble(Double::doubleValue).toArray();
         cornerY =
             cornerYList.stream().mapToDouble(Double::doubleValue).toArray();
+        simpleValid = validEntry.getBoolean(false);
+        simpleAngle = simpleAngleEntry.getDouble(0.0);
       }
 
     }, EntryListenerFlags.kUpdate);
@@ -63,6 +69,8 @@ public class VisionIOLimelight implements VisionIO {
     inputs.captureTimestamp = captureTimestamp;
     inputs.cornerX = cornerX;
     inputs.cornerY = cornerY;
+    inputs.simpleValid = simpleValid;
+    inputs.simpleAngle = simpleAngle;
   }
 
   @Override

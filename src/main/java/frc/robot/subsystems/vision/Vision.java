@@ -80,6 +80,14 @@ public class Vision extends SubsystemBase {
     autoEnabled = enabled;
   }
 
+  public boolean getSimpleTargetValid() {
+    return inputs.simpleValid;
+  }
+
+  public double getSimpleTargetAngle() {
+    return inputs.simpleAngle;
+  }
+
   @Override
   public void periodic() {
     io.updateInputs(inputs);
