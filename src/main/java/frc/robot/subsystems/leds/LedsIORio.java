@@ -18,10 +18,12 @@ public class LedsIORio implements LedsIO {
   private static final double rainbowFullLength = 40.0; // How many LEDs for a full cycle
   private static final double rainbowDuration = 0.25; // How long until the cycle repeats
   private static final double waveExponent = 0.4; // Controls the length of the transition
-  private static final double waveSlowFullLength = 40.0; // How many LEDs for a full cycle
-  private static final double waveSlowDuration = 3.0; // How long until the cycle repeats
   private static final double waveFastFullLength = 40.0; // How many LEDs for a full cycle
   private static final double waveFastDuration = 0.25; // How long until the cycle repeats
+  private static final double waveAllianceFullLength = 15.0; // How many LEDs for a full cycle
+  private static final double waveAllianceDuration = 2.0; // How many LEDs for a full cycle
+  private static final double waveSlowFullLength = 40.0; // How many LEDs for a full cycle
+  private static final double waveSlowDuration = 3.0; // How long until the cycle repeats
 
   private final AddressableLED leds;
   private final AddressableLEDBuffer buffer;
@@ -62,7 +64,15 @@ public class LedsIORio implements LedsIO {
       case DEFAULT_TELEOP:
         solid(Color.kBlack);
         break;
-      case DEFAULT_DISABLED:
+      case DISABLED_RED:
+        wave(Color.kRed, Color.kBlack, waveAllianceFullLength,
+            waveAllianceDuration);
+        break;
+      case DISABLED_BLUE:
+        wave(Color.kBlue, Color.kBlack, waveAllianceFullLength,
+            waveAllianceDuration);
+        break;
+      case DISABLED_NEUTRAL:
         wave(Color.kGold, Color.kDarkBlue, waveSlowFullLength,
             waveSlowDuration);
         break;

@@ -7,6 +7,7 @@ package frc.robot.subsystems.leds;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.subsystems.leds.LedsIO.LedMode;
 
 /**
@@ -27,15 +28,33 @@ public class Leds {
   private boolean towerFull = false;
   private boolean intaking = false;
 
+  private Alliance alliance = Alliance.Invalid;
+
   public Leds(LedsIO io) {
     this.io = io;
   }
 
   /** Updates the current LED mode based on robot state. */
   public void update() {
+    // Update alliance color
+    if (DriverStation.isFMSAttached()) {
+      alliance = DriverStation.getAlliance();
+    }
+
+    // Select LED mode
     LedMode mode;
     if (DriverStation.isDisabled()) {
-      mode = LedMode.DEFAULT_DISABLED;
+      switch (alliance) {
+        case Red:
+          mode = LedMode.DISABLED_RED;
+          break;
+        case Blue:
+          mode = LedMode.DISABLED_BLUE;
+          break;
+        default:
+          mode = LedMode.DISABLED_NEUTRAL;
+          break;
+      }
     } else if (climbing) {
       mode = LedMode.CLIMBING;
     } else if (autoAlert) {
