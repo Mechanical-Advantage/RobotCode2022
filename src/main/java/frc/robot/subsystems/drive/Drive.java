@@ -45,9 +45,10 @@ public class Drive extends SubsystemBase {
   private static final double visionMaxAngularVelocity =
       Units.degreesToRadians(8.0); // Max angular velocity before vision data is rejected
 
-  // Thresholding for when to light LEDs and indicate robot is targeted
+  // Thresholding for when to indicate robot is targeted & detect climb failures
   private static final double ledsAlignedRadius = 4.0;
   private static final double ledsAlignedMaxDegrees = 5.0;
+  private static final double ledsClimbFailureAccelMetersPerSec2 = 20.0;
 
   private final double wheelRadiusMeters;
   private final double maxVelocityMetersPerSec;
@@ -209,6 +210,12 @@ public class Drive extends SubsystemBase {
         Math.abs(AutoAim.getTargetRotation(getPose().getTranslation())
             .minus(getRotation()).getDegrees()) < ledsAlignedMaxDegrees;
     leds.setDriveTargeted(withinRadius && withinRotation);
+
+    // Check for climb failure (high z acceleration)
+    if (Math.abs(
+        inputs.gyroZAccelMetersPerSec2) > ledsClimbFailureAccelMetersPerSec2) {
+      leds.setClimbFailure(true);
+    }
 
     // Update brake mode
     if (DriverStation.isEnabled()) {

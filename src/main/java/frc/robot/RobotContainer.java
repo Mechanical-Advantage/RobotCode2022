@@ -390,7 +390,7 @@ public class RobotContainer {
     handheldOI.getClimbBottom().and(climbMode).and(climbClosedLoop)
         .toggleWhenActive(new RunClimberToPosition(climber, false), false);
     handheldOI.getClimbAuto().and(climbMode).and(climbClosedLoop)
-        .toggleWhenActive(new AutoClimb(climber, drive), false);
+        .toggleWhenActive(new AutoClimb(climber, drive, leds), false);
   }
 
   /** Called at the start of teleop to begin zeroing the climber. */

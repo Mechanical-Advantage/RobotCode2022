@@ -33,6 +33,7 @@ public interface DriveIO {
     public double gyroYawVelocityRadPerSec = 0.0;
     public double gyroPitchPositionRad = 0.0;
     public double gyroRollPositionRad = 0.0;
+    public double gyroZAccelMetersPerSec2 = 0.0;
 
     public void toLog(LogTable table) {
       table.put("LeftPositionRad", leftPositionRad);
@@ -58,6 +59,7 @@ public interface DriveIO {
       table.put("GyroYawVelocityRadPerSec", gyroYawVelocityRadPerSec);
       table.put("GyroPitchPositionRad", gyroPitchPositionRad);
       table.put("GyroRollPositionRad", gyroRollPositionRad);
+      table.put("GyroZAccelMetersPerSec2", gyroZAccelMetersPerSec2);
     }
 
     public void fromLog(LogTable table) {
@@ -99,6 +101,8 @@ public interface DriveIO {
           table.getDouble("GyroPitchPositionRad", gyroPitchPositionRad);
       gyroRollPositionRad =
           table.getDouble("GyroRollPositionRad", gyroRollPositionRad);
+      gyroZAccelMetersPerSec2 =
+          table.getDouble("GyroZAccelMetersPerSec2", gyroZAccelMetersPerSec2);
     }
   }
 

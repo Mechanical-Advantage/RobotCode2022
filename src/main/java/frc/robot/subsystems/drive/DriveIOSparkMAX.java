@@ -218,6 +218,7 @@ public class DriveIOSparkMAX implements DriveIO {
     inputs.gyroYawVelocityRadPerSec = Math.toRadians(gyro.getRate());
     inputs.gyroPitchPositionRad = Math.toRadians(gyro.getRoll());
     inputs.gyroRollPositionRad = Math.toRadians(gyro.getPitch());
+    inputs.gyroZAccelMetersPerSec2 = gyro.getWorldLinearAccelZ() * 9.806;
   }
 
   @Override

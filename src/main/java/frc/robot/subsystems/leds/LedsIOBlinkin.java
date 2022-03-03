@@ -16,12 +16,14 @@ public class LedsIOBlinkin implements LedsIO {
       new HashMap<>();
 
   static {
+    modeLookup.put(LedMode.CLIMB_NORMAL, BlinkinLedMode.FIXED_RAINBOW_PARTY);
+    modeLookup.put(LedMode.CLIMB_FAILURE, BlinkinLedMode.FIXED_BREATH_BLUE);
+    modeLookup.put(LedMode.CLIMB_SUCCESS, BlinkinLedMode.FIXED_BREATH_RED);
     modeLookup.put(LedMode.AUTO_ALERT, BlinkinLedMode.SOLID_GREEN);
     modeLookup.put(LedMode.SHOOTING, BlinkinLedMode.ONE_STROBE);
     modeLookup.put(LedMode.TARGETED, BlinkinLedMode.FIXED_STROBE_WHITE);
     modeLookup.put(LedMode.TOWER_FULL, BlinkinLedMode.SOLID_GREEN);
     modeLookup.put(LedMode.INTAKING, BlinkinLedMode.SOLID_BLUE);
-    modeLookup.put(LedMode.CLIMBING, BlinkinLedMode.FIXED_RAINBOW_PARTY);
     modeLookup.put(LedMode.DEFAULT_AUTO, BlinkinLedMode.TWO_HEARTBEAT_FAST);
     modeLookup.put(LedMode.DEFAULT_TELEOP, BlinkinLedMode.SOLID_BLACK);
   }

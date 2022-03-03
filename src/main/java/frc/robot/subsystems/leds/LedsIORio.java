@@ -17,6 +17,7 @@ public class LedsIORio implements LedsIO {
   private static final double strobeDuration = 0.2; // How long is each flash
   private static final double rainbowFullLength = 40.0; // How many LEDs for a full cycle
   private static final double rainbowDuration = 0.25; // How long until the cycle repeats
+  private static final double breathDuration = 2.0; // How long until the cycle repeats
   private static final double waveExponent = 0.4; // Controls the length of the transition
   private static final double waveFastFullLength = 40.0; // How many LEDs for a full cycle
   private static final double waveFastDuration = 0.25; // How long until the cycle repeats
@@ -39,8 +40,14 @@ public class LedsIORio implements LedsIO {
   @Override
   public void setMode(LedMode mode) {
     switch (mode) {
-      case CLIMBING:
+      case CLIMB_NORMAL:
         rainbow();
+        break;
+      case CLIMB_FAILURE:
+        breath(Color.kRed, Color.kBlack);
+        break;
+      case CLIMB_SUCCESS:
+        breath(Color.kGreen, Color.kBlack);
         break;
       case AUTO_ALERT:
         solid(Color.kGreen);
@@ -90,8 +97,19 @@ public class LedsIORio implements LedsIO {
   }
 
   private void strobe(Color color) {
-    boolean on = ((Timer.getFPGATimestamp() / strobeDuration) % 1.0) > 0.5;
+    boolean on =
+        ((Timer.getFPGATimestamp() % strobeDuration) / strobeDuration) > 0.5;
     solid(on ? color : Color.kBlack);
+  }
+
+  private void breath(Color c1, Color c2) {
+    double x = ((Timer.getFPGATimestamp() % breathDuration) / breathDuration)
+        * 2.0 * Math.PI;
+    double ratio = (Math.sin(x) + 1.0) / 2.0;
+    double red = (c1.red * (1 - ratio)) + (c2.red * ratio);
+    double green = (c1.green * (1 - ratio)) + (c2.green * ratio);
+    double blue = (c1.blue * (1 - ratio)) + (c2.blue * ratio);
+    solid(new Color(red, green, blue));
   }
 
   private void rainbow() {

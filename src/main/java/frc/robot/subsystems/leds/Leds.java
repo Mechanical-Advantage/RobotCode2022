@@ -21,6 +21,8 @@ public class Leds {
 
   // Robot state tracking
   private boolean climbing = false;
+  private boolean climbFailure = false;
+  private boolean climbSuccess = false;
   private boolean autoAlert = false;
   private boolean shooting = false;
   private boolean driveTargeted = false;
@@ -56,7 +58,13 @@ public class Leds {
           break;
       }
     } else if (climbing) {
-      mode = LedMode.CLIMBING;
+      if (climbFailure) {
+        mode = LedMode.CLIMB_FAILURE;
+      } else if (climbSuccess) {
+        mode = LedMode.CLIMB_SUCCESS;
+      } else {
+        mode = LedMode.CLIMB_NORMAL;
+      }
     } else if (autoAlert) {
       mode = LedMode.AUTO_ALERT;
     } else if (shooting) {
@@ -77,7 +85,23 @@ public class Leds {
   }
 
   public void setClimbing(boolean active) {
+    if (active && !climbing) {
+      climbFailure = false;
+      climbSuccess = false;
+    }
     climbing = active;
+  }
+
+  public void setClimbFailure(boolean active) {
+    if (climbing) {
+      climbFailure = active;
+    }
+  }
+
+  public void setClimbSuccess(boolean active) {
+    if (climbing) {
+      climbSuccess = active;
+    }
   }
 
   public void setAutoAlert(boolean active) {
