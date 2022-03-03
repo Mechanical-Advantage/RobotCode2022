@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj.util.Color;
 /** Controls LEDs directly from the RIO. */
 public class LedsIORio implements LedsIO {
   private static final int length = 119;
+  private static final int centerLed = 95;
+  private static final int halfLength = (int) Math.ceil(length / 2.0);
   private static final double strobeDuration = 0.2; // How long is each flash
   private static final double rainbowFullLength = 40.0; // How many LEDs for a full cycle
   private static final double rainbowDuration = 0.25; // How long until the cycle repeats
@@ -83,21 +85,22 @@ public class LedsIORio implements LedsIO {
   }
 
   private void rainbow() {
-    double startHue =
-        (1.0 - ((Timer.getFPGATimestamp() / rainbowDuration) % 1.0)) * 180.0;
-    double hueDiffPerLed = 180.0 / rainbowFullLength;
-    for (int i = 0; i < length; i++) {
-      double hue = (startHue + (i * hueDiffPerLed)) % 180.0;
-      buffer.setLED(i, Color.fromHSV((int) hue, 255, 255));
+    double x =
+        (1 - ((Timer.getFPGATimestamp() / rainbowDuration) % 1.0)) * 180.0;
+    double xDiffPerLed = 180.0 / rainbowFullLength;
+    for (int i = 0; i < halfLength; i++) {
+      x += xDiffPerLed;
+      x %= 180.0;
+      setLedsSymmetrical(i, Color.fromHSV((int) x, 255, 255));
     }
   }
 
   private void wave(Color c1, Color c2, double fullLength, double duration) {
-    double xStart = (1 - ((Timer.getFPGATimestamp() % duration) / duration))
-        * 2.0 * Math.PI;
+    double x = (1 - ((Timer.getFPGATimestamp() % duration) / duration)) * 2.0
+        * Math.PI;
     double xDiffPerLed = (2.0 * Math.PI) / fullLength;
-    for (int i = 0; i < length; i++) {
-      double x = xStart + (i * xDiffPerLed);
+    for (int i = 0; i < halfLength; i++) {
+      x += xDiffPerLed;
       double ratio = (Math.pow(Math.sin(x), waveExponent) + 1.0) / 2.0;
       if (Double.isNaN(ratio)) {
         ratio = (-Math.pow(Math.sin(x + Math.PI), waveExponent) + 1.0) / 2.0;
@@ -108,7 +111,12 @@ public class LedsIORio implements LedsIO {
       double red = (c1.red * (1 - ratio)) + (c2.red * ratio);
       double green = (c1.green * (1 - ratio)) + (c2.green * ratio);
       double blue = (c1.blue * (1 - ratio)) + (c2.blue * ratio);
-      buffer.setLED(i, new Color(red, green, blue));
+      setLedsSymmetrical(i, new Color(red, green, blue));
     }
+  }
+
+  private void setLedsSymmetrical(int index, Color color) {
+    buffer.setLED((centerLed + index) % length, color);
+    buffer.setLED(centerLed - index, color);
   }
 }
