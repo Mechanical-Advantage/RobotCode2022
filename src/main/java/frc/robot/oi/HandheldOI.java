@@ -95,6 +95,10 @@ public interface HandheldOI {
     return new Trigger();
   }
 
+  public default Trigger getClimbAuto() {
+    return new Trigger();
+  }
+
   public default double getClimbStick() {
     return 0.0;
   }

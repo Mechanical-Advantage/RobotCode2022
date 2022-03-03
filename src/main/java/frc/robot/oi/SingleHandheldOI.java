@@ -113,6 +113,11 @@ public class SingleHandheldOI implements HandheldOI {
   }
 
   @Override
+  public Trigger getClimbAuto() {
+    return new Trigger(controller::getXButton);
+  }
+
+  @Override
   public double getClimbStick() {
     return controller.getLeftY() * -1;
   }

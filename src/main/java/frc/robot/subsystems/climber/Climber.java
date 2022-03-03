@@ -19,12 +19,10 @@ public class Climber extends SubsystemBase {
   private final ClimberIO io;
   private final ClimberIOInputs inputs = new ClimberIOInputs();
 
-  public final TunableNumber motionThresholdLowerVoltage =
-      new TunableNumber("Climber/MotionThresholdLower");
-  public final TunableNumber motionThresholdUpperVoltage =
-      new TunableNumber("Climber/MotionThresholdUpper");
-  public final TunableNumber positionLimitRad =
-      new TunableNumber("Climber/PositionLimit");
+  public final TunableNumber minPositionRad =
+      new TunableNumber("Climber/MinPosition");
+  public final TunableNumber maxPositionRad =
+      new TunableNumber("Climber/MaxPosition");
   private final TunableNumber kP = new TunableNumber("Climber/Kp");
   private final TunableNumber kI = new TunableNumber("Climber/Ki");
   private final TunableNumber kD = new TunableNumber("Climber/Kd");
@@ -45,20 +43,18 @@ public class Climber extends SubsystemBase {
     this.io = io;
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
-        motionThresholdLowerVoltage.setDefault(1.9);
-        motionThresholdUpperVoltage.setDefault(2.1);
-        positionLimitRad.setDefault(40.0);
-        kP.setDefault(10.0);
+        minPositionRad.setDefault(-1.5);
+        maxPositionRad.setDefault(44.0);
+        kP.setDefault(2.5);
         kI.setDefault(0.0);
         kD.setDefault(0.0);
-        toleranceRad.setDefault(0.5);
-        maxVelocity.setDefault(12.0);
-        maxAcceleration.setDefault(25.0);
+        toleranceRad.setDefault(1.0);
+        maxVelocity.setDefault(40.0);
+        maxAcceleration.setDefault(120.0);
         break;
       default:
-        motionThresholdLowerVoltage.setDefault(0.0);
-        motionThresholdUpperVoltage.setDefault(0.0);
-        positionLimitRad.setDefault(0.0);
+        minPositionRad.setDefault(0.0);
+        maxPositionRad.setDefault(0.0);
         kP.setDefault(0.0);
         kI.setDefault(0.0);
         kD.setDefault(0.0);
@@ -130,14 +126,16 @@ public class Climber extends SubsystemBase {
     if (!closedLoop) {
       controller.reset(getPosition());
     }
-    controller.setGoal(MathUtil.clamp(positionRad, 0, positionLimitRad.get()));
+    controller.setGoal(MathUtil.clamp(positionRad, minPositionRad.get(),
+        maxPositionRad.get()));
     closedLoop = true;
   }
 
   /** Returns whether the climber is at the current goal */
   public boolean atGoal() {
     if (closedLoop) {
-      return controller.atGoal();
+      return Math.abs(controller.getGoal().position
+          - controller.getSetpoint().position) < 0.1;
     } else {
       return false;
     }

@@ -157,7 +157,7 @@ public class DriveIOSparkMAX implements DriveIO {
       }
     }
 
-    gyro.zeroYaw();
+    gyro.calibrate();
   }
 
   @Override
@@ -214,8 +214,10 @@ public class DriveIOSparkMAX implements DriveIO {
           rightFollower.getMotorTemperature()};
     }
 
-    inputs.gyroPositionRad = Math.toRadians(gyro.getAngle());
-    inputs.gyroVelocityRadPerSec = Math.toRadians(gyro.getRate());
+    inputs.gyroYawPositionRad = Math.toRadians(gyro.getAngle());
+    inputs.gyroYawVelocityRadPerSec = Math.toRadians(gyro.getRate());
+    inputs.gyroPitchPositionRad = Math.toRadians(gyro.getRoll());
+    inputs.gyroRollPositionRad = Math.toRadians(gyro.getPitch());
   }
 
   @Override

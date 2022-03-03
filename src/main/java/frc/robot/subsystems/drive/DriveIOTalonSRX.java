@@ -70,8 +70,8 @@ public class DriveIOTalonSRX implements DriveIO {
     inputs.rightCurrentAmps = new double[] {rightLeader.getSupplyCurrent(),
         rightFollower.getSupplyCurrent()};
 
-    inputs.gyroPositionRad = Units.degreesToRadians(gyro.getAngle());
-    inputs.gyroVelocityRadPerSec = Units.degreesToRadians(gyro.getRate());
+    inputs.gyroYawPositionRad = Units.degreesToRadians(gyro.getAngle());
+    inputs.gyroYawVelocityRadPerSec = Units.degreesToRadians(gyro.getRate());
   }
 
   @Override

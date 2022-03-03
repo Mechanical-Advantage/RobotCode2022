@@ -58,10 +58,11 @@ public class DriveIOSim implements DriveIO {
     inputs.rightCurrentAmps = new double[] {sim.getRightCurrentDrawAmps()};
     inputs.rightTempCelcius = new double[] {};
 
-    double lastGyroPosition = inputs.gyroPositionRad;
-    inputs.gyroPositionRad = sim.getHeading().getRadians() * -1;
-    inputs.gyroVelocityRadPerSec =
-        (inputs.gyroPositionRad - lastGyroPosition) / Constants.loopPeriodSecs;
+    double lastGyroPosition = inputs.gyroYawPositionRad;
+    inputs.gyroYawPositionRad = sim.getHeading().getRadians() * -1;
+    inputs.gyroYawVelocityRadPerSec =
+        (inputs.gyroYawPositionRad - lastGyroPosition)
+            / Constants.loopPeriodSecs;
   }
 
   public void setVoltage(double leftVolts, double rightVolts) {

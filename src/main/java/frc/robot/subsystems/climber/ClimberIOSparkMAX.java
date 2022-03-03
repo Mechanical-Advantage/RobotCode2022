@@ -37,7 +37,7 @@ public class ClimberIOSparkMAX implements ClimberIO {
         follower = new CANSparkMax(14, MotorType.kBrushless);
         invert = false;
         invertFollower = true;
-        afterEncoderReduction = 20.0 * (50.0 / 20.0);
+        afterEncoderReduction = 5.0 * (50.0 / 20.0);
         break;
       default:
         throw new RuntimeException("Invalid robot for ClimberIOSparkMax!");
@@ -51,8 +51,8 @@ public class ClimberIOSparkMAX implements ClimberIO {
     follower.follow(leader, invertFollower);
 
     leader.setInverted(invert);
-    leader.setSmartCurrentLimit(30);
-    follower.setSmartCurrentLimit(30);
+    leader.setSmartCurrentLimit(60);
+    follower.setSmartCurrentLimit(60);
     leader.enableVoltageCompensation(12.0);
     follower.enableVoltageCompensation(12.0);
 

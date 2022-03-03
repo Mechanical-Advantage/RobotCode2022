@@ -11,19 +11,24 @@ import frc.robot.subsystems.climber.Climber;
 
 public class RunClimberToPosition extends CommandBase {
   private final Climber climber;
-  private final boolean top;
+  private final double position;
 
   /** Creates a new RunClimberToPosition. */
   public RunClimberToPosition(Climber climber, boolean top) {
+    this(climber, top ? climber.maxPositionRad.get() : 0.0);
+  }
+
+  /** Creates a new RunClimberToPosition. */
+  public RunClimberToPosition(Climber climber, double position) {
     addRequirements(climber);
     this.climber = climber;
-    this.top = top;
+    this.position = position;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    climber.setGoal(top ? climber.positionLimitRad.get() : 0.0);
+    climber.setGoal(position);
   }
 
   // Called every time the scheduler runs while the command is scheduled.

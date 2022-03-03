@@ -12,8 +12,12 @@ import frc.robot.subsystems.climber.Climber;
 import frc.robot.util.TunableNumber;
 
 public class ResetClimber extends CommandBase {
-  private static final TunableNumber speedPercent =
-      new TunableNumber("ResetClimber/Speed");
+  private static final TunableNumber startDelaySecs =
+      new TunableNumber("ResetClimber/StartDelaySecs");
+  private static final TunableNumber startSpeedPercent =
+      new TunableNumber("ResetClimber/StartSpeed");
+  private static final TunableNumber normalSpeedPercent =
+      new TunableNumber("ResetClimber/NormalSpeed");
   private static final TunableNumber graceSecs =
       new TunableNumber("ResetClimber/GraceSecs");
   private static final TunableNumber backSecs =
@@ -23,6 +27,7 @@ public class ResetClimber extends CommandBase {
 
   private final Climber climber;
   private final Timer timer = new Timer();
+  private boolean started = false;
   private boolean backwards = false;
 
   /** Creates a new ResetClimber. */
@@ -30,15 +35,19 @@ public class ResetClimber extends CommandBase {
     addRequirements(climber);
     this.climber = climber;
 
-    speedPercent.setDefault(0.2);
-    graceSecs.setDefault(0.2);
-    backSecs.setDefault(0.25);
-    currentThreshold.setDefault(15.0);
+    startDelaySecs.setDefault(0.25);
+    startSpeedPercent.setDefault(0.05);
+    normalSpeedPercent.setDefault(0.1);
+    graceSecs.setDefault(0.1);
+    backSecs.setDefault(0.1);
+    currentThreshold.setDefault(30.0);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    started = false;
+    backwards = false;
     timer.reset();
     timer.start();
   }
@@ -48,18 +57,23 @@ public class ResetClimber extends CommandBase {
   public void execute() {
     Logger.getInstance().recordOutput("ActiveCommands/ResetClimber", true);
 
-    if (backwards) {
-      climber.runPercent(speedPercent.get());
-    } else {
-      climber.runPercent(-speedPercent.get());
+    if (!started) {
+      climber.runPercent(startSpeedPercent.get());
+      if (timer.hasElapsed(startDelaySecs.get())) {
+        started = true;
+      }
+    } else if (!backwards) {
+      climber.runPercent(-normalSpeedPercent.get());
       if (timer.hasElapsed(graceSecs.get())) {
-        climber.runPercent(-speedPercent.get());
+        climber.runPercent(-normalSpeedPercent.get());
         if (climber.getCurrentAmps() > currentThreshold.get()) {
           backwards = true;
           timer.reset();
           climber.resetPosition();
         }
       }
+    } else {
+      climber.runPercent(normalSpeedPercent.get());
     }
   }
 
@@ -73,6 +87,6 @@ public class ResetClimber extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return backwards && timer.hasElapsed(backSecs.get());
+    return started && backwards && timer.hasElapsed(backSecs.get());
   }
 }

@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Mode;
 import frc.robot.commands.AutoAim;
 import frc.robot.commands.AutoAimSimple;
+import frc.robot.commands.AutoClimb;
 import frc.robot.commands.DriveToTarget;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.FeedForwardCharacterization;
@@ -382,9 +383,11 @@ public class RobotContainer {
     Trigger climbClosedLoop =
         new Trigger(overrideOI::getClimbOpenLoop).negate();
     handheldOI.getClimbTop().and(climbMode).and(climbClosedLoop)
-        .whenActive(new RunClimberToPosition(climber, true), false);
+        .toggleWhenActive(new RunClimberToPosition(climber, true), false);
     handheldOI.getClimbBottom().and(climbMode).and(climbClosedLoop)
-        .whenActive(new RunClimberToPosition(climber, false), false);
+        .toggleWhenActive(new RunClimberToPosition(climber, false), false);
+    handheldOI.getClimbAuto().and(climbMode).and(climbClosedLoop)
+        .toggleWhenActive(new AutoClimb(climber, drive), false);
   }
 
   /** Called at the start of teleop to begin zeroing the climber. */

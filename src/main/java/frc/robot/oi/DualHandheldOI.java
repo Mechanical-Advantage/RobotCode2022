@@ -127,6 +127,11 @@ public class DualHandheldOI implements HandheldOI {
   }
 
   @Override
+  public Trigger getClimbAuto() {
+    return new Trigger(operatorController::getXButton);
+  }
+
+  @Override
   public double getClimbStick() {
     return operatorController.getLeftY() * -1;
   }

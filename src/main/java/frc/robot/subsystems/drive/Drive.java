@@ -74,6 +74,8 @@ public class Drive extends SubsystemBase {
   private double baseDistanceRightRad = 0.0;
   private boolean brakeMode = false;
   private boolean resetOnVision = false;
+  private boolean pitchResetComplete = false;
+  private double basePitchRadians = 0.0;
 
   /** Creates a new DriveTrain. */
   public Drive(DriveIO io) {
@@ -170,7 +172,7 @@ public class Drive extends SubsystemBase {
     Logger.getInstance().processInputs("Drive", inputs);
 
     // Update odometry
-    odometry.update(new Rotation2d(inputs.gyroPositionRad * -1),
+    odometry.update(new Rotation2d(inputs.gyroYawPositionRad * -1),
         getLeftPositionMeters() - baseDistanceLeftRad,
         getRightPositionMeters() - baseDistanceRightRad);
 
@@ -192,6 +194,13 @@ public class Drive extends SubsystemBase {
           Units.metersToInches(lastVisionPose.getTranslation()
               .getDistance(FieldConstants.hubCenter)));
     }
+
+    // Manage pitch rotation
+    if (!pitchResetComplete) {
+      resetPitch();
+      pitchResetComplete = true;
+    }
+    Logger.getInstance().recordOutput("Drive/PitchDegrees", getPitchDegrees());
 
     // Check if robot is aligned for LEDs
     boolean withinRadius = getPose().getTranslation()
@@ -324,6 +333,16 @@ public class Drive extends SubsystemBase {
     drivePercent(0, 0);
   }
 
+  /** Resets the pitch measurement. */
+  public void resetPitch() {
+    basePitchRadians = inputs.gyroPitchPositionRad;
+  }
+
+  /** Gets the current pitch measurement in degrees. */
+  public double getPitchDegrees() {
+    return Math.toDegrees(inputs.gyroPitchPositionRad - basePitchRadians);
+  }
+
   /** Returns the current odometry pose */
   public Pose2d getPose() {
     return odometry.getPoseMeters();
@@ -341,7 +360,8 @@ public class Drive extends SubsystemBase {
     }
     baseDistanceLeftRad = getLeftPositionMeters();
     baseDistanceRightRad = getRightPositionMeters();
-    odometry.resetPosition(pose, new Rotation2d(inputs.gyroPositionRad * -1));
+    odometry.resetPosition(pose,
+        new Rotation2d(inputs.gyroYawPositionRad * -1));
   }
 
   /** Adds a new timestamped vision measurement */
@@ -373,7 +393,7 @@ public class Drive extends SubsystemBase {
 
       // Calculate vision percent
       double angularErrorScale =
-          Math.abs(inputs.gyroVelocityRadPerSec) / visionMaxAngularVelocity;
+          Math.abs(inputs.gyroYawVelocityRadPerSec) / visionMaxAngularVelocity;
       angularErrorScale = MathUtil.clamp(angularErrorScale, 0, 1);
       double visionShift =
           1 - Math.pow(1 - visionShiftPerSec, 1 / visionNominalFramerate);
@@ -447,6 +467,6 @@ public class Drive extends SubsystemBase {
 
   /** Returns gyro position in radians. Only use for characterization */
   public double getCharacterizationGyroPosition() {
-    return inputs.gyroPositionRad;
+    return inputs.gyroYawPositionRad;
   }
 }
