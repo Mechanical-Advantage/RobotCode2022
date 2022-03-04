@@ -394,7 +394,9 @@ public class Drive extends SubsystemBase {
       Pose2d visionFieldToTarget = GeomUtil.transformToPose(
           fieldToCamera.plus(cameraPosition.vehicleToCamera.inverse()));
       if (visionFieldToTarget.getX() > FieldConstants.fieldLength
-          || visionFieldToTarget.getY() > FieldConstants.fieldWidth) {
+          || visionFieldToTarget.getX() < 0.0
+          || visionFieldToTarget.getY() > FieldConstants.fieldWidth
+          || visionFieldToTarget.getY() < 0.0) {
         return;
       }
 
