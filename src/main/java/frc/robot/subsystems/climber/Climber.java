@@ -23,6 +23,10 @@ public class Climber extends SubsystemBase {
       new TunableNumber("Climber/MinPosition");
   public final TunableNumber maxPositionRad =
       new TunableNumber("Climber/MaxPosition");
+  public final TunableNumber minTeleopPositionRad =
+      new TunableNumber("Climber/MinTeleopPosition");
+  public final TunableNumber maxTeleopPositionRad =
+      new TunableNumber("Climber/MaxTeleopPosition");
   private final TunableNumber kP = new TunableNumber("Climber/Kp");
   private final TunableNumber kI = new TunableNumber("Climber/Ki");
   private final TunableNumber kD = new TunableNumber("Climber/Kd");
@@ -45,6 +49,8 @@ public class Climber extends SubsystemBase {
       case ROBOT_2022C:
         minPositionRad.setDefault(-2.0);
         maxPositionRad.setDefault(44.0);
+        minTeleopPositionRad.setDefault(0.0);
+        maxTeleopPositionRad.setDefault(36.0);
         kP.setDefault(2.5);
         kI.setDefault(0.0);
         kD.setDefault(0.0);
@@ -55,6 +61,8 @@ public class Climber extends SubsystemBase {
       default:
         minPositionRad.setDefault(0.0);
         maxPositionRad.setDefault(0.0);
+        minTeleopPositionRad.setDefault(0.0);
+        maxTeleopPositionRad.setDefault(0.0);
         kP.setDefault(0.0);
         kI.setDefault(0.0);
         kD.setDefault(0.0);

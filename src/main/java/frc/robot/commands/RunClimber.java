@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.climber.Climber;
@@ -53,7 +54,9 @@ public class RunClimber extends CommandBase {
     } else {
       double newGoal = climber.getGoal() + (scaledValue
           * maxVelocityRadPerSec.get() * Constants.loopPeriodSecs);
-      climber.setGoal(newGoal < 0.0 ? 0.0 : newGoal);
+      climber
+          .setGoal(MathUtil.clamp(newGoal, climber.minTeleopPositionRad.get(),
+              climber.maxTeleopPositionRad.get()));
     }
   }
 
