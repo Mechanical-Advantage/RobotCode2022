@@ -80,9 +80,8 @@ public class LedsIORio implements LedsIO {
             waveAllianceDuration);
         break;
       case DISABLED_NEUTRAL:
-        // wave(Color.kGold, Color.kDarkBlue, waveSlowFullLength,
-        // waveSlowDuration);
-        breath(Color.kGreen, Color.kBlack);
+        wave(Color.kGold, Color.kDarkBlue, waveSlowFullLength,
+            waveSlowDuration);
         break;
       default:
         solid(Color.kBlack);
