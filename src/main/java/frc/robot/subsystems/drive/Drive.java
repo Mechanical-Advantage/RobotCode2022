@@ -48,7 +48,7 @@ public class Drive extends SubsystemBase {
   // Thresholding for when to indicate robot is targeted & detect climb failures
   private static final double ledsAlignedRadius = 4.0;
   private static final double ledsAlignedMaxDegrees = 5.0;
-  private static final double ledsClimbFailureAccelMetersPerSec2 = 50.0;
+  private static final double ledsClimbFailureAccelMetersPerSec2 = 40.0;
 
   private final double wheelRadiusMeters;
   private final double maxVelocityMetersPerSec;
