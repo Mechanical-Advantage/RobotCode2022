@@ -51,8 +51,8 @@ public class ClimberIOSparkMAX implements ClimberIO {
     follower.follow(leader, invertFollower);
 
     leader.setInverted(invert);
-    leader.setSmartCurrentLimit(60);
-    follower.setSmartCurrentLimit(60);
+    leader.setSmartCurrentLimit(65);
+    follower.setSmartCurrentLimit(65);
     leader.enableVoltageCompensation(12.0);
     follower.enableVoltageCompensation(12.0);
 
