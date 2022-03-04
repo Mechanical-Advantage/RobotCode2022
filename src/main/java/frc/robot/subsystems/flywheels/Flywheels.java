@@ -55,7 +55,7 @@ public class Flywheels extends SubsystemBase {
         maxVelocityRpm.setDefault(2650.0);
         maxAccelerationRpmPerSec2.setDefault(2000.0);
         maxJerkRpmPerSec3.setDefault(2500.0);
-        ffModel = new SimpleMotorFeedforward(0.42, 0.0416);
+        ffModel = new SimpleMotorFeedforward(0.4, 0.0416);
         kP.setDefault(0.00008);
         kI.setDefault(0.0);
         kD.setDefault(0.0);
