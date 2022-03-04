@@ -15,7 +15,7 @@ public class RunClimberToPosition extends CommandBase {
 
   /** Creates a new RunClimberToPosition. */
   public RunClimberToPosition(Climber climber, boolean top) {
-    this(climber, top ? climber.maxPositionRad.get() : 0.0);
+    this(climber, top ? 36.0 : 0.0);
   }
 
   /** Creates a new RunClimberToPosition. */

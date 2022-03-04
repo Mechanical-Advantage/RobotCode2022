@@ -16,7 +16,8 @@ public class AutoClimb extends SequentialCommandGroup {
   /** Creates a new AutoClimb. */
   public AutoClimb(Climber climber, Drive drive, Leds leds) {
     addCommands(new RunClimberToPosition(climber, climber.minPositionRad.get()),
-        new WaitCommand(1.0), new RunClimberToPosition(climber, 36.0),
+        new WaitCommand(1.0),
+        new RunClimberToPosition(climber, climber.maxPositionRad.get()),
         new WaitCommand(0.5),
         new RunClimberToPosition(climber, climber.minPositionRad.get()),
         new WaitCommand(2.0),
