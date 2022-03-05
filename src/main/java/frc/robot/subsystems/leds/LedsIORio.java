@@ -145,6 +145,6 @@ public class LedsIORio implements LedsIO {
 
   private void setLedsSymmetrical(int index, Color color) {
     buffer.setLED((centerLed + index) % length, color);
-    buffer.setLED(centerLed - index, color);
+    buffer.setLED(centerLed - index - 1, color);
   }
 }
