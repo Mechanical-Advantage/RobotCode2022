@@ -57,7 +57,7 @@ public class VisionIOLimelight implements VisionIO {
             cornerXList.stream().mapToDouble(Double::doubleValue).toArray();
         cornerY =
             cornerYList.stream().mapToDouble(Double::doubleValue).toArray();
-        simpleValid = validEntry.getBoolean(false);
+        simpleValid = validEntry.getDouble(0.0) == 1.0;
         simpleAngle = simpleAngleEntry.getDouble(0.0);
       }
 
