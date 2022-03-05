@@ -6,7 +6,6 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.drive.Drive;
@@ -19,15 +18,13 @@ public class AutoClimb extends SequentialCommandGroup {
   /** Creates a new AutoClimb. */
   public AutoClimb(Climber climber, Drive drive, Leds leds) {
     addCommands(new RunClimberToPosition(climber, climber.minPositionRad.get()),
-        new WaitCommand(1.0).deadlineWith(new StartEndCommand(
-            () -> climber.runPercent(-downPullPercent), () -> {
-            }, climber)),
+        new InstantCommand(() -> climber.runPercent(-downPullPercent), climber),
+        new WaitCommand(1.0),
         new RunClimberToPosition(climber, climber.maxPositionRad.get()),
         new WaitCommand(0.5),
         new RunClimberToPosition(climber, climber.minPositionRad.get()),
-        new WaitCommand(1.75).deadlineWith(new StartEndCommand(
-            () -> climber.runPercent(-downPullPercent), () -> {
-            }, climber)),
+        new InstantCommand(() -> climber.runPercent(-downPullPercent), climber),
+        new WaitCommand(1.75),
         new RunClimberToPosition(climber, climber.maxPositionRad.get()),
         new WaitCommand(0.5), new RunClimberToPosition(climber, 20.0),
         new InstantCommand(() -> leds.setClimbSuccess(true)));
