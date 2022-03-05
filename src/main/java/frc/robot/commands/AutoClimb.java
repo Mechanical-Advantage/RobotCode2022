@@ -14,19 +14,19 @@ import frc.robot.subsystems.leds.Leds;
 
 
 public class AutoClimb extends SequentialCommandGroup {
-  private static double finalPullPercent = 0.8;
+  private static double downPullPercent = 0.8;
 
   /** Creates a new AutoClimb. */
   public AutoClimb(Climber climber, Drive drive, Leds leds) {
     addCommands(new RunClimberToPosition(climber, climber.minPositionRad.get()),
         new WaitCommand(1.0).deadlineWith(new StartEndCommand(
-            () -> climber.runPercent(-finalPullPercent), () -> {
+            () -> climber.runPercent(-downPullPercent), () -> {
             }, climber)),
         new RunClimberToPosition(climber, climber.maxPositionRad.get()),
         new WaitCommand(0.5),
         new RunClimberToPosition(climber, climber.minPositionRad.get()),
         new WaitCommand(1.75).deadlineWith(new StartEndCommand(
-            () -> climber.runPercent(-finalPullPercent), () -> {
+            () -> climber.runPercent(-downPullPercent), () -> {
             }, climber)),
         new RunClimberToPosition(climber, climber.maxPositionRad.get()),
         new WaitCommand(0.5), new RunClimberToPosition(climber, 20.0),
