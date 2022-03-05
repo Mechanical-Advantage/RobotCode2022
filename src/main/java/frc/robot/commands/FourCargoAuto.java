@@ -27,7 +27,7 @@ import frc.robot.util.GeomUtil;
 public class FourCargoAuto extends SequentialCommandGroup {
   public static final Pose2d terminalCargoPosition =
       FieldConstants.cargoG.transformBy(new Transform2d(
-          new Translation2d(0.3, 0.0), Rotation2d.fromDegrees(180.0)));
+          new Translation2d(0.0, 0.0), Rotation2d.fromDegrees(180.0)));
   public static final Pose2d terminalCargoApproachPosition =
       terminalCargoPosition
           .transformBy(GeomUtil.transformFromTranslation(-0.8, 0.0));
