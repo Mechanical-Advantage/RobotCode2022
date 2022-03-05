@@ -27,7 +27,7 @@ public class FiveCargoAuto extends SequentialCommandGroup {
   public static final double firstShotLateSecs = 0.75; // How long after stop to begin feeding
   public static final double firstShotDurationSecs = 1.0; // How long to feed
   public static final double secondShotLateSecs = 0.0; // How long after stop to begin feeding
-  public static final double secondShotDurationSecs = 0.5; // How long to feed
+  public static final double secondShotDurationSecs = 0.6; // How long to feed
   public static final double thirdShotDurationSecs = 1.0; // How long to feed
 
   public static final double alertEarlySecs = 1.0; // How long before terminal arrival to light LEDs
