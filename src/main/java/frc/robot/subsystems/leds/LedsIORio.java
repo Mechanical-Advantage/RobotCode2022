@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.util.Color;
 public class LedsIORio implements LedsIO {
   private static final int length = 119;
   private static final int centerLed = 95;
-  private static final int halfLength = 57;
+  private static final int halfLength = (int) Math.ceil(length / 2.0);
   private static final double strobeDuration = 0.2; // How long is each flash
   private static final double rainbowFullLength = 40.0; // How many LEDs for a full cycle
   private static final double rainbowDuration = 0.25; // How long until the cycle repeats
@@ -145,6 +145,6 @@ public class LedsIORio implements LedsIO {
 
   private void setLedsSymmetrical(int index, Color color) {
     buffer.setLED((centerLed + index) % length, color);
-    buffer.setLED(centerLed - index - 1, color);
+    buffer.setLED(centerLed - index, color);
   }
 }
