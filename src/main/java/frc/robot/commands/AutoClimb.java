@@ -20,13 +20,13 @@ public class AutoClimb extends SequentialCommandGroup {
   public AutoClimb(Climber climber, Drive drive, Leds leds) {
     addCommands(new RunClimberToPosition(climber, climber.minPositionRad.get()),
         new WaitCommand(1.0).deadlineWith(new StartEndCommand(
-            () -> climber.runPercent(finalPullPercent), () -> {
+            () -> climber.runPercent(-finalPullPercent), () -> {
             }, climber)),
         new RunClimberToPosition(climber, climber.maxPositionRad.get()),
         new WaitCommand(0.5),
         new RunClimberToPosition(climber, climber.minPositionRad.get()),
         new WaitCommand(2.0).deadlineWith(new StartEndCommand(
-            () -> climber.runPercent(finalPullPercent), () -> {
+            () -> climber.runPercent(-finalPullPercent), () -> {
             }, climber)),
         new RunClimberToPosition(climber, climber.maxPositionRad.get()),
         new WaitCommand(0.5), new RunClimberToPosition(climber, 20.0),
