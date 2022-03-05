@@ -49,9 +49,9 @@ public class PrepareShooterPreset extends CommandBase {
     this.preset = preset;
 
     lowerFenderRpm.setDefault(500.0);
-    upperFenderRpm.setDefault(1120.0);
-    upperTarmacRpm.setDefault(1190.0);
-    upperTarmacHighRpm.setDefault(1200.0);
+    upperFenderRpm.setDefault(1140.0);
+    upperTarmacRpm.setDefault(1200.0);
+    upperTarmacHighRpm.setDefault(1210.0);
 
     lowerFenderTower.setDefault(0.6);
     upperFenderTower.setDefault(0.35);

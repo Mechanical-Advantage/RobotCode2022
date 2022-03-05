@@ -21,7 +21,7 @@ public class AutoClimb extends SequentialCommandGroup {
         new InstantCommand(() -> climber.runPercent(-downPullPercent), climber),
         new WaitCommand(1.0),
         new RunClimberToPosition(climber, climber.maxPositionRad.get()),
-        new WaitCommand(0.5),
+        new WaitCommand(0.25),
         new RunClimberToPosition(climber, climber.minPositionRad.get()),
         new InstantCommand(() -> climber.runPercent(-downPullPercent), climber),
         new WaitCommand(1.75),
