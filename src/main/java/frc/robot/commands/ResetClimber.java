@@ -35,12 +35,12 @@ public class ResetClimber extends CommandBase {
     addRequirements(climber);
     this.climber = climber;
 
-    startDelaySecs.setDefault(0.25);
+    startDelaySecs.setDefault(0.4);
     startSpeedPercent.setDefault(0.05);
     normalSpeedPercent.setDefault(0.1);
     graceSecs.setDefault(0.1);
     backSecs.setDefault(0.1);
-    currentThreshold.setDefault(30.0);
+    currentThreshold.setDefault(40.0);
   }
 
   // Called when the command is initially scheduled.

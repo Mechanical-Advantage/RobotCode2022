@@ -48,7 +48,7 @@ public class Drive extends SubsystemBase {
   // Thresholding for when to indicate robot is targeted & detect climb failures
   private static final double ledsAlignedRadius = 4.0;
   private static final double ledsAlignedMaxDegrees = 5.0;
-  private static final double ledsClimbFailureAccelMetersPerSec2 = 20.0;
+  private static final double ledsClimbFailureAccelMetersPerSec2 = 40.0;
 
   private final double wheelRadiusMeters;
   private final double maxVelocityMetersPerSec;
@@ -393,6 +393,12 @@ public class Drive extends SubsystemBase {
           GeomUtil.transformFromTranslation(data.translation.unaryMinus()));
       Pose2d visionFieldToTarget = GeomUtil.transformToPose(
           fieldToCamera.plus(cameraPosition.vehicleToCamera.inverse()));
+      if (visionFieldToTarget.getX() > FieldConstants.fieldLength
+          || visionFieldToTarget.getX() < 0.0
+          || visionFieldToTarget.getY() > FieldConstants.fieldWidth
+          || visionFieldToTarget.getY() < 0.0) {
+        return;
+      }
 
       // Save vision pose for logging
       noVisionTimer.reset();
