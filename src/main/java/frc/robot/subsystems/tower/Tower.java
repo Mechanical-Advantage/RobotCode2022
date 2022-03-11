@@ -16,6 +16,8 @@ import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
 
 public class Tower extends SubsystemBase {
+  private final int sensorFaultCycles = 3; // Send alert after invalid data for this many cycles
+
   private final TowerIO io;
   private final TowerIOInputs inputs = new TowerIOInputs();
 
@@ -29,6 +31,8 @@ public class Tower extends SubsystemBase {
   private Leds leds;
   private Supplier<Boolean> cargoSensorDisableSupplier = () -> false;
   private double shootSpeed = 0.0;
+  private int lowerSensorFaultCounter;
+  private int upperSensorFaultCounter;
 
   /** Creates a new Tower. */
   public Tower(TowerIO io) {
@@ -51,10 +55,21 @@ public class Tower extends SubsystemBase {
 
     if (inputs.cargoSensorsAvailable) {
       if (inputs.lowerCargoSensor1 == inputs.lowerCargoSensor2) {
-        lowerDisconnectedAlert.set(true);
+        lowerSensorFaultCounter += 1;
+        if (lowerSensorFaultCounter >= sensorFaultCycles) {
+          lowerDisconnectedAlert.set(true);
+        }
+      } else {
+        lowerSensorFaultCounter = 0;
       }
       if (inputs.upperCargoSensor1 == inputs.upperCargoSensor2) {
-        upperDisconnectedAlert.set(true);
+        upperSensorFaultCounter += 1;
+        if (upperSensorFaultCounter >= sensorFaultCycles) {
+          upperDisconnectedAlert.set(true);
+        } else {
+          upperSensorFaultCounter = 0;
+        }
+
       }
     }
 
