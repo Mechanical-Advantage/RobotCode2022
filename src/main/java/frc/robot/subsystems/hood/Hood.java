@@ -6,28 +6,46 @@ package frc.robot.subsystems.hood;
 
 import org.littletonrobotics.junction.Logger;
 
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.subsystems.hood.HoodIO.HoodIOInputs;
+import frc.robot.util.TunableNumber;
 
 public class Hood extends SubsystemBase {
-  private static final double moveTimeSecs = 0.5;
+  private final TunableNumber minAngle =
+      new TunableNumber("Hood/MinAngleDegrees");
+  private final TunableNumber maxAngle =
+      new TunableNumber("Hood/MaxAngleDegres");
+  private final TunableNumber kP = new TunableNumber("Hood/kP");
+  private final TunableNumber kD = new TunableNumber("Hood/kD");
+  private final TunableNumber maxVelocity =
+      new TunableNumber("Hood/MaxVelocity");
+  private final TunableNumber maxAcceleration =
+      new TunableNumber("Hood/MaxAcceleration");
 
   private final HoodIO io;
   private final HoodIOInputs inputs = new HoodIOInputs();
 
-  private final Timer movingTimer = new Timer();
-  private boolean resetComplete = false; // Reset on first enable
-  private boolean raised = false;
-  private boolean shootPosition = false;
+  private final ProfiledPIDController controller =
+      new ProfiledPIDController(0.0, 0.0, 0.0,
+          new TrapezoidProfile.Constraints(0.0, 0.0), Constants.loopPeriodSecs);
+  private double basePositionRad = 0.0;
+  private boolean closedLoop = false;
 
   /** Creates a new Kicker. */
   public Hood(HoodIO io) {
     this.io = io;
-    movingTimer.reset();
-    movingTimer.start();
-    io.setRaised(false);
+    io.setBrakeMode(true);
+
+    minAngle.setDefault(10.0);
+    maxAngle.setDefault(70.0);
+    kP.setDefault(0.0);
+    kD.setDefault(0.0);
+    maxVelocity.setDefault(0.0);
+    maxAcceleration.setDefault(0.0);
   }
 
   @Override
@@ -35,46 +53,56 @@ public class Hood extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Hood", inputs);
 
-    // Start moving timer on first reset
-    if (DriverStation.isEnabled() && !resetComplete) {
-      movingTimer.reset();
-      resetComplete = true;
+    if (kP.hasChanged()) {
+      controller.setP(kP.get());
+    }
+    if (kD.hasChanged()) {
+      controller.setP(kD.get());
+    }
+    if (maxVelocity.hasChanged() || maxAcceleration.hasChanged()) {
+      controller.setConstraints(new TrapezoidProfile.Constraints(
+          maxVelocity.get(), maxAcceleration.get()));
     }
 
-    // Log current state
-    Logger.getInstance().recordOutput("HoodState", getState().toString());
-  }
-
-  /** Sets the hood position. */
-  public void moveToPosition(boolean raised) {
-    if (raised != this.raised && DriverStation.isEnabled()) {
-      io.setRaised(raised);
-      movingTimer.reset();
-      this.raised = raised;
+    if (closedLoop) {
+      double volts = controller.calculate(getAngle());
+      io.setVoltage(volts);
     }
   }
 
-  /** Saves a requested position for shooting, but doesn't cause any movement. */
-  public void requestShootPosition(boolean raised) {
-    shootPosition = raised;
-  }
-
-  /** Moves to the current requested shoot position. */
-  public void moveToShootPosition() {
-    moveToPosition(shootPosition);
-  }
-
-  public HoodState getState() {
-    if (!movingTimer.hasElapsed(moveTimeSecs)) {
-      return HoodState.MOVING;
+  /** Sets the target hood angle in degrees. */
+  public void setAngle(double angle) {
+    if (!closedLoop) {
+      controller.reset(getAngle());
     }
-    if (!resetComplete) {
-      return HoodState.UNKNOWN;
-    }
-    return raised ? HoodState.RAISED : HoodState.LOWER;
+    controller.setGoal(angle);
+    closedLoop = true;
   }
 
-  public static enum HoodState {
-    LOWER, RAISED, MOVING, UNKNOWN
+  /** Gets the current hood angle in degrees. */
+  public double getAngle() {
+    return Units.radiansToDegrees(inputs.positionRad - basePositionRad)
+        + minAngle.get();
+  }
+
+  /** Returns whether the hood has reached the commanded angle. */
+  public boolean atGoal() {
+    return controller.getGoal().equals(controller.getSetpoint());
+  }
+
+  /** Runs open loop at the specified percent (for reseting) */
+  public void runPercent(double percent) {
+    io.setVoltage(percent * 12.0);
+    closedLoop = false;
+  }
+
+  /** Returns the current velocity in degrees per second. */
+  public double getVelocityDegreesPerSec() {
+    return Units.radiansToDegrees(inputs.velocityRadPerSec);
+  }
+
+  /** Resets the current position to the minimum position. */
+  public void reset() {
+    basePositionRad = inputs.positionRad;
   }
 }

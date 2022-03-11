@@ -33,6 +33,7 @@ import frc.robot.commands.OneCargoAuto;
 import frc.robot.commands.PrepareShooterAuto;
 import frc.robot.commands.PrepareShooterPreset;
 import frc.robot.commands.ResetClimber;
+import frc.robot.commands.ResetHood;
 import frc.robot.commands.RunClimber;
 import frc.robot.commands.RunClimberToPosition;
 import frc.robot.commands.RunIntake;
@@ -62,7 +63,7 @@ import frc.robot.subsystems.flywheels.FlywheelsIOSim;
 import frc.robot.subsystems.flywheels.FlywheelsIOSparkMAX;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.hood.HoodIO;
-import frc.robot.subsystems.hood.HoodIOReal;
+import frc.robot.subsystems.hood.HoodIOSparkMAX;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOSparkMAX;
@@ -117,6 +118,8 @@ public class RobotContainer {
   private final Map<String, AutoRoutine> autoRoutineMap =
       new HashMap<String, AutoRoutine>();
 
+  private boolean zeroComplete = false;
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Check if flash should be burned
@@ -129,7 +132,7 @@ public class RobotContainer {
           drive = new Drive(new DriveIOSparkMAX());
           vision = new Vision(new VisionIOLimelight());
           flywheels = new Flywheels(new FlywheelsIOSparkMAX());
-          hood = new Hood(new HoodIOReal());
+          hood = new Hood(new HoodIOSparkMAX());
           kicker = new Kicker(new KickerIOSparkMAX());
           tower = new Tower(new TowerIOSparkMAX());
           intake = new Intake(new IntakeIOSparkMAX());
@@ -393,9 +396,13 @@ public class RobotContainer {
         .toggleWhenActive(new AutoClimb(climber, drive, leds), false);
   }
 
-  /** Called at the start of teleop to begin zeroing the climber. */
-  public void resetClimber() {
-    new ResetClimber(climber).schedule(false);
+  /** Called when the robot is enabled to begin zeroing subsystems. */
+  public void zeroSubsystems() {
+    if (!zeroComplete) {
+      new ResetClimber(climber).schedule(false);
+      new ResetHood(hood).schedule(false);
+      zeroComplete = true;
+    }
   }
 
   /** Updates the LED mode periodically. */
