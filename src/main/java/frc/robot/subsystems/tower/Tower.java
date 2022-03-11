@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.leds.Leds;
@@ -29,6 +30,10 @@ public class Tower extends SubsystemBase {
   private Leds leds;
   private Supplier<Boolean> cargoSensorDisableSupplier = () -> false;
   private double shootSpeed = 0.0;
+  private int lowerSensorsEqual;
+  private int upperSensorsEqual;
+  private final int cyclesTripped = 3;
+
 
   /** Creates a new Tower. */
   public Tower(TowerIO io) {
@@ -49,12 +54,27 @@ public class Tower extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Tower", inputs);
 
+
+
     if (inputs.cargoSensorsAvailable) {
       if (inputs.lowerCargoSensor1 == inputs.lowerCargoSensor2) {
-        lowerDisconnectedAlert.set(true);
+        lowerSensorsEqual += 1;
+        if (lowerSensorsEqual >= cyclesTripped) {
+          lowerDisconnectedAlert.set(true);
+          System.out.println("Alert");
+        }
+      } else {
+        lowerSensorsEqual = 0;
       }
       if (inputs.upperCargoSensor1 == inputs.upperCargoSensor2) {
-        upperDisconnectedAlert.set(true);
+        upperSensorsEqual += 1;
+        if (upperSensorsEqual >= cyclesTripped) {
+          upperDisconnectedAlert.set(true);
+          System.out.println("Alert2");
+        } else {
+          upperSensorsEqual = 0;
+        }
+
       }
     }
 
