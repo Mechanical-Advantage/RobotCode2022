@@ -8,7 +8,6 @@ import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.leds.Leds;
@@ -17,6 +16,8 @@ import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
 
 public class Tower extends SubsystemBase {
+  private final int sensorFaultCycles = 3; // Send alert after invalid data for this many cycles
+
   private final TowerIO io;
   private final TowerIOInputs inputs = new TowerIOInputs();
 
@@ -30,10 +31,8 @@ public class Tower extends SubsystemBase {
   private Leds leds;
   private Supplier<Boolean> cargoSensorDisableSupplier = () -> false;
   private double shootSpeed = 0.0;
-  private int lowerSensorsEqual;
-  private int upperSensorsEqual;
-  private final int cyclesTripped = 3;
-
+  private int lowerSensorFaultCounter;
+  private int upperSensorFaultCounter;
 
   /** Creates a new Tower. */
   public Tower(TowerIO io) {
@@ -54,25 +53,21 @@ public class Tower extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Tower", inputs);
 
-
-
     if (inputs.cargoSensorsAvailable) {
       if (inputs.lowerCargoSensor1 == inputs.lowerCargoSensor2) {
-        lowerSensorsEqual += 1;
-        if (lowerSensorsEqual >= cyclesTripped) {
+        lowerSensorFaultCounter += 1;
+        if (lowerSensorFaultCounter >= sensorFaultCycles) {
           lowerDisconnectedAlert.set(true);
-          System.out.println("Alert");
         }
       } else {
-        lowerSensorsEqual = 0;
+        lowerSensorFaultCounter = 0;
       }
       if (inputs.upperCargoSensor1 == inputs.upperCargoSensor2) {
-        upperSensorsEqual += 1;
-        if (upperSensorsEqual >= cyclesTripped) {
+        upperSensorFaultCounter += 1;
+        if (upperSensorFaultCounter >= sensorFaultCycles) {
           upperDisconnectedAlert.set(true);
-          System.out.println("Alert2");
         } else {
-          upperSensorsEqual = 0;
+          upperSensorFaultCounter = 0;
         }
 
       }
