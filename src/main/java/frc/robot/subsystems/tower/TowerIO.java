@@ -24,7 +24,7 @@ public interface TowerIO {
     public double[] tempCelcius = new double[] {};
 
     public void toLog(LogTable table) {
-      table.put("CargoSensorAvailable", cargoSensorsAvailable);
+      table.put("CargoSensorsAvailable", cargoSensorsAvailable);
       table.put("LowerCargoSensor1", lowerCargoSensor1);
       table.put("LowerCargoSensor2", lowerCargoSensor2);
       table.put("UpperCargoSensor1", upperCargoSensor1);
