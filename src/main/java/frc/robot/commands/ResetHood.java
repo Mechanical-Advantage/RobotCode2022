@@ -50,6 +50,7 @@ public class ResetHood extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     hood.runPercent(0.0);
+    hood.reset();
   }
 
   // Returns true when the command should end.

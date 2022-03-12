@@ -62,6 +62,7 @@ import frc.robot.subsystems.flywheels.FlywheelsIOSim;
 import frc.robot.subsystems.flywheels.FlywheelsIOSparkMAX;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.hood.HoodIO;
+import frc.robot.subsystems.hood.HoodIOSim;
 import frc.robot.subsystems.hood.HoodIOSparkMAX;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
@@ -155,6 +156,7 @@ public class RobotContainer {
         case ROBOT_SIMBOT:
           drive = new Drive(new DriveIOSim());
           flywheels = new Flywheels(new FlywheelsIOSim());
+          hood = new Hood(new HoodIOSim());
           break;
         case ROBOT_ROMI:
           drive = new Drive(new DriveIORomi());

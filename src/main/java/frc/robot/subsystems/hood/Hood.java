@@ -47,13 +47,35 @@ public class Hood extends SubsystemBase {
     this.io = io;
     io.setBrakeMode(true);
 
-    minAngle.setDefault(10.0);
-    maxAngle.setDefault(70.0);
-    kP.setDefault(0.0);
-    kD.setDefault(0.0);
-    maxVelocity.setDefault(0.0);
-    maxAcceleration.setDefault(0.0);
-    goalTolerance.setDefault(0.5);
+    switch (Constants.getRobot()) {
+      case ROBOT_2022C:
+        minAngle.setDefault(10.0);
+        maxAngle.setDefault(70.0);
+        kP.setDefault(0.0);
+        kD.setDefault(0.0);
+        maxVelocity.setDefault(0.0);
+        maxAcceleration.setDefault(0.0);
+        goalTolerance.setDefault(0.5);
+        break;
+      case ROBOT_SIMBOT:
+        minAngle.setDefault(10.0);
+        maxAngle.setDefault(80.0);
+        kP.setDefault(0.1);
+        kD.setDefault(0.0);
+        maxVelocity.setDefault(500.0);
+        maxAcceleration.setDefault(200.0);
+        goalTolerance.setDefault(0.5);
+        break;
+      default:
+        minAngle.setDefault(0.0);
+        maxAngle.setDefault(0.0);
+        kP.setDefault(0.0);
+        kD.setDefault(0.0);
+        maxVelocity.setDefault(0.0);
+        maxAcceleration.setDefault(0.0);
+        goalTolerance.setDefault(0.0);
+        break;
+    }
   }
 
   public void setRobotState(RobotState robotState) {
@@ -82,10 +104,13 @@ public class Hood extends SubsystemBase {
     }
 
     if (closedLoop) {
-      Logger.getInstance().recordOutput("Hood/GoalAngle",
-          controller.getGoal().position);
       double volts = controller.calculate(getAngle());
       io.setVoltage(volts);
+      Logger.getInstance().recordOutput("Hood/GoalAngle",
+          controller.getGoal().position);
+      Logger.getInstance().recordOutput("Hood/SetpointAngle",
+          controller.getSetpoint().position);
+      Logger.getInstance().recordOutput("Hood/AtGoal", atGoal());
     }
   }
 
@@ -105,6 +130,7 @@ public class Hood extends SubsystemBase {
 
   /** Gets the current hood angle in degrees. */
   public double getAngle() {
+    Logger.getInstance().recordOutput("Hood/ResetComplete", resetComplete);
     if (resetComplete) {
       return Units.radiansToDegrees(inputs.positionRad - basePositionRad)
           + minAngle.get();
