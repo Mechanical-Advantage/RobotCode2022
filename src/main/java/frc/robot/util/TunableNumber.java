@@ -24,6 +24,17 @@ public class TunableNumber {
   }
 
   /**
+   * Create a new TunableNumber with the default value
+   * 
+   * @param dashboardKey Key on dashboard
+   * @param defaultValue Default value
+   */
+  public TunableNumber(String dashboardKey, double defaultValue) {
+    this(dashboardKey);
+    setDefault(defaultValue);
+  }
+
+  /**
    * Get the default value for the number that has been set
    * 
    * @return The default value

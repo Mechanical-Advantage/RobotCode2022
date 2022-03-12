@@ -20,18 +20,13 @@ public final class VisionConstants {
 
   private static final double lowerCameraHeight = Units.inchesToMeters(37.2);
   private static final TunableNumber lowerVerticalRotationDegrees =
-      new TunableNumber("VisionConstants/LowerVerticalRotationDegrees");
+      new TunableNumber("VisionConstants/LowerVerticalRotationDegrees", 43.05);
   private static final double lowerOffsetX = Units.inchesToMeters(12.0);
 
   private static final double upperCameraHeight = Units.inchesToMeters(42.5);
   private static final TunableNumber upperVerticalRotationDegrees =
-      new TunableNumber("VisionConstants/UpperVerticalRotationDegrees");
+      new TunableNumber("VisionConstants/UpperVerticalRotationDegrees", 24.6);
   private static final double upperOffsetX = Units.inchesToMeters(9.0);
-
-  static {
-    lowerVerticalRotationDegrees.setDefault(43.05);
-    upperVerticalRotationDegrees.setDefault(24.6);
-  }
 
   public static CameraPosition getCameraPosition(HoodState hoodState) {
     switch (hoodState) {
