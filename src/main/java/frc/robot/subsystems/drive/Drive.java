@@ -147,7 +147,7 @@ public class Drive extends SubsystemBase {
     // Update odometry
     double distanceMeters =
         (getLeftPositionMeters() + getRightPositionMeters()) / 2.0;
-    Rotation2d currentRotation = new Rotation2d(inputs.gyroYawPositionRad);
+    Rotation2d currentRotation = new Rotation2d(inputs.gyroYawPositionRad * -1);
     robotState.addDriveData(Timer.getFPGATimestamp(),
         new Twist2d(distanceMeters - lastDistanceMeters, 0.0,
             currentRotation.minus(lastRotation).getRadians()));

@@ -102,20 +102,22 @@ public class RobotState {
   /** Clears old data and calculates the latest pose. */
   private void update() {
     // Clear old hood data
-    while (hoodData.firstKey() < Timer.getFPGATimestamp() - historyLengthSecs) {
+    while (hoodData.size() > 0
+        && hoodData.firstKey() < Timer.getFPGATimestamp() - historyLengthSecs) {
       hoodData.pollFirstEntry();
     }
 
     // Clear old drive data
-    while (driveData.firstKey() < Timer.getFPGATimestamp() - historyLengthSecs
-        && driveData.size() > 1) {
+    while (driveData.size() > 1 && driveData
+        .firstKey() < Timer.getFPGATimestamp() - historyLengthSecs) {
       basePose = getPose(driveData.higherKey(driveData.firstKey()));
       driveData.pollFirstEntry();
     }
 
     // Clear old vision data
-    while (visionData.firstKey() < driveData.firstKey()) { // Any vision data before first drive
-                                                           // data won't be used in calculations
+    while (visionData.size() > 0
+        && visionData.firstKey() < driveData.firstKey()) {
+      // Any vision data before first drive data won't be used in calculations
       visionData.pollFirstEntry();
     }
 
@@ -133,6 +135,9 @@ public class RobotState {
             new double[] {visionEntry.getValue().getX(),
                 visionEntry.getValue().getY(),
                 latestPose.getRotation().getRadians()});
+        Logger.getInstance().recordOutput("Odometry/VisionTarget",
+            new double[] {FieldConstants.hubCenter.getX(),
+                FieldConstants.hubCenter.getY()});
       }
     }
 
@@ -198,7 +203,7 @@ public class RobotState {
       }
 
       // Apply drive twist
-      pose.exp(driveEntry.getValue());
+      pose = pose.exp(driveEntry.getValue());
     }
     return pose;
   }
