@@ -6,7 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
-import frc.robot.commands.PrepareShooterPreset.ShooterPreset;
+import frc.robot.RobotState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
@@ -19,15 +19,17 @@ public class OneCargoAuto extends SequentialCommandGroup {
   public static final double shootDurationSecs = 1.5;
 
   /** Creates a new OneCargoAuto. */
-  public OneCargoAuto(boolean longTaxi, Drive drive, Vision vision,
-      Flywheels flywheels, Hood hood, Tower tower, Kicker kicker, Leds leds) {
-    addCommands(deadline(
-        sequence(new WaitForVision(drive), new AutoAim(drive, vision),
-            new WaitUntilCommand(flywheels::atSetpoint),
-            new Shoot(tower, kicker, hood, leds)
-                .withTimeout(shootDurationSecs)),
-        new PrepareShooterPreset(flywheels, hood, tower,
-            ShooterPreset.UPPER_FENDER)),
+  public OneCargoAuto(boolean longTaxi, RobotState robotState, Drive drive,
+      Vision vision, Flywheels flywheels, Hood hood, Tower tower, Kicker kicker,
+      Leds leds) {
+    addCommands(
+        deadline(
+            sequence(new WaitForVision(robotState),
+                new AutoAim(drive, robotState, vision),
+                new WaitUntilCommand(
+                    () -> flywheels.atSetpoint() && hood.atGoal()),
+                new Shoot(tower, kicker, leds).withTimeout(shootDurationSecs)),
+            new PrepareShooterAuto(flywheels, hood, tower, robotState)),
         new Taxi(drive, longTaxi));
   }
 }

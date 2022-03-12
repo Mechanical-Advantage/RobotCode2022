@@ -79,6 +79,13 @@ public class OverrideOI {
     return overrides.getRawButton(11);
   }
 
+  public boolean getShootPresets() {
+    if (overrides == null) {
+      return false;
+    }
+    return overrides.getRawButton(12);
+  }
+
   public static enum VisionLedMode {
     AUTO, ALWAYS_ON, ALWAYS_OFF
   }

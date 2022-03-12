@@ -71,6 +71,10 @@ public interface HandheldOI {
     return new Trigger();
   }
 
+  public default Trigger getStartUpperAutoButton() {
+    return new Trigger();
+  }
+
   public default Trigger getStartUpperFenderButton() {
     return new Trigger();
   }

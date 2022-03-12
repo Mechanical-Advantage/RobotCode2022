@@ -25,7 +25,7 @@ public class Leds {
   private boolean climbSuccess = false;
   private boolean autoAlert = false;
   private boolean shooting = false;
-  private boolean driveTargeted = false;
+  private boolean targeted = false;
   private boolean flywheelsReady = false;
   private boolean towerFull = false;
   private boolean intaking = false;
@@ -69,7 +69,7 @@ public class Leds {
       mode = LedMode.AUTO_ALERT;
     } else if (shooting) {
       mode = LedMode.SHOOTING;
-    } else if (driveTargeted && flywheelsReady && DriverStation.isTeleop()) {
+    } else if (targeted && flywheelsReady && DriverStation.isTeleop()) {
       mode = LedMode.TARGETED;
     } else if (towerFull && DriverStation.isTeleop()) {
       mode = LedMode.TOWER_FULL;
@@ -112,8 +112,8 @@ public class Leds {
     shooting = active;
   }
 
-  public void setDriveTargeted(boolean active) {
-    driveTargeted = active;
+  public void setTargeted(boolean active) {
+    targeted = active;
   }
 
   public void setFlywheelsReady(boolean active) {

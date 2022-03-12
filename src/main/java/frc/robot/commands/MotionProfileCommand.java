@@ -26,6 +26,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
+import frc.robot.RobotState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
@@ -38,6 +39,7 @@ public class MotionProfileCommand extends CommandBase {
       "Failed to generate all trajectories, check constants.", AlertType.ERROR);
 
   private final Drive drive;
+  private final RobotState robotState;
   private final DifferentialDriveKinematics kinematics;
   private final Trajectory trajectory;
   private final RamseteController controller =
@@ -48,22 +50,24 @@ public class MotionProfileCommand extends CommandBase {
    * Creates a new MotionProfileCommand with no extra constraints. Drives along the specified path
    * based on odometry data.
    */
-  public MotionProfileCommand(Drive drive, double startVelocityMetersPerSec,
-      List<Pose2d> waypoints, double endVelocityMetersPerSec,
-      boolean reversed) {
-    this(drive, startVelocityMetersPerSec, waypoints, endVelocityMetersPerSec,
-        reversed, List.of());
+  public MotionProfileCommand(Drive drive, RobotState robotState,
+      double startVelocityMetersPerSec, List<Pose2d> waypoints,
+      double endVelocityMetersPerSec, boolean reversed) {
+    this(drive, robotState, startVelocityMetersPerSec, waypoints,
+        endVelocityMetersPerSec, reversed, List.of());
   }
 
   /**
    * Creates a new MotionProfileCommand with extra constraints. Drives along the specified path
    * based on odometry data.
    */
-  public MotionProfileCommand(Drive drive, double startVelocityMetersPerSec,
-      List<Pose2d> waypoints, double endVelocityMetersPerSec, boolean reversed,
+  public MotionProfileCommand(Drive drive, RobotState robotState,
+      double startVelocityMetersPerSec, List<Pose2d> waypoints,
+      double endVelocityMetersPerSec, boolean reversed,
       List<TrajectoryConstraint> constraints) {
     addRequirements(drive);
     this.drive = drive;
+    this.robotState = robotState;
 
     // Select max velocity & acceleration
     boolean supportedRobot = true;
@@ -146,7 +150,7 @@ public class MotionProfileCommand extends CommandBase {
         new double[] {setpoint.poseMeters.getX(), setpoint.poseMeters.getY(),
             setpoint.poseMeters.getRotation().getRadians()});
     ChassisSpeeds chassisSpeeds =
-        controller.calculate(drive.getPose(), setpoint);
+        controller.calculate(robotState.getLatestPose(), setpoint);
     DifferentialDriveWheelSpeeds wheelSpeeds =
         kinematics.toWheelSpeeds(chassisSpeeds);
     drive.driveVelocity(wheelSpeeds.leftMetersPerSecond,

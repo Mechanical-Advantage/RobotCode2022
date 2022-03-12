@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
+import frc.robot.RobotState;
 import frc.robot.commands.DriveWithJoysticks.AxisProcessor;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.Vision;
@@ -22,6 +23,7 @@ import frc.robot.util.TunableNumber;
 
 public class AutoAim extends CommandBase {
   private final Drive drive;
+  private final RobotState robotState;
   private final Vision vision;
   private final Supplier<Double> speedSupplier;
 
@@ -41,14 +43,16 @@ public class AutoAim extends CommandBase {
   private static final TunableNumber toleranceTime =
       new TunableNumber("AutoAim/ToleranceTime");
 
-  public AutoAim(Drive drive, Vision vision) {
-    this(drive, vision, () -> 0.0);
+  public AutoAim(Drive drive, RobotState robotState, Vision vision) {
+    this(drive, robotState, vision, () -> 0.0);
   }
 
   /** Creates a new AutoAim. Points towards the center of the field using odometry data. */
-  public AutoAim(Drive drive, Vision vision, Supplier<Double> speedSupplier) {
+  public AutoAim(Drive drive, RobotState robotState, Vision vision,
+      Supplier<Double> speedSupplier) {
     addRequirements(drive, vision);
     this.drive = drive;
+    this.robotState = robotState;
     this.vision = vision;
     this.speedSupplier = speedSupplier;
 
@@ -119,7 +123,8 @@ public class AutoAim extends CommandBase {
 
     // Update setpoint
     controller.setSetpoint(
-        getTargetRotation(drive.getPose().getTranslation()).getDegrees());
+        getTargetRotation(robotState.getLatestPose().getTranslation())
+            .getDegrees());
 
     // Check if in tolerance
     if (!controller.atSetpoint()) {
@@ -133,7 +138,7 @@ public class AutoAim extends CommandBase {
       controller.setI(0);
     }
     double angularSpeed =
-        controller.calculate(drive.getRotation().getDegrees());
+        controller.calculate(robotState.getLatestRotation().getDegrees());
     if (Math.abs(angularSpeed) < minVelocity.get()) {
       angularSpeed = Math.copySign(minVelocity.get(), angularSpeed);
     }

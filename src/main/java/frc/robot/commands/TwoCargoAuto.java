@@ -14,8 +14,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.FieldConstants;
+import frc.robot.RobotState;
 import frc.robot.RobotContainer.AutoPosition;
-import frc.robot.commands.PrepareShooterPreset.ShooterPreset;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
@@ -40,23 +40,23 @@ public class TwoCargoAuto extends SequentialCommandGroup {
               .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0))));
 
   /** Creates a new TwoCargoAuto. */
-  public TwoCargoAuto(boolean taxiFinish, AutoPosition position, Drive drive,
-      Vision vision, Flywheels flywheels, Hood hood, Tower tower, Kicker kicker,
-      Intake intake, Leds leds) {
+  public TwoCargoAuto(boolean taxiFinish, AutoPosition position,
+      RobotState robotState, Drive drive, Vision vision, Flywheels flywheels,
+      Hood hood, Tower tower, Kicker kicker, Intake intake, Leds leds) {
     addCommands(
         deadline(
             sequence(new InstantCommand(intake::extend, intake),
                 sequence(
-                    new MotionProfileCommand(drive, 0.0,
+                    new MotionProfileCommand(drive, robotState, 0.0,
                         List.of(position.getPose(),
                             cargoPositions.get(position)),
                         0.0, false),
                     new WaitCommand(intakeLengthSecs)).deadlineWith(
                         new RunIntake(true, intake, tower, kicker, leds)),
-                new Shoot(tower, kicker, hood, leds)
+                new Shoot(tower, kicker, leds)
                     .withTimeout(OneCargoAuto.shootDurationSecs)),
-            new PrepareShooterPreset(flywheels, hood, tower,
-                ShooterPreset.UPPER_TARMAC_HIGH)),
+            new PrepareShooterAuto(flywheels, hood, tower,
+                cargoPositions.get(position).getTranslation())),
         taxiFinish ? new Taxi(drive, false) : new InstantCommand());
   }
 

@@ -11,41 +11,54 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.FieldConstants;
-import frc.robot.subsystems.drive.Drive;
+import frc.robot.RobotState;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.tower.Tower;
 import frc.robot.util.LinearInterpolation;
+import frc.robot.util.PolynomialRegression;
 
 public class PrepareShooterAuto extends CommandBase {
+  private static final List<ShootingPosition> positionData =
+      List.of(new ShootingPosition(0.0, 1000.0, 15.0));
 
-  private static final LinearInterpolation lowerInterpolation =
-      new LinearInterpolation(List.of(new LinearInterpolation.Point(1.4, 500.0),
-          new LinearInterpolation.Point(2.8, 900.0)));
-  private static final LinearInterpolation upperInterpolation =
-      new LinearInterpolation(
-          List.of(new LinearInterpolation.Point(1.0, 1100.0),
-              new LinearInterpolation.Point(2.0, 1175.0)));
+  private static final PolynomialRegression flywheelSpeedRegression;
+  private static final PolynomialRegression hoodAngleRegression;
+  private static final LinearInterpolation towerSpeedInterpolation =
+      new LinearInterpolation(List.of(new LinearInterpolation.Point(3.0, 0.35),
+          new LinearInterpolation.Point(4.0, 0.6)));
 
-  private final boolean upper;
   private final Flywheels flywheels;
   private final Hood hood;
   private final Tower tower;
-  private final Drive drive;
+  private final RobotState robotState;
   private final Translation2d staticPosition;
+
+  static {
+    // Create regressions based on position data
+    double[] distances =
+        positionData.stream().mapToDouble(x -> x.distanceMeters).toArray();
+    double[] flywheelSpeeds =
+        positionData.stream().mapToDouble(x -> x.flywheelSpeedRpm).toArray();
+    double[] hoodAngles =
+        positionData.stream().mapToDouble(x -> x.hoodAngleDegrees).toArray();
+    flywheelSpeedRegression =
+        new PolynomialRegression(distances, flywheelSpeeds, 2, "x");
+    hoodAngleRegression =
+        new PolynomialRegression(distances, hoodAngles, 2, "x");
+  }
 
   /**
    * Creates a new PrepareShooterAuto. Runs the flywheel and sets the hood position for the upper
    * shot based on a known shooting position.
    */
-  public PrepareShooterAuto(boolean upper, Flywheels flywheels, Hood hood,
-      Tower tower, Translation2d position) {
-    addRequirements(flywheels);
-    this.upper = upper;
+  public PrepareShooterAuto(Flywheels flywheels, Hood hood, Tower tower,
+      Translation2d position) {
+    addRequirements(flywheels, hood);
     this.flywheels = flywheels;
     this.hood = hood;
     this.tower = tower;
-    this.drive = null;
+    this.robotState = null;
     this.staticPosition = position;
   }
 
@@ -53,21 +66,19 @@ public class PrepareShooterAuto extends CommandBase {
    * Creates a new PrepareShooterAuto. Runs the flywheel and sets the hood position for the upper
    * shot based on odometry.
    */
-  public PrepareShooterAuto(boolean upper, Flywheels flywheels, Hood hood,
-      Tower tower, Drive drive) {
-    addRequirements(flywheels);
-    this.upper = upper;
+  public PrepareShooterAuto(Flywheels flywheels, Hood hood, Tower tower,
+      RobotState robotState) {
+    addRequirements(flywheels, hood);
     this.flywheels = flywheels;
     this.hood = hood;
     this.tower = tower;
-    this.drive = drive;
+    this.robotState = robotState;
     this.staticPosition = null;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    hood.requestShootPosition(!upper);
     if (staticPosition != null) {
       update(staticPosition);
     }
@@ -76,23 +87,18 @@ public class PrepareShooterAuto extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (drive != null) {
-      update(drive.getPose().getTranslation());
+    if (robotState != null) {
+      update(robotState.getLatestPose().getTranslation());
     }
     Logger.getInstance().recordOutput("ActiveCommands/PrepareShooterAuto",
         true);
   }
 
   public void update(Translation2d position) {
-    if (upper) {
-      tower.requestShootPercent(PrepareShooterPreset.upperTarmacTower.get());
-    } else {
-      tower.requestShootPercent(PrepareShooterPreset.lowerFenderTower.get());
-    }
     double distance = position.getDistance(FieldConstants.hubCenter);
-    double speed = upper ? upperInterpolation.predict(distance)
-        : lowerInterpolation.predict(distance);
-    flywheels.runVelocity(speed);
+    flywheels.runVelocity(flywheelSpeedRegression.predict(distance));
+    hood.moveToAngle(hoodAngleRegression.predict(distance));
+    tower.requestShootPercent(towerSpeedInterpolation.predict(distance));
   }
 
   // Called once the command ends or is interrupted.
@@ -105,5 +111,18 @@ public class PrepareShooterAuto extends CommandBase {
   @Override
   public boolean isFinished() {
     return false;
+  }
+
+  private static class ShootingPosition {
+    public final double distanceMeters;
+    public final double flywheelSpeedRpm;
+    public final double hoodAngleDegrees;
+
+    public ShootingPosition(double distanceMeters, double flywheelSpeedRpm,
+        double hoodAngleDegrees) {
+      this.distanceMeters = distanceMeters;
+      this.flywheelSpeedRpm = flywheelSpeedRpm;
+      this.hoodAngleDegrees = hoodAngleDegrees;
+    }
   }
 }

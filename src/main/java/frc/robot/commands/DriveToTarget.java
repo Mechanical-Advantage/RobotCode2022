@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.FieldConstants;
+import frc.robot.RobotState;
 import frc.robot.commands.DriveWithJoysticks.AxisProcessor;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.Vision;
@@ -24,6 +25,7 @@ import frc.robot.util.TunableNumber;
 
 public class DriveToTarget extends CommandBase {
   private final Drive drive;
+  private final RobotState robotState;
   private final Vision vision;
   private final Supplier<Double> speedSupplier;
 
@@ -44,10 +46,11 @@ public class DriveToTarget extends CommandBase {
           FieldConstants.fenderC, FieldConstants.fenderD};
 
   /** Creates a new DriveToTarget. Guides the driver to a fender using odometry data. */
-  public DriveToTarget(Drive drive, Vision vision,
+  public DriveToTarget(Drive drive, RobotState robotState, Vision vision,
       Supplier<Double> speedSupplier) {
     addRequirements(drive, vision);
     this.drive = drive;
+    this.robotState = robotState;
     this.vision = vision;
     this.speedSupplier = speedSupplier;
     angularController.enableContinuousInput(-180.0, 180.0);
@@ -82,8 +85,8 @@ public class DriveToTarget extends CommandBase {
     // Find closest rotation
     double closestDistance = Double.POSITIVE_INFINITY;
     for (Pose2d i : fenderPoses) {
-      double distance =
-          i.getTranslation().getDistance(drive.getPose().getTranslation());
+      double distance = i.getTranslation()
+          .getDistance(robotState.getLatestPose().getTranslation());
       if (distance < closestDistance) {
         closestRotation = i.getRotation();
         closestDistance = distance;
@@ -96,9 +99,10 @@ public class DriveToTarget extends CommandBase {
   public void execute() {
     // Find target rotation w/ intermediate point
     double linearSpeed = axisProcessor.process(speedSupplier.get());
-    Translation2d intermediatePoint = getIntermediatePoint(drive.getPose());
-    Rotation2d targetRotation = GeomUtil
-        .direction(intermediatePoint.minus(drive.getPose().getTranslation()));
+    Translation2d intermediatePoint =
+        getIntermediatePoint(robotState.getLatestPose());
+    Rotation2d targetRotation = GeomUtil.direction(
+        intermediatePoint.minus(robotState.getLatestPose().getTranslation()));
 
     // Update PID gains
     if (kP.hasChanged()) {
@@ -110,8 +114,8 @@ public class DriveToTarget extends CommandBase {
 
     // Run angular controller
     angularController.setSetpoint(targetRotation.getDegrees());
-    double angularSpeed = angularController.calculate(
-        drive.getRotation().plus(Rotation2d.fromDegrees(180.0)).getDegrees());
+    double angularSpeed = angularController.calculate(robotState
+        .getLatestRotation().plus(Rotation2d.fromDegrees(180.0)).getDegrees());
     angularSpeed = MathUtil.clamp(angularSpeed, -maxAngularSpeed.get(),
         maxAngularSpeed.get());
     drive.drivePercent(linearSpeed - angularSpeed, linearSpeed + angularSpeed);

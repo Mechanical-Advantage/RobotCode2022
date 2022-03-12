@@ -12,8 +12,8 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.FieldConstants;
+import frc.robot.RobotState;
 import frc.robot.RobotContainer.AutoPosition;
-import frc.robot.commands.PrepareShooterPreset.ShooterPreset;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
@@ -33,18 +33,19 @@ public class FourCargoAuto extends SequentialCommandGroup {
           .transformBy(GeomUtil.transformFromTranslation(-0.8, 0.0));
 
   /** Creates a new FourCargoAuto. */
-  public FourCargoAuto(Drive drive, Vision vision, Flywheels flywheels,
-      Hood hood, Tower tower, Kicker kicker, Intake intake, Leds leds) {
+  public FourCargoAuto(RobotState robotState, Drive drive, Vision vision,
+      Flywheels flywheels, Hood hood, Tower tower, Kicker kicker, Intake intake,
+      Leds leds) {
     addCommands(
-        new TwoCargoAuto(false, AutoPosition.TARMAC_D, drive, vision, flywheels,
-            hood, tower, kicker, intake, leds),
+        new TwoCargoAuto(false, AutoPosition.TARMAC_D, robotState, drive,
+            vision, flywheels, hood, tower, kicker, intake, leds),
         deadline(
             sequence(
-                sequence(new TurnToAngleProfile(drive,
-                    TwoCargoAuto.cargoPositions.get(
-                        AutoPosition.TARMAC_D).getRotation(),
+                sequence(new TurnToAngleProfile(drive, robotState,
+                    TwoCargoAuto.cargoPositions
+                        .get(AutoPosition.TARMAC_D).getRotation(),
                     ThreeCargoAuto.tarmacDCTurnPosition.getRotation()),
-                    new MotionProfileCommand(drive, 0.0,
+                    new MotionProfileCommand(drive, robotState, 0.0,
                         List.of(ThreeCargoAuto.tarmacDCTurnPosition,
                             FieldConstants.cargoD.transformBy(
                                 new Transform2d(new Translation2d(),
@@ -52,15 +53,16 @@ public class FourCargoAuto extends SequentialCommandGroup {
                             terminalCargoApproachPosition,
                             terminalCargoPosition),
                         0.0, false),
-                    new MotionProfileCommand(drive, 0.0,
+                    new MotionProfileCommand(drive, robotState, 0.0,
                         List.of(terminalCargoPosition,
                             TwoCargoAuto.cargoPositions
                                 .get(AutoPosition.TARMAC_C)),
                         0.0, true)).deadlineWith(
                             new RunIntake(true, intake, tower, kicker, leds)),
-                new Shoot(tower, kicker, hood, leds)
+                new Shoot(tower, kicker, leds)
                     .withTimeout(OneCargoAuto.shootDurationSecs)),
-            new PrepareShooterPreset(flywheels, hood, tower,
-                ShooterPreset.UPPER_TARMAC_HIGH)));
+            new PrepareShooterAuto(flywheels, hood, tower,
+                TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_C)
+                    .getTranslation())));
   }
 }

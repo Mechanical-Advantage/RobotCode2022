@@ -10,8 +10,6 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.hood.Hood;
-import frc.robot.subsystems.hood.Hood.HoodState;
 import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.leds.Leds;
 import frc.robot.subsystems.tower.Tower;
@@ -29,7 +27,6 @@ public class Shoot extends CommandBase {
 
   private final Tower tower;
   private final Kicker kicker;
-  private final Hood hood;
   private final Leds leds;
 
   private final Consumer<Double> rumbleConsumer;
@@ -38,18 +35,17 @@ public class Shoot extends CommandBase {
   private final Timer rumbleTimer = new Timer();
 
   /** Creates a new Shoot. Runs the tower and kicker to fire cargo. */
-  public Shoot(Tower tower, Kicker kicker, Hood hood, Leds leds) {
-    this(tower, kicker, hood, leds, x -> {
+  public Shoot(Tower tower, Kicker kicker, Leds leds) {
+    this(tower, kicker, leds, x -> {
     });
   }
 
   /** Creates a new Shoot. Runs the tower and kicker to fire cargo. */
-  public Shoot(Tower tower, Kicker kicker, Hood hood, Leds leds,
+  public Shoot(Tower tower, Kicker kicker, Leds leds,
       Consumer<Double> rumbleConsumer) {
-    addRequirements(tower, kicker, hood);
+    addRequirements(tower, kicker);
     this.tower = tower;
     this.kicker = kicker;
-    this.hood = hood;
     this.leds = leds;
     this.rumbleConsumer = rumbleConsumer;
 
@@ -61,7 +57,6 @@ public class Shoot extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    hood.moveToShootPosition();
     leds.setShooting(true);
 
     rumbleLastTripped = tower.getUpperCargoSensor();
@@ -75,15 +70,8 @@ public class Shoot extends CommandBase {
   public void execute() {
     Logger.getInstance().recordOutput("ActiveCommands/Shoot", true);
 
-    boolean shouldShoot = hood.getState() != HoodState.MOVING;
-    Logger.getInstance().recordOutput("Shoot/HoodBlocked", !shouldShoot);
-    if (shouldShoot) {
-      tower.runShootSpeed();
-      kicker.runPercent(kickerSpeed.get());
-    } else {
-      tower.runPercent(0.0);
-      kicker.runPercent(0.0);
-    }
+    tower.runShootSpeed();
+    kicker.runPercent(kickerSpeed.get());
 
     boolean rumbleTripped = tower.getUpperCargoSensor();
     if (rumbleLastTripped && !rumbleTripped && enableRumble) {

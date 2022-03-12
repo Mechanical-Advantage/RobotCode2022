@@ -14,8 +14,8 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.FieldConstants;
+import frc.robot.RobotState;
 import frc.robot.RobotContainer.AutoPosition;
-import frc.robot.commands.PrepareShooterPreset.ShooterPreset;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
@@ -33,29 +33,30 @@ public class FourCargoAutoCross extends SequentialCommandGroup {
           new Translation2d(1.5, 0.0), Rotation2d.fromDegrees(60.0)));
 
   /** Creates a new FourCargoAutoCross. */
-  public FourCargoAutoCross(Drive drive, Vision vision, Flywheels flywheels,
-      Hood hood, Tower tower, Kicker kicker, Intake intake, Leds leds) {
+  public FourCargoAutoCross(RobotState robotState, Drive drive, Vision vision,
+      Flywheels flywheels, Hood hood, Tower tower, Kicker kicker, Intake intake,
+      Leds leds) {
     MotionProfileCommand firstShotToTerminal =
-        new MotionProfileCommand(drive, 0.0,
+        new MotionProfileCommand(drive, robotState, 0.0,
             List.of(TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_A),
                 intermediatePoint, FourCargoAuto.terminalCargoApproachPosition,
                 FourCargoAuto.terminalCargoPosition),
             0.0, false);
     MotionProfileCommand terminalToSecondShot =
-        new MotionProfileCommand(drive, 0.0,
+        new MotionProfileCommand(drive, robotState, 0.0,
             List.of(FourCargoAuto.terminalCargoPosition, intermediatePoint,
                 TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_A)),
             0.0, true);
 
     addCommands(
-        new TwoCargoAuto(false, AutoPosition.TARMAC_A, drive, vision, flywheels,
-            hood, tower, kicker, intake, leds),
+        new TwoCargoAuto(false, AutoPosition.TARMAC_A, robotState, drive,
+            vision, flywheels, hood, tower, kicker, intake, leds),
         deadline(
             sequence(
                 sequence(firstShotToTerminal, new WaitCommand(terminalWaitSecs),
                     terminalToSecondShot).deadlineWith(
                         new RunIntake(true, intake, tower, kicker, leds)),
-                new Shoot(tower, kicker, hood, leds)
+                new Shoot(tower, kicker, leds)
                     .withTimeout(OneCargoAuto.shootDurationSecs)),
             sequence(
                 new WaitCommand(firstShotToTerminal.getDuration()
@@ -63,7 +64,8 @@ public class FourCargoAutoCross extends SequentialCommandGroup {
                 new StartEndCommand(() -> leds.setAutoAlert(true),
                     () -> leds.setAutoAlert(false)).withTimeout(
                         FiveCargoAuto.alertEarlySecs + terminalWaitSecs)),
-            new PrepareShooterPreset(flywheels, hood, tower,
-                ShooterPreset.UPPER_TARMAC)));
+            new PrepareShooterAuto(flywheels, hood, tower,
+                TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_A)
+                    .getTranslation())));
   }
 }

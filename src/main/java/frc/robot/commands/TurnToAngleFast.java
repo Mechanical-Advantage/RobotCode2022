@@ -9,6 +9,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.RobotState;
 import frc.robot.subsystems.drive.Drive;
 
 /**
@@ -18,6 +19,7 @@ import frc.robot.subsystems.drive.Drive;
 public class TurnToAngleFast extends CommandBase {
 
   private final Drive drive;
+  private final RobotState robotState;
   private final Rotation2d rotation;
   private final double power;
 
@@ -26,9 +28,11 @@ public class TurnToAngleFast extends CommandBase {
   /**
    * Creates a new TurnToAngleFast.
    */
-  public TurnToAngleFast(Drive drive, Rotation2d rotation, double power) {
+  public TurnToAngleFast(Drive drive, RobotState robotState,
+      Rotation2d rotation, double power) {
     addRequirements(drive);
     this.drive = drive;
+    this.robotState = robotState;
     this.rotation = rotation;
     this.power = power;
   }
@@ -36,7 +40,8 @@ public class TurnToAngleFast extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    double difference = drive.getRotation().minus(rotation).getDegrees();
+    double difference =
+        robotState.getLatestRotation().minus(rotation).getDegrees();
     if (difference > 0) {
       drive.drivePercent(power, power * -1);
       spinLeft = false;
@@ -59,7 +64,8 @@ public class TurnToAngleFast extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    double difference = drive.getRotation().minus(rotation).getDegrees();
+    double difference =
+        robotState.getLatestRotation().minus(rotation).getDegrees();
     if (spinLeft) {
       if (difference > 0) {
         return true;

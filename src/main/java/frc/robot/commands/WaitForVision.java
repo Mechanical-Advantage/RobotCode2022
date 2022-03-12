@@ -8,20 +8,20 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.drive.Drive;
+import frc.robot.RobotState;
 
 public class WaitForVision extends CommandBase {
   private static final double timeoutSecs = 0.5;
 
-  private final Drive drive;
+  private final RobotState robotState;
   private Timer timer = new Timer();
 
   /**
    * Creates a new WaitForVision. Waits until odometry is updated based on vision (or a timeout is
    * reached).
    */
-  public WaitForVision(Drive drive) {
-    this.drive = drive;
+  public WaitForVision(RobotState robotState) {
+    this.robotState = robotState;
   }
 
   // Called when the command is initially scheduled.
@@ -46,6 +46,6 @@ public class WaitForVision extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return drive.getVisionResetComplete() || timer.hasElapsed(timeoutSecs);
+    return robotState.getVisionResetComplete() || timer.hasElapsed(timeoutSecs);
   }
 }

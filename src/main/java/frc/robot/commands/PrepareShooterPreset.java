@@ -14,22 +14,25 @@ import frc.robot.util.TunableNumber;
 
 public class PrepareShooterPreset extends CommandBase {
   public static final TunableNumber lowerFenderRpm =
-      new TunableNumber("PrepareShooter/LowerFenderRPM");
+      new TunableNumber("PrepareShooter/LowerFender/RPM");
   public static final TunableNumber upperFenderRpm =
-      new TunableNumber("PrepareShooter/UpperFenderRPM");
+      new TunableNumber("PrepareShooter/UpperFender/RPM");
   public static final TunableNumber upperTarmacRpm =
-      new TunableNumber("PrepareShooter/UpperTarmacRPM");
-  public static final TunableNumber upperTarmacHighRpm =
-      new TunableNumber("PrepareShooter/UpperTarmacHighRPM");
+      new TunableNumber("PrepareShooter/UpperTarmac/RPM");
+
+  public static final TunableNumber lowerFenderAngle =
+      new TunableNumber("PrepareShooter/LowerFender/Angle");
+  public static final TunableNumber upperFenderAngle =
+      new TunableNumber("PrepareShooter/UpperFender/Angle");
+  public static final TunableNumber upperTarmacAngle =
+      new TunableNumber("PrepareShooter/UpperTarmac/Angle");
 
   public static final TunableNumber lowerFenderTower =
-      new TunableNumber("PrepareShooter/LowerFenderTowerPercent");
+      new TunableNumber("PrepareShooter/LowerFender/TowerPercent");
   public static final TunableNumber upperFenderTower =
-      new TunableNumber("PrepareShooter/UpperFenderTowerPercent");
+      new TunableNumber("PrepareShooter/UpperFender/TowerPercent");
   public static final TunableNumber upperTarmacTower =
-      new TunableNumber("PrepareShooter/UpperTarmacTowerPercent");
-  public static final TunableNumber upperTarmacHighTower =
-      new TunableNumber("PrepareShooter/UpperTarmacHighTower");
+      new TunableNumber("PrepareShooter/UpperTarmac/TowerPercent");
 
   private final Flywheels flywheels;
   private final Hood hood;
@@ -51,12 +54,14 @@ public class PrepareShooterPreset extends CommandBase {
     lowerFenderRpm.setDefault(500.0);
     upperFenderRpm.setDefault(1140.0);
     upperTarmacRpm.setDefault(1190.0);
-    upperTarmacHighRpm.setDefault(1210.0);
+
+    lowerFenderAngle.setDefault(40.0);
+    upperFenderAngle.setDefault(10.0);
+    upperTarmacAngle.setDefault(40.0);
 
     lowerFenderTower.setDefault(0.6);
     upperFenderTower.setDefault(0.35);
     upperTarmacTower.setDefault(0.6);
-    upperTarmacHighTower.setDefault(0.6);
   }
 
   // Called when the command is initially scheduled.
@@ -66,34 +71,28 @@ public class PrepareShooterPreset extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    boolean raised = false;
-    double flywheelSpeed = 0.0, towerSpeed = 0.0;
+    double flywheelSpeed = 0.0, hoodAngle = 0.0, towerSpeed = 0.0;
     switch (preset) {
       case LOWER_FENDER:
-        raised = true;
         flywheelSpeed = lowerFenderRpm.get();
+        hoodAngle = lowerFenderAngle.get();
         towerSpeed = lowerFenderTower.get();
         break;
       case UPPER_FENDER:
-        raised = false;
         flywheelSpeed = upperFenderRpm.get();
+        hoodAngle = upperFenderAngle.get();
         towerSpeed = upperFenderTower.get();
         break;
       case UPPER_TARMAC:
-        raised = true;
         flywheelSpeed = upperTarmacRpm.get();
+        hoodAngle = upperTarmacAngle.get();
         towerSpeed = upperTarmacTower.get();
-        break;
-      case UPPER_TARMAC_HIGH:
-        raised = true;
-        flywheelSpeed = upperTarmacHighRpm.get();
-        towerSpeed = upperTarmacHighTower.get();
         break;
       default:
         break;
     }
-    hood.requestShootPosition(raised);
     flywheels.runVelocity(flywheelSpeed);
+    hood.moveToAngle(hoodAngle);
     tower.requestShootPercent(towerSpeed);
     Logger.getInstance().recordOutput("ActiveCommands/PrepareShooterPreset",
         true);
@@ -112,6 +111,6 @@ public class PrepareShooterPreset extends CommandBase {
   }
 
   public static enum ShooterPreset {
-    LOWER_FENDER, UPPER_FENDER, UPPER_TARMAC, UPPER_TARMAC_HIGH
+    LOWER_FENDER, UPPER_FENDER, UPPER_TARMAC
   }
 }

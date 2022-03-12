@@ -97,6 +97,11 @@ public class DualHandheldOI implements HandheldOI {
   }
 
   @Override
+  public Trigger getStartUpperAutoButton() {
+    return new Trigger(operatorController::getAButton);
+  }
+
+  @Override
   public Trigger getStartUpperFenderButton() {
     return new Trigger(operatorController::getAButton);
   }

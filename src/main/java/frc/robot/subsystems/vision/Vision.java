@@ -6,23 +6,26 @@ package frc.robot.subsystems.vision;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.FieldConstants;
+import frc.robot.RobotState;
 import frc.robot.VisionConstants;
 import frc.robot.VisionConstants.CameraPosition;
 import frc.robot.oi.OverrideOI.VisionLedMode;
-import frc.robot.subsystems.hood.Hood.HoodState;
 import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
 import frc.robot.util.CircleFitter;
+import frc.robot.util.GeomUtil;
 
 public class Vision extends SubsystemBase {
   private static final double circleFitPrecision = 0.01;
@@ -44,8 +47,7 @@ public class Vision extends SubsystemBase {
   private double lastCaptureTimestamp = 0.0;
   private Supplier<VisionLedMode> modeSupplier;
   private Supplier<Boolean> climbModeSupplier;
-  private Supplier<HoodState> hoodStateSupplier;
-  private Consumer<TimestampedTranslation2d> translationConsumer;
+  private RobotState robotState;
 
   private boolean ledsOn = false;
   private boolean forceLeds = false;
@@ -59,16 +61,13 @@ public class Vision extends SubsystemBase {
   }
 
   public void setSuppliers(Supplier<VisionLedMode> modeSupplier,
-      Supplier<Boolean> climbModeSupplier,
-      Supplier<HoodState> hoodStateSupplier) {
+      Supplier<Boolean> climbModeSupplier) {
     this.modeSupplier = modeSupplier;
     this.climbModeSupplier = climbModeSupplier;
-    this.hoodStateSupplier = hoodStateSupplier;
   }
 
-  public void setTranslationConsumer(
-      Consumer<TimestampedTranslation2d> translationConsumer) {
-    this.translationConsumer = translationConsumer;
+  public void setRobotState(RobotState robotState) {
+    this.robotState = robotState;
   }
 
   /** Use to enable LEDs continuously while override is "Auto" */
@@ -133,16 +132,23 @@ public class Vision extends SubsystemBase {
       return;
     }
     lastCaptureTimestamp = inputs.captureTimestamp;
+    double captureTimestamp = inputs.captureTimestamp - extraLatencySecs;
 
     // Get camera constants
+    Optional<Double> hoodAngle = robotState.getHoodAngle(captureTimestamp);
+    if (hoodAngle.isEmpty()) { // No valid hood data
+      return;
+    }
     CameraPosition cameraPosition =
-        VisionConstants.getCameraPosition(hoodStateSupplier.get());
+        VisionConstants.getCameraPosition(hoodAngle.get());
     if (cameraPosition == null) { // Hood is moving or unknown, don't process frame
       return;
     }
 
     // Calculate camera to target translation
     if (targetCount >= minTargetCount) {
+
+      // Calculate individual corner translations
       List<Translation2d> cameraToTargetTranslations = new ArrayList<>();
       for (int targetIndex = 0; targetIndex < targetCount; targetIndex++) {
         List<VisionPoint> corners = new ArrayList<>();
@@ -169,13 +175,33 @@ public class Vision extends SubsystemBase {
         }
       }
 
+      // Combine corner translations to full target translation
       if (cameraToTargetTranslations.size() >= minTargetCount * 4) {
         Translation2d cameraToTargetTranslation =
             CircleFitter.fit(FieldConstants.visionTargetDiameter / 2.0,
                 cameraToTargetTranslations, circleFitPrecision);
-        translationConsumer.accept(new TimestampedTranslation2d(
-            inputs.captureTimestamp - extraLatencySecs,
-            cameraToTargetTranslation));
+
+        // Calculate field to robot translation
+        Rotation2d robotRotation =
+            robotState.getDriveRotation(captureTimestamp);
+        Rotation2d cameraRotation = robotRotation
+            .rotateBy(cameraPosition.vehicleToCamera.getRotation());
+        Transform2d fieldToTargetRotated =
+            new Transform2d(FieldConstants.hubCenter, cameraRotation);
+        Transform2d fieldToCamera = fieldToTargetRotated.plus(GeomUtil
+            .transformFromTranslation(cameraToTargetTranslation.unaryMinus()));
+        Pose2d fieldToVehicle = GeomUtil.transformToPose(
+            fieldToCamera.plus(cameraPosition.vehicleToCamera.inverse()));
+        if (fieldToVehicle.getX() > FieldConstants.fieldLength
+            || fieldToVehicle.getX() < 0.0
+            || fieldToVehicle.getY() > FieldConstants.fieldWidth
+            || fieldToVehicle.getY() < 0.0) {
+          return;
+        }
+
+        // Send final translation
+        robotState.addVisionData(captureTimestamp,
+            fieldToVehicle.getTranslation());
       }
     }
   }

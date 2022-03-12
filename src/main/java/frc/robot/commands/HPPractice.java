@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.RobotState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.kicker.Kicker;
@@ -23,16 +24,18 @@ public class HPPractice extends SequentialCommandGroup {
   private static final double terminalWaitSecs = 1.5;
 
   /** Creates a new HPPractice. */
-  public HPPractice(Drive drive, Intake intake, Tower tower, Kicker kicker,
-      Leds leds) {
-    MotionProfileCommand driveForwards = new MotionProfileCommand(drive, 0.0,
-        List.of(new Pose2d(),
-            new Pose2d(new Translation2d(5.0, 0.0), new Rotation2d())),
-        0.0, false);
-    MotionProfileCommand driveBackwards = new MotionProfileCommand(drive, 0.0,
-        List.of(new Pose2d(new Translation2d(5.0, 0.0), new Rotation2d()),
-            new Pose2d()),
-        0.0, true);
+  public HPPractice(RobotState robotState, Drive drive, Intake intake,
+      Tower tower, Kicker kicker, Leds leds) {
+    MotionProfileCommand driveForwards =
+        new MotionProfileCommand(drive, robotState, 0.0,
+            List.of(new Pose2d(),
+                new Pose2d(new Translation2d(5.0, 0.0), new Rotation2d())),
+            0.0, false);
+    MotionProfileCommand driveBackwards =
+        new MotionProfileCommand(drive, robotState, 0.0,
+            List.of(new Pose2d(new Translation2d(5.0, 0.0), new Rotation2d()),
+                new Pose2d()),
+            0.0, true);
 
     addCommands(new InstantCommand(intake::extend, intake),
         deadline(

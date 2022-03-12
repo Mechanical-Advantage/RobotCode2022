@@ -12,8 +12,8 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.FieldConstants;
+import frc.robot.RobotState;
 import frc.robot.RobotContainer.AutoPosition;
-import frc.robot.commands.PrepareShooterPreset.ShooterPreset;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
@@ -36,29 +36,30 @@ public class ThreeCargoAuto extends SequentialCommandGroup {
           .transformBy(GeomUtil.transformFromTranslation(-0.5, -0.1)));
 
   /** Creates a new ThreeCargoAuto. */
-  public ThreeCargoAuto(Drive drive, Vision vision, Flywheels flywheels,
-      Hood hood, Tower tower, Kicker kicker, Intake intake, Leds leds) {
+  public ThreeCargoAuto(RobotState robotState, Drive drive, Vision vision,
+      Flywheels flywheels, Hood hood, Tower tower, Kicker kicker, Intake intake,
+      Leds leds) {
     addCommands(
-        new TwoCargoAuto(false, AutoPosition.TARMAC_D, drive, vision, flywheels,
-            hood, tower, kicker, intake, leds),
+        new TwoCargoAuto(false, AutoPosition.TARMAC_D, robotState, drive,
+            vision, flywheels, hood, tower, kicker, intake, leds),
         deadline(
             sequence(
                 sequence(
-                    new TurnToAngleProfile(drive,
+                    new TurnToAngleProfile(drive, robotState,
                         TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_D)
                             .getRotation(),
                         tarmacDCTurnPosition.getRotation()),
-                    new MotionProfileCommand(drive, 0.0,
+                    new MotionProfileCommand(drive, robotState, 0.0,
                         List.of(tarmacDCTurnPosition, tarmacCCargoPosition),
                         0.0, false),
-                    new MotionProfileCommand(drive, 0.0,
+                    new MotionProfileCommand(drive, robotState, 0.0,
                         List.of(tarmacCCargoPosition, tarmacCShootPosition),
                         0.0, true)).deadlineWith(
                             new RunIntake(true, intake, tower, kicker, leds)),
-                new Shoot(tower, kicker, hood, leds)
+                new Shoot(tower, kicker, leds)
                     .withTimeout(OneCargoAuto.shootDurationSecs)),
-            new PrepareShooterPreset(flywheels, hood, tower,
-                ShooterPreset.UPPER_TARMAC_HIGH)),
+            new PrepareShooterAuto(flywheels, hood, tower,
+                tarmacCShootPosition.getTranslation())),
         new Taxi(drive, false));
   }
 }

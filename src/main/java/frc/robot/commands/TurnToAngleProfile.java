@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.RobotState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.TunableNumber;
 
@@ -24,6 +25,7 @@ public class TurnToAngleProfile extends CommandBase {
       new TunableNumber("TurnToAngleProfile/kD");
 
   private final Drive drive;
+  private final RobotState robotState;
   private final Rotation2d startRotation;
   private final TrapezoidProfile profile;
   private final Timer timer = new Timer();
@@ -32,10 +34,11 @@ public class TurnToAngleProfile extends CommandBase {
   private boolean shouldExit = false;
 
   /** Creates a new TurnToAngleProfile. */
-  public TurnToAngleProfile(Drive drive, Rotation2d startRotation,
-      Rotation2d endRotation) {
+  public TurnToAngleProfile(Drive drive, RobotState robotState,
+      Rotation2d startRotation, Rotation2d endRotation) {
     addRequirements(drive);
     this.drive = drive;
+    this.robotState = robotState;
     this.startRotation = startRotation;
 
     kP.setDefault(0.008);
@@ -71,8 +74,8 @@ public class TurnToAngleProfile extends CommandBase {
     Rotation2d setpoint =
         Rotation2d.fromDegrees(profile.calculate(timer.get()).position)
             .plus(startRotation);
-    double speed = controller.calculate(drive.getRotation().getDegrees(),
-        setpoint.getDegrees());
+    double speed = controller.calculate(
+        robotState.getLatestRotation().getDegrees(), setpoint.getDegrees());
     drive.drivePercent(-speed, speed);
 
     if (profile.isFinished(timer.get())) {

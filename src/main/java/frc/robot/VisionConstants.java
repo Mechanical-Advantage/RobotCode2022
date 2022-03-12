@@ -4,45 +4,48 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
-import frc.robot.subsystems.hood.Hood.HoodState;
 import frc.robot.util.TunableNumber;
 
 /** Constants for the vision camera. */
 public final class VisionConstants {
   public static final int widthPixels = 960;
   public static final int heightPixels = 720;
+  public static final double nominalFramerate = 22.0;
   public static final Rotation2d fovHorizontal = Rotation2d.fromDegrees(59.6);
   public static final Rotation2d fovVertical = Rotation2d.fromDegrees(49.7);
 
-  private static final double lowerCameraHeight = Units.inchesToMeters(37.2);
-  private static final TunableNumber lowerVerticalRotationDegrees =
-      new TunableNumber("VisionConstants/LowerVerticalRotationDegrees", 43.05);
-  private static final double lowerOffsetX = Units.inchesToMeters(12.0);
+  public static final double vehicleToCameraY = 0.0;
+  public static final double vehicleToPivotX = Units.inchesToMeters(-10.0);
+  public static final double vehicleToPivotZ = Units.inchesToMeters(20.0);
+  public static final double pivotToCameraX = Units.inchesToMeters(10.0);
+  public static final double pivotToCameraZ = Units.inchesToMeters(3.0);
+  public static final Rotation2d cameraVerticalRotation =
+      Rotation2d.fromDegrees(20.0); // Measured relative to the flat part of the hood
+  public static final TunableNumber cameraVerticalRotationFudgeDegrees =
+      new TunableNumber("VisionConstants/FudgeDegrees", 0.0);
 
-  private static final double upperCameraHeight = Units.inchesToMeters(42.5);
-  private static final TunableNumber upperVerticalRotationDegrees =
-      new TunableNumber("VisionConstants/UpperVerticalRotationDegrees", 24.6);
-  private static final double upperOffsetX = Units.inchesToMeters(9.0);
+  public static CameraPosition getCameraPosition(double hoodAngle) {
+    // Side-on frame of reference (y is used as z)
+    Pose2d vehicleToPivot = new Pose2d(vehicleToPivotX, vehicleToPivotZ,
+        Rotation2d.fromDegrees(hoodAngle));
+    Pose2d vehicleToCamera = vehicleToPivot.transformBy(new Transform2d(
+        new Translation2d(pivotToCameraX, pivotToCameraZ), new Rotation2d()));
+    vehicleToCamera = vehicleToCamera.transformBy(new Transform2d(
+        new Translation2d(),
+        Rotation2d.fromDegrees(180.0).minus(cameraVerticalRotation).minus(
+            Rotation2d.fromDegrees(cameraVerticalRotationFudgeDegrees.get()))));
 
-  public static CameraPosition getCameraPosition(HoodState hoodState) {
-    switch (hoodState) {
-      case LOWER:
-        return new CameraPosition(lowerCameraHeight,
-            Rotation2d.fromDegrees(lowerVerticalRotationDegrees.get()),
-            new Transform2d(new Translation2d(lowerOffsetX, 0.0),
-                Rotation2d.fromDegrees(180.0)));
-      case RAISED:
-        return new CameraPosition(upperCameraHeight,
-            Rotation2d.fromDegrees(upperVerticalRotationDegrees.get()),
-            new Transform2d(new Translation2d(upperOffsetX, 0.0),
-                Rotation2d.fromDegrees(180.0)));
-      default:
-        return null;
-    }
+    // Convert to camera position
+    return new CameraPosition(vehicleToCamera.getY(),
+        Rotation2d.fromDegrees(180.0).minus(vehicleToCamera.getRotation()),
+        new Transform2d(
+            new Translation2d(vehicleToCamera.getX(), vehicleToCameraY),
+            Rotation2d.fromDegrees(180.0)));
   }
 
   public static final class CameraPosition {

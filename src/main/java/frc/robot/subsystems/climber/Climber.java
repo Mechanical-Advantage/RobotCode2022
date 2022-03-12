@@ -142,8 +142,7 @@ public class Climber extends SubsystemBase {
   /** Returns whether the climber is at the current goal */
   public boolean atGoal() {
     if (closedLoop) {
-      return Math.abs(controller.getGoal().position
-          - controller.getSetpoint().position) < 0.1;
+      return controller.getGoal().equals(controller.getSetpoint());
     } else {
       return false;
     }
