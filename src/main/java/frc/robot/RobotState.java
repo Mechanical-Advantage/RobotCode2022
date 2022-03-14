@@ -167,7 +167,7 @@ public class RobotState {
       filteredDriveData = driveData.headMap(timestamp);
     }
 
-    // Process drive and visiion data
+    // Process drive and vision data
     Pose2d pose = basePose;
     for (Map.Entry<Double, Twist2d> driveEntry : filteredDriveData.entrySet()) {
 

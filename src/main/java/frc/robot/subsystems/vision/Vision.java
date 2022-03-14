@@ -141,9 +141,6 @@ public class Vision extends SubsystemBase {
     }
     CameraPosition cameraPosition =
         VisionConstants.getCameraPosition(hoodAngle.get());
-    if (cameraPosition == null) { // Hood is moving or unknown, don't process frame
-      return;
-    }
 
     // Calculate camera to target translation
     if (targetCount >= minTargetCount) {
