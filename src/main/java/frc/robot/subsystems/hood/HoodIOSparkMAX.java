@@ -26,7 +26,11 @@ public class HoodIOSparkMAX implements HoodIO {
       case ROBOT_2022C:
         motor = new CANSparkMax(1, MotorType.kBrushless);
         invert = false;
-        afterEncoderReduction = 1.0;
+        // 4:1 UP stage -> 3:1 UP stage -> 3:1 UP stage -> 18 tooth : 66 tooth pulley
+        // UP stages are not actually integer, so this accounts for that:
+        // 4:1 is actually 76:21, 3:1 is actually 84:29
+        afterEncoderReduction =
+            (76.0 / 21.0) * (84.0 / 29.0) * (84.0 / 29.0) * (66.0 / 18.0);
         break;
       default:
         throw new RuntimeException("Invalid robot for HoodIOSparkMax!");
