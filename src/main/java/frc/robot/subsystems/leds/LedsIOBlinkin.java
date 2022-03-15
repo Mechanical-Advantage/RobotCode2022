@@ -22,7 +22,8 @@ public class LedsIOBlinkin implements LedsIO {
     modeLookup.put(LedMode.AUTO_ALERT, BlinkinLedMode.SOLID_GREEN);
     modeLookup.put(LedMode.SHOOTING, BlinkinLedMode.ONE_STROBE);
     modeLookup.put(LedMode.TARGETED, BlinkinLedMode.FIXED_STROBE_WHITE);
-    modeLookup.put(LedMode.TOWER_FULL, BlinkinLedMode.SOLID_GREEN);
+    modeLookup.put(LedMode.TOWER_TWO_CARGO, BlinkinLedMode.SOLID_GREEN);
+    modeLookup.put(LedMode.TOWER_ONE_CARGO, BlinkinLedMode.SOLID_VIOLET);
     modeLookup.put(LedMode.INTAKING, BlinkinLedMode.SOLID_BLUE);
     modeLookup.put(LedMode.DEFAULT_AUTO, BlinkinLedMode.TWO_HEARTBEAT_FAST);
     modeLookup.put(LedMode.DEFAULT_TELEOP, BlinkinLedMode.SOLID_BLACK);
