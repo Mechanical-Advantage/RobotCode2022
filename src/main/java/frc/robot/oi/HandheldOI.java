@@ -107,6 +107,14 @@ public interface HandheldOI {
     return 0.0;
   }
 
+  public default Trigger getShooterIncrement() {
+    return new Trigger();
+  }
+
+  public default Trigger getShooterDecrement() {
+    return new Trigger();
+  }
+
   public default void setDriverRumble(double percent) {}
 
   public default void setOperatorRumble(double percent) {}

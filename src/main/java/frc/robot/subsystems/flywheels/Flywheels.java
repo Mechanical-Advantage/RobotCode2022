@@ -13,6 +13,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.flywheels.FlywheelsIO.FlywheelsIOInputs;
@@ -45,6 +46,8 @@ public class Flywheels extends SubsystemBase {
   private boolean profileComplete = false;
   private Leds leds;
 
+  private double offsetRPM = 0;
+
   /** Creates a new Flywheels. */
   public Flywheels(FlywheelsIO io) {
     this.io = io;
@@ -60,6 +63,7 @@ public class Flywheels extends SubsystemBase {
         kI.setDefault(0.0);
         kD.setDefault(0.0);
         toleranceRpm.setDefault(50.0);
+        offsetRPM = 0.0;
         break;
       case ROBOT_2022P:
       case ROBOT_SIMBOT:
@@ -111,6 +115,8 @@ public class Flywheels extends SubsystemBase {
     Logger.getInstance().recordOutput("Flywheels/Acceleration",
         getAcceleration());
     Logger.getInstance().recordOutput("Flywheels/AtSetpoint", atSetpoint());
+    Logger.getInstance().recordOutput("Flywheels/OffsetRPM", offsetRPM);
+    SmartDashboard.putNumber("Flywheel Offset", offsetRPM);
 
     // Set closed loop setpoint
     if (closedLoop) {
@@ -145,6 +151,7 @@ public class Flywheels extends SubsystemBase {
 
   /** Run at velocity with closed loop control. */
   public void runVelocity(double rpm) {
+    if (rpm > 0) rpm += offsetRPM;
     rpm = MathUtil.clamp(rpm, -maxVelocityRpm.get(), maxVelocityRpm.get());
     goal = new TrapezoidProfile.State(rpm, 0.0);
     if (!closedLoop) {
@@ -186,5 +193,15 @@ public class Flywheels extends SubsystemBase {
   /** Returns velocity of flywheel in radians per second. Only use for characterization. */
   public double getCharacterizationVelocity() {
     return inputs.velocityRadPerSec;
+  }
+
+  /** Increases the velocity offset of the shooter by 10 RPM */
+  public void incrementOffset() {
+    offsetRPM += 10;
+  }
+
+  /** Decreases the velocity offset of the shooter by 10 RPM */
+  public void decrementOffset() {
+    offsetRPM -= 10;
   }
 }

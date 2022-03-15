@@ -142,6 +142,16 @@ public class DualHandheldOI implements HandheldOI {
   }
 
   @Override
+  public Trigger getShooterIncrement() {
+return new Trigger(() -> operatorController.getPOV() == 90);
+  }
+
+  @Override
+  public Trigger getShooterDecrement() {
+    return new Trigger(() -> operatorController.getPOV() == 270);
+  }
+
+  @Override
   public void setDriverRumble(double percent) {
     driverController.setRumble(RumbleType.kRightRumble, percent);
   }

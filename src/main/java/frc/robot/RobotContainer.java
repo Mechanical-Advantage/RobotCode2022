@@ -386,6 +386,9 @@ public class RobotContainer {
     handheldOI.getTowerDownButton().and(normalMode)
         .whileActiveContinuous(new RunTower(tower, false));
 
+    handheldOI.getShooterIncrement().whenActive(flywheels::incrementOffset);
+    handheldOI.getShooterDecrement().whenActive(flywheels::decrementOffset);
+
     // *** CLIMB CONTROLS ***
     climbMode.whileActiveContinuous(new StartEndCommand(
         () -> leds.setClimbing(true), () -> leds.setClimbing(false)));
