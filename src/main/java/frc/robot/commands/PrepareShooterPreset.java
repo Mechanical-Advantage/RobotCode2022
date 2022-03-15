@@ -14,25 +14,25 @@ import frc.robot.util.TunableNumber;
 
 public class PrepareShooterPreset extends CommandBase {
   public static final TunableNumber lowerFenderRpm =
-      new TunableNumber("PrepareShooter/LowerFender/RPM");
+      new TunableNumber("PrepareShooterPreset/LowerFender/RPM");
   public static final TunableNumber upperFenderRpm =
-      new TunableNumber("PrepareShooter/UpperFender/RPM");
+      new TunableNumber("PrepareShooterPreset/UpperFender/RPM");
   public static final TunableNumber upperTarmacRpm =
-      new TunableNumber("PrepareShooter/UpperTarmac/RPM");
+      new TunableNumber("PrepareShooterPreset/UpperTarmac/RPM");
 
   public static final TunableNumber lowerFenderAngle =
-      new TunableNumber("PrepareShooter/LowerFender/Angle");
+      new TunableNumber("PrepareShooterPreset/LowerFender/Angle");
   public static final TunableNumber upperFenderAngle =
-      new TunableNumber("PrepareShooter/UpperFender/Angle");
+      new TunableNumber("PrepareShooterPreset/UpperFender/Angle");
   public static final TunableNumber upperTarmacAngle =
-      new TunableNumber("PrepareShooter/UpperTarmac/Angle");
+      new TunableNumber("PrepareShooterPreset/UpperTarmac/Angle");
 
   public static final TunableNumber lowerFenderTower =
-      new TunableNumber("PrepareShooter/LowerFender/TowerPercent");
+      new TunableNumber("PrepareShooterPreset/LowerFender/TowerPercent");
   public static final TunableNumber upperFenderTower =
-      new TunableNumber("PrepareShooter/UpperFender/TowerPercent");
+      new TunableNumber("PrepareShooterPreset/UpperFender/TowerPercent");
   public static final TunableNumber upperTarmacTower =
-      new TunableNumber("PrepareShooter/UpperTarmac/TowerPercent");
+      new TunableNumber("PrepareShooterPreset/UpperTarmac/TowerPercent");
 
   private final Flywheels flywheels;
   private final Hood hood;
@@ -55,9 +55,9 @@ public class PrepareShooterPreset extends CommandBase {
     upperFenderRpm.setDefault(1140.0);
     upperTarmacRpm.setDefault(1190.0);
 
-    lowerFenderAngle.setDefault(40.0);
-    upperFenderAngle.setDefault(10.0);
-    upperTarmacAngle.setDefault(40.0);
+    lowerFenderAngle.setDefault(0.0);
+    upperFenderAngle.setDefault(0.0);
+    upperTarmacAngle.setDefault(0.0);
 
     lowerFenderTower.setDefault(0.6);
     upperFenderTower.setDefault(0.35);
