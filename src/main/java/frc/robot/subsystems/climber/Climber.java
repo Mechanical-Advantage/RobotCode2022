@@ -109,6 +109,9 @@ public class Climber extends SubsystemBase {
     }
 
     // Run PID controller
+    if (DriverStation.isDisabled()) {
+      closedLoop = false;
+    }
     if (closedLoop) {
       double volts = controller.calculate(getPosition());
       io.setVoltage(volts);

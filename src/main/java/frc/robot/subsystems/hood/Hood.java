@@ -10,6 +10,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -101,6 +102,10 @@ public class Hood extends SubsystemBase {
     Logger.getInstance().recordOutput("Hood/CurrentAngle", getAngle());
     if (resetComplete) {
       robotState.addHoodData(Timer.getFPGATimestamp(), getAngle());
+    }
+
+    if (DriverStation.isDisabled()) {
+      closedLoop = false;
     }
 
     if (closedLoop) {
