@@ -58,8 +58,11 @@ public class LedsIORio implements LedsIO {
       case TARGETED:
         strobe(Color.kWhite);
         break;
-      case TOWER_FULL:
+      case TOWER_TWO_CARGO:
         solid(Color.kGreen);
+        break;
+      case TOWER_ONE_CARGO:
+        solid(Color.kPurple);
         break;
       case INTAKING:
         solid(Color.kBlue);

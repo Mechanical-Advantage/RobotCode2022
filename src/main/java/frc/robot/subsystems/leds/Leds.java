@@ -27,7 +27,7 @@ public class Leds {
   private boolean shooting = false;
   private boolean targeted = false;
   private boolean flywheelsReady = false;
-  private boolean towerFull = false;
+  private int towerCount = 0;
   private boolean intaking = false;
 
   private Alliance alliance = Alliance.Invalid;
@@ -71,8 +71,10 @@ public class Leds {
       mode = LedMode.SHOOTING;
     } else if (targeted && flywheelsReady && DriverStation.isTeleop()) {
       mode = LedMode.TARGETED;
-    } else if (towerFull && DriverStation.isTeleop()) {
-      mode = LedMode.TOWER_FULL;
+    } else if (towerCount == 2 && DriverStation.isTeleop()) {
+      mode = LedMode.TOWER_TWO_CARGO;
+    } else if (towerCount == 1 && DriverStation.isTeleop()) {
+      mode = LedMode.TOWER_ONE_CARGO;
     } else if (intaking && DriverStation.isTeleop()) {
       mode = LedMode.INTAKING;
     } else if (DriverStation.isAutonomous()) {
@@ -120,8 +122,8 @@ public class Leds {
     flywheelsReady = active;
   }
 
-  public void setTowerFull(boolean active) {
-    towerFull = active;
+  public void setTowerCount(int count) {
+    towerCount = count;
   }
 
   public void setIntaking(boolean active) {

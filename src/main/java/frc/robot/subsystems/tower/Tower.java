@@ -81,7 +81,13 @@ public class Tower extends SubsystemBase {
     SmartDashboard.putBoolean("Tower/One Cargo", getUpperCargoSensor());
     SmartDashboard.putBoolean("Tower/Two Cargo",
         getUpperCargoSensor() && getLowerCargoSensor());
-    leds.setTowerFull(getUpperCargoSensor() && getLowerCargoSensor());
+    if (getUpperCargoSensor() && getLowerCargoSensor()) {
+      leds.setTowerCount(2);
+    } else if (getUpperCargoSensor()) {
+      leds.setTowerCount(1);
+    } else {
+      leds.setTowerCount(0);
+    }
   }
 
   /** Run at the specified percentage. */
