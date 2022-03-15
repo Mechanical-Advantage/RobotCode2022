@@ -31,6 +31,8 @@ public class Vision extends SubsystemBase {
   private static final double circleFitPrecision = 0.01;
   private static final int minTargetCount = 2; // For calculating odometry
   private static final double extraLatencySecs = 0.06; // Approximate camera + network latency
+
+  private static final boolean alwaysIdleOn = true; // Always light the LEDs during teleop
   private static final double targetGraceSecs = 0.5;
   private static final double blinkPeriodSecs = 3.0;
   private static final double blinkLengthSecs = 0.5;
@@ -98,7 +100,8 @@ public class Vision extends SubsystemBase {
       targetGraceTimer.reset();
     }
     boolean idleOn = targetGraceTimer.get() < targetGraceSecs
-        || Timer.getFPGATimestamp() % blinkPeriodSecs < blinkLengthSecs;
+        || Timer.getFPGATimestamp() % blinkPeriodSecs < blinkLengthSecs
+        || alwaysIdleOn;
 
     // Update LED state based on switch
     switch (modeSupplier.get()) {
