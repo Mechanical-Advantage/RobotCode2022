@@ -20,12 +20,13 @@ public final class VisionConstants {
   public static final Rotation2d fovVertical = Rotation2d.fromDegrees(49.7);
 
   public static final double vehicleToCameraY = 0.0;
-  public static final double vehicleToPivotX = Units.inchesToMeters(-10.0);
-  public static final double vehicleToPivotZ = Units.inchesToMeters(20.0);
-  public static final double pivotToCameraX = Units.inchesToMeters(10.0);
-  public static final double pivotToCameraZ = Units.inchesToMeters(3.0);
+  public static final double vehicleToPivotX = Units.inchesToMeters(-3.5);
+  public static final double vehicleToPivotZ = Units.inchesToMeters(32.545);
+  public static final double pivotToCameraX =
+      Units.inchesToMeters(14.519 + 1.5);
+  public static final double pivotToCameraZ = Units.inchesToMeters(0.5 + 3.25);
   public static final Rotation2d cameraVerticalRotation =
-      Rotation2d.fromDegrees(20.0); // Measured relative to the flat part of the hood
+      Rotation2d.fromDegrees(43.67); // Measured relative to the flat part of the hood
   public static final TunableNumber cameraVerticalRotationFudgeDegrees =
       new TunableNumber("VisionConstants/FudgeDegrees", 0.0);
 
