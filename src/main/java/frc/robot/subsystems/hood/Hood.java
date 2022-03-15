@@ -19,6 +19,8 @@ import frc.robot.subsystems.hood.HoodIO.HoodIOInputs;
 import frc.robot.util.TunableNumber;
 
 public class Hood extends SubsystemBase {
+  private final TunableNumber resetAngle =
+      new TunableNumber("Hood/ResetAngleDegrees");
   private final TunableNumber minAngle =
       new TunableNumber("Hood/MinAngleDegrees");
   private final TunableNumber maxAngle =
@@ -50,12 +52,13 @@ public class Hood extends SubsystemBase {
 
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
-        minAngle.setDefault(5.0);
-        maxAngle.setDefault(80.0);
-        kP.setDefault(0.5);
+        resetAngle.setDefault(0.5);
+        minAngle.setDefault(6.0);
+        maxAngle.setDefault(28.0);
+        kP.setDefault(1.0);
         kD.setDefault(0.0);
-        maxVelocity.setDefault(100.0);
-        maxAcceleration.setDefault(300.0);
+        maxVelocity.setDefault(225.0);
+        maxAcceleration.setDefault(800.0);
         goalTolerance.setDefault(0.5);
         break;
       case ROBOT_SIMBOT:
@@ -138,7 +141,7 @@ public class Hood extends SubsystemBase {
     Logger.getInstance().recordOutput("Hood/ResetComplete", resetComplete);
     if (resetComplete) {
       return Units.radiansToDegrees(inputs.positionRad - basePositionRad)
-          + minAngle.get();
+          + resetAngle.get();
     } else {
       return minAngle.get();
     }
