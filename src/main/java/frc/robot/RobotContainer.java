@@ -337,7 +337,7 @@ public class RobotContainer {
     handheldOI.getAutoAimButton().and(simpleAutoAim).whileActiveOnce(
         new AutoAimSimple(drive, vision, handheldOI::getLeftDriveY));
 
-    Trigger flywheelsReady = new Trigger(flywheels::profileComplete);
+    Trigger flywheelsReady = new Trigger(flywheels::atGoal);
     Trigger hoodReady = new Trigger(hood::atGoal);
     handheldOI.getShootButton().and(flywheelsReady).and(hoodReady)
         .whileActiveContinuous(

@@ -43,10 +43,8 @@ public class Flywheels extends SubsystemBase {
   private List<Double> rpmHistory = new ArrayList<>();
   private TrapezoidProfile.State goal = new TrapezoidProfile.State();
   private TrapezoidProfile.State lastState = new TrapezoidProfile.State();
-  private boolean profileComplete = false;
+  private double offsetRpm = 0;
   private Leds leds;
-
-  private double offsetRPM = 0;
 
   /** Creates a new Flywheels. */
   public Flywheels(FlywheelsIO io) {
@@ -63,7 +61,7 @@ public class Flywheels extends SubsystemBase {
         kI.setDefault(0.0);
         kD.setDefault(0.0);
         toleranceRpm.setDefault(50.0);
-        offsetRPM = 0.0;
+        offsetRpm = 0.0;
         break;
       case ROBOT_2022P:
       case ROBOT_SIMBOT:
@@ -75,6 +73,7 @@ public class Flywheels extends SubsystemBase {
         kI.setDefault(0.0);
         kD.setDefault(0.0);
         toleranceRpm.setDefault(50.0);
+        offsetRpm = 0.0;
         break;
       default:
         maxVelocityRpm.setDefault(0.0);
@@ -85,6 +84,7 @@ public class Flywheels extends SubsystemBase {
         kI.setDefault(0.0);
         kD.setDefault(0.0);
         toleranceRpm.setDefault(0.0);
+        offsetRpm = 0.0;
     }
 
     io.setBrakeMode(false);
@@ -115,8 +115,8 @@ public class Flywheels extends SubsystemBase {
     Logger.getInstance().recordOutput("Flywheels/Acceleration",
         getAcceleration());
     Logger.getInstance().recordOutput("Flywheels/AtSetpoint", atSetpoint());
-    Logger.getInstance().recordOutput("Flywheels/OffsetRPM", offsetRPM);
-    SmartDashboard.putNumber("Flywheel Offset", offsetRPM);
+    Logger.getInstance().recordOutput("Flywheels/OffsetRPM", offsetRpm);
+    SmartDashboard.putNumber("Flywheel Offset", offsetRpm);
 
     // Set closed loop setpoint
     if (closedLoop) {
@@ -127,20 +127,16 @@ public class Flywheels extends SubsystemBase {
       lastState = profile.calculate(Constants.loopPeriodSecs);
       double setpointRpm = lastState.position;
 
-      profileComplete = setpointRpm == goal.position;
       Logger.getInstance().recordOutput("Flywheels/SetpointRPM", setpointRpm);
-      Logger.getInstance().recordOutput("Flywheels/ProfileComplete",
-          profileComplete);
+      Logger.getInstance().recordOutput("Flywheels/AtGoal", atGoal());
 
       double velocityRadPerSec =
           Units.rotationsPerMinuteToRadiansPerSecond(setpointRpm);
       io.setVelocity(velocityRadPerSec, ffModel.calculate(velocityRadPerSec));
-    } else {
-      profileComplete = false;
     }
 
     // Update LED mode
-    leds.setFlywheelsReady(profileComplete);
+    leds.setFlywheelsReady(atGoal());
   }
 
   /** Run at the specified voltage with no other processing. Only use when characterizing. */
@@ -151,7 +147,8 @@ public class Flywheels extends SubsystemBase {
 
   /** Run at velocity with closed loop control. */
   public void runVelocity(double rpm) {
-    if (rpm > 0) rpm += offsetRPM;
+    if (rpm > 0)
+      rpm += offsetRpm;
     rpm = MathUtil.clamp(rpm, -maxVelocityRpm.get(), maxVelocityRpm.get());
     goal = new TrapezoidProfile.State(rpm, 0.0);
     if (!closedLoop) {
@@ -186,8 +183,12 @@ public class Flywheels extends SubsystemBase {
   }
 
   /** Returns whether the velocity setpoint has reached the goal. */
-  public boolean profileComplete() {
-    return profileComplete;
+  public boolean atGoal() {
+    if (closedLoop) {
+      return Math.abs(goal.position - lastState.position) < toleranceRpm.get();
+    } else {
+      return false;
+    }
   }
 
   /** Returns velocity of flywheel in radians per second. Only use for characterization. */
@@ -197,11 +198,11 @@ public class Flywheels extends SubsystemBase {
 
   /** Increases the velocity offset of the shooter by 10 RPM */
   public void incrementOffset() {
-    offsetRPM += 10;
+    offsetRpm += 10;
   }
 
   /** Decreases the velocity offset of the shooter by 10 RPM */
   public void decrementOffset() {
-    offsetRPM -= 10;
+    offsetRpm -= 10;
   }
 }
