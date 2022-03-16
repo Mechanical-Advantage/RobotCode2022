@@ -103,6 +103,10 @@ public interface HandheldOI {
     return new Trigger();
   }
 
+  public default Trigger getClimbReset() {
+    return new Trigger();
+  }
+
   public default double getClimbStick() {
     return 0.0;
   }

@@ -426,6 +426,7 @@ public class RobotContainer {
     climbMode
         .whileActiveContinuous(new RunCommand(() -> hood.moveToBottom(), hood));
 
+
     Trigger climbClosedLoop =
         new Trigger(overrideOI::getClimbOpenLoop).negate();
     handheldOI.getClimbTop().and(climbMode).and(climbClosedLoop)
@@ -434,6 +435,8 @@ public class RobotContainer {
         .toggleWhenActive(new RunClimberToPosition(climber, false), false);
     handheldOI.getClimbAuto().and(climbMode).and(climbClosedLoop)
         .toggleWhenActive(new AutoClimb(climber, drive, leds), false);
+    handheldOI.getClimbReset().and(climbMode)
+        .toggleWhenActive(new ResetClimber(climber), false);
   }
 
   /** Called when the robot is enabled to begin zeroing subsystems. */
