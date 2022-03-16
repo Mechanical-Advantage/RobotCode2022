@@ -42,6 +42,7 @@ import frc.robot.commands.Taxi;
 import frc.robot.commands.ThreeCargoAuto;
 import frc.robot.commands.TrackWidthCharacterization;
 import frc.robot.commands.TwoCargoAuto;
+import frc.robot.commands.TwoCargoAutoAndEject;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.commands.PrepareShooterPreset.ShooterPreset;
 import frc.robot.oi.HandheldOI;
@@ -217,6 +218,10 @@ public class RobotContainer {
             new ThreeCargoAuto(robotState, drive, vision, flywheels, hood,
                 tower, kicker, intake, leds)));
 
+    autoRoutineMap.put("Two cargo, eject opponent (TA)",
+        new AutoRoutine(AutoPosition.TARMAC_A, false,
+            new TwoCargoAutoAndEject(robotState, drive, vision, flywheels, hood,
+                tower, kicker, intake, leds)));
     autoRoutineMap.put("Two cargo (TA)",
         new AutoRoutine(AutoPosition.TARMAC_A, false,
             new TwoCargoAuto(true, AutoPosition.TARMAC_A, robotState, drive,

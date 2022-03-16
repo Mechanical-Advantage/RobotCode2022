@@ -52,6 +52,8 @@ public class TurnToAngleProfile extends CommandBase {
         new TrapezoidProfile.State(0.0, 0.0));
 
     controller.enableContinuousInput(-180.0, 180.0);
+    controller.setP(kP.get());
+    controller.setD(kD.get());
   }
 
   // Called when the command is initially scheduled.
