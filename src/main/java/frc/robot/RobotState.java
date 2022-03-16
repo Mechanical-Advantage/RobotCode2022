@@ -138,6 +138,9 @@ public class RobotState {
         Logger.getInstance().recordOutput("Odometry/VisionTarget",
             new double[] {FieldConstants.hubCenter.getX(),
                 FieldConstants.hubCenter.getY()});
+        Logger.getInstance().recordOutput("Vision/DistanceInches",
+            Units.metersToInches(
+                visionEntry.getValue().getDistance(FieldConstants.hubCenter)));
       }
     }
 

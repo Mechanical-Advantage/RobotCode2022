@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
@@ -43,6 +44,7 @@ public class HoodIOSparkMAX implements HoodIO {
     motor.setInverted(invert);
     motor.setSmartCurrentLimit(30);
     motor.enableVoltageCompensation(12.0);
+    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 10);
 
     encoder = motor.getEncoder();
 

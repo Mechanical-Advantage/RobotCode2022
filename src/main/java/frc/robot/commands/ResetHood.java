@@ -49,8 +49,8 @@ public class ResetHood extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    hood.runPercent(0.0);
     hood.reset();
+    hood.moveToBottom();
   }
 
   // Returns true when the command should end.
