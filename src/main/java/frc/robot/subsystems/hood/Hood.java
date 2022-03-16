@@ -41,9 +41,11 @@ public class Hood extends SubsystemBase {
       new ProfiledPIDController(0.0, 0.0, 0.0,
           new TrapezoidProfile.Constraints(0.0, 0.0), Constants.loopPeriodSecs);
   private RobotState robotState;
+  private final Timer resetGraceTimer = new Timer();
+  private boolean resetComplete = false;
+  private boolean resetActive = false;
   private double basePositionRad = 0.0;
   private boolean closedLoop = false;
-  private boolean resetComplete = false;
 
   /** Creates a new Kicker. */
   public Hood(HoodIO io) {
@@ -103,22 +105,33 @@ public class Hood extends SubsystemBase {
     }
 
     Logger.getInstance().recordOutput("Hood/CurrentAngle", getAngle());
-    if (resetComplete) {
-      robotState.addHoodData(Timer.getFPGATimestamp(), getAngle());
-    }
 
     if (DriverStation.isDisabled()) {
       closedLoop = false;
     }
 
-    if (closedLoop) {
-      double volts = controller.calculate(getAngle());
-      io.setVoltage(volts);
-      Logger.getInstance().recordOutput("Hood/GoalAngle",
-          controller.getGoal().position);
-      Logger.getInstance().recordOutput("Hood/SetpointAngle",
-          controller.getSetpoint().position);
-      Logger.getInstance().recordOutput("Hood/AtGoal", atGoal());
+    if (!resetComplete) {
+      if (DriverStation.isEnabled()) {
+        // Reset hood
+        if (!resetActive) {
+
+        }
+      }
+    } else {
+
+      // Save hood position to robot state
+      robotState.addHoodData(Timer.getFPGATimestamp(), getAngle());
+
+      // Run closed loop control
+      if (closedLoop) {
+        double volts = controller.calculate(getAngle());
+        io.setVoltage(volts);
+        Logger.getInstance().recordOutput("Hood/GoalAngle",
+            controller.getGoal().position);
+        Logger.getInstance().recordOutput("Hood/SetpointAngle",
+            controller.getSetpoint().position);
+        Logger.getInstance().recordOutput("Hood/AtGoal", atGoal());
+      }
     }
   }
 
@@ -155,17 +168,6 @@ public class Hood extends SubsystemBase {
     } else {
       return false;
     }
-  }
-
-  /** Runs open loop at the specified percent (for reseting) */
-  public void runPercent(double percent) {
-    io.setVoltage(percent * 12.0);
-    closedLoop = false;
-  }
-
-  /** Returns the current velocity in degrees per second. */
-  public double getVelocityDegreesPerSec() {
-    return Units.radiansToDegrees(inputs.velocityRadPerSec);
   }
 
   /** Resets the current position to the minimum position. */
