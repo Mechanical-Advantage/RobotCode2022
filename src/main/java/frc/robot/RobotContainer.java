@@ -426,7 +426,6 @@ public class RobotContainer {
     climbMode
         .whileActiveContinuous(new RunCommand(() -> hood.moveToBottom(), hood));
 
-
     Trigger climbClosedLoop =
         new Trigger(overrideOI::getClimbOpenLoop).negate();
     handheldOI.getClimbTop().and(climbMode).and(climbClosedLoop)
