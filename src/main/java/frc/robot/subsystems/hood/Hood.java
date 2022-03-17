@@ -48,13 +48,12 @@ public class Hood extends SubsystemBase {
   /** Creates a new Kicker. */
   public Hood(HoodIO io) {
     this.io = io;
-    io.setBrakeMode(true);
 
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
         resetAngle.setDefault(0.5);
         minAngle.setDefault(6.0);
-        maxAngle.setDefault(28.0);
+        maxAngle.setDefault(31.0);
         kP.setDefault(1.0);
         kD.setDefault(0.0);
         maxVelocity.setDefault(225.0);
@@ -91,6 +90,10 @@ public class Hood extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Hood", inputs);
 
+    // Set brake mode
+    io.setBrakeMode(DriverStation.isEnabled());
+
+    // Update constants
     if (kP.hasChanged()) {
       controller.setP(kP.get());
     }
@@ -102,15 +105,16 @@ public class Hood extends SubsystemBase {
           maxVelocity.get(), maxAcceleration.get()));
     }
 
+    // Log data
     Logger.getInstance().recordOutput("Hood/CurrentAngle", getAngle());
     if (resetComplete) {
       robotState.addHoodData(Timer.getFPGATimestamp(), getAngle());
     }
 
+    // Manage closed loop
     if (DriverStation.isDisabled()) {
       closedLoop = false;
     }
-
     if (closedLoop) {
       double volts = controller.calculate(getAngle());
       io.setVoltage(volts);
