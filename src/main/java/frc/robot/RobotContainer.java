@@ -193,6 +193,7 @@ public class RobotContainer {
         () -> overrideOI.getClimbMode());
     vision.setRobotState(robotState);
     flywheels.setLeds(leds);
+    hood.setDefaultCommand(new RunCommand(hood::moveToIdle, hood));
     hood.setRobotState(robotState);
     tower.setLeds(leds);
     tower.setOverride(() -> overrideOI.getCargoSensorDisable());

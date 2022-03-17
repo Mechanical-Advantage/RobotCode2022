@@ -4,11 +4,13 @@
 
 package frc.robot.commands;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.FieldConstants;
 import frc.robot.RobotState;
@@ -16,17 +18,25 @@ import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.tower.Tower;
 import frc.robot.util.LinearInterpolation;
-import frc.robot.util.PolynomialRegression;
 
 public class PrepareShooterAuto extends CommandBase {
   private static final List<ShootingPosition> positionData =
-      List.of(new ShootingPosition(0.0, 1000.0, 15.0));
+      List.of(new ShootingPosition(54.5, 1160.0, 0.0),
+          new ShootingPosition(71.75, 1160.0, 13.0),
+          new ShootingPosition(89.25, 1160.0, 18.0),
+          new ShootingPosition(113.5, 1180.0, 23.0),
+          new ShootingPosition(121.0, 1250.0, 25.0),
+          new ShootingPosition(149.0, 1340.0, 27.0),
+          new ShootingPosition(187.0, 1390.0, 31.0),
+          new ShootingPosition(240.0, 1700.0, 31.0),
+          new ShootingPosition(312.0, 1850.0, 31.0));
 
-  private static final PolynomialRegression flywheelSpeedRegression;
-  private static final PolynomialRegression hoodAngleRegression;
+  private static final LinearInterpolation flywheelSpeedInterpolation;
+  private static final LinearInterpolation hoodAngleInterpolation;
   private static final LinearInterpolation towerSpeedInterpolation =
-      new LinearInterpolation(List.of(new LinearInterpolation.Point(3.0, 0.35),
-          new LinearInterpolation.Point(4.0, 0.6)));
+      new LinearInterpolation(List.of(
+          new LinearInterpolation.Point(Units.inchesToMeters(40.0), 0.35),
+          new LinearInterpolation.Point(Units.inchesToMeters(60.0), 1.0)));
 
   private final Flywheels flywheels;
   private final Hood hood;
@@ -36,16 +46,18 @@ public class PrepareShooterAuto extends CommandBase {
 
   static {
     // Create regressions based on position data
-    double[] distances =
-        positionData.stream().mapToDouble(x -> x.distanceMeters).toArray();
-    double[] flywheelSpeeds =
-        positionData.stream().mapToDouble(x -> x.flywheelSpeedRpm).toArray();
-    double[] hoodAngles =
-        positionData.stream().mapToDouble(x -> x.hoodAngleDegrees).toArray();
-    flywheelSpeedRegression =
-        new PolynomialRegression(distances, flywheelSpeeds, 2, "x");
-    hoodAngleRegression =
-        new PolynomialRegression(distances, hoodAngles, 2, "x");
+    List<LinearInterpolation.Point> flywheelSpeedPoints = new ArrayList<>();
+    List<LinearInterpolation.Point> hoodAnglePoints = new ArrayList<>();
+    for (ShootingPosition position : positionData) {
+      flywheelSpeedPoints.add(new LinearInterpolation.Point(
+          Units.inchesToMeters(position.distanceInches),
+          position.flywheelSpeedRpm));
+      hoodAnglePoints.add(new LinearInterpolation.Point(
+          Units.inchesToMeters(position.distanceInches),
+          position.hoodAngleDegrees));
+    }
+    flywheelSpeedInterpolation = new LinearInterpolation(flywheelSpeedPoints);
+    hoodAngleInterpolation = new LinearInterpolation(hoodAnglePoints);
   }
 
   /**
@@ -96,8 +108,10 @@ public class PrepareShooterAuto extends CommandBase {
 
   public void update(Translation2d position) {
     double distance = position.getDistance(FieldConstants.hubCenter);
-    flywheels.runVelocity(flywheelSpeedRegression.predict(distance));
-    hood.moveToAngle(hoodAngleRegression.predict(distance));
+    Logger.getInstance().recordOutput("PrepareShooterAuto/DistanceMeters",
+        distance);
+    flywheels.runVelocity(flywheelSpeedInterpolation.predict(distance));
+    hood.moveToAngle(hoodAngleInterpolation.predict(distance));
     tower.requestShootPercent(towerSpeedInterpolation.predict(distance));
   }
 
@@ -114,13 +128,13 @@ public class PrepareShooterAuto extends CommandBase {
   }
 
   private static class ShootingPosition {
-    public final double distanceMeters;
+    public final double distanceInches;
     public final double flywheelSpeedRpm;
     public final double hoodAngleDegrees;
 
-    public ShootingPosition(double distanceMeters, double flywheelSpeedRpm,
+    public ShootingPosition(double distanceInches, double flywheelSpeedRpm,
         double hoodAngleDegrees) {
-      this.distanceMeters = distanceMeters;
+      this.distanceInches = distanceInches;
       this.flywheelSpeedRpm = flywheelSpeedRpm;
       this.hoodAngleDegrees = hoodAngleDegrees;
     }

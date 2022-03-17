@@ -27,15 +27,15 @@ public class LinearInterpolation {
     if (points.size() == 1) {
       return points.get(0).y;
     }
-    if (x < points.get(0).x) {
+    if (x <= points.get(0).x) {
       return points.get(0).y;
     }
     if (x >= points.get(points.size() - 1).x) {
       return points.get(points.size() - 1).y;
     }
     for (int i = 0; i < points.size(); i++) {
-      if (x >= points.get(i).x) {
-        return points.get(i).interpolate(points.get(i + 1), x);
+      if (x < points.get(i).x) {
+        return points.get(i).interpolate(points.get(i - 1), x);
       }
     }
     return 0.0;

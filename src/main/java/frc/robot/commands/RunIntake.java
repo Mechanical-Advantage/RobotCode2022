@@ -85,7 +85,7 @@ public class RunIntake extends CommandBase {
 
     rumblePercent.setDefault(0.5);
     rumbleDurationSecs.setDefault(0.2);
-    sensorStopDelay.setDefault(0.0);
+    sensorStopDelay.setDefault(0.1);
 
     rollerForwardsSpeed.setDefault(1.0);
     hopperForwardsSpeed.setDefault(1.0);

@@ -25,6 +25,8 @@ public class Hood extends SubsystemBase {
       new TunableNumber("Hood/MinAngleDegrees");
   private final TunableNumber maxAngle =
       new TunableNumber("Hood/MaxAngleDegres");
+  private final TunableNumber idleAngle =
+      new TunableNumber("Hood/IdleAngleDegrees");
   private final TunableNumber kP = new TunableNumber("Hood/kP");
   private final TunableNumber kD = new TunableNumber("Hood/kD");
   private final TunableNumber maxVelocity =
@@ -54,6 +56,7 @@ public class Hood extends SubsystemBase {
         resetAngle.setDefault(0.5);
         minAngle.setDefault(6.0);
         maxAngle.setDefault(31.0);
+        idleAngle.setDefault(20.0);
         kP.setDefault(1.0);
         kD.setDefault(0.0);
         maxVelocity.setDefault(225.0);
@@ -61,8 +64,10 @@ public class Hood extends SubsystemBase {
         goalTolerance.setDefault(0.5);
         break;
       case ROBOT_SIMBOT:
+        resetAngle.setDefault(10.0);
         minAngle.setDefault(10.0);
         maxAngle.setDefault(80.0);
+        idleAngle.setDefault(60.0);
         kP.setDefault(0.1);
         kD.setDefault(0.0);
         maxVelocity.setDefault(500.0);
@@ -70,8 +75,10 @@ public class Hood extends SubsystemBase {
         goalTolerance.setDefault(0.5);
         break;
       default:
+        resetAngle.setDefault(0.0);
         minAngle.setDefault(0.0);
         maxAngle.setDefault(0.0);
+        idleAngle.setDefault(0.0);
         kP.setDefault(0.0);
         kD.setDefault(0.0);
         maxVelocity.setDefault(0.0);
@@ -138,6 +145,11 @@ public class Hood extends SubsystemBase {
   /** Sets the target hood angle to the minimum position. */
   public void moveToBottom() {
     moveToAngle(minAngle.get());
+  }
+
+  /** Sets the target hood angle to the default idle position. */
+  public void moveToIdle() {
+    moveToAngle(idleAngle.get());
   }
 
   /** Gets the current hood angle in degrees. */
