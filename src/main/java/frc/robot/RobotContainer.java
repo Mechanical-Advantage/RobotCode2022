@@ -197,6 +197,7 @@ public class RobotContainer {
     hood.setRobotState(robotState);
     tower.setLeds(leds);
     tower.setOverride(() -> overrideOI.getCargoSensorDisable());
+    pneumatics.setSupplier(() -> overrideOI.getClimbMode());
 
     // Set up auto routines
     autoRoutineMap.put("Do Nothing",
