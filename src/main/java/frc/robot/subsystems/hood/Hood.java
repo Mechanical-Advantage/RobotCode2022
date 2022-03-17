@@ -34,6 +34,13 @@ public class Hood extends SubsystemBase {
   private final TunableNumber goalTolerance =
       new TunableNumber("Hood/GoalToleranceDegrees");
 
+  private static final TunableNumber resetVolts =
+      new TunableNumber("Hood/Reset/Voltage");
+  private static final TunableNumber resetGraceSeconds =
+      new TunableNumber("Hood/Reset/GraceSeconds");
+  private static final TunableNumber resetVelocityThreshold =
+      new TunableNumber("Hood/Reset/VelocityThreshold");
+
   private final HoodIO io;
   private final HoodIOInputs inputs = new HoodIOInputs();
 
@@ -51,6 +58,7 @@ public class Hood extends SubsystemBase {
   public Hood(HoodIO io) {
     this.io = io;
     io.setBrakeMode(true);
+    resetGraceTimer.start();
 
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
@@ -62,6 +70,10 @@ public class Hood extends SubsystemBase {
         maxVelocity.setDefault(225.0);
         maxAcceleration.setDefault(800.0);
         goalTolerance.setDefault(0.5);
+
+        resetVolts.setDefault(3.0);
+        resetGraceSeconds.setDefault(0.2);
+        resetVelocityThreshold.setDefault(1.0);
         break;
       case ROBOT_SIMBOT:
         minAngle.setDefault(10.0);
@@ -71,6 +83,10 @@ public class Hood extends SubsystemBase {
         maxVelocity.setDefault(500.0);
         maxAcceleration.setDefault(200.0);
         goalTolerance.setDefault(0.5);
+
+        resetVolts.setDefault(3.0);
+        resetGraceSeconds.setDefault(0.2);
+        resetVelocityThreshold.setDefault(1.0);
         break;
       default:
         minAngle.setDefault(0.0);
@@ -80,6 +96,10 @@ public class Hood extends SubsystemBase {
         maxVelocity.setDefault(0.0);
         maxAcceleration.setDefault(0.0);
         goalTolerance.setDefault(0.0);
+
+        resetVolts.setDefault(0.0);
+        resetGraceSeconds.setDefault(0.0);
+        resetVelocityThreshold.setDefault(0.0);
         break;
     }
   }
@@ -112,10 +132,25 @@ public class Hood extends SubsystemBase {
 
     if (!resetComplete) {
       if (DriverStation.isEnabled()) {
+
         // Reset hood
         if (!resetActive) {
-
+          resetActive = true;
+          resetGraceTimer.reset();
+          io.setVoltage(-resetVolts.get());
+        } else {
+          double velocityDegreesPerSec =
+              Units.radiansToDegrees(inputs.velocityRadPerSec);
+          if (resetGraceTimer.hasElapsed(resetGraceSeconds.get())
+              && -velocityDegreesPerSec < resetVelocityThreshold.get()) {
+            basePositionRad = inputs.positionRad;
+            resetComplete = true;
+            resetActive = false;
+            reset();
+          }
         }
+      } else {
+        resetActive = false;
       }
     } else {
 
@@ -170,9 +205,8 @@ public class Hood extends SubsystemBase {
     }
   }
 
-  /** Resets the current position to the minimum position. */
+  /** Starts the reset sequence to the minimum position. */
   public void reset() {
-    basePositionRad = inputs.positionRad;
-    resetComplete = true;
+    resetComplete = false;
   }
 }

@@ -32,7 +32,6 @@ import frc.robot.commands.OneCargoAuto;
 import frc.robot.commands.PrepareShooterAuto;
 import frc.robot.commands.PrepareShooterPreset;
 import frc.robot.commands.ResetClimber;
-import frc.robot.commands.ResetHood;
 import frc.robot.commands.RunClimber;
 import frc.robot.commands.RunClimberToPosition;
 import frc.robot.commands.RunIntake;
