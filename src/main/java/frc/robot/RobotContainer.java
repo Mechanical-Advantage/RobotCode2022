@@ -353,14 +353,14 @@ public class RobotContainer {
     Trigger climbMode = new Trigger(overrideOI::getClimbMode);
     Trigger normalMode = climbMode.negate();
 
-    handheldOI.getIntakeExtendButton().and(normalMode)
-        .whenActive(intake::extend, intake);
-    handheldOI.getIntakeRetractButton().and(normalMode)
-        .whenActive(intake::retract, intake);
-    handheldOI.getIntakeForwardsButton().and(normalMode)
+    handheldOI.getIntakeForwardsExtendButton()
+        .or(handheldOI.getIntakeBackwardsExtendButton().and(normalMode)
+            .whenActive(intake::extend, intake)
+            .whenInactive(intake::retract, intake));
+    handheldOI.getIntakeForwardsRunButton().and(normalMode)
         .whileActiveContinuous(new RunIntake(true, intake, tower, kicker, leds,
             handheldOI::setOperatorRumble));
-    handheldOI.getIntakeBackwardsButton().and(normalMode)
+    handheldOI.getIntakeBackwardsRunButton().and(normalMode)
         .whileActiveContinuous(new RunIntake(false, intake, tower, kicker, leds,
             handheldOI::setOperatorRumble));
 
