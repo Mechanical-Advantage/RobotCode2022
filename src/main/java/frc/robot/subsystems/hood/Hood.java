@@ -36,6 +36,13 @@ public class Hood extends SubsystemBase {
   private final TunableNumber goalTolerance =
       new TunableNumber("Hood/GoalToleranceDegrees");
 
+  private static final TunableNumber resetVolts =
+      new TunableNumber("Hood/Reset/Voltage");
+  private static final TunableNumber resetGraceSeconds =
+      new TunableNumber("Hood/Reset/GraceSeconds");
+  private static final TunableNumber resetVelocityThreshold =
+      new TunableNumber("Hood/Reset/VelocityThreshold");
+
   private final HoodIO io;
   private final HoodIOInputs inputs = new HoodIOInputs();
 
@@ -43,13 +50,16 @@ public class Hood extends SubsystemBase {
       new ProfiledPIDController(0.0, 0.0, 0.0,
           new TrapezoidProfile.Constraints(0.0, 0.0), Constants.loopPeriodSecs);
   private RobotState robotState;
+  private final Timer resetGraceTimer = new Timer();
+  private boolean resetComplete = false;
+  private boolean resetActive = false;
   private double basePositionRad = 0.0;
   private boolean closedLoop = false;
-  private boolean resetComplete = false;
 
   /** Creates a new Kicker. */
   public Hood(HoodIO io) {
     this.io = io;
+    resetGraceTimer.start();
 
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
@@ -62,6 +72,10 @@ public class Hood extends SubsystemBase {
         maxVelocity.setDefault(225.0);
         maxAcceleration.setDefault(800.0);
         goalTolerance.setDefault(0.5);
+
+        resetVolts.setDefault(3.0);
+        resetGraceSeconds.setDefault(0.2);
+        resetVelocityThreshold.setDefault(1.0);
         break;
       case ROBOT_SIMBOT:
         resetAngle.setDefault(10.0);
@@ -73,6 +87,10 @@ public class Hood extends SubsystemBase {
         maxVelocity.setDefault(500.0);
         maxAcceleration.setDefault(200.0);
         goalTolerance.setDefault(0.5);
+
+        resetVolts.setDefault(3.0);
+        resetGraceSeconds.setDefault(0.2);
+        resetVelocityThreshold.setDefault(1.0);
         break;
       default:
         resetAngle.setDefault(0.0);
@@ -84,6 +102,10 @@ public class Hood extends SubsystemBase {
         maxVelocity.setDefault(0.0);
         maxAcceleration.setDefault(0.0);
         goalTolerance.setDefault(0.0);
+
+        resetVolts.setDefault(0.0);
+        resetGraceSeconds.setDefault(0.0);
+        resetVelocityThreshold.setDefault(0.0);
         break;
     }
   }
@@ -114,22 +136,49 @@ public class Hood extends SubsystemBase {
 
     // Log data
     Logger.getInstance().recordOutput("Hood/CurrentAngle", getAngle());
-    if (resetComplete) {
-      robotState.addHoodData(Timer.getFPGATimestamp(), getAngle());
-    }
 
     // Manage closed loop
     if (DriverStation.isDisabled()) {
       closedLoop = false;
     }
-    if (closedLoop) {
-      double volts = controller.calculate(getAngle());
-      io.setVoltage(volts);
-      Logger.getInstance().recordOutput("Hood/GoalAngle",
-          controller.getGoal().position);
-      Logger.getInstance().recordOutput("Hood/SetpointAngle",
-          controller.getSetpoint().position);
-      Logger.getInstance().recordOutput("Hood/AtGoal", atGoal());
+
+    if (!resetComplete) {
+      if (DriverStation.isEnabled()) {
+
+        // Reset hood
+        if (!resetActive) {
+          resetActive = true;
+          resetGraceTimer.reset();
+          io.setVoltage(-resetVolts.get());
+        } else {
+          double velocityDegreesPerSec =
+              Units.radiansToDegrees(inputs.velocityRadPerSec);
+          if (resetGraceTimer.hasElapsed(resetGraceSeconds.get())
+              && -velocityDegreesPerSec < resetVelocityThreshold.get()) {
+            io.setVoltage(0.0);
+            basePositionRad = inputs.positionRad;
+            resetComplete = true;
+            resetActive = false;
+          }
+        }
+      } else {
+        resetActive = false;
+      }
+    } else {
+
+      // Save hood position to robot state
+      robotState.addHoodData(Timer.getFPGATimestamp(), getAngle());
+
+      // Run closed loop control
+      if (closedLoop) {
+        double volts = controller.calculate(getAngle());
+        io.setVoltage(volts);
+        Logger.getInstance().recordOutput("Hood/GoalAngle",
+            controller.getGoal().position);
+        Logger.getInstance().recordOutput("Hood/SetpointAngle",
+            controller.getSetpoint().position);
+        Logger.getInstance().recordOutput("Hood/AtGoal", atGoal());
+      }
     }
   }
 
@@ -173,20 +222,8 @@ public class Hood extends SubsystemBase {
     }
   }
 
-  /** Runs open loop at the specified percent (for reseting) */
-  public void runPercent(double percent) {
-    io.setVoltage(percent * 12.0);
-    closedLoop = false;
-  }
-
-  /** Returns the current velocity in degrees per second. */
-  public double getVelocityDegreesPerSec() {
-    return Units.radiansToDegrees(inputs.velocityRadPerSec);
-  }
-
-  /** Resets the current position to the minimum position. */
+  /** Starts the reset sequence to the minimum position. */
   public void reset() {
-    basePositionRad = inputs.positionRad;
-    resetComplete = true;
+    resetComplete = false;
   }
 }

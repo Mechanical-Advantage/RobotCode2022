@@ -179,7 +179,6 @@ public class Robot extends LoggedRobot {
     if (autoCommand != null) {
       autoCommand.schedule();
     }
-    robotContainer.zeroSubsystems();
   }
 
   /** This function is called periodically during autonomous. */
@@ -191,7 +190,7 @@ public class Robot extends LoggedRobot {
     if (autoCommand != null) {
       autoCommand.cancel();
     }
-    robotContainer.zeroSubsystems();
+    robotContainer.resetClimber();
   }
 
   /** This function is called periodically during operator control. */

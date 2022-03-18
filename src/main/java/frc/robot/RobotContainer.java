@@ -32,7 +32,6 @@ import frc.robot.commands.OneCargoAuto;
 import frc.robot.commands.PrepareShooterAuto;
 import frc.robot.commands.PrepareShooterPreset;
 import frc.robot.commands.ResetClimber;
-import frc.robot.commands.ResetHood;
 import frc.robot.commands.RunClimber;
 import frc.robot.commands.RunClimberToPosition;
 import frc.robot.commands.RunIntake;
@@ -121,7 +120,7 @@ public class RobotContainer {
   private final Map<String, AutoRoutine> autoRoutineMap =
       new HashMap<String, AutoRoutine>();
 
-  private boolean zeroComplete = false;
+  private boolean climberResetComplete = false;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -437,12 +436,11 @@ public class RobotContainer {
         .toggleWhenActive(new AutoClimb(climber, drive, leds), false);
   }
 
-  /** Called when the robot is enabled to begin zeroing subsystems. */
-  public void zeroSubsystems() {
-    if (!zeroComplete) {
+  /** Called when the robot is enabled to begin resetting the climber. */
+  public void resetClimber() {
+    if (!climberResetComplete) {
       new ResetClimber(climber).schedule(false);
-      new ResetHood(hood).schedule(false);
-      zeroComplete = true;
+      climberResetComplete = true;
     }
   }
 
