@@ -143,10 +143,10 @@ public class Hood extends SubsystemBase {
               Units.radiansToDegrees(inputs.velocityRadPerSec);
           if (resetGraceTimer.hasElapsed(resetGraceSeconds.get())
               && -velocityDegreesPerSec < resetVelocityThreshold.get()) {
+            io.setVoltage(0.0);
             basePositionRad = inputs.positionRad;
             resetComplete = true;
             resetActive = false;
-            reset();
           }
         }
       } else {

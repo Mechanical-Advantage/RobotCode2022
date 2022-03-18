@@ -134,7 +134,7 @@ public class RobotContainer {
           drive = new Drive(new DriveIOSparkMAX());
           vision = new Vision(new VisionIOLimelight());
           flywheels = new Flywheels(new FlywheelsIOSparkMAX());
-          // hood = new Hood(new HoodIOSparkMAX());
+          hood = new Hood(new HoodIOSparkMAX());
           kicker = new Kicker(new KickerIOSparkMAX());
           tower = new Tower(new TowerIOSparkMAX());
           intake = new Intake(new IntakeIOSparkMAX());
