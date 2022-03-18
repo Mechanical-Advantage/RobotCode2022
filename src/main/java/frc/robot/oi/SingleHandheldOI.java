@@ -118,6 +118,11 @@ public class SingleHandheldOI implements HandheldOI {
   }
 
   @Override
+  public Trigger getClimbReset() {
+    return new Trigger(() -> controller.getPOV() == 180);
+  }
+
+  @Override
   public double getClimbStick() {
     return controller.getLeftY() * -1;
   }

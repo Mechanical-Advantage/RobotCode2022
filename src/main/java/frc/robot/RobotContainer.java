@@ -434,6 +434,8 @@ public class RobotContainer {
         .toggleWhenActive(new RunClimberToPosition(climber, false), false);
     handheldOI.getClimbAuto().and(climbMode).and(climbClosedLoop)
         .toggleWhenActive(new AutoClimb(climber, drive, leds), false);
+    handheldOI.getClimbReset().and(climbMode)
+        .toggleWhenActive(new ResetClimber(climber), false);
   }
 
   /** Called when the robot is enabled to begin resetting the climber. */
