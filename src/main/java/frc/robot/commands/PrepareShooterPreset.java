@@ -55,7 +55,7 @@ public class PrepareShooterPreset extends CommandBase {
     upperFenderRpm.setDefault(1140.0);
     upperTarmacRpm.setDefault(1190.0);
 
-    lowerFenderAngle.setDefault(28.0); // Max angle
+    lowerFenderAngle.setDefault(31.0); // Max angle
     upperFenderAngle.setDefault(6.0); // Min angle
     upperTarmacAngle.setDefault(0.0);
 
