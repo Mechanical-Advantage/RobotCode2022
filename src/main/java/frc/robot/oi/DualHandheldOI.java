@@ -122,6 +122,16 @@ public class DualHandheldOI implements HandheldOI {
   }
 
   @Override
+  public Trigger getShooterIncrement() {
+    return new Trigger(() -> operatorController.getPOV() == 90);
+  }
+
+  @Override
+  public Trigger getShooterDecrement() {
+    return new Trigger(() -> operatorController.getPOV() == 270);
+  }
+
+  @Override
   public Trigger getClimbTop() {
     return new Trigger(operatorController::getBButton);
   }
@@ -144,16 +154,6 @@ public class DualHandheldOI implements HandheldOI {
   @Override
   public double getClimbStick() {
     return operatorController.getLeftY() * -1;
-  }
-
-  @Override
-  public Trigger getShooterIncrement() {
-    return new Trigger(() -> operatorController.getPOV() == 90);
-  }
-
-  @Override
-  public Trigger getShooterDecrement() {
-    return new Trigger(() -> operatorController.getPOV() == 270);
   }
 
   @Override

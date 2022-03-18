@@ -37,18 +37,18 @@ public class SingleHandheldOI implements HandheldOI {
   }
 
   @Override
-  public Trigger getShootButton() {
-    return new Trigger(controller::getXButton);
+  public Trigger getAutoDriveButton() {
+    return new Trigger(controller::getLeftBumper);
   }
 
   @Override
   public Trigger getAutoAimButton() {
-    return new Trigger(() -> controller.getPOV() == 270);
+    return new Trigger(controller::getRightBumper);
   }
 
   @Override
-  public Trigger getSniperModeButton() {
-    return new Trigger(() -> controller.getPOV() == 90);
+  public Trigger getShootButton() {
+    return new Trigger(controller::getXButton);
   }
 
   @Override
@@ -93,6 +93,11 @@ public class SingleHandheldOI implements HandheldOI {
   }
 
   @Override
+  public Trigger getStartUpperFenderButton() {
+    return new Trigger(controller::getAButton);
+  }
+
+  @Override
   public Trigger getTowerUpButton() {
     return new Trigger(() -> controller.getPOV() == 0);
   }
@@ -100,6 +105,16 @@ public class SingleHandheldOI implements HandheldOI {
   @Override
   public Trigger getTowerDownButton() {
     return new Trigger(() -> controller.getPOV() == 180);
+  }
+
+  @Override
+  public Trigger getShooterIncrement() {
+    return new Trigger(() -> controller.getPOV() == 90);
+  }
+
+  @Override
+  public Trigger getShooterDecrement() {
+    return new Trigger(() -> controller.getPOV() == 270);
   }
 
   @Override
