@@ -339,9 +339,11 @@ public class RobotContainer {
 
     Trigger simpleAutoAim = new Trigger(overrideOI::getSimpleAutoAim);
     handheldOI.getAutoAimButton().and(simpleAutoAim.negate()).whileActiveOnce(
-        new AutoAim(drive, robotState, vision, handheldOI::getLeftDriveY));
+        new AutoAim(drive, robotState, vision, handheldOI::getLeftDriveY)
+            .perpetually());
     handheldOI.getAutoAimButton().and(simpleAutoAim).whileActiveOnce(
-        new AutoAimSimple(drive, vision, handheldOI::getLeftDriveY));
+        new AutoAimSimple(drive, vision, handheldOI::getLeftDriveY)
+            .perpetually());
 
     Trigger flywheelsReady = new Trigger(flywheels::atGoal);
     Trigger hoodReady = new Trigger(hood::atGoal);
