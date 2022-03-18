@@ -6,6 +6,7 @@ package frc.robot.subsystems.pneumatics;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -34,6 +35,8 @@ public class Pneumatics extends SubsystemBase {
   private double compressorMaxPoint = 0.0;
   private double compressorMinPoint = 0.0;
 
+  private Supplier<Boolean> climbModeOverride = () -> false;
+
   private Timer noPressureTimer = new Timer();
   private Timer compressorEnabledTimer = new Timer();
   private Alert dumpValveAlert = new Alert(
@@ -50,10 +53,17 @@ public class Pneumatics extends SubsystemBase {
     return pressureSmoothedPsi;
   }
 
+  public void setSupplier(Supplier<Boolean> climbModeOverride) {
+    this.climbModeOverride = climbModeOverride;
+  }
+
   @Override
   public void periodic() {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Pneumatics", inputs);
+
+    // Set the compressor threshold depending on whether robot is in climb mode
+    io.useLowClosedLoopThresholds(climbModeOverride.get());
 
     // Calculate input pressure for averaging filter
     double limitedPressure =

@@ -19,7 +19,7 @@ public class PneumaticsIOREV implements PneumaticsIO {
         throw new RuntimeException("Invalid robot for PneumaticsIOREV!");
     }
 
-    pneumatics.enableCompressorAnalog(80, 120);
+    useLowClosedLoopThresholds(false);
   }
 
   @Override
@@ -27,5 +27,15 @@ public class PneumaticsIOREV implements PneumaticsIO {
     inputs.pressurePsi = pneumatics.getPressure(0);
     inputs.compressorActive = pneumatics.getCompressor();
     inputs.compressorCurrentAmps = pneumatics.getCompressorCurrent();
+  }
+
+  @Override
+  public void useLowClosedLoopThresholds(boolean useLow) {
+    if (useLow) {
+      pneumatics.enableCompressorAnalog(50, 60);
+    } else {
+      pneumatics.enableCompressorAnalog(80, 120);
+    }
+
   }
 }

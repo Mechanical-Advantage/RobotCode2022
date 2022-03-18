@@ -31,4 +31,7 @@ public interface PneumaticsIO {
 
   /** Updates the set of loggable inputs. */
   public default void updateInputs(PneumaticsIOInputs inputs) {}
+
+  /** Updates the compressor threshold */
+  public default void useLowClosedLoopThresholds(boolean useLow) {}
 }
