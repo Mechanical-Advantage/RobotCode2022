@@ -58,23 +58,23 @@ public class SingleHandheldOI implements HandheldOI {
   }
 
   @Override
-  public Trigger getIntakeExtendButton() {
-    return new Trigger(controller::getRightBumper);
+  public Trigger getIntakeForwardsRunButton() {
+    return new Trigger(() -> controller.getRightTriggerAxis() > 0.95);
   }
 
   @Override
-  public Trigger getIntakeRetractButton() {
-    return new Trigger(controller::getLeftBumper);
+  public Trigger getIntakeBackwardsRunButton() {
+    return new Trigger(() -> controller.getLeftTriggerAxis() > 0.95);
   }
 
   @Override
-  public Trigger getIntakeForwardsButton() {
-    return new Trigger(() -> controller.getRightTriggerAxis() > 0.5);
+  public Trigger getIntakeForwardsExtendButton() {
+    return new Trigger(() -> controller.getRightTriggerAxis() > 0.05);
   }
 
   @Override
-  public Trigger getIntakeBackwardsButton() {
-    return new Trigger(() -> controller.getLeftTriggerAxis() > 0.5);
+  public Trigger getIntakeBackwardsExtendButton() {
+    return new Trigger(() -> controller.getLeftTriggerAxis() > 0.05);
   }
 
   @Override
