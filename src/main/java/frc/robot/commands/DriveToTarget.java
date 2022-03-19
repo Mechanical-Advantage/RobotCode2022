@@ -43,7 +43,7 @@ public class DriveToTarget extends CommandBase {
 
   private static final Pose2d[] fenderPoses =
       new Pose2d[] {FieldConstants.fenderA, FieldConstants.fenderB,
-          FieldConstants.fenderC, FieldConstants.fenderD};
+          FieldConstants.fenderAOpposite, FieldConstants.fenderBOpposite};
 
   /** Creates a new DriveToTarget. Guides the driver to a fender using odometry data. */
   public DriveToTarget(Drive drive, RobotState robotState, Vision vision,

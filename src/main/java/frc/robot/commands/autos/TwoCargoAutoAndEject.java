@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.autos;
 
 import java.util.List;
 
@@ -14,6 +14,11 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.FieldConstants;
 import frc.robot.RobotState;
 import frc.robot.RobotContainer.AutoPosition;
+import frc.robot.commands.MotionProfileCommand;
+import frc.robot.commands.PrepareShooterPreset;
+import frc.robot.commands.RunIntake;
+import frc.robot.commands.Shoot;
+import frc.robot.commands.TurnToAngleProfile;
 import frc.robot.commands.PrepareShooterPreset.ShooterPreset;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.flywheels.Flywheels;
@@ -41,7 +46,10 @@ public class TwoCargoAutoAndEject extends SequentialCommandGroup {
       FieldConstants.referenceA.transformBy(new Transform2d(
           new Translation2d(2.0, 1.0), Rotation2d.fromDegrees(-135.0)));
 
-  /** Creates a new TwoCargoAutoAndEject. */
+  /**
+   * Creates a new TwoCargoAutoAndEject. Collects a second cargo from around tarmac A, then collects
+   * the opponent cargo from tarmacs A & B to shoot into the hangar.
+   */
   public TwoCargoAutoAndEject(RobotState robotState, Drive drive, Vision vision,
       Flywheels flywheels, Hood hood, Tower tower, Kicker kicker, Intake intake,
       Leds leds) {

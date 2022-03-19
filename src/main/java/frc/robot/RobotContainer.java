@@ -24,11 +24,6 @@ import frc.robot.commands.AutoClimb;
 import frc.robot.commands.DriveToTarget;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.FeedForwardCharacterization;
-import frc.robot.commands.FiveCargoAuto;
-import frc.robot.commands.FourCargoAuto;
-import frc.robot.commands.FourCargoAutoCross;
-import frc.robot.commands.HPPractice;
-import frc.robot.commands.OneCargoAuto;
 import frc.robot.commands.PrepareShooterAuto;
 import frc.robot.commands.PrepareShooterPreset;
 import frc.robot.commands.ResetClimber;
@@ -37,13 +32,19 @@ import frc.robot.commands.RunClimberToPosition;
 import frc.robot.commands.RunIntake;
 import frc.robot.commands.RunTower;
 import frc.robot.commands.Shoot;
-import frc.robot.commands.Taxi;
-import frc.robot.commands.ThreeCargoAuto;
 import frc.robot.commands.TrackWidthCharacterization;
-import frc.robot.commands.TwoCargoAuto;
-import frc.robot.commands.TwoCargoAutoAndEject;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.commands.PrepareShooterPreset.ShooterPreset;
+import frc.robot.commands.autos.FiveCargoAuto;
+import frc.robot.commands.autos.FourCargoAuto;
+import frc.robot.commands.autos.FourCargoAutoCross;
+import frc.robot.commands.autos.HPPractice;
+import frc.robot.commands.autos.OneCargoAuto;
+import frc.robot.commands.autos.Taxi;
+import frc.robot.commands.autos.ThreeCargoAuto;
+import frc.robot.commands.autos.ThreeCargoAutoAlternative;
+import frc.robot.commands.autos.TwoCargoAuto;
+import frc.robot.commands.autos.TwoCargoAutoAndEject;
 import frc.robot.oi.HandheldOI;
 import frc.robot.oi.OISelector;
 import frc.robot.oi.OverrideOI;
@@ -214,10 +215,14 @@ public class RobotContainer {
         new AutoRoutine(AutoPosition.TARMAC_A, false,
             new FourCargoAutoCross(robotState, drive, vision, flywheels, hood,
                 tower, kicker, intake, leds)));
-    autoRoutineMap.put("Three cargo (TD)",
+    autoRoutineMap.put("Three cargo, standard (TD)",
         new AutoRoutine(AutoPosition.TARMAC_D, false,
             new ThreeCargoAuto(robotState, drive, vision, flywheels, hood,
                 tower, kicker, intake, leds)));
+    autoRoutineMap.put("Three cargo, alternative (TA)",
+        new AutoRoutine(AutoPosition.TARMAC_A, false,
+            new ThreeCargoAutoAlternative(robotState, drive, vision, flywheels,
+                hood, tower, kicker, intake, leds)));
 
     autoRoutineMap.put("Two cargo, eject opponent (TA)",
         new AutoRoutine(AutoPosition.TARMAC_A, false,

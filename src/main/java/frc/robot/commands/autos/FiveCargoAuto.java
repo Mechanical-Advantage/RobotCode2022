@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.autos;
 
 import java.util.List;
 
@@ -14,6 +14,11 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.RobotState;
 import frc.robot.RobotContainer.AutoPosition;
+import frc.robot.commands.MotionProfileCommand;
+import frc.robot.commands.PrepareShooterAuto;
+import frc.robot.commands.RunIntake;
+import frc.robot.commands.Shoot;
+import frc.robot.commands.TurnToAngleProfile;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
@@ -33,7 +38,10 @@ public class FiveCargoAuto extends SequentialCommandGroup {
   public static final double alertEarlySecs = 1.0; // How long before terminal arrival to light LEDs
   public static final double endTime = 14.9; // Finish routine at this time (includes some margin)
 
-  /** Creates a new FiveCargoAuto. */
+  /**
+   * Creates a new FiveCargoAuto. Collects the cargo surrounding tarmac CD and two cargo from the
+   * terminal.
+   */
   public FiveCargoAuto(RobotState robotState, Drive drive, Vision vision,
       Flywheels flywheels, Hood hood, Tower tower, Kicker kicker, Intake intake,
       Leds leds) {

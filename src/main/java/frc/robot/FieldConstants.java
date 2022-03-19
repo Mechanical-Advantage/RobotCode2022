@@ -57,10 +57,6 @@ public final class FieldConstants {
       referenceARotation.rotateBy(Rotation2d.fromDegrees(360.0 / 16.0));
   public static final Rotation2d fenderBRotation =
       fenderARotation.rotateBy(Rotation2d.fromDegrees(90.0));
-  public static final Rotation2d fenderCRotation =
-      fenderBRotation.rotateBy(Rotation2d.fromDegrees(90.0));
-  public static final Rotation2d fenderDRotation =
-      fenderCRotation.rotateBy(Rotation2d.fromDegrees(90.0));
 
   // Reference points (centered of the sides of the tarmac if they formed a complete octagon, plus
   // edges of fender)
@@ -81,12 +77,6 @@ public final class FieldConstants {
           GeomUtil.transformFromTranslation(hubSquareLength / 2.0, 0.0));
   public static final Pose2d fenderB =
       new Pose2d(hubCenter, fenderBRotation).transformBy(
-          GeomUtil.transformFromTranslation(hubSquareLength / 2.0, 0.0));
-  public static final Pose2d fenderC =
-      new Pose2d(hubCenter, fenderCRotation).transformBy(
-          GeomUtil.transformFromTranslation(hubSquareLength / 2.0, 0.0));
-  public static final Pose2d fenderD =
-      new Pose2d(hubCenter, fenderDRotation).transformBy(
           GeomUtil.transformFromTranslation(hubSquareLength / 2.0, 0.0));
 
   // Cargo points
@@ -121,4 +111,27 @@ public final class FieldConstants {
   public static final double terminalCargoOffset = Units.inchesToMeters(10.43);
   public static final Pose2d cargoG = terminalCenter
       .transformBy(GeomUtil.transformFromTranslation(terminalCargoOffset, 0.0));
+
+  // Opposite reference points
+  public static final Pose2d referenceAOpposite = opposite(referenceA);
+  public static final Pose2d referenceBOpposite = opposite(referenceB);
+  public static final Pose2d referenceCOpposite = opposite(referenceC);
+  public static final Pose2d referenceDOpposite = opposite(referenceD);
+  public static final Pose2d fenderAOpposite = opposite(fenderA);
+  public static final Pose2d fenderBOpposite = opposite(fenderB);
+
+  // Opposite cargo points
+  public static final Pose2d cargoAOpposite = opposite(cargoA);
+  public static final Pose2d cargoBOpposite = opposite(cargoB);
+  public static final Pose2d cargoCOpposite = opposite(cargoC);
+  public static final Pose2d cargoDOpposite = opposite(cargoD);
+  public static final Pose2d cargoEOpposite = opposite(cargoE);
+  public static final Pose2d cargoFOpposite = opposite(cargoF);
+  public static final Pose2d cargoGOpposite = opposite(cargoG);
+
+  // Calculate pose mirror on the opposite side of the field
+  private static Pose2d opposite(Pose2d pose) {
+    return new Pose2d(fieldLength, fieldWidth, Rotation2d.fromDegrees(180.0))
+        .transformBy(GeomUtil.poseToTransform(pose));
+  }
 }

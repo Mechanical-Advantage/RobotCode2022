@@ -23,6 +23,7 @@ import edu.wpi.first.math.trajectory.constraint.CentripetalAccelerationConstrain
 import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.math.trajectory.constraint.TrajectoryConstraint;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
@@ -130,6 +131,7 @@ public class MotionProfileCommand extends CommandBase {
       generatedTrajectory = new Trajectory();
       if (supportedRobot) {
         generatorAlert.set(true);
+        DriverStation.reportError("Failed to generate trajectory.", true);
       }
     }
     trajectory = generatedTrajectory;
