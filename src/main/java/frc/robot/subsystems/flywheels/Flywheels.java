@@ -56,8 +56,8 @@ public class Flywheels extends SubsystemBase {
         maxVelocityRpm.setDefault(2650.0);
         maxAccelerationRpmPerSec2.setDefault(2000.0);
         maxJerkRpmPerSec3.setDefault(2500.0);
-        ffModel = new SimpleMotorFeedforward(0.43, 0.043);
-        kP.setDefault(0.00008);
+        ffModel = new SimpleMotorFeedforward(0.50343, 0.04222);
+        kP.setDefault(0.000111);
         kI.setDefault(0.0);
         kD.setDefault(0.0);
         toleranceRpm.setDefault(50.0);
@@ -194,6 +194,11 @@ public class Flywheels extends SubsystemBase {
   /** Returns velocity of flywheel in radians per second. Only use for characterization. */
   public double getCharacterizationVelocity() {
     return inputs.velocityRadPerSec;
+  }
+
+  /** Returns the applied voltage of the flywheel. Only use for characterization. */
+  public double getCharacterizationAppliedVolts() {
+    return inputs.appliedVolts;
   }
 
   /** Increases the velocity offset of the shooter by 10 RPM */

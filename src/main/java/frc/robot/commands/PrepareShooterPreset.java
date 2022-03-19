@@ -19,6 +19,8 @@ public class PrepareShooterPreset extends CommandBase {
       new TunableNumber("PrepareShooterPreset/UpperFender/RPM");
   public static final TunableNumber upperTarmacRpm =
       new TunableNumber("PrepareShooterPreset/UpperTarmac/RPM");
+  public static final TunableNumber hangarEjectRpm =
+      new TunableNumber("PrepareShooterPreset/HangarEject/RPM");
 
   public static final TunableNumber lowerFenderAngle =
       new TunableNumber("PrepareShooterPreset/LowerFender/Angle");
@@ -26,6 +28,8 @@ public class PrepareShooterPreset extends CommandBase {
       new TunableNumber("PrepareShooterPreset/UpperFender/Angle");
   public static final TunableNumber upperTarmacAngle =
       new TunableNumber("PrepareShooterPreset/UpperTarmac/Angle");
+  public static final TunableNumber hangarEjectAngle =
+      new TunableNumber("PrepareShooterPreset/HangarEject/Angle");
 
   public static final TunableNumber lowerFenderTower =
       new TunableNumber("PrepareShooterPreset/LowerFender/TowerPercent");
@@ -33,6 +37,8 @@ public class PrepareShooterPreset extends CommandBase {
       new TunableNumber("PrepareShooterPreset/UpperFender/TowerPercent");
   public static final TunableNumber upperTarmacTower =
       new TunableNumber("PrepareShooterPreset/UpperTarmac/TowerPercent");
+  public static final TunableNumber hangarEjectTower =
+      new TunableNumber("PrepareShooterPreset/HangarEject/TowerPercent");
 
   private final Flywheels flywheels;
   private final Hood hood;
@@ -54,14 +60,17 @@ public class PrepareShooterPreset extends CommandBase {
     lowerFenderRpm.setDefault(500.0);
     upperFenderRpm.setDefault(1140.0);
     upperTarmacRpm.setDefault(1250.0);
+    hangarEjectRpm.setDefault(200.0);
 
     lowerFenderAngle.setDefault(31.0); // Max angle
     upperFenderAngle.setDefault(6.0); // Min angle
     upperTarmacAngle.setDefault(25.0);
+    hangarEjectAngle.setDefault(31.0);
 
     lowerFenderTower.setDefault(1.0);
     upperFenderTower.setDefault(0.35);
     upperTarmacTower.setDefault(1.0);
+    hangarEjectTower.setDefault(1.0);
   }
 
   // Called when the command is initially scheduled.
@@ -88,6 +97,11 @@ public class PrepareShooterPreset extends CommandBase {
         hoodAngle = upperTarmacAngle.get();
         towerSpeed = upperTarmacTower.get();
         break;
+      case HANGAR_EJECT:
+        flywheelSpeed = hangarEjectRpm.get();
+        hoodAngle = hangarEjectAngle.get();
+        towerSpeed = hangarEjectTower.get();
+        break;
       default:
         break;
     }
@@ -111,6 +125,6 @@ public class PrepareShooterPreset extends CommandBase {
   }
 
   public static enum ShooterPreset {
-    LOWER_FENDER, UPPER_FENDER, UPPER_TARMAC
+    LOWER_FENDER, UPPER_FENDER, UPPER_TARMAC, HANGAR_EJECT
   }
 }

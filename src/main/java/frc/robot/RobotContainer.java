@@ -24,6 +24,7 @@ import frc.robot.commands.AutoClimb;
 import frc.robot.commands.DriveToTarget;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.FeedForwardCharacterization;
+import frc.robot.commands.FeedForwardCharacterizationStepped;
 import frc.robot.commands.PrepareShooterAuto;
 import frc.robot.commands.PrepareShooterPreset;
 import frc.robot.commands.ResetClimber;
@@ -37,12 +38,13 @@ import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizatio
 import frc.robot.commands.PrepareShooterPreset.ShooterPreset;
 import frc.robot.commands.autos.FiveCargoAuto;
 import frc.robot.commands.autos.FourCargoAuto;
+import frc.robot.commands.autos.FourCargoAutoAvoidD;
 import frc.robot.commands.autos.FourCargoAutoCross;
 import frc.robot.commands.autos.HPPractice;
 import frc.robot.commands.autos.OneCargoAuto;
 import frc.robot.commands.autos.Taxi;
 import frc.robot.commands.autos.ThreeCargoAuto;
-import frc.robot.commands.autos.ThreeCargoAutoAlternative;
+import frc.robot.commands.autos.ThreeCargoAutoCrossMidline;
 import frc.robot.commands.autos.TwoCargoAuto;
 import frc.robot.commands.autos.TwoCargoAutoAndEject;
 import frc.robot.oi.HandheldOI;
@@ -180,6 +182,7 @@ public class RobotContainer {
     leds = leds != null ? leds : new Leds(new LedsIO() {});
 
     // Set up subsystems
+    robotState.setLeds(leds);
     drive.setDefaultCommand(new DriveWithJoysticks(drive,
         () -> choosers.getJoystickMode(), () -> handheldOI.getLeftDriveX(),
         () -> handheldOI.getLeftDriveY(), () -> handheldOI.getRightDriveX(),
@@ -215,13 +218,17 @@ public class RobotContainer {
         new AutoRoutine(AutoPosition.TARMAC_A, false,
             new FourCargoAutoCross(robotState, drive, vision, flywheels, hood,
                 tower, kicker, intake, leds)));
+    autoRoutineMap.put("Four cargo, avoid tarmac D (TC)",
+        new AutoRoutine(AutoPosition.TARMAC_C, false,
+            new FourCargoAutoAvoidD(robotState, drive, vision, flywheels, hood,
+                tower, kicker, intake, leds)));
     autoRoutineMap.put("Three cargo, standard (TD)",
         new AutoRoutine(AutoPosition.TARMAC_D, false,
             new ThreeCargoAuto(robotState, drive, vision, flywheels, hood,
                 tower, kicker, intake, leds)));
-    autoRoutineMap.put("Three cargo, alternative (TA)",
+    autoRoutineMap.put("Three cargo, cross midline (TA)",
         new AutoRoutine(AutoPosition.TARMAC_A, false,
-            new ThreeCargoAutoAlternative(robotState, drive, vision, flywheels,
+            new ThreeCargoAutoCrossMidline(robotState, drive, vision, flywheels,
                 hood, tower, kicker, intake, leds)));
 
     autoRoutineMap.put("Two cargo, eject opponent (TA)",
@@ -303,14 +310,16 @@ public class RobotContainer {
         new FeedForwardCharacterizationData("Flywheels");
     autoRoutineMap.put("FF Characterization (Flywheels/Forwards)",
         new AutoRoutine(AutoPosition.ORIGIN, false,
-            new FeedForwardCharacterization(flywheels, true, flywheelData,
-                volts -> flywheels.runVoltage(volts),
-                flywheels::getCharacterizationVelocity)));
+            new FeedForwardCharacterizationStepped(flywheels, true,
+                flywheelData, volts -> flywheels.runVoltage(volts),
+                flywheels::getCharacterizationVelocity,
+                flywheels::getCharacterizationAppliedVolts)));
     autoRoutineMap.put("FF Characterization (Flywheels/Backwards)",
         new AutoRoutine(AutoPosition.ORIGIN, false,
-            new FeedForwardCharacterization(flywheels, false, flywheelData,
-                volts -> flywheels.runVoltage(volts),
-                flywheels::getCharacterizationVelocity)));
+            new FeedForwardCharacterizationStepped(flywheels, false,
+                flywheelData, volts -> flywheels.runVoltage(volts),
+                flywheels::getCharacterizationVelocity,
+                flywheels::getCharacterizationAppliedVolts)));
 
     // Alert if in tuning mode
     if (Constants.tuningMode) {
@@ -360,6 +369,8 @@ public class RobotContainer {
     Trigger climbMode = new Trigger(overrideOI::getClimbMode);
     Trigger normalMode = climbMode.negate();
 
+    new Trigger(DriverStation::isTeleopEnabled).whenActive(intake::retract,
+        intake);
     handheldOI.getIntakeForwardsExtendButton()
         .or(handheldOI.getIntakeBackwardsExtendButton()).and(normalMode)
         .whenActive(intake::extend, intake)

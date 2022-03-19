@@ -278,8 +278,10 @@ public class Vision extends SubsystemBase {
 
     double halfWidthPixels = VisionConstants.widthPixels / 2.0;
     double halfHeightPixels = VisionConstants.heightPixels / 2.0;
-    double nY = -((corner.x - halfWidthPixels) / halfWidthPixels);
-    double nZ = -((corner.y - halfHeightPixels) / halfHeightPixels);
+    double nY = -((corner.x - halfWidthPixels - VisionConstants.crosshairX)
+        / halfWidthPixels);
+    double nZ = -((corner.y - halfHeightPixels - VisionConstants.crosshairY)
+        / halfHeightPixels);
 
     Translation2d xzPlaneTranslation = new Translation2d(1.0, vph / 2.0 * nZ)
         .rotateBy(cameraPosition.verticalRotation);

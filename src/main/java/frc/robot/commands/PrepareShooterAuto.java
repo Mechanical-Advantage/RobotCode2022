@@ -21,22 +21,23 @@ import frc.robot.util.LinearInterpolation;
 
 public class PrepareShooterAuto extends CommandBase {
   private static final List<ShootingPosition> positionData =
-      List.of(new ShootingPosition(54.5, 1160.0, 0.0),
-          new ShootingPosition(71.75, 1160.0, 13.0),
-          new ShootingPosition(89.25, 1160.0, 18.0),
-          new ShootingPosition(113.5, 1180.0, 23.0),
-          new ShootingPosition(121.0, 1250.0, 25.0),
-          new ShootingPosition(149.0, 1340.0, 27.0),
-          new ShootingPosition(187.0, 1390.0, 31.0),
-          new ShootingPosition(240.0, 1700.0, 31.0),
-          new ShootingPosition(312.0, 1850.0, 31.0));
+      List.of(new ShootingPosition(51.0, 1130.0, 4.0),
+          new ShootingPosition(64.0, 1160.0, 12.0),
+          new ShootingPosition(89.0, 1160.0, 18.0),
+          new ShootingPosition(113.0, 1170.0, 22.0),
+          new ShootingPosition(123.0, 1180.0, 25.0),
+          new ShootingPosition(148.0, 1250.0, 27.0),
+          new ShootingPosition(187.0, 1370.0, 31.0),
+          new ShootingPosition(220.0, 1500.0, 31.0),
+          new ShootingPosition(240.0, 1560.0, 31.0),
+          new ShootingPosition(280.0, 1680.0, 31.0));
 
   private static final LinearInterpolation flywheelSpeedInterpolation;
   private static final LinearInterpolation hoodAngleInterpolation;
   private static final LinearInterpolation towerSpeedInterpolation =
       new LinearInterpolation(List.of(
           new LinearInterpolation.Point(Units.inchesToMeters(40.0), 0.35),
-          new LinearInterpolation.Point(Units.inchesToMeters(60.0), 1.0)));
+          new LinearInterpolation.Point(Units.inchesToMeters(60.0), 0.6)));
 
   private final Flywheels flywheels;
   private final Hood hood;

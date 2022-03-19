@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.FieldConstants;
 import frc.robot.RobotState;
 import frc.robot.RobotContainer.AutoPosition;
@@ -18,7 +19,6 @@ import frc.robot.commands.MotionProfileCommand;
 import frc.robot.commands.PrepareShooterAuto;
 import frc.robot.commands.RunIntake;
 import frc.robot.commands.Shoot;
-import frc.robot.commands.TurnToAngleProfile;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
@@ -29,37 +29,34 @@ import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.GeomUtil;
 
-public class FourCargoAuto extends SequentialCommandGroup {
+public class FourCargoAutoAvoidD extends SequentialCommandGroup {
+  public static final double terminalWaitSecs = 1.5;
+
   public static final Pose2d terminalCargoPosition =
       FieldConstants.cargoG.transformBy(new Transform2d(
-          new Translation2d(0.2, 0.15), Rotation2d.fromDegrees(180.0)));
+          new Translation2d(0.2, 0.0), Rotation2d.fromDegrees(180.0)));
   public static final Pose2d terminalCargoApproachPosition =
       terminalCargoPosition
           .transformBy(GeomUtil.transformFromTranslation(-0.8, 0.0));
 
   /**
-   * Creates a new FourCargoAuto. Collects the cargo surrounding tarmac CD and the terminal.
+   * Creates a new FourCargoAutoLimited. Collects the cargo around tarmac C and two from the
+   * terminal.
    */
-  public FourCargoAuto(RobotState robotState, Drive drive, Vision vision,
+  public FourCargoAutoAvoidD(RobotState robotState, Drive drive, Vision vision,
       Flywheels flywheels, Hood hood, Tower tower, Kicker kicker, Intake intake,
       Leds leds) {
     addCommands(
-        new TwoCargoAuto(false, AutoPosition.TARMAC_D, robotState, drive,
+        new TwoCargoAuto(false, AutoPosition.TARMAC_C, robotState, drive,
             vision, flywheels, hood, tower, kicker, intake, leds),
         deadline(
             sequence(
-                sequence(new TurnToAngleProfile(drive, robotState,
-                    TwoCargoAuto.cargoPositions
-                        .get(AutoPosition.TARMAC_D).getRotation(),
-                    ThreeCargoAuto.tarmacDCTurnPosition.getRotation()),
-                    new MotionProfileCommand(drive, robotState, 0.0,
-                        List.of(ThreeCargoAuto.tarmacDCTurnPosition,
-                            FieldConstants.cargoD.transformBy(
-                                new Transform2d(new Translation2d(),
-                                    Rotation2d.fromDegrees(-60.0))),
-                            terminalCargoApproachPosition,
-                            terminalCargoPosition),
+                sequence(
+                    new MotionProfileCommand(drive, robotState, 0.0, List.of(
+                        TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_C),
+                        terminalCargoApproachPosition, terminalCargoPosition),
                         0.0, false),
+                    new WaitCommand(terminalWaitSecs),
                     new MotionProfileCommand(drive, robotState, 0.0,
                         List.of(terminalCargoPosition,
                             TwoCargoAuto.cargoPositions

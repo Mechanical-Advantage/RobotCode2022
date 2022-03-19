@@ -30,8 +30,6 @@ public class RobotState {
                                                         // of pose average should be vision
   private static final double visionMaxAngularVelocity =
       Units.degreesToRadians(8.0); // Max angular velocity before vision data is rejected
-  private static final double ledsAlignedRadius = 4.0; // How far can the robot be from the center
-                                                       // while targeted for setting LEDs
   private static final double ledsAlignedMaxDegrees = 5.0; // How far from fully targeted can the
                                                            // robot be for setting LEDs
 
@@ -146,13 +144,10 @@ public class RobotState {
 
     // Check if robot is aligned for LEDs
     if (leds != null) {
-      boolean withinRadius = latestPose.getTranslation()
-          .getDistance(FieldConstants.hubCenter) < ledsAlignedRadius;
-      boolean withinRotation =
+      leds.setTargeted(
           Math.abs(AutoAim.getTargetRotation(latestPose.getTranslation())
               .minus(latestPose.getRotation())
-              .getDegrees()) < ledsAlignedMaxDegrees;
-      leds.setTargeted(withinRadius && withinRotation);
+              .getDegrees()) < ledsAlignedMaxDegrees);
     }
   }
 

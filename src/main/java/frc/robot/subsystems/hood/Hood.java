@@ -63,17 +63,17 @@ public class Hood extends SubsystemBase {
 
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
-        resetAngle.setDefault(0.5);
-        minAngle.setDefault(6.0);
+        resetAngle.setDefault(2.4);
+        minAngle.setDefault(4.0);
         maxAngle.setDefault(31.0);
         idleAngle.setDefault(20.0);
         kP.setDefault(1.0);
         kD.setDefault(0.0);
         maxVelocity.setDefault(225.0);
-        maxAcceleration.setDefault(800.0);
+        maxAcceleration.setDefault(400.0);
         goalTolerance.setDefault(0.5);
 
-        resetVolts.setDefault(3.0);
+        resetVolts.setDefault(0.5);
         resetGraceSeconds.setDefault(0.2);
         resetVelocityThreshold.setDefault(1.0);
         break;

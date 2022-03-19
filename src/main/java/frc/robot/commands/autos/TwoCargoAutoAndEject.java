@@ -32,7 +32,7 @@ import frc.robot.subsystems.vision.Vision;
 public class TwoCargoAutoAndEject extends SequentialCommandGroup {
   private static final Pose2d firstCargoTurnPosition = new Pose2d(
       TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_A).getTranslation(),
-      Rotation2d.fromDegrees(-100.0));
+      Rotation2d.fromDegrees(-120.0));
   private static final Pose2d firstCargoPosition =
       FieldConstants.cargoC.transformBy(
           new Transform2d(new Translation2d(), Rotation2d.fromDegrees(90.0)));
@@ -44,7 +44,7 @@ public class TwoCargoAutoAndEject extends SequentialCommandGroup {
           new Transform2d(new Translation2d(), Rotation2d.fromDegrees(-90.0)));
   private static final Pose2d shootPosition =
       FieldConstants.referenceA.transformBy(new Transform2d(
-          new Translation2d(2.0, 1.0), Rotation2d.fromDegrees(-135.0)));
+          new Translation2d(2.0, 1.0), Rotation2d.fromDegrees(-150.0)));
 
   /**
    * Creates a new TwoCargoAutoAndEject. Collects a second cargo from around tarmac A, then collects
@@ -79,6 +79,6 @@ public class TwoCargoAutoAndEject extends SequentialCommandGroup {
                 new Shoot(tower, kicker, leds)
                     .withTimeout(OneCargoAuto.shootDurationSecs)),
             new PrepareShooterPreset(flywheels, hood, tower,
-                ShooterPreset.LOWER_FENDER)));
+                ShooterPreset.HANGAR_EJECT)));
   }
 }

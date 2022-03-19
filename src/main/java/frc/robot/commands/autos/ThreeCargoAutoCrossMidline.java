@@ -31,12 +31,12 @@ import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.GeomUtil;
 
-public class ThreeCargoAutoAlternative extends SequentialCommandGroup {
+public class ThreeCargoAutoCrossMidline extends SequentialCommandGroup {
   private static final Pose2d firstTurnPosition = new Pose2d(
       TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_A).getTranslation(),
       Rotation2d.fromDegrees(90.0));
 
-  private static final double ejectDuration = 2.0;
+  private static final double ejectDuration = 0.75;
   private static final Pose2d cargoPosition =
       FieldConstants.cargoFOpposite.transformBy(
           new Transform2d(new Translation2d(), Rotation2d.fromDegrees(-60.0)));
@@ -49,7 +49,7 @@ public class ThreeCargoAutoAlternative extends SequentialCommandGroup {
    * Creates a new ThreeCargoAutoAlternative. Collects a second cargo from around tarmac A, then
    * uses an opponent cargo to collect one of our cargo from the opposite side of the side.
    */
-  public ThreeCargoAutoAlternative(RobotState robotState, Drive drive,
+  public ThreeCargoAutoCrossMidline(RobotState robotState, Drive drive,
       Vision vision, Flywheels flywheels, Hood hood, Tower tower, Kicker kicker,
       Intake intake, Leds leds) {
     addCommands(
