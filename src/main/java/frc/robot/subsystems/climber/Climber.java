@@ -23,15 +23,9 @@ public class Climber extends SubsystemBase {
       new TunableNumber("Climber/MinPosition");
   public final TunableNumber maxPositionRad =
       new TunableNumber("Climber/MaxPosition");
-  public final TunableNumber minTeleopPositionRad =
-      new TunableNumber("Climber/MinTeleopPosition");
-  public final TunableNumber maxTeleopPositionRad =
-      new TunableNumber("Climber/MaxTeleopPosition");
   private final TunableNumber kP = new TunableNumber("Climber/Kp");
   private final TunableNumber kI = new TunableNumber("Climber/Ki");
   private final TunableNumber kD = new TunableNumber("Climber/Kd");
-  private final TunableNumber toleranceRad =
-      new TunableNumber("Climber/Tolerance");
   private final TunableNumber maxVelocity =
       new TunableNumber("Climber/MaxVelocity");
   private final TunableNumber maxAcceleration =
@@ -47,26 +41,20 @@ public class Climber extends SubsystemBase {
     this.io = io;
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
-        minPositionRad.setDefault(-1.5);
+        minPositionRad.setDefault(0.0);
         maxPositionRad.setDefault(44.0);
-        minTeleopPositionRad.setDefault(0.0);
-        maxTeleopPositionRad.setDefault(36.0);
         kP.setDefault(2.5);
         kI.setDefault(0.0);
         kD.setDefault(0.0);
-        toleranceRad.setDefault(1.0);
         maxVelocity.setDefault(40.0);
         maxAcceleration.setDefault(120.0);
         break;
       default:
         minPositionRad.setDefault(0.0);
         maxPositionRad.setDefault(0.0);
-        minTeleopPositionRad.setDefault(0.0);
-        maxTeleopPositionRad.setDefault(0.0);
         kP.setDefault(0.0);
         kI.setDefault(0.0);
         kD.setDefault(0.0);
-        toleranceRad.setDefault(0.0);
         maxVelocity.setDefault(0.0);
         maxAcceleration.setDefault(0.0);
         break;
@@ -99,9 +87,6 @@ public class Climber extends SubsystemBase {
     }
     if (kD.hasChanged()) {
       controller.setI(kD.get());
-    }
-    if (toleranceRad.hasChanged()) {
-      controller.setTolerance(toleranceRad.get());
     }
     if (maxVelocity.hasChanged() || maxAcceleration.hasChanged()) {
       controller.setConstraints(
