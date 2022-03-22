@@ -87,6 +87,7 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.util.Alert;
+import frc.robot.util.DisabledInstantCommand;
 import frc.robot.util.GeomUtil;
 import frc.robot.util.LoggedChoosers;
 import frc.robot.util.SparkMAXBurnManager;
@@ -410,28 +411,10 @@ public class RobotContainer {
     handheldOI.getTowerDownButton().and(normalMode)
         .whileActiveContinuous(new RunTower(tower, false));
 
-    handheldOI.getShooterIncrement().whenActive(new InstantCommand() {
-      @Override
-      public void initialize() {
-        flywheels.incrementOffset();
-      }
-
-      @Override
-      public boolean runsWhenDisabled() {
-        return true;
-      }
-    });
-    handheldOI.getShooterDecrement().whenActive(new InstantCommand() {
-      @Override
-      public void initialize() {
-        flywheels.decrementOffset();
-      }
-
-      @Override
-      public boolean runsWhenDisabled() {
-        return true;
-      }
-    });
+    handheldOI.getShooterIncrement()
+        .whenActive(new DisabledInstantCommand(flywheels::incrementOffset));
+    handheldOI.getShooterDecrement()
+        .whenActive(new DisabledInstantCommand(flywheels::decrementOffset));
 
     // *** CLIMB CONTROLS ***
     climbMode.whileActiveContinuous(new StartEndCommand(
