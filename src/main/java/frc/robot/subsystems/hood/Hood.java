@@ -63,8 +63,8 @@ public class Hood extends SubsystemBase {
 
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
-        resetAngle.setDefault(2.4);
-        minAngle.setDefault(4.0);
+        resetAngle.setDefault(0.3);
+        minAngle.setDefault(3.0);
         maxAngle.setDefault(31.0);
         idleAngle.setDefault(20.0);
         kP.setDefault(1.0);
