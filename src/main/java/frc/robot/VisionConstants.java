@@ -16,7 +16,7 @@ public final class VisionConstants {
   public static final int widthPixels = 960;
   public static final int heightPixels = 720;
   public static final double nominalFramerate = 22.0;
-  public static final double crosshairX = 57.6;
+  public static final double crosshairX = 14.4;
   public static final double crosshairY = 0.0;
   public static final Rotation2d fovHorizontal = Rotation2d.fromDegrees(59.6);
   public static final Rotation2d fovVertical = Rotation2d.fromDegrees(49.7);
