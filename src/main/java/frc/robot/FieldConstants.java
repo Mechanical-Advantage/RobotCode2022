@@ -23,7 +23,7 @@ public final class FieldConstants {
   public static final double visionTargetDiameter =
       Units.inchesToMeters(4.0 * 12.0 + 5.375);
   public static final double visionTargetHeightLower =
-      Units.inchesToMeters(8.0 * 12 + 5.625); // Bottom of tape
+      Units.inchesToMeters(8.0 * 12.0 + 5.625); // Bottom of tape
   public static final double visionTargetHeightUpper =
       visionTargetHeightLower + Units.inchesToMeters(2.0); // Top of tape
 
