@@ -24,12 +24,12 @@ public final class VisionConstants {
   public static final double vehicleToCameraY = 0.0;
   public static final double vehicleToPivotX = Units.inchesToMeters(-3.5);
   public static final double vehicleToPivotZ = Units.inchesToMeters(32.545);
-  public static final double pivotToCameraX = Units.inchesToMeters(15.5);
-  public static final double pivotToCameraZ = Units.inchesToMeters(0.5 + 3.25);
+  public static final double pivotToCameraX = Units.inchesToMeters(15.288);
+  public static final double pivotToCameraZ = Units.inchesToMeters(2.103);
   public static final Rotation2d cameraVerticalRotation =
-      Rotation2d.fromDegrees(44.0); // Measured relative to the flat part of the hood
+      Rotation2d.fromDegrees(41.173); // Measured relative to the flat part of the hood
   public static final TunableNumber cameraVerticalRotationFudgeDegrees =
-      new TunableNumber("VisionConstants/FudgeDegrees", 2.6);
+      new TunableNumber("VisionConstants/FudgeDegrees", 0.0);
 
   public static CameraPosition getCameraPosition(double hoodAngle) {
     // Side-on frame of reference (y is used as z)
