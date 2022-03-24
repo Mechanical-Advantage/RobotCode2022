@@ -41,13 +41,13 @@ public class Climber extends SubsystemBase {
     this.io = io;
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
-        minPositionRad.setDefault(0.0);
+        minPositionRad.setDefault(0.5);
         maxPositionRad.setDefault(29.5);
         kP.setDefault(2.5);
         kI.setDefault(0.0);
         kD.setDefault(0.0);
-        maxVelocity.setDefault(40.0);
-        maxAcceleration.setDefault(120.0);
+        maxVelocity.setDefault(20.0);
+        maxAcceleration.setDefault(50.0);
         break;
       default:
         minPositionRad.setDefault(0.0);

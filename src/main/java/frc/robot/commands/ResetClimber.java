@@ -22,8 +22,8 @@ public class ResetClimber extends CommandBase {
       new TunableNumber("ResetClimber/GraceSecs");
   private static final TunableNumber backSecs =
       new TunableNumber("ResetClimber/BackSecs");
-  private static final TunableNumber currentThreshold =
-      new TunableNumber("ResetClimber/CurrentThreshhold");
+  private static final TunableNumber velocityThreshold =
+      new TunableNumber("ResetClimber/VelocityThreshhold");
 
   private final Climber climber;
   private final Timer timer = new Timer();
@@ -37,10 +37,10 @@ public class ResetClimber extends CommandBase {
 
     startDelaySecs.setDefault(0.4);
     startSpeedPercent.setDefault(0.05);
-    normalSpeedPercent.setDefault(0.1);
-    graceSecs.setDefault(0.1);
+    normalSpeedPercent.setDefault(0.05);
+    graceSecs.setDefault(0.8);
     backSecs.setDefault(0.1);
-    currentThreshold.setDefault(40.0);
+    velocityThreshold.setDefault(0.03);
   }
 
   // Called when the command is initially scheduled.
@@ -66,7 +66,7 @@ public class ResetClimber extends CommandBase {
       climber.runPercent(-normalSpeedPercent.get());
       if (timer.hasElapsed(graceSecs.get())) {
         climber.runPercent(-normalSpeedPercent.get());
-        if (climber.getCurrentAmps() > currentThreshold.get()) {
+        if (Math.abs(climber.getVelocity()) < velocityThreshold.get()) {
           backwards = true;
           timer.reset();
           climber.resetPosition();

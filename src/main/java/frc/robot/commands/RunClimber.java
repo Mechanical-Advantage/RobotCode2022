@@ -28,7 +28,7 @@ public class RunClimber extends CommandBase {
     this.climber = climber;
     this.axisSupplier = axisSupplier;
     this.openLoopSupplier = openLoopSupplier;
-    maxVelocityRadPerSec.setDefault(35.0);
+    maxVelocityRadPerSec.setDefault(15.0);
   }
 
   // Called when the command is initially scheduled.
