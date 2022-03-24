@@ -29,7 +29,7 @@ public final class VisionConstants {
   public static final Rotation2d cameraVerticalRotation =
       Rotation2d.fromDegrees(41.173); // Measured relative to the flat part of the hood
   public static final TunableNumber cameraVerticalRotationFudgeDegrees =
-      new TunableNumber("VisionConstants/FudgeDegrees", 0.0);
+      new TunableNumber("VisionConstants/FudgeDegrees", -0.4);
 
   public static CameraPosition getCameraPosition(double hoodAngle) {
     // Side-on frame of reference (y is used as z)

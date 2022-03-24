@@ -21,7 +21,7 @@ import frc.robot.util.LinearInterpolation;
 
 public class PrepareShooterAuto extends CommandBase {
   private static final List<ShootingPosition> positionData =
-      List.of(new ShootingPosition(51.0, 1130.0, 4.0),
+      List.of(new ShootingPosition(53.0, 1220.0, 3.0),
           new ShootingPosition(64.0, 1160.0, 12.0),
           new ShootingPosition(89.0, 1160.0, 18.0),
           new ShootingPosition(113.0, 1170.0, 22.0),
@@ -30,7 +30,8 @@ public class PrepareShooterAuto extends CommandBase {
           new ShootingPosition(187.0, 1370.0, 31.0),
           new ShootingPosition(220.0, 1500.0, 31.0),
           new ShootingPosition(240.0, 1560.0, 31.0),
-          new ShootingPosition(280.0, 1680.0, 31.0));
+          new ShootingPosition(260.0, 1670.0, 31.0),
+          new ShootingPosition(280.0, 1800.0, 31.0));
 
   private static final LinearInterpolation flywheelSpeedInterpolation;
   private static final LinearInterpolation hoodAngleInterpolation;

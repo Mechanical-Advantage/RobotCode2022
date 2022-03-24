@@ -51,26 +51,26 @@ public class PrepareShooterPreset extends CommandBase {
    */
   public PrepareShooterPreset(Flywheels flywheels, Hood hood, Tower tower,
       ShooterPreset preset) {
-    addRequirements(flywheels);
+    addRequirements(flywheels, hood);
     this.flywheels = flywheels;
     this.hood = hood;
     this.tower = tower;
     this.preset = preset;
 
     lowerFenderRpm.setDefault(500.0);
-    upperFenderRpm.setDefault(1140.0);
+    upperFenderRpm.setDefault(1230.0);
     upperTarmacRpm.setDefault(1250.0);
     hangarEjectRpm.setDefault(200.0);
 
     lowerFenderAngle.setDefault(31.0); // Max angle
-    upperFenderAngle.setDefault(6.0); // Min angle
+    upperFenderAngle.setDefault(3.0); // Min angle
     upperTarmacAngle.setDefault(25.0);
-    hangarEjectAngle.setDefault(31.0);
+    hangarEjectAngle.setDefault(31.0); // Max angle
 
-    lowerFenderTower.setDefault(1.0);
+    lowerFenderTower.setDefault(0.6);
     upperFenderTower.setDefault(0.35);
-    upperTarmacTower.setDefault(1.0);
-    hangarEjectTower.setDefault(1.0);
+    upperTarmacTower.setDefault(0.6);
+    hangarEjectTower.setDefault(0.6);
   }
 
   // Called when the command is initially scheduled.
