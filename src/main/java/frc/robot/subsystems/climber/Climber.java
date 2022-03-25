@@ -104,17 +104,15 @@ public class Climber extends SubsystemBase {
   }
 
   /**
-   * Runs open loop when unlocked, disables PID control
-   * 
-   * @param percent Percent of full voltage
+   * Runs open loop and disables PID control
    */
-  public void runPercent(double percent) {
-    io.setVoltage(percent * 12.0);
+  public void runVoltage(double volts) {
+    io.setVoltage(volts);
     closedLoop = false;
   }
 
   /**
-   * Runs closed loop when unlocked to the specified position
+   * Runs closed loop to the specified position
    * 
    * @param positionRad Position in radians (between 0 and max height)
    */
@@ -162,6 +160,11 @@ public class Climber extends SubsystemBase {
     } else {
       return 0.0;
     }
+  }
+
+  /** Returns whether at least one of the limit switches is active. */
+  public boolean getLimitsActive() {
+    return !inputs.limitSwitchLeft || !inputs.limitSwitchRight;
   }
 
   /** Resets the current position to zero */

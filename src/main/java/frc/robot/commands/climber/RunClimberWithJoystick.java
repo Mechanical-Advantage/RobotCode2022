@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.climber;
 
 import java.util.function.Supplier;
 
@@ -10,10 +10,11 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
+import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.util.TunableNumber;
 
-public class RunClimber extends CommandBase {
+public class RunClimberWithJoystick extends CommandBase {
   private static final TunableNumber maxVelocityRadPerSec =
       new TunableNumber("RunClimber/MaxVelocity");
 
@@ -22,7 +23,7 @@ public class RunClimber extends CommandBase {
   private final Supplier<Boolean> openLoopSupplier;
 
   /** Creates a new RunClimber. */
-  public RunClimber(Climber climber, Supplier<Double> axisSupplier,
+  public RunClimberWithJoystick(Climber climber, Supplier<Double> axisSupplier,
       Supplier<Boolean> openLoopSupplier) {
     addRequirements(climber);
     this.climber = climber;
@@ -38,7 +39,8 @@ public class RunClimber extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Logger.getInstance().recordOutput("ActiveCommands/RunClimber", true);
+    Logger.getInstance().recordOutput("ActiveCommands/RunClimberWithJoystick",
+        true);
 
     double value = axisSupplier.get();
     double scaledValue = 0.0;
@@ -49,7 +51,7 @@ public class RunClimber extends CommandBase {
     }
 
     if (openLoopSupplier.get()) {
-      climber.runPercent(scaledValue);
+      climber.runVoltage(scaledValue * 12.0);
     } else {
       double newGoal = climber.getGoal() + (scaledValue
           * maxVelocityRadPerSec.get() * Constants.loopPeriodSecs);
@@ -60,7 +62,7 @@ public class RunClimber extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    climber.runPercent(0.0);
+    climber.runVoltage(0.0);
   }
 
   // Returns true when the command should end.

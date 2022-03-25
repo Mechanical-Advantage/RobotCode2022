@@ -20,16 +20,12 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Mode;
 import frc.robot.commands.AutoAim;
 import frc.robot.commands.AutoAimSimple;
-import frc.robot.commands.AutoClimb;
 import frc.robot.commands.DriveToTarget;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterizationStepped;
 import frc.robot.commands.PrepareShooterAuto;
 import frc.robot.commands.PrepareShooterPreset;
-import frc.robot.commands.ResetClimber;
-import frc.robot.commands.RunClimber;
-import frc.robot.commands.RunClimberToPosition;
 import frc.robot.commands.RunIntake;
 import frc.robot.commands.RunTower;
 import frc.robot.commands.Shoot;
@@ -47,6 +43,10 @@ import frc.robot.commands.autos.ThreeCargoAuto;
 import frc.robot.commands.autos.ThreeCargoAutoCrossMidline;
 import frc.robot.commands.autos.TwoCargoAuto;
 import frc.robot.commands.autos.TwoCargoAutoAndEject;
+import frc.robot.commands.climber.AutoClimb;
+import frc.robot.commands.climber.ResetClimber;
+import frc.robot.commands.climber.RunClimberWithJoystick;
+import frc.robot.commands.climber.RunClimberToPosition;
 import frc.robot.oi.HandheldOI;
 import frc.robot.oi.OISelector;
 import frc.robot.oi.OverrideOI;
@@ -419,7 +419,7 @@ public class RobotContainer {
     // *** CLIMB CONTROLS ***
     climbMode.whileActiveContinuous(new StartEndCommand(
         () -> leds.setClimbing(true), () -> leds.setClimbing(false)));
-    climbMode.whileActiveContinuous(new RunClimber(climber,
+    climbMode.whileActiveContinuous(new RunClimberWithJoystick(climber,
         handheldOI::getClimbStick, overrideOI::getClimbOpenLoop));
     climbMode.cancelWhenActive(lowerFenderCommand)
         .cancelWhenActive(upperAutoCommand).cancelWhenActive(upperFenderCommand)
@@ -427,6 +427,7 @@ public class RobotContainer {
     climbMode.whenActive(intake::retract, intake);
     climbMode
         .whileActiveContinuous(new RunCommand(() -> hood.moveToBottom(), hood));
+    climbMode.whenInactive(() -> climber.runVoltage(0.0), climber);
 
     Trigger climbClosedLoop =
         new Trigger(overrideOI::getClimbOpenLoop).negate();

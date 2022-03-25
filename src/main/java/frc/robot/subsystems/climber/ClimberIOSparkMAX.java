@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Solenoid;
@@ -28,6 +29,9 @@ public class ClimberIOSparkMAX implements ClimberIO {
   private final CANSparkMax follower;
   private final RelativeEncoder encoder;
 
+  private final DigitalInput limitSwitchLeft;
+  private final DigitalInput limitSwitchRight;
+
   public ClimberIOSparkMAX() {
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
@@ -38,6 +42,9 @@ public class ClimberIOSparkMAX implements ClimberIO {
         invert = false;
         invertFollower = true;
         afterEncoderReduction = 12.0 * (50.0 / 20.0);
+
+        limitSwitchLeft = new DigitalInput(8);
+        limitSwitchRight = new DigitalInput(9);
         break;
       default:
         throw new RuntimeException("Invalid robot for ClimberIOSparkMax!");
@@ -51,8 +58,8 @@ public class ClimberIOSparkMAX implements ClimberIO {
     follower.follow(leader, invertFollower);
 
     leader.setInverted(invert);
-    leader.setSmartCurrentLimit(60);
-    follower.setSmartCurrentLimit(60);
+    leader.setSmartCurrentLimit(40);
+    follower.setSmartCurrentLimit(40);
     leader.enableVoltageCompensation(12.0);
     follower.enableVoltageCompensation(12.0);
 
@@ -71,6 +78,9 @@ public class ClimberIOSparkMAX implements ClimberIO {
   @Override
   public void updateInputs(ClimberIOInputs inputs) {
     inputs.unlocked = solenoid.get();
+    inputs.limitSwitchLeft = limitSwitchLeft.get();
+    inputs.limitSwitchRight = limitSwitchRight.get();
+
     inputs.positionRad =
         Units.rotationsToRadians(encoder.getPosition()) / afterEncoderReduction;
     inputs.velocityRadPerSec =

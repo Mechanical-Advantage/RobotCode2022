@@ -12,6 +12,8 @@ public interface ClimberIO {
   /** Contains all of the input data received from hardware. */
   public static class ClimberIOInputs implements LoggableInputs {
     public boolean unlocked = false;
+    public boolean limitSwitchLeft = false;
+    public boolean limitSwitchRight = false;
     public double positionRad = 0.0;
     public double velocityRadPerSec = 0.0;
     public double appliedVolts = 0.0;
@@ -20,6 +22,8 @@ public interface ClimberIO {
 
     public void toLog(LogTable table) {
       table.put("Unlocked", unlocked);
+      table.put("LimitLeft", limitSwitchLeft);
+      table.put("LimitRight", limitSwitchRight);
       table.put("PositionRad", positionRad);
       table.put("VelocityRadPerSec", velocityRadPerSec);
       table.put("AppliedVolts", appliedVolts);
@@ -29,6 +33,8 @@ public interface ClimberIO {
 
     public void fromLog(LogTable table) {
       unlocked = table.getBoolean("Unlocked", unlocked);
+      limitSwitchLeft = table.getBoolean("LimitActiveLeft", limitSwitchLeft);
+      limitSwitchRight = table.getBoolean("LimitActiveRight", limitSwitchRight);
       positionRad = table.getDouble("PositionRad", positionRad);
       velocityRadPerSec =
           table.getDouble("VelocityRadPerSec", velocityRadPerSec);
