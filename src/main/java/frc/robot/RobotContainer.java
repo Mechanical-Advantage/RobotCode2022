@@ -142,7 +142,7 @@ public class RobotContainer {
           kicker = new Kicker(new KickerIOSparkMAX());
           tower = new Tower(new TowerIOSparkMAX());
           intake = new Intake(new IntakeIOSparkMAX());
-          climber = new Climber(new ClimberIOSparkMAX());
+          // climber = new Climber(new ClimberIOSparkMAX());
           pneumatics = new Pneumatics(new PneumaticsIOREV());
           leds = new Leds(new LedsIORio());
           break;
