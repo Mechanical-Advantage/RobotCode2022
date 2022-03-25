@@ -34,6 +34,7 @@ public class Climber extends SubsystemBase {
   private final ProfiledPIDController controller = new ProfiledPIDController(
       0.0, 0.0, 0.0, new Constraints(0.0, 0.0), Constants.loopPeriodSecs);
   private double basePositionRad = 0.0;
+  private double requestedVolts = 0.0;
   private boolean closedLoop = false;
 
   /** Creates a new Climber. */
@@ -41,13 +42,13 @@ public class Climber extends SubsystemBase {
     this.io = io;
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
-        minPositionRad.setDefault(0.5);
-        maxPositionRad.setDefault(29.5);
-        kP.setDefault(2.5);
+        minPositionRad.setDefault(0.0);
+        maxPositionRad.setDefault(30.0);
+        kP.setDefault(3.5);
         kI.setDefault(0.0);
         kD.setDefault(0.0);
         maxVelocity.setDefault(20.0);
-        maxAcceleration.setDefault(50.0);
+        maxAcceleration.setDefault(150.0);
         break;
       default:
         minPositionRad.setDefault(0.0);
@@ -95,11 +96,18 @@ public class Climber extends SubsystemBase {
 
     // Run PID controller
     if (DriverStation.isDisabled()) {
+      requestedVolts = 0.0;
       closedLoop = false;
     }
     if (closedLoop) {
-      double volts = controller.calculate(getPosition());
-      io.setVoltage(volts);
+      requestedVolts = controller.calculate(getPosition());
+    }
+
+    // Apply requested voltage based on limit switches
+    if (getLimitsActive()) {
+      io.setVoltage(requestedVolts < 0.0 ? 0.0 : requestedVolts);
+    } else {
+      io.setVoltage(requestedVolts);
     }
   }
 
@@ -107,7 +115,7 @@ public class Climber extends SubsystemBase {
    * Runs open loop and disables PID control
    */
   public void runVoltage(double volts) {
-    io.setVoltage(volts);
+    requestedVolts = volts;
     closedLoop = false;
   }
 
