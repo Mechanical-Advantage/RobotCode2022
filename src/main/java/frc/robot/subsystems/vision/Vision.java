@@ -200,12 +200,12 @@ public class Vision extends SubsystemBase {
             .transformFromTranslation(cameraToTargetTranslation.unaryMinus()));
         Pose2d fieldToVehicle = GeomUtil.transformToPose(
             fieldToCamera.plus(cameraPosition.vehicleToCamera.inverse()));
-        // if (fieldToVehicle.getX() > FieldConstants.fieldLength
-        // || fieldToVehicle.getX() < 0.0
-        // || fieldToVehicle.getY() > FieldConstants.fieldWidth
-        // || fieldToVehicle.getY() < 0.0) {
-        // return;
-        // }
+        if (fieldToVehicle.getX() > FieldConstants.fieldLength
+            || fieldToVehicle.getX() < 0.0
+            || fieldToVehicle.getY() > FieldConstants.fieldWidth
+            || fieldToVehicle.getY() < 0.0) {
+          return;
+        }
 
         // Send final translation
         robotState.addVisionData(captureTimestamp,
