@@ -22,7 +22,7 @@ import frc.robot.util.Alert.AlertType;
 public final class Constants {
   private static final RobotType robot = RobotType.ROBOT_2022C;
   public static final double loopPeriodSecs = 0.02;
-  public static final boolean tuningMode = true;
+  public static final boolean tuningMode = false;
 
   private static final Alert invalidRobotAlert =
       new Alert("Invalid robot selected, using competition robot as default.",
