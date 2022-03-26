@@ -7,7 +7,7 @@ black_level:0
 blue_balance:2500
 calibration_type:0
 contour_grouping:3
-contour_sort_final:5
+contour_sort_final:2
 convexity_max:100
 convexity_min:40.5
 corner_approx:5.000000
@@ -16,7 +16,7 @@ crop_x_min:-1.000000
 crop_y_max:1
 crop_y_min:-0.6
 cross_a_a:1
-cross_a_x:0
+cross_a_x:0.03
 cross_a_y:0
 cross_b_a:1
 cross_b_x:0
@@ -33,7 +33,7 @@ hue_max:102
 hue_min:51
 image_flip:1
 image_source:0
-img_to_show:0
+img_to_show:1
 intersection_filter:0
 invert_hue:0
 multigroup_max:7
