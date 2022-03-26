@@ -444,7 +444,7 @@ public class RobotContainer {
   /** Called when the robot is enabled to begin resetting the climber. */
   public void resetClimber() {
     if (!climberResetComplete) {
-      // new ResetClimber(climber).schedule(false);
+      new ResetClimber(climber).schedule(false);
       climberResetComplete = true;
     }
   }
