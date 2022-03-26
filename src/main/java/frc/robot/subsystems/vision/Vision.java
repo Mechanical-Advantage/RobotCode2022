@@ -95,6 +95,14 @@ public class Vision extends SubsystemBase {
     Logger.getInstance().processInputs("Vision", inputs);
     int targetCount = ledsOn ? inputs.cornerX.length / 4 : 0;
 
+    List<Double> fullCorners = new ArrayList<>();
+    for (int i = 0; i < inputs.cornerX.length; i++) {
+      fullCorners.add(inputs.cornerX[i]);
+      fullCorners.add(inputs.cornerY[i]);
+    }
+    Logger.getInstance().recordOutput("Vision/FullData",
+        fullCorners.stream().mapToDouble(Double::doubleValue).toArray());
+
     // Update LED idle state
     if (targetCount > 0) {
       targetGraceTimer.reset();
@@ -192,12 +200,12 @@ public class Vision extends SubsystemBase {
             .transformFromTranslation(cameraToTargetTranslation.unaryMinus()));
         Pose2d fieldToVehicle = GeomUtil.transformToPose(
             fieldToCamera.plus(cameraPosition.vehicleToCamera.inverse()));
-        if (fieldToVehicle.getX() > FieldConstants.fieldLength
-            || fieldToVehicle.getX() < 0.0
-            || fieldToVehicle.getY() > FieldConstants.fieldWidth
-            || fieldToVehicle.getY() < 0.0) {
-          return;
-        }
+        // if (fieldToVehicle.getX() > FieldConstants.fieldLength
+        // || fieldToVehicle.getX() < 0.0
+        // || fieldToVehicle.getY() > FieldConstants.fieldWidth
+        // || fieldToVehicle.getY() < 0.0) {
+        // return;
+        // }
 
         // Send final translation
         robotState.addVisionData(captureTimestamp,
