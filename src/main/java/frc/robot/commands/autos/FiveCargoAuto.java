@@ -33,7 +33,7 @@ import frc.robot.util.GeomUtil;
 public class FiveCargoAuto extends SequentialCommandGroup {
   public static final Pose2d finalShotPosition = TwoCargoAuto
       .calcAimedPose(TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_C)
-          .transformBy(GeomUtil.transformFromTranslation(1.5, -1.0)));
+          .transformBy(GeomUtil.transformFromTranslation(0.5, -0.2)));
 
   public static final double firstShotLateSecs = 0.75; // How long after stop to begin feeding
   public static final double firstShotDurationSecs = 1.0; // How long to feed

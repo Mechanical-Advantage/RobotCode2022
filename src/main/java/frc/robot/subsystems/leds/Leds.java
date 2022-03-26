@@ -67,11 +67,11 @@ public class Leds {
       }
     } else if (autoAlert) {
       mode = LedMode.AUTO_ALERT;
-    } else if (shooting) {
-      mode = LedMode.SHOOTING;
-    } else if (targeted && flywheelsReady && towerCount > 0
-        && DriverStation.isTeleop()) {
-      mode = LedMode.TARGETED;
+      // } else if (shooting) {
+      // mode = LedMode.SHOOTING;
+      // } else if (targeted && flywheelsReady && towerCount > 0
+      // && DriverStation.isTeleop()) {
+      // mode = LedMode.TARGETED;
     } else if (towerCount == 2 && DriverStation.isTeleop()) {
       mode = LedMode.TOWER_TWO_CARGO;
     } else if (towerCount == 1 && DriverStation.isTeleop()) {
