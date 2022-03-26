@@ -26,10 +26,10 @@ public class RobotState {
   private static final double historyLengthSecs = 1.0;
   private static final double maxNoVisionLog = 0.25; // How long to wait with no vision data before
                                                      // clearing log visualization
-  private static final double visionShiftPerSec = 0.95; // After one second of vision data, what %
-                                                        // of pose average should be vision
+  private static final double visionShiftPerSec = 0.999; // After one second of vision data, what %
+                                                         // of pose average should be vision
   private static final double visionMaxAngularVelocity =
-      Units.degreesToRadians(35.0); // Max angular velocity before vision data is rejected
+      Units.degreesToRadians(180.0); // Max angular velocity before vision data is rejected
   private static final double ledsAlignedMaxDegrees = 5.0; // How far from fully targeted can the
                                                            // robot be for setting LEDs
 
