@@ -6,6 +6,7 @@ package frc.robot.commands.autos;
 
 import java.util.List;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
@@ -27,8 +28,13 @@ import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.leds.Leds;
 import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.util.GeomUtil;
 
 public class FiveCargoAuto extends SequentialCommandGroup {
+  public static final Pose2d finalShotPosition = TwoCargoAuto
+      .calcAimedPose(TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_C)
+          .transformBy(GeomUtil.transformFromTranslation(1.5, -1.0)));
+
   public static final double firstShotLateSecs = 0.75; // How long after stop to begin feeding
   public static final double firstShotDurationSecs = 1.0; // How long to feed
   public static final double secondShotLateSecs = 0.0; // How long after stop to begin feeding
@@ -73,8 +79,7 @@ public class FiveCargoAuto extends SequentialCommandGroup {
             0.0, false);
     MotionProfileCommand terminalToThirdShot =
         new MotionProfileCommand(drive, robotState, 0.0,
-            List.of(FourCargoAuto.terminalCargoPosition,
-                TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_C)),
+            List.of(FourCargoAuto.terminalCargoPosition, finalShotPosition),
             0.0, true);
 
     // Full driving seqeuence, including waits
@@ -125,8 +130,7 @@ public class FiveCargoAuto extends SequentialCommandGroup {
                 .withTimeout(secondShotStart + secondShotDurationSecs
                     - firstShotStart - firstShotDurationSecs),
         new PrepareShooterAuto(flywheels, hood, tower,
-            TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_C)
-                .getTranslation()));
+            finalShotPosition.getTranslation()));
 
     // LED sequence, runs in parallel
     double alertStart = terminalArrivalTime - alertEarlySecs;
