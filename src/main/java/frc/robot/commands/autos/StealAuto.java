@@ -51,7 +51,7 @@ public class StealAuto extends SequentialCommandGroup {
             sequence(new WaitCommand(1.5),
                 new InstantCommand(intake::extend, intake),
                 deadline(
-                    sequence(new WaitCommand(5.0),
+                    sequence(new WaitCommand(3.0),
                         new MotionProfileCommand(drive, robotState, 0.0,
                             List.of(AutoPosition.FENDER_A.getPose(),
                                 TwoCargoAuto.cargoPositions
