@@ -50,8 +50,8 @@ public class StealAuto extends SequentialCommandGroup {
         deadline(
             sequence(new WaitCommand(1.5),
                 new InstantCommand(intake::extend, intake),
-                deadline(new WaitCommand(5.0),
-                    sequence(
+                deadline(
+                    sequence(new WaitCommand(5.0),
                         new MotionProfileCommand(drive, robotState, 0.0,
                             List.of(AutoPosition.FENDER_A.getPose(),
                                 TwoCargoAuto.cargoPositions
@@ -63,6 +63,7 @@ public class StealAuto extends SequentialCommandGroup {
                     .withTimeout(OneCargoAuto.shootDurationSecs)),
             new PrepareShooterAuto(flywheels, hood, tower,
                 TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_A)
-                    .getTranslation())));
+                    .getTranslation())),
+        new Taxi(drive, false));
   }
 }
