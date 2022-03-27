@@ -43,8 +43,7 @@ public class StealAuto extends SequentialCommandGroup {
         deadline(
             sequence(
                 new WaitUntilCommand(() -> flywheels.atGoal() && hood.atGoal()),
-                new Shoot(tower, kicker, leds)
-                    .withTimeout(OneCargoAuto.shootDurationSecs)),
+                new Shoot(tower, kicker, leds).withTimeout(0.5)),
             new PrepareShooterPreset(flywheels, hood, tower,
                 ShooterPreset.UPPER_FENDER)),
         deadline(
