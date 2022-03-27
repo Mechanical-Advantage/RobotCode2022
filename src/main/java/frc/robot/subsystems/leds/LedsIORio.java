@@ -15,7 +15,7 @@ public class LedsIORio implements LedsIO {
   private static final int centerLed = 95;
   private static final int halfLength = (int) Math.ceil(length / 2.0);
   private static final double defaultStrobeDuration = 0.2; // How long is each flash
-  private static final double extremeStrobeDuration = 0.05; // How long is each flash
+  private static final double extremeStrobeDuration = 0.1; // How long is each flash
   private static final double rainbowFullLength = 40.0; // How many LEDs for a full cycle
   private static final double rainbowDuration = 0.25; // How long until the cycle repeats
   private static final double breathDuration = 2.0; // How long until the cycle repeats
