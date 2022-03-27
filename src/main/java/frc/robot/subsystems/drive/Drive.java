@@ -26,7 +26,7 @@ public class Drive extends SubsystemBase {
                                                                    // switch to coast when disabling
   private static final double ledsClimbFailureAccelMetersPerSec2 = 40.0; // Threshold to detect
                                                                          // climb failures
-  private static final double ledsFallenAngleDegrees = 80.0; // Threshold to detect falls
+  private static final double ledsFallenAngleDegrees = 75.0; // Threshold to detect falls
 
   private final double wheelRadiusMeters;
   private final double maxVelocityMetersPerSec;
