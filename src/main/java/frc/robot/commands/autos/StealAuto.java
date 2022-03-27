@@ -12,9 +12,9 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import frc.robot.FieldConstants;
 import frc.robot.RobotState;
 import frc.robot.RobotContainer.AutoPosition;
 import frc.robot.commands.MotionProfileCommand;
@@ -34,6 +34,15 @@ import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.vision.Vision;
 
 public class StealAuto extends SequentialCommandGroup {
+  private static final Pose2d opponentTurnPosition =
+      TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_A).transformBy(
+          new Transform2d(new Translation2d(), Rotation2d.fromDegrees(-90.0)));
+  private static final Pose2d opponentCargoPosition =
+      FieldConstants.cargoA.transformBy(
+          new Transform2d(new Translation2d(), Rotation2d.fromDegrees(-90.0)));
+  private static final Pose2d ejectPosition =
+      FieldConstants.referenceA.transformBy(new Transform2d(
+          new Translation2d(2.0, 1.0), Rotation2d.fromDegrees(-150.0)));
 
   /** Creates a new StealAuto. */
   public StealAuto(RobotState robotState, Drive drive, Vision vision,
@@ -49,7 +58,7 @@ public class StealAuto extends SequentialCommandGroup {
         deadline(
             sequence(new InstantCommand(intake::extend, intake),
                 deadline(
-                    sequence(new WaitCommand(3.0),
+                    sequence(new WaitCommand(1.5),
                         new MotionProfileCommand(drive, robotState, 0.0,
                             List.of(AutoPosition.FENDER_A.getPose(),
                                 TwoCargoAuto.cargoPositions
@@ -62,6 +71,23 @@ public class StealAuto extends SequentialCommandGroup {
             new PrepareShooterAuto(flywheels, hood, tower,
                 TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_A)
                     .getTranslation())),
-        new Taxi(drive, false));
+        deadline(
+            sequence(
+                sequence(
+                    new TurnToAngleProfile(drive, robotState,
+                        TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_A)
+                            .getRotation(),
+                        opponentTurnPosition.getRotation()),
+                    new MotionProfileCommand(drive, robotState, 0.0,
+                        List.of(opponentTurnPosition, opponentCargoPosition),
+                        0.0, false),
+                    new MotionProfileCommand(drive, robotState, 0.0,
+                        List.of(opponentCargoPosition, ejectPosition), 0.0,
+                        true)).deadlineWith(
+                            new RunIntake(true, intake, tower, kicker, leds)),
+                new Shoot(tower, kicker, leds)
+                    .withTimeout(OneCargoAuto.shootDurationSecs)),
+            new PrepareShooterPreset(flywheels, hood, tower,
+                ShooterPreset.HANGAR_EJECT)));
   }
 }
