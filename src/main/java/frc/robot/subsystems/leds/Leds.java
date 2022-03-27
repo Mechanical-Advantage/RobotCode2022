@@ -29,6 +29,7 @@ public class Leds {
   private boolean flywheelsReady = false;
   private int towerCount = 0;
   private boolean intaking = false;
+  private boolean fallen = false;
 
   private Alliance alliance = Alliance.Invalid;
 
@@ -57,6 +58,8 @@ public class Leds {
           mode = LedMode.DISABLED_NEUTRAL;
           break;
       }
+    } else if (fallen) {
+      mode = LedMode.FALLEN;
     } else if (climbing) {
       if (climbFailure) {
         mode = LedMode.CLIMB_FAILURE;
@@ -85,6 +88,10 @@ public class Leds {
     }
     io.setMode(mode);
     Logger.getInstance().recordOutput("LEDMode", mode.toString());
+  }
+
+  public void setFallen(boolean active) {
+    fallen = active;
   }
 
   public void setClimbing(boolean active) {

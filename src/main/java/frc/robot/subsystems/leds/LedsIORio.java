@@ -14,7 +14,8 @@ public class LedsIORio implements LedsIO {
   private static final int length = 119;
   private static final int centerLed = 95;
   private static final int halfLength = (int) Math.ceil(length / 2.0);
-  private static final double strobeDuration = 0.2; // How long is each flash
+  private static final double defaultStrobeDuration = 0.2; // How long is each flash
+  private static final double extremeStrobeDuration = 0.05; // How long is each flash
   private static final double rainbowFullLength = 40.0; // How many LEDs for a full cycle
   private static final double rainbowDuration = 0.25; // How long until the cycle repeats
   private static final double breathDuration = 2.0; // How long until the cycle repeats
@@ -40,6 +41,9 @@ public class LedsIORio implements LedsIO {
   @Override
   public void setMode(LedMode mode) {
     switch (mode) {
+      case FALLEN:
+        strobe(Color.kWhite, extremeStrobeDuration);
+        break;
       case CLIMB_NORMAL:
         rainbow();
         break;
@@ -53,10 +57,10 @@ public class LedsIORio implements LedsIO {
         solid(Color.kGreen);
         break;
       case SHOOTING:
-        strobe(Color.kGold);
+        strobe(Color.kGold, defaultStrobeDuration);
         break;
       case TARGETED:
-        strobe(Color.kWhite);
+        strobe(Color.kWhite, defaultStrobeDuration);
         break;
       case TOWER_TWO_CARGO:
         solid(Color.kGreen);
@@ -83,8 +87,9 @@ public class LedsIORio implements LedsIO {
             waveAllianceDuration);
         break;
       case DISABLED_NEUTRAL:
-        wave(Color.kGold, Color.kDarkBlue, waveSlowFullLength,
-            waveSlowDuration);
+        // wave(Color.kGold, Color.kDarkBlue, waveSlowFullLength,
+        // waveSlowDuration);
+        strobe(Color.kWhite, extremeStrobeDuration);
         break;
       default:
         solid(Color.kBlack);
@@ -99,9 +104,8 @@ public class LedsIORio implements LedsIO {
     }
   }
 
-  private void strobe(Color color) {
-    boolean on =
-        ((Timer.getFPGATimestamp() % strobeDuration) / strobeDuration) > 0.5;
+  private void strobe(Color color, double duration) {
+    boolean on = ((Timer.getFPGATimestamp() % duration) / duration) > 0.5;
     solid(on ? color : Color.kBlack);
   }
 
