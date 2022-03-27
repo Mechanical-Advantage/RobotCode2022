@@ -46,11 +46,11 @@ public class StealAuto extends SequentialCommandGroup {
                 new Shoot(tower, kicker, leds)
                     .withTimeout(OneCargoAuto.shootDurationSecs)),
             new PrepareShooterPreset(flywheels, hood, tower,
-                ShooterPreset.LOWER_FENDER)),
+                ShooterPreset.UPPER_FENDER)),
         deadline(
             sequence(new WaitCommand(1.5),
                 new InstantCommand(intake::extend, intake),
-                deadline(new WaitCommand(3.0),
+                deadline(new WaitCommand(5.0),
                     sequence(
                         new MotionProfileCommand(drive, robotState, 0.0,
                             List.of(AutoPosition.FENDER_A.getPose(),
