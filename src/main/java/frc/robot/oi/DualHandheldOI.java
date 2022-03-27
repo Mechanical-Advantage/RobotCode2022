@@ -92,23 +92,23 @@ public class DualHandheldOI implements HandheldOI {
   }
 
   @Override
-  public Trigger getStartLowerFenderButton() {
+  public Trigger getStartFlywheelFenderButton() {
     return new Trigger(operatorController::getBButton);
   }
 
   @Override
-  public Trigger getStartUpperAutoButton() {
+  public Trigger getStartFlywheelTarmacButton() {
     return new Trigger(operatorController::getAButton);
   }
 
   @Override
-  public Trigger getStartUpperFenderButton() {
-    return new Trigger(operatorController::getAButton);
-  }
-
-  @Override
-  public Trigger getStartUpperTarmacButton() {
+  public Trigger getStartFlywheelLaunchpadButton() {
     return new Trigger(operatorController::getXButton);
+  }
+
+  @Override
+  public Trigger getStartFlywheelAutoButton() {
+    return new Trigger(operatorController::getAButton);
   }
 
   @Override

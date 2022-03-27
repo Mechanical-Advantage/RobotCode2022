@@ -83,17 +83,12 @@ public class SingleHandheldOI implements HandheldOI {
   }
 
   @Override
-  public Trigger getStartLowerFenderButton() {
+  public Trigger getStartFlywheelFenderButton() {
     return new Trigger(controller::getBButton);
   }
 
   @Override
-  public Trigger getStartUpperAutoButton() {
-    return new Trigger(controller::getAButton);
-  }
-
-  @Override
-  public Trigger getStartUpperFenderButton() {
+  public Trigger getStartFlywheelAutoButton() {
     return new Trigger(controller::getAButton);
   }
 

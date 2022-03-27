@@ -22,18 +22,11 @@ import frc.robot.util.LinearInterpolation;
 public class PrepareShooterAuto extends CommandBase {
   private static final List<ShootingPosition> positionData =
       List.of(new ShootingPosition(53.0, 1220.0, 3.0),
-
-          // new ShootingPosition(64.0, 1160.0, 12.0),
-          // new ShootingPosition(89.0, 1160.0, 18.0),
-          // new ShootingPosition(113.0, 1170.0, 22.0),
-          // new ShootingPosition(123.0, 1180.0, 25.0),
-          // new ShootingPosition(148.0, 1250.0, 27.0),
           new ShootingPosition(64.0, 1170.0, 11.0),
           new ShootingPosition(89.0, 1170.0, 17.0),
           new ShootingPosition(113.0, 1180.0, 21.0),
           new ShootingPosition(123.0, 1190.0, 24.0),
           new ShootingPosition(148.0, 1260.0, 26.0),
-
           new ShootingPosition(187.0, 1370.0, 31.0),
           new ShootingPosition(220.0, 1500.0, 31.0),
           new ShootingPosition(240.0, 1560.0, 31.0),
@@ -44,8 +37,8 @@ public class PrepareShooterAuto extends CommandBase {
   private static final LinearInterpolation hoodAngleInterpolation;
   private static final LinearInterpolation towerSpeedInterpolation =
       new LinearInterpolation(List.of(
-          new LinearInterpolation.Point(Units.inchesToMeters(40.0), 0.35),
-          new LinearInterpolation.Point(Units.inchesToMeters(60.0), 0.6)));
+          new LinearInterpolation.Point(Units.inchesToMeters(60.0), 0.35),
+          new LinearInterpolation.Point(Units.inchesToMeters(80.0), 0.6)));
 
   private final Flywheels flywheels;
   private final Hood hood;
@@ -54,7 +47,7 @@ public class PrepareShooterAuto extends CommandBase {
   private final Translation2d staticPosition;
 
   static {
-    // Create regressions based on position data
+    // Create interpolations based on position data
     List<LinearInterpolation.Point> flywheelSpeedPoints = new ArrayList<>();
     List<LinearInterpolation.Point> hoodAnglePoints = new ArrayList<>();
     for (ShootingPosition position : positionData) {
@@ -117,8 +110,6 @@ public class PrepareShooterAuto extends CommandBase {
 
   public void update(Translation2d position) {
     double distance = position.getDistance(FieldConstants.hubCenter);
-    Logger.getInstance().recordOutput("PrepareShooterAuto/DistanceMeters",
-        distance);
     flywheels.runVelocity(flywheelSpeedInterpolation.predict(distance));
     hood.moveToAngle(hoodAngleInterpolation.predict(distance));
     tower.requestShootPercent(towerSpeedInterpolation.predict(distance));
