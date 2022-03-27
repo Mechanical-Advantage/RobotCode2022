@@ -38,6 +38,7 @@ import frc.robot.commands.autos.FourCargoAutoAvoidD;
 import frc.robot.commands.autos.FourCargoAutoCross;
 import frc.robot.commands.autos.HPPractice;
 import frc.robot.commands.autos.OneCargoAuto;
+import frc.robot.commands.autos.StealAuto;
 import frc.robot.commands.autos.Taxi;
 import frc.robot.commands.autos.ThreeCargoAuto;
 import frc.robot.commands.autos.ThreeCargoAutoCrossMidline;
@@ -231,6 +232,9 @@ public class RobotContainer {
         new AutoRoutine(AutoPosition.TARMAC_A, false,
             new ThreeCargoAutoCrossMidline(robotState, drive, vision, flywheels,
                 hood, tower, kicker, intake, leds)));
+    autoRoutineMap.put("Three cargo, steal partner (FA)",
+        new AutoRoutine(AutoPosition.FENDER_A, false, new StealAuto(robotState,
+            drive, vision, flywheels, hood, tower, kicker, intake, leds)));
 
     autoRoutineMap.put("Two cargo, eject opponent (TA)",
         new AutoRoutine(AutoPosition.TARMAC_A, false,
