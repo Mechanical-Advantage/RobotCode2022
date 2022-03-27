@@ -48,8 +48,7 @@ public class StealAuto extends SequentialCommandGroup {
             new PrepareShooterPreset(flywheels, hood, tower,
                 ShooterPreset.UPPER_FENDER)),
         deadline(
-            sequence(new WaitCommand(1.5),
-                new InstantCommand(intake::extend, intake),
+            sequence(new InstantCommand(intake::extend, intake),
                 deadline(
                     sequence(new WaitCommand(3.0),
                         new MotionProfileCommand(drive, robotState, 0.0,
