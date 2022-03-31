@@ -27,20 +27,19 @@ public class LoggedChoosers extends SubsystemBase {
   public LoggedChoosers() {
     addOptions(joystickModeChooser,
         List.of("Curvature", "Split Arcade", "Tank"));
-    addOptions(autoRoutineChooser,
-        List.of("Do Nothing", "Five cargo (TD)", "Four cargo, standard (TD)",
-            "Four cargo, cross field (TA)", "Four cargo, avoid tarmac D (TC)",
-            "Three cargo, standard (TD)", "Three cargo, cross midline (TA)",
-            "Three cargo, steal partner (FA)", "Two cargo, eject opponent (TA)",
-            "Two cargo (TA)", "Two cargo (TC)", "Two cargo (TD)",
-            "One cargo (TA)", "One cargo (TB)", "One cargo (TC)",
-            "One cargo (TD)", "One cargo (FA)", "One cargo (FB)", "Taxi (TA)",
-            "Taxi (TB)", "Taxi (TC)", "Taxi (TD)", "Taxi (FA)", "Taxi (FB)",
-            "HP Practice", "Track Width Characterization",
-            "FF Characterization (Drive/Forwards)",
-            "FF Characterization (Drive/Backwards)",
-            "FF Characterization (Flywheels/Forwards)",
-            "FF Characterization (Flywheels/Backwards)"));
+    addOptions(autoRoutineChooser, List.of("Do Nothing", "Five cargo (TD)",
+        "Four cargo, standard (TD)", "Four cargo, cross field (TA)",
+        "Four cargo, avoid tarmac D (TC)", "Three cargo, standard (TD)",
+        "Three cargo, cross midline (TA)", "Three cargo, collect partner (FA)",
+        "Two cargo, eject opponent (TA)", "Two cargo (TA)", "Two cargo (TC)",
+        "Two cargo (TD)", "One cargo (TA)", "One cargo (TB)", "One cargo (TC)",
+        "One cargo (TD)", "One cargo (FA)", "One cargo (FB)", "Taxi (TA)",
+        "Taxi (TB)", "Taxi (TC)", "Taxi (TD)", "Taxi (FA)", "Taxi (FB)",
+        "HP Practice", "Track Width Characterization",
+        "FF Characterization (Drive/Forwards)",
+        "FF Characterization (Drive/Backwards)",
+        "FF Characterization (Flywheels/Forwards)",
+        "FF Characterization (Flywheels/Backwards)"));
 
     SmartDashboard.putData("Joystick Mode", joystickModeChooser);
     SmartDashboard.putData("Auto Routine", autoRoutineChooser);

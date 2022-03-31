@@ -33,7 +33,7 @@ import frc.robot.subsystems.leds.Leds;
 import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.vision.Vision;
 
-public class StealAuto extends SequentialCommandGroup {
+public class PartnerAuto extends SequentialCommandGroup {
   private static final Pose2d opponentTurnPosition =
       TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_A).transformBy(
           new Transform2d(new Translation2d(), Rotation2d.fromDegrees(-90.0)));
@@ -44,8 +44,11 @@ public class StealAuto extends SequentialCommandGroup {
       FieldConstants.referenceA.transformBy(new Transform2d(
           new Translation2d(2.0, 1.0), Rotation2d.fromDegrees(-150.0)));
 
-  /** Creates a new StealAuto. */
-  public StealAuto(RobotState robotState, Drive drive, Vision vision,
+  /**
+   * Creates a new StealAuto. Collects a cargo from a partner robot, then ejects an opponent cargo
+   * into the hangar.
+   */
+  public PartnerAuto(RobotState robotState, Drive drive, Vision vision,
       Flywheels flywheels, Hood hood, Tower tower, Kicker kicker, Intake intake,
       Leds leds) {
     addCommands(
@@ -57,15 +60,14 @@ public class StealAuto extends SequentialCommandGroup {
                 ShooterPreset.UPPER_FENDER)),
         deadline(
             sequence(new InstantCommand(intake::extend, intake),
-                deadline(
-                    sequence(new WaitCommand(1.5),
-                        new MotionProfileCommand(drive, robotState, 0.0,
-                            List.of(AutoPosition.FENDER_A.getPose(),
-                                TwoCargoAuto.cargoPositions
-                                    .get(AutoPosition.TARMAC_A)),
-                            0.0, false),
-                        new WaitCommand(2.0)),
-                    new RunIntake(true, intake, tower, kicker, leds)),
+                sequence(new WaitCommand(1.5),
+                    new MotionProfileCommand(drive, robotState, 0.0,
+                        List.of(AutoPosition.FENDER_A.getPose(),
+                            TwoCargoAuto.cargoPositions
+                                .get(AutoPosition.TARMAC_A)),
+                        0.0, false),
+                    new WaitCommand(2.0)).deadlineWith(
+                        new RunIntake(true, intake, tower, kicker, leds)),
                 new Shoot(tower, kicker, leds)
                     .withTimeout(OneCargoAuto.shootDurationSecs)),
             new PrepareShooterAuto(flywheels, hood, tower,
