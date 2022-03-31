@@ -70,8 +70,8 @@ public class Leds {
       }
     } else if (autoAlert) {
       mode = LedMode.AUTO_ALERT;
-      // } else if (shooting) {
-      // mode = LedMode.SHOOTING;
+    } else if (shooting && DriverStation.isAutonomous()) {
+      mode = LedMode.SHOOTING;
       // } else if (targeted && flywheelsReady && towerCount > 0
       // && DriverStation.isTeleop()) {
       // mode = LedMode.TARGETED;
