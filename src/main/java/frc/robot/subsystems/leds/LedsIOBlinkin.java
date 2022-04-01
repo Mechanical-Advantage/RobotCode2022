@@ -16,6 +16,7 @@ public class LedsIOBlinkin implements LedsIO {
       new HashMap<>();
 
   static {
+    modeLookup.put(LedMode.FALLEN, BlinkinLedMode.FIXED_STROBE_WHITE);
     modeLookup.put(LedMode.CLIMB_NORMAL, BlinkinLedMode.FIXED_RAINBOW_PARTY);
     modeLookup.put(LedMode.CLIMB_FAILURE, BlinkinLedMode.FIXED_BREATH_BLUE);
     modeLookup.put(LedMode.CLIMB_SUCCESS, BlinkinLedMode.FIXED_BREATH_RED);

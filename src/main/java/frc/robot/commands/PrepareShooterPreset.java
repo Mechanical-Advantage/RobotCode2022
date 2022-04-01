@@ -15,28 +15,36 @@ import frc.robot.util.TunableNumber;
 public class PrepareShooterPreset extends CommandBase {
   public static final TunableNumber lowerFenderRpm =
       new TunableNumber("PrepareShooterPreset/LowerFender/RPM");
-  public static final TunableNumber upperFenderRpm =
-      new TunableNumber("PrepareShooterPreset/UpperFender/RPM");
-  public static final TunableNumber upperTarmacRpm =
-      new TunableNumber("PrepareShooterPreset/UpperTarmac/RPM");
-  public static final TunableNumber hangarEjectRpm =
-      new TunableNumber("PrepareShooterPreset/HangarEject/RPM");
-
   public static final TunableNumber lowerFenderAngle =
       new TunableNumber("PrepareShooterPreset/LowerFender/Angle");
-  public static final TunableNumber upperFenderAngle =
-      new TunableNumber("PrepareShooterPreset/UpperFender/Angle");
-  public static final TunableNumber upperTarmacAngle =
-      new TunableNumber("PrepareShooterPreset/UpperTarmac/Angle");
-  public static final TunableNumber hangarEjectAngle =
-      new TunableNumber("PrepareShooterPreset/HangarEject/Angle");
-
   public static final TunableNumber lowerFenderTower =
       new TunableNumber("PrepareShooterPreset/LowerFender/TowerPercent");
+
+  public static final TunableNumber upperFenderRpm =
+      new TunableNumber("PrepareShooterPreset/UpperFender/RPM");
+  public static final TunableNumber upperFenderAngle =
+      new TunableNumber("PrepareShooterPreset/UpperFender/Angle");
   public static final TunableNumber upperFenderTower =
       new TunableNumber("PrepareShooterPreset/UpperFender/TowerPercent");
+
+  public static final TunableNumber upperTarmacRpm =
+      new TunableNumber("PrepareShooterPreset/UpperTarmac/RPM");
+  public static final TunableNumber upperTarmacAngle =
+      new TunableNumber("PrepareShooterPreset/UpperTarmac/Angle");
   public static final TunableNumber upperTarmacTower =
       new TunableNumber("PrepareShooterPreset/UpperTarmac/TowerPercent");
+
+  public static final TunableNumber upperLaunchpadRpm =
+      new TunableNumber("PrepareShooterPreset/UpperLaunchpad/RPM");
+  public static final TunableNumber upperLaunchpadAngle =
+      new TunableNumber("PrepareShooterPreset/UpperLaunchpad/Angle");
+  public static final TunableNumber upperLaunchpadTower =
+      new TunableNumber("PrepareShooterPreset/UpperLaunchpad/TowerPercent");
+
+  public static final TunableNumber hangarEjectRpm =
+      new TunableNumber("PrepareShooterPreset/HangarEject/RPM");
+  public static final TunableNumber hangarEjectAngle =
+      new TunableNumber("PrepareShooterPreset/HangarEject/Angle");
   public static final TunableNumber hangarEjectTower =
       new TunableNumber("PrepareShooterPreset/HangarEject/TowerPercent");
 
@@ -58,18 +66,23 @@ public class PrepareShooterPreset extends CommandBase {
     this.preset = preset;
 
     lowerFenderRpm.setDefault(500.0);
-    upperFenderRpm.setDefault(1230.0);
-    upperTarmacRpm.setDefault(1250.0);
-    hangarEjectRpm.setDefault(200.0);
-
     lowerFenderAngle.setDefault(31.0); // Max angle
-    upperFenderAngle.setDefault(3.0); // Min angle
-    upperTarmacAngle.setDefault(25.0);
-    hangarEjectAngle.setDefault(31.0); // Max angle
-
     lowerFenderTower.setDefault(0.6);
+
+    upperFenderRpm.setDefault(1220.0);
+    upperFenderAngle.setDefault(3.0); // Min angle
     upperFenderTower.setDefault(0.35);
+
+    upperTarmacRpm.setDefault(1190.0);
+    upperTarmacAngle.setDefault(24.0);
     upperTarmacTower.setDefault(0.6);
+
+    upperLaunchpadRpm.setDefault(1430.0);
+    upperLaunchpadAngle.setDefault(31.0); // Max angle
+    upperLaunchpadTower.setDefault(0.6);
+
+    hangarEjectRpm.setDefault(200.0);
+    hangarEjectAngle.setDefault(31.0); // Max angle
     hangarEjectTower.setDefault(0.6);
   }
 
@@ -96,6 +109,11 @@ public class PrepareShooterPreset extends CommandBase {
         flywheelSpeed = upperTarmacRpm.get();
         hoodAngle = upperTarmacAngle.get();
         towerSpeed = upperTarmacTower.get();
+        break;
+      case UPPER_LAUNCHPAD:
+        flywheelSpeed = upperLaunchpadRpm.get();
+        hoodAngle = upperLaunchpadAngle.get();
+        towerSpeed = upperLaunchpadTower.get();
         break;
       case HANGAR_EJECT:
         flywheelSpeed = hangarEjectRpm.get();
@@ -125,6 +143,6 @@ public class PrepareShooterPreset extends CommandBase {
   }
 
   public static enum ShooterPreset {
-    LOWER_FENDER, UPPER_FENDER, UPPER_TARMAC, HANGAR_EJECT
+    LOWER_FENDER, UPPER_FENDER, UPPER_TARMAC, UPPER_LAUNCHPAD, HANGAR_EJECT
   }
 }

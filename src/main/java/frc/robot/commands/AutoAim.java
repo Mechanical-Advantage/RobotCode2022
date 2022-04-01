@@ -59,9 +59,9 @@ public class AutoAim extends CommandBase {
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
       case ROBOT_2022P:
-        kP.setDefault(0.005);
+        kP.setDefault(0.008);
         kI.setDefault(0.0);
-        kD.setDefault(0.0001);
+        kD.setDefault(0.0005);
         integralMaxError.setDefault(0.0);
         minVelocity.setDefault(0.0);
         toleranceDegrees.setDefault(3.0);

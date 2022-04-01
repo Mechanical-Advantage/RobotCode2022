@@ -40,6 +40,9 @@ public class LedsIORio implements LedsIO {
   @Override
   public void setMode(LedMode mode) {
     switch (mode) {
+      case FALLEN:
+        strobe(Color.kWhite);
+        break;
       case CLIMB_NORMAL:
         rainbow();
         break;

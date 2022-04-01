@@ -38,6 +38,7 @@ import frc.robot.commands.autos.FourCargoAutoAvoidD;
 import frc.robot.commands.autos.FourCargoAutoCross;
 import frc.robot.commands.autos.HPPractice;
 import frc.robot.commands.autos.OneCargoAuto;
+import frc.robot.commands.autos.PartnerAuto;
 import frc.robot.commands.autos.Taxi;
 import frc.robot.commands.autos.ThreeCargoAuto;
 import frc.robot.commands.autos.ThreeCargoAutoCrossMidline;
@@ -231,6 +232,10 @@ public class RobotContainer {
         new AutoRoutine(AutoPosition.TARMAC_A, false,
             new ThreeCargoAutoCrossMidline(robotState, drive, vision, flywheels,
                 hood, tower, kicker, intake, leds)));
+    autoRoutineMap.put("Three cargo, collect partner (FA)",
+        new AutoRoutine(AutoPosition.FENDER_A, false,
+            new PartnerAuto(robotState, drive, vision, flywheels, hood, tower,
+                kicker, intake, leds)));
 
     autoRoutineMap.put("Two cargo, eject opponent (TA)",
         new AutoRoutine(AutoPosition.TARMAC_A, false,
@@ -383,28 +388,29 @@ public class RobotContainer {
         .whileActiveContinuous(new RunIntake(false, intake, tower, kicker, leds,
             handheldOI::setOperatorRumble));
 
-    Command lowerFenderCommand = new PrepareShooterPreset(flywheels, hood,
-        tower, ShooterPreset.LOWER_FENDER);
-    Command upperAutoCommand =
-        new PrepareShooterAuto(flywheels, hood, tower, robotState);
-    Command upperFenderCommand = new PrepareShooterPreset(flywheels, hood,
+    Command flywheelFenderCommand = new PrepareShooterPreset(flywheels, hood,
         tower, ShooterPreset.UPPER_FENDER);
-    Command upperTarmacCommand = new PrepareShooterPreset(flywheels, hood,
+    Command flywheelTarmacCommand = new PrepareShooterPreset(flywheels, hood,
         tower, ShooterPreset.UPPER_TARMAC);
+    Command flywheelLaunchpadCommand = new PrepareShooterPreset(flywheels, hood,
+        tower, ShooterPreset.UPPER_LAUNCHPAD);
+    Command flywheelAutoCommand =
+        new PrepareShooterAuto(flywheels, hood, tower, robotState);
 
     Trigger usePresets = new Trigger(overrideOI::getShootPresets);
-    handheldOI.getStartLowerFenderButton().and(normalMode)
-        .whenActive(lowerFenderCommand);
-    handheldOI.getStartUpperAutoButton().and(normalMode)
-        .and(usePresets.negate()).whenActive(upperAutoCommand);
-    handheldOI.getStartUpperFenderButton().and(normalMode).and(usePresets)
-        .whenActive(upperFenderCommand);
-    handheldOI.getStartUpperTarmacButton().and(normalMode).and(usePresets)
-        .whenActive(upperTarmacCommand);
+    handheldOI.getStartFlywheelFenderButton().and(normalMode)
+        .whenActive(flywheelFenderCommand);
+    handheldOI.getStartFlywheelTarmacButton().and(normalMode).and(usePresets)
+        .whenActive(flywheelTarmacCommand);
+    handheldOI.getStartFlywheelLaunchpadButton().and(normalMode).and(usePresets)
+        .whenActive(flywheelLaunchpadCommand);
+    handheldOI.getStartFlywheelAutoButton().and(normalMode)
+        .and(usePresets.negate()).whenActive(flywheelAutoCommand);
     handheldOI.getStopFlywheelButton().and(normalMode)
-        .cancelWhenActive(lowerFenderCommand).cancelWhenActive(upperAutoCommand)
-        .cancelWhenActive(upperFenderCommand)
-        .cancelWhenActive(upperTarmacCommand);
+        .cancelWhenActive(flywheelFenderCommand)
+        .cancelWhenActive(flywheelTarmacCommand)
+        .cancelWhenActive(flywheelLaunchpadCommand)
+        .cancelWhenActive(flywheelAutoCommand);
 
     handheldOI.getTowerUpButton().and(normalMode)
         .whileActiveContinuous(new RunTower(tower, true));
@@ -421,9 +427,10 @@ public class RobotContainer {
         () -> leds.setClimbing(true), () -> leds.setClimbing(false)));
     climbMode.whileActiveContinuous(new RunClimberWithJoystick(climber,
         handheldOI::getClimbStick, overrideOI::getClimbOpenLoop));
-    climbMode.cancelWhenActive(lowerFenderCommand)
-        .cancelWhenActive(upperAutoCommand).cancelWhenActive(upperFenderCommand)
-        .cancelWhenActive(upperTarmacCommand);
+    climbMode.cancelWhenActive(flywheelFenderCommand)
+        .cancelWhenActive(flywheelTarmacCommand)
+        .cancelWhenActive(flywheelLaunchpadCommand)
+        .cancelWhenActive(flywheelAutoCommand);
     climbMode.whenActive(intake::retract, intake);
     climbMode
         .whileActiveContinuous(new RunCommand(() -> hood.moveToBottom(), hood));

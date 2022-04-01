@@ -67,19 +67,19 @@ public interface HandheldOI {
     return new Trigger();
   }
 
-  public default Trigger getStartLowerFenderButton() {
+  public default Trigger getStartFlywheelFenderButton() {
     return new Trigger();
   }
 
-  public default Trigger getStartUpperAutoButton() {
+  public default Trigger getStartFlywheelTarmacButton() {
     return new Trigger();
   }
 
-  public default Trigger getStartUpperFenderButton() {
+  public default Trigger getStartFlywheelLaunchpadButton() {
     return new Trigger();
   }
 
-  public default Trigger getStartUpperTarmacButton() {
+  public default Trigger getStartFlywheelAutoButton() {
     return new Trigger();
   }
 

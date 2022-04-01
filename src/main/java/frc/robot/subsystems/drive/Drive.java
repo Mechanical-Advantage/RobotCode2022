@@ -26,6 +26,7 @@ public class Drive extends SubsystemBase {
                                                                    // switch to coast when disabling
   private static final double ledsClimbFailureAccelMetersPerSec2 = 40.0; // Threshold to detect
                                                                          // climb failures
+  private static final double ledsFallenAngleDegrees = 75.0; // Threshold to detect falls
 
   private final double wheelRadiusMeters;
   private final double maxVelocityMetersPerSec;
@@ -166,6 +167,12 @@ public class Drive extends SubsystemBase {
         inputs.gyroZAccelMetersPerSec2) > ledsClimbFailureAccelMetersPerSec2) {
       leds.setClimbFailure(true);
     }
+
+    // Check for fallen robot
+    leds.setFallen(Units.radiansToDegrees(
+        Math.abs(inputs.gyroPitchPositionRad)) > ledsFallenAngleDegrees
+        || Units.radiansToDegrees(
+            Math.abs(inputs.gyroRollPositionRad)) > ledsFallenAngleDegrees);
 
     // Update brake mode
     if (DriverStation.isEnabled()) {
