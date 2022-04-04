@@ -11,6 +11,7 @@ import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -37,6 +38,14 @@ public class Vision extends SubsystemBase {
   private static final double blinkPeriodSecs = 3.0;
   private static final double blinkLengthSecs = 0.5;
 
+  private static final double vizMaxNoLog = 0.25; // How long to wait with no vision data before
+                                                  // clearing log visualization
+  private static final double vizFinalWidth = 1080.0;
+  private static final double vizFinalHeight = 1920.0;
+  private static final double vizOriginX = 540.0;
+  private static final double vizOriginY = 1536.0;
+  private static final double vizHeightMeters = 12.0;
+
   // FOV constants
   private static final double vpw =
       2.0 * Math.tan(VisionConstants.fovHorizontal.getRadians() / 2.0);
@@ -50,6 +59,9 @@ public class Vision extends SubsystemBase {
   private Supplier<VisionLedMode> modeSupplier;
   private Supplier<Boolean> climbModeSupplier;
   private RobotState robotState;
+
+  private double lastTranslationsTimestamp = 0.0;
+  private List<Translation2d> lastTranslations = new ArrayList<>();
 
   private boolean ledsOn = false;
   private boolean forceLeds = false;
@@ -130,6 +142,33 @@ public class Vision extends SubsystemBase {
     }
     io.setLeds(ledsOn);
 
+    // Process vision data
+    processFrame(targetCount);
+
+    // Log individual translations
+    List<Double> xList = new ArrayList<>();
+    List<Double> yList = new ArrayList<>();
+    xList.add(vizOriginX);
+    yList.add(vizOriginY);
+    if (Timer.getFPGATimestamp() - lastTranslationsTimestamp < vizMaxNoLog) {
+      double pixelsPerMeter = vizFinalHeight / vizHeightMeters;
+      for (Translation2d translation : lastTranslations) {
+        double x = vizOriginX - (translation.getY() * pixelsPerMeter);
+        double y = vizOriginY - (translation.getX() * pixelsPerMeter);
+        x = MathUtil.clamp(x, 0.0, vizFinalWidth);
+        y = MathUtil.clamp(y, 0.0, vizFinalHeight);
+        xList.add(x);
+        yList.add(y);
+      }
+    }
+    Logger.getInstance().recordOutput("Vision/CornersVizX",
+        xList.stream().mapToDouble(Double::doubleValue).toArray());
+    Logger.getInstance().recordOutput("Vision/CornersVizY",
+        yList.stream().mapToDouble(Double::doubleValue).toArray());
+  }
+
+  /** Process the current vision data */
+  private void processFrame(int targetCount) {
     // Exit if no new frame
     if (inputs.captureTimestamp == lastCaptureTimestamp) {
       return;
@@ -174,6 +213,10 @@ public class Vision extends SubsystemBase {
           }
         }
       }
+
+      // Save individual translations
+      lastTranslationsTimestamp = Timer.getFPGATimestamp();
+      lastTranslations = cameraToTargetTranslations;
 
       // Combine corner translations to full target translation
       if (cameraToTargetTranslations.size() >= minTargetCount * 4) {
