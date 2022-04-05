@@ -6,6 +6,11 @@ package frc.robot.commands.autos;
 
 import java.util.List;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.trajectory.constraint.MaxVelocityConstraint;
+import edu.wpi.first.math.trajectory.constraint.RectangularRegionConstraint;
+import edu.wpi.first.math.trajectory.constraint.TrajectoryConstraint;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
@@ -27,6 +32,7 @@ import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.leds.Leds;
 import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.util.GeomUtil;
 
 public class FiveCargoAuto extends SequentialCommandGroup {
   public static final double firstShotLateSecs = 0.75; // How long after stop to begin feeding
@@ -37,6 +43,20 @@ public class FiveCargoAuto extends SequentialCommandGroup {
 
   public static final double alertEarlySecs = 1.0; // How long before terminal arrival to light LEDs
   public static final double endTime = 14.9; // Finish routine at this time (includes some margin)
+
+  public static final Pose2d terminalBackUpPosition =
+      FourCargoAuto.terminalCargoPosition
+          .transformBy(GeomUtil.transformFromTranslation(-0.75, 0.0));
+  public static final TrajectoryConstraint terminalBackUpConstraint =
+      new RectangularRegionConstraint(
+          FourCargoAuto.terminalCargoPosition.getTranslation(),
+          terminalBackUpPosition.getTranslation(),
+          new MaxVelocityConstraint(Units.inchesToMeters(15.0)));
+  public static final Pose2d thirdShotPosition =
+      TwoCargoAuto.calcAimedPose(FourCargoAuto.terminalCargoPosition
+          .transformBy(GeomUtil.transformFromTranslation(-2.5, 0.5)));
+  public static final Pose2d thirdShotApproachPosition = thirdShotPosition
+      .transformBy(GeomUtil.transformFromTranslation(0.5, 0.0));
 
   /**
    * Creates a new FiveCargoAuto. Collects the cargo surrounding tarmac CD and two cargo from the
@@ -73,9 +93,9 @@ public class FiveCargoAuto extends SequentialCommandGroup {
             0.0, false);
     MotionProfileCommand terminalToThirdShot =
         new MotionProfileCommand(drive, robotState, 0.0,
-            List.of(FourCargoAuto.terminalCargoPosition,
-                TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_C)),
-            0.0, true);
+            List.of(FourCargoAuto.terminalCargoPosition, terminalBackUpPosition,
+                thirdShotApproachPosition, thirdShotPosition),
+            0.0, true, List.of(terminalBackUpConstraint));
 
     // Full driving seqeuence, including waits
     double terminalArrivalTime =
@@ -125,8 +145,7 @@ public class FiveCargoAuto extends SequentialCommandGroup {
                 .withTimeout(secondShotStart + secondShotDurationSecs
                     - firstShotStart - firstShotDurationSecs),
         new PrepareShooterAuto(flywheels, hood, tower,
-            TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_C)
-                .getTranslation()));
+            thirdShotPosition.getTranslation()));
 
     // LED sequence, runs in parallel
     double alertStart = terminalArrivalTime - alertEarlySecs;
