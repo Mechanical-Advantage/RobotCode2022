@@ -4,9 +4,6 @@
 
 package frc.robot.subsystems.flywheels;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.MathUtil;
@@ -40,9 +37,8 @@ public class Flywheels extends SubsystemBase {
       new TunableNumber("Flywheels/ToleranceRPM");
 
   private boolean closedLoop = false;
-  private List<Double> rpmHistory = new ArrayList<>();
-  private TrapezoidProfile.State goal = new TrapezoidProfile.State();
-  private TrapezoidProfile.State lastState = new TrapezoidProfile.State();
+  private TrapezoidProfile.State profileGoal = new TrapezoidProfile.State();
+  private TrapezoidProfile.State profileState = new TrapezoidProfile.State();
   private double offsetRpm = 0;
   private Leds leds;
 
@@ -104,17 +100,8 @@ public class Flywheels extends SubsystemBase {
       io.configurePID(kP.get(), kI.get(), kD.get());
     }
 
-    // Record RPM history
-    rpmHistory.add(getVelocity());
-    while (rpmHistory.size() > rpmHistoryLength.get()) {
-      rpmHistory.remove(0);
-    }
-
     // Log data
     Logger.getInstance().recordOutput("Flywheels/RPM", getVelocity());
-    Logger.getInstance().recordOutput("Flywheels/Acceleration",
-        getAcceleration());
-    Logger.getInstance().recordOutput("Flywheels/AtSetpoint", atSetpoint());
     Logger.getInstance().recordOutput("Flywheels/OffsetRPM", offsetRpm);
     SmartDashboard.putNumber("Flywheel Offset", offsetRpm);
 
@@ -123,15 +110,18 @@ public class Flywheels extends SubsystemBase {
       TrapezoidProfile profile = new TrapezoidProfile(
           new TrapezoidProfile.Constraints(maxAccelerationRpmPerSec2.get(),
               maxJerkRpmPerSec3.get()),
-          goal, lastState);
-      lastState = profile.calculate(Constants.loopPeriodSecs);
-      double setpointRpm = lastState.position;
+          profileGoal, profileState);
+      profileState = profile.calculate(Constants.loopPeriodSecs);
 
-      Logger.getInstance().recordOutput("Flywheels/SetpointRPM", setpointRpm);
+      Logger.getInstance().recordOutput("Flywheels/SetpointRPM",
+          profileState.position);
+      Logger.getInstance().recordOutput("Flywheels/GoalRPM",
+          profileGoal.position);
+      Logger.getInstance().recordOutput("Flywheels/AtSetpoint", atSetpoint());
       Logger.getInstance().recordOutput("Flywheels/AtGoal", atGoal());
 
       double velocityRadPerSec =
-          Units.rotationsPerMinuteToRadiansPerSecond(setpointRpm);
+          Units.rotationsPerMinuteToRadiansPerSecond(profileState.position);
       io.setVelocity(velocityRadPerSec, ffModel.calculate(velocityRadPerSec));
     }
 
@@ -150,9 +140,9 @@ public class Flywheels extends SubsystemBase {
     if (rpm > 0)
       rpm += offsetRpm;
     rpm = MathUtil.clamp(rpm, -maxVelocityRpm.get(), maxVelocityRpm.get());
-    goal = new TrapezoidProfile.State(rpm, 0.0);
+    profileGoal = new TrapezoidProfile.State(rpm, 0.0);
     if (!closedLoop) {
-      lastState = new TrapezoidProfile.State(getVelocity(), getAcceleration());
+      profileState = new TrapezoidProfile.State(getVelocity(), 0.0);
     }
     closedLoop = true;
   }
@@ -167,16 +157,11 @@ public class Flywheels extends SubsystemBase {
     return Units.radiansPerSecondToRotationsPerMinute(inputs.velocityRadPerSec);
   }
 
-  /** Returns the current acceleration of the flywheel in RPM per second. */
-  public double getAcceleration() {
-    return (getVelocity() - rpmHistory.get(0))
-        / (Constants.loopPeriodSecs * rpmHistoryLength.get());
-  }
-
   /** Returns whether the velocity has reached the closed loop setpoint. */
   public boolean atSetpoint() {
     if (closedLoop) {
-      return Math.abs(getVelocity() - goal.position) < toleranceRpm.get();
+      return Math.abs(getVelocity() - profileGoal.position) < toleranceRpm
+          .get();
     } else {
       return false;
     }
@@ -185,7 +170,8 @@ public class Flywheels extends SubsystemBase {
   /** Returns whether the velocity setpoint has reached the goal. */
   public boolean atGoal() {
     if (closedLoop) {
-      return Math.abs(goal.position - lastState.position) < toleranceRpm.get();
+      return Math.abs(
+          profileGoal.position - profileState.position) < toleranceRpm.get();
     } else {
       return false;
     }
