@@ -89,7 +89,7 @@ public class SingleHandheldOI implements HandheldOI {
 
   @Override
   public Trigger getStartFlywheelTarmacButton() {
-    return new Trigger(operatorController::getAButton);
+    return new Trigger(controller::getAButton);
   }
 
   @Override
