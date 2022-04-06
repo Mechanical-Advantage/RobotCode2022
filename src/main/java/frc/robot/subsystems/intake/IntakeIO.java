@@ -13,58 +13,31 @@ public interface IntakeIO {
   public static class IntakeIOInputs implements LoggableInputs {
     public boolean extended = false;
 
-    public double rollerPositionRad = 0.0;
-    public double rollerVelocityRadPerSec = 0.0;
-    public double rollerAppliedVolts = 0.0;
-    public double[] rollerCurrentAmps = new double[] {};
-    public double[] rollerTempCelcius = new double[] {};
-
-    public double hopperPositionRad = 0.0;
-    public double hopperVelocityRadPerSec = 0.0;
-    public double hopperAppliedVolts = 0.0;
-    public double[] hopperCurrentAmps = new double[] {};
-    public double[] hopperTempCelcius = new double[] {};
+    public double positionRad = 0.0;
+    public double velocityRadPerSec = 0.0;
+    public double appliedVolts = 0.0;
+    public double[] currentAmps = new double[] {};
+    public double[] tempCelcius = new double[] {};
 
     public void toLog(LogTable table) {
       table.put("Extended", extended);
 
-      table.put("RollerPositionRad", rollerPositionRad);
-      table.put("RollerVelocityRadPerSec", rollerVelocityRadPerSec);
-      table.put("RollerAppliedVolts", rollerAppliedVolts);
-      table.put("RollerCurrentAmps", rollerCurrentAmps);
-      table.put("RollerTempCelcius", rollerTempCelcius);
-
-      table.put("HopperPositionRad", hopperPositionRad);
-      table.put("HopperVelocityRadPerSec", hopperVelocityRadPerSec);
-      table.put("HopperAppliedVolts", hopperAppliedVolts);
-      table.put("HopperCurrentAmps", hopperCurrentAmps);
-      table.put("HopperTempCelcius", hopperTempCelcius);
+      table.put("PositionRad", positionRad);
+      table.put("VelocityRadPerSec", velocityRadPerSec);
+      table.put("AppliedVolts", appliedVolts);
+      table.put("CurrentAmps", currentAmps);
+      table.put("TempCelcius", tempCelcius);
     }
 
     public void fromLog(LogTable table) {
       extended = table.getBoolean("Extended", extended);
 
-      rollerPositionRad =
-          table.getDouble("RollerPositionRad", rollerPositionRad);
-      rollerVelocityRadPerSec =
-          table.getDouble("RollerVelocityRadPerSec", rollerVelocityRadPerSec);
-      rollerAppliedVolts =
-          table.getDouble("RollerAppliedVolts", rollerAppliedVolts);
-      rollerCurrentAmps =
-          table.getDoubleArray("RollerCurrentAmps", rollerCurrentAmps);
-      rollerTempCelcius =
-          table.getDoubleArray("RollerTempCelcius", rollerTempCelcius);
-
-      hopperPositionRad =
-          table.getDouble("HopperPositionRad", hopperPositionRad);
-      hopperVelocityRadPerSec =
-          table.getDouble("HopperVelocityRadPerSec", hopperVelocityRadPerSec);
-      hopperAppliedVolts =
-          table.getDouble("HopperAppliedVolts", hopperAppliedVolts);
-      hopperCurrentAmps =
-          table.getDoubleArray("HopperCurrentAmps", hopperCurrentAmps);
-      hopperTempCelcius =
-          table.getDoubleArray("HopperTempCelcius", hopperTempCelcius);
+      positionRad = table.getDouble("PositionRad", positionRad);
+      velocityRadPerSec =
+          table.getDouble("VelocityRadPerSec", velocityRadPerSec);
+      appliedVolts = table.getDouble("AppliedVolts", appliedVolts);
+      currentAmps = table.getDoubleArray("CurrentAmps", currentAmps);
+      tempCelcius = table.getDoubleArray("TempCelcius", tempCelcius);
     }
   }
 
@@ -72,16 +45,10 @@ public interface IntakeIO {
   public default void updateInputs(IntakeIOInputs inputs) {}
 
   /** Run the roller open loop at the specified voltage. */
-  public default void setRollerVoltage(double volts) {}
-
-  /** Run the hopper open loop at the specified voltage. */
-  public default void setHopperVoltage(double volts) {}
+  public default void setVoltage(double volts) {}
 
   /** Enable or disable brake mode on the roller. */
-  public default void setRollerBrakeMode(boolean enable) {}
-
-  /** Enable or disable brake mode on the hopper. */
-  public default void setHopperBrakeMode(boolean enable) {}
+  public default void setBrakeMode(boolean enable) {}
 
   /** Set solenoid state. */
   public default void setExtended(boolean extended) {}

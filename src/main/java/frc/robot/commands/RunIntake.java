@@ -121,7 +121,7 @@ public class RunIntake extends CommandBase {
     Logger.getInstance().recordOutput("ActiveCommands/RunIntake", true);
 
     if (forwards) {
-      intake.runRollerPercent(rollerForwardsSpeed.get());
+      intake.runPercent(rollerForwardsSpeed.get());
       intake.runHopperPercent(hopperForwardsSpeed.get());
 
       boolean sensorsTripped =
@@ -162,7 +162,7 @@ public class RunIntake extends CommandBase {
       rumbleLastTwoTripped = rumbleTwoTripped;
 
     } else {
-      intake.runRollerPercent(rollerBackwardsSpeed.get());
+      intake.runPercent(rollerBackwardsSpeed.get());
       intake.runHopperPercent(hopperBackwardsSpeed.get());
     }
   }

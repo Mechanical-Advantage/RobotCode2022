@@ -44,7 +44,7 @@ public class HopperEject extends CommandBase {
     kicker.runPercent(kickerSpeed.get());
     tower.runPercent(towerSpeed.get());
     intake.runHopperPercent(hopperSpeed.get());
-    intake.runRollerPercent(0.0);
+    intake.runPercent(0.0);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
