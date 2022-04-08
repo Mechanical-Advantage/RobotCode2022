@@ -10,9 +10,8 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.kicker.Kicker;
+import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.leds.Leds;
-import frc.robot.subsystems.tower.Tower;
 import frc.robot.util.TunableNumber;
 
 public class Shoot extends CommandBase {
@@ -22,11 +21,7 @@ public class Shoot extends CommandBase {
   private static final TunableNumber rumbleDurationSecs =
       new TunableNumber("Shoot/RumbleDuration");
 
-  private static final TunableNumber kickerSpeed =
-      new TunableNumber("Shoot/KickerSpeed");
-
-  private final Tower tower;
-  private final Kicker kicker;
+  private final Feeder feeder;
   private final Leds leds;
 
   private final Consumer<Double> rumbleConsumer;
@@ -34,32 +29,29 @@ public class Shoot extends CommandBase {
   private boolean rumbleActive = false;
   private final Timer rumbleTimer = new Timer();
 
-  /** Creates a new Shoot. Runs the tower and kicker to fire cargo. */
-  public Shoot(Tower tower, Kicker kicker, Leds leds) {
-    this(tower, kicker, leds, x -> {
+  /** Creates a new Shoot. Runs the feeder to fire cargo. */
+  public Shoot(Feeder feeder, Leds leds) {
+    this(feeder, leds, x -> {
     });
   }
 
-  /** Creates a new Shoot. Runs the tower and kicker to fire cargo. */
-  public Shoot(Tower tower, Kicker kicker, Leds leds,
-      Consumer<Double> rumbleConsumer) {
-    addRequirements(tower, kicker);
-    this.tower = tower;
-    this.kicker = kicker;
+  /** Creates a new Shoot. Runs the feeder to fire cargo. */
+  public Shoot(Feeder feeder, Leds leds, Consumer<Double> rumbleConsumer) {
+    this.feeder = feeder;
     this.leds = leds;
     this.rumbleConsumer = rumbleConsumer;
 
     rumblePercent.setDefault(0.5);
     rumbleDurationSecs.setDefault(0.2);
-    kickerSpeed.setDefault(0.3);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    feeder.requestShoot(true);
     leds.setShooting(true);
 
-    rumbleLastTripped = tower.getUpperCargoSensor();
+    rumbleLastTripped = feeder.getUpperProxSensor();
     rumbleActive = false;
     rumbleTimer.reset();
     rumbleTimer.start();
@@ -70,10 +62,7 @@ public class Shoot extends CommandBase {
   public void execute() {
     Logger.getInstance().recordOutput("ActiveCommands/Shoot", true);
 
-    tower.runShootSpeed();
-    kicker.runPercent(kickerSpeed.get());
-
-    boolean rumbleTripped = tower.getUpperCargoSensor();
+    boolean rumbleTripped = feeder.getUpperProxSensor();
     if (rumbleLastTripped && !rumbleTripped && enableRumble) {
       rumbleActive = true;
       rumbleTimer.reset();
@@ -89,11 +78,10 @@ public class Shoot extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    rumbleConsumer.accept(0.0);
+    feeder.requestShoot(false);
     leds.setShooting(false);
+    rumbleConsumer.accept(0.0);
     rumbleTimer.stop();
-    tower.stop();
-    kicker.stop();
   }
 
   // Returns true when the command should end.

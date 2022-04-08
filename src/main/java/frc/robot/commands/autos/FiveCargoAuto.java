@@ -28,9 +28,8 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.leds.Leds;
-import frc.robot.subsystems.tower.Tower;
+import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.GeomUtil;
 
@@ -63,8 +62,7 @@ public class FiveCargoAuto extends SequentialCommandGroup {
    * terminal.
    */
   public FiveCargoAuto(RobotState robotState, Drive drive, Vision vision,
-      Flywheels flywheels, Hood hood, Tower tower, Kicker kicker, Intake intake,
-      Leds leds) {
+      Flywheels flywheels, Hood hood, Feeder feeder, Intake intake, Leds leds) {
 
     // Set up motion profiles
     MotionProfileCommand startToFirstCargo =
@@ -124,27 +122,26 @@ public class FiveCargoAuto extends SequentialCommandGroup {
         + secondCargoToSecondShot.getDuration() + secondShotLateSecs;
     double thirdShotStart = endTime - thirdShotDurationSecs;
     Command shootSequence = sequence(
-        new RunIntake(true, intake, tower, kicker, leds)
-            .withTimeout(firstShotStart),
-        new Shoot(tower, kicker, leds).withTimeout(firstShotDurationSecs),
-        new RunIntake(true, intake, tower, kicker, leds).withTimeout(
+        new RunIntake(true, intake, feeder, leds).withTimeout(firstShotStart),
+        new Shoot(feeder, leds).withTimeout(firstShotDurationSecs),
+        new RunIntake(true, intake, feeder, leds).withTimeout(
             secondShotStart - firstShotStart - firstShotDurationSecs),
-        new Shoot(tower, kicker, leds).withTimeout(secondShotDurationSecs),
-        new RunIntake(true, intake, tower, kicker, leds).withTimeout(
+        new Shoot(feeder, leds).withTimeout(secondShotDurationSecs),
+        new RunIntake(true, intake, feeder, leds).withTimeout(
             thirdShotStart - secondShotStart - secondShotDurationSecs),
-        new Shoot(tower, kicker, leds).withTimeout(thirdShotDurationSecs));
+        new Shoot(feeder, leds).withTimeout(thirdShotDurationSecs));
 
     // Prepare shooter sequence, runs in parallel
     Command prepareShooterSequence = sequence(
-        new PrepareShooterAuto(flywheels, hood, tower,
+        new PrepareShooterAuto(flywheels, hood, feeder,
             TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_D)
                 .getTranslation())
                     .withTimeout(firstShotStart + firstShotDurationSecs),
-        new PrepareShooterAuto(flywheels, hood, tower,
+        new PrepareShooterAuto(flywheels, hood, feeder,
             ThreeCargoAuto.tarmacCShootPosition.getTranslation())
                 .withTimeout(secondShotStart + secondShotDurationSecs
                     - firstShotStart - firstShotDurationSecs),
-        new PrepareShooterAuto(flywheels, hood, tower,
+        new PrepareShooterAuto(flywheels, hood, feeder,
             thirdShotPosition.getTranslation()));
 
     // LED sequence, runs in parallel

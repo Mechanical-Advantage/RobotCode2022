@@ -12,11 +12,10 @@ import frc.robot.commands.PrepareShooterAuto;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.WaitForVision;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
-import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.leds.Leds;
-import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.vision.Vision;
 
 public class OneCargoAuto extends SequentialCommandGroup {
@@ -24,16 +23,15 @@ public class OneCargoAuto extends SequentialCommandGroup {
 
   /** Creates a new OneCargoAuto. Aims towards the target, shoots, and taxis. */
   public OneCargoAuto(boolean longTaxi, RobotState robotState, Drive drive,
-      Vision vision, Flywheels flywheels, Hood hood, Tower tower, Kicker kicker,
-      Leds leds) {
+      Vision vision, Flywheels flywheels, Hood hood, Feeder feeder, Leds leds) {
     addCommands(
         deadline(
             sequence(new WaitForVision(robotState),
                 new AutoAim(drive, robotState, vision),
                 new WaitUntilCommand(
                     () -> flywheels.atSetpoint() && hood.atGoal()),
-                new Shoot(tower, kicker, leds).withTimeout(shootDurationSecs)),
-            new PrepareShooterAuto(flywheels, hood, tower, robotState)),
+                new Shoot(feeder, leds).withTimeout(shootDurationSecs)),
+            new PrepareShooterAuto(flywheels, hood, feeder, robotState)),
         new Taxi(drive, longTaxi));
   }
 }

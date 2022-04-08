@@ -25,12 +25,11 @@ import frc.robot.commands.Shoot;
 import frc.robot.commands.TurnToAngleProfile;
 import frc.robot.commands.PrepareShooterPreset.ShooterPreset;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.leds.Leds;
-import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.vision.Vision;
 
 public class PartnerAuto extends SequentialCommandGroup {
@@ -49,14 +48,13 @@ public class PartnerAuto extends SequentialCommandGroup {
    * into the hangar.
    */
   public PartnerAuto(RobotState robotState, Drive drive, Vision vision,
-      Flywheels flywheels, Hood hood, Tower tower, Kicker kicker, Intake intake,
-      Leds leds) {
+      Flywheels flywheels, Hood hood, Feeder feeder, Intake intake, Leds leds) {
     addCommands(
         deadline(
             sequence(
                 new WaitUntilCommand(() -> flywheels.atGoal() && hood.atGoal()),
-                new Shoot(tower, kicker, leds).withTimeout(0.5)),
-            new PrepareShooterPreset(flywheels, hood, tower,
+                new Shoot(feeder, leds).withTimeout(0.5)),
+            new PrepareShooterPreset(flywheels, hood, feeder,
                 ShooterPreset.UPPER_FENDER)),
         deadline(
             sequence(new InstantCommand(intake::extend, intake),
@@ -67,10 +65,10 @@ public class PartnerAuto extends SequentialCommandGroup {
                                 .get(AutoPosition.TARMAC_A)),
                         0.0, false),
                     new WaitCommand(2.0)).deadlineWith(
-                        new RunIntake(true, intake, tower, kicker, leds)),
-                new Shoot(tower, kicker, leds)
+                        new RunIntake(true, intake, feeder, leds)),
+                new Shoot(feeder, leds)
                     .withTimeout(OneCargoAuto.shootDurationSecs)),
-            new PrepareShooterAuto(flywheels, hood, tower,
+            new PrepareShooterAuto(flywheels, hood, feeder,
                 TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_A)
                     .getTranslation())),
         deadline(
@@ -86,10 +84,10 @@ public class PartnerAuto extends SequentialCommandGroup {
                     new MotionProfileCommand(drive, robotState, 0.0,
                         List.of(opponentCargoPosition, ejectPosition), 0.0,
                         true)).deadlineWith(
-                            new RunIntake(true, intake, tower, kicker, leds)),
-                new Shoot(tower, kicker, leds)
+                            new RunIntake(true, intake, feeder, leds)),
+                new Shoot(feeder, leds)
                     .withTimeout(OneCargoAuto.shootDurationSecs)),
-            new PrepareShooterPreset(flywheels, hood, tower,
+            new PrepareShooterPreset(flywheels, hood, feeder,
                 ShooterPreset.HANGAR_EJECT)));
   }
 }

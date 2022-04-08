@@ -14,9 +14,9 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.FieldConstants;
 import frc.robot.RobotState;
+import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
-import frc.robot.subsystems.tower.Tower;
 import frc.robot.util.LinearInterpolation;
 
 public class PrepareShooterAuto extends CommandBase {
@@ -42,7 +42,7 @@ public class PrepareShooterAuto extends CommandBase {
 
   private final Flywheels flywheels;
   private final Hood hood;
-  private final Tower tower;
+  private final Feeder feeder;
   private final RobotState robotState;
   private final Translation2d staticPosition;
 
@@ -66,12 +66,12 @@ public class PrepareShooterAuto extends CommandBase {
    * Creates a new PrepareShooterAuto. Runs the flywheel and sets the hood position for the upper
    * shot based on a known shooting position.
    */
-  public PrepareShooterAuto(Flywheels flywheels, Hood hood, Tower tower,
+  public PrepareShooterAuto(Flywheels flywheels, Hood hood, Feeder feeder,
       Translation2d position) {
     addRequirements(flywheels, hood);
     this.flywheels = flywheels;
     this.hood = hood;
-    this.tower = tower;
+    this.feeder = feeder;
     this.robotState = null;
     this.staticPosition = position;
   }
@@ -80,12 +80,12 @@ public class PrepareShooterAuto extends CommandBase {
    * Creates a new PrepareShooterAuto. Runs the flywheel and sets the hood position for the upper
    * shot based on odometry.
    */
-  public PrepareShooterAuto(Flywheels flywheels, Hood hood, Tower tower,
+  public PrepareShooterAuto(Flywheels flywheels, Hood hood, Feeder feeder,
       RobotState robotState) {
     addRequirements(flywheels, hood);
     this.flywheels = flywheels;
     this.hood = hood;
-    this.tower = tower;
+    this.feeder = feeder;
     this.robotState = robotState;
     this.staticPosition = null;
   }
@@ -112,7 +112,7 @@ public class PrepareShooterAuto extends CommandBase {
     double distance = position.getDistance(FieldConstants.hubCenter);
     flywheels.runVelocity(flywheelSpeedInterpolation.predict(distance));
     hood.moveToAngle(hoodAngleInterpolation.predict(distance));
-    tower.requestShootPercent(towerSpeedInterpolation.predict(distance));
+    feeder.requestTowerShootPercent(towerSpeedInterpolation.predict(distance));
   }
 
   // Called once the command ends or is interrupted.

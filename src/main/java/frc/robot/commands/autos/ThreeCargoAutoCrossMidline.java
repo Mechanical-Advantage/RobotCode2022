@@ -15,19 +15,17 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.FieldConstants;
 import frc.robot.RobotState;
 import frc.robot.RobotContainer.AutoPosition;
-import frc.robot.commands.HopperEject;
 import frc.robot.commands.MotionProfileCommand;
 import frc.robot.commands.PrepareShooterAuto;
 import frc.robot.commands.RunIntake;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.TurnToAngleProfile;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.leds.Leds;
-import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.GeomUtil;
 
@@ -50,33 +48,31 @@ public class ThreeCargoAutoCrossMidline extends SequentialCommandGroup {
    * uses an opponent cargo to collect one of our cargo from the opposite side of the side.
    */
   public ThreeCargoAutoCrossMidline(RobotState robotState, Drive drive,
-      Vision vision, Flywheels flywheels, Hood hood, Tower tower, Kicker kicker,
+      Vision vision, Flywheels flywheels, Hood hood, Feeder feeder,
       Intake intake, Leds leds) {
     addCommands(
         new TwoCargoAuto(false, AutoPosition.TARMAC_A, robotState, drive,
-            vision, flywheels, hood, tower, kicker, intake, leds),
-        deadline(
-            sequence(
-                new TurnToAngleProfile(drive, robotState,
-                    TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_A)
-                        .getRotation(),
-                    firstTurnPosition.getRotation()),
-                new MotionProfileCommand(drive, robotState, 0.0,
-                    List.of(firstTurnPosition, ejectPosition), 0.0, false)
-                        .deadlineWith(
-                            new RunIntake(true, intake, tower, kicker, leds)),
-                new HopperEject(intake, tower, kicker)
-                    .withTimeout(ejectDuration),
-                new InstantCommand(intake::extend, intake),
-                new MotionProfileCommand(drive, robotState, 0.0,
-                    List.of(ejectPosition, cargoPosition), 0.0, false)
-                        .deadlineWith(
-                            new RunIntake(true, intake, tower, kicker, leds)),
-                new MotionProfileCommand(drive, robotState, 0.0,
-                    List.of(cargoPosition, shootPosition), 0.0, true),
-                new Shoot(tower, kicker, leds)
-                    .withTimeout(OneCargoAuto.shootDurationSecs)),
-            new PrepareShooterAuto(flywheels, hood, tower,
+            vision, flywheels, hood, feeder, intake, leds),
+        deadline(sequence(
+            new TurnToAngleProfile(drive, robotState,
+                TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_A)
+                    .getRotation(),
+                firstTurnPosition.getRotation()),
+            new MotionProfileCommand(drive, robotState, 0.0,
+                List.of(firstTurnPosition, ejectPosition), 0.0, false)
+                    .deadlineWith(new RunIntake(true, intake, feeder, leds)),
+            new InstantCommand(intake::retract, intake),
+            new RunIntake(false, intake, feeder, leds)
+                .withTimeout(ejectDuration),
+            new InstantCommand(intake::extend, intake),
+            new MotionProfileCommand(drive, robotState, 0.0,
+                List.of(ejectPosition, cargoPosition), 0.0, false)
+                    .deadlineWith(new RunIntake(true, intake, feeder, leds)),
+            new MotionProfileCommand(drive, robotState, 0.0,
+                List.of(cargoPosition, shootPosition), 0.0, true),
+            new Shoot(feeder, leds)
+                .withTimeout(OneCargoAuto.shootDurationSecs)),
+            new PrepareShooterAuto(flywheels, hood, feeder,
                 shootPosition.getTranslation())));
   }
 }

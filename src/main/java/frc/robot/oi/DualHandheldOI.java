@@ -112,16 +112,6 @@ public class DualHandheldOI implements HandheldOI {
   }
 
   @Override
-  public Trigger getTowerUpButton() {
-    return new Trigger(() -> operatorController.getPOV() == 0);
-  }
-
-  @Override
-  public Trigger getTowerDownButton() {
-    return new Trigger(() -> operatorController.getPOV() == 180);
-  }
-
-  @Override
   public Trigger getShooterIncrement() {
     return new Trigger(() -> operatorController.getPOV() == 90);
   }

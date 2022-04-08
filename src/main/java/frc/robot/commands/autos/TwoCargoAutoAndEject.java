@@ -21,12 +21,11 @@ import frc.robot.commands.Shoot;
 import frc.robot.commands.TurnToAngleProfile;
 import frc.robot.commands.PrepareShooterPreset.ShooterPreset;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.leds.Leds;
-import frc.robot.subsystems.tower.Tower;
 import frc.robot.subsystems.vision.Vision;
 
 public class TwoCargoAutoAndEject extends SequentialCommandGroup {
@@ -51,11 +50,10 @@ public class TwoCargoAutoAndEject extends SequentialCommandGroup {
    * the opponent cargo from tarmacs A & B to shoot into the hangar.
    */
   public TwoCargoAutoAndEject(RobotState robotState, Drive drive, Vision vision,
-      Flywheels flywheels, Hood hood, Tower tower, Kicker kicker, Intake intake,
-      Leds leds) {
+      Flywheels flywheels, Hood hood, Feeder feeder, Intake intake, Leds leds) {
     addCommands(
         new TwoCargoAuto(false, AutoPosition.TARMAC_A, robotState, drive,
-            vision, flywheels, hood, tower, kicker, intake, leds),
+            vision, flywheels, hood, feeder, intake, leds),
         deadline(
             sequence(
                 sequence(
@@ -74,11 +72,11 @@ public class TwoCargoAutoAndEject extends SequentialCommandGroup {
                         0.0, false),
                     new MotionProfileCommand(drive, robotState, 0.0,
                         List.of(secondCargoPosition, shootPosition), 0.0, true))
-                            .deadlineWith(new RunIntake(true, intake, tower,
-                                kicker, leds)),
-                new Shoot(tower, kicker, leds)
+                            .deadlineWith(
+                                new RunIntake(true, intake, feeder, leds)),
+                new Shoot(feeder, leds)
                     .withTimeout(OneCargoAuto.shootDurationSecs)),
-            new PrepareShooterPreset(flywheels, hood, tower,
+            new PrepareShooterPreset(flywheels, hood, feeder,
                 ShooterPreset.HANGAR_EJECT)));
   }
 }

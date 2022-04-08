@@ -10,10 +10,9 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.leds.Leds;
-import frc.robot.subsystems.tower.Tower;
 import frc.robot.util.TunableNumber;
 
 public class RunIntake extends CommandBase {
@@ -23,33 +22,18 @@ public class RunIntake extends CommandBase {
       new TunableNumber("RunIntake/RumblePercent");
   private static final TunableNumber rumbleDurationSecs =
       new TunableNumber("RunIntake/RumbleDuration");
-  private static final TunableNumber sensorStopDelay =
-      new TunableNumber("RunIntake/SensorStopDelay");
 
-  private static final TunableNumber rollerForwardsSpeed =
-      new TunableNumber("RunIntake/RollerForwardsSpeed");
-  private static final TunableNumber hopperForwardsSpeed =
-      new TunableNumber("RunIntake/HopperForwardsSpeed");
-  private static final TunableNumber towerForwardsSpeed =
-      new TunableNumber("RunIntake/TowerForwardsSpeed");
-  private static final TunableNumber kickerForwardsSpeed =
-      new TunableNumber("RunIntake/KickerForwardsSpeed");
-
-  private static final TunableNumber rollerBackwardsSpeed =
-      new TunableNumber("RunIntake/RollerBackwardsSpeed");
-  private static final TunableNumber hopperBackwardsSpeed =
-      new TunableNumber("RunIntake/HopperBackwardsSpeed");
+  private static final TunableNumber forwardsSpeed =
+      new TunableNumber("RunIntake/ForwardsSpeed");
+  private static final TunableNumber backwardsSpeed =
+      new TunableNumber("RunIntake/BackwardsSpeed");
 
   private final boolean forwards;
   private final Intake intake;
-  private final Tower tower;
-  private final Kicker kicker;
+  private final Feeder feeder;
   private final Leds leds;
 
   private final Consumer<Double> rumbleConsumer;
-
-  private final Timer sensorStopTimer = new Timer();
-  private boolean stopTower = false;
 
   private boolean rumbleLastOneTripped = false;
   private boolean rumbleLastTwoTripped = false;
@@ -61,52 +45,41 @@ public class RunIntake extends CommandBase {
   /**
    * Creates a new RunIntake. Runs the intake forwards or backwards, intended for operator controls.
    */
-  public RunIntake(boolean forwards, Intake intake, Tower tower, Kicker kicker,
-      Leds leds) {
-    this(forwards, intake, tower, kicker, leds, x -> {
+  public RunIntake(boolean forwards, Intake intake, Feeder feeder, Leds leds) {
+    this(forwards, intake, feeder, leds, x -> {
     });
   }
 
   /**
    * Creates a new RunIntake. Runs the intake forwards or backwards, intended for operator controls.
    */
-  public RunIntake(boolean forwards, Intake intake, Tower tower, Kicker kicker,
-      Leds leds, Consumer<Double> rumbleConsumer) {
+  public RunIntake(boolean forwards, Intake intake, Feeder feeder, Leds leds,
+      Consumer<Double> rumbleConsumer) {
     addRequirements(intake);
-    if (forwards) {
-      addRequirements(tower, kicker);
-    }
     this.forwards = forwards;
     this.intake = intake;
-    this.tower = tower;
-    this.kicker = kicker;
+    this.feeder = feeder;
     this.leds = leds;
     this.rumbleConsumer = rumbleConsumer;
 
     rumblePercent.setDefault(0.5);
     rumbleDurationSecs.setDefault(0.2);
-    sensorStopDelay.setDefault(0.1);
 
-    rollerForwardsSpeed.setDefault(0.75);
-    hopperForwardsSpeed.setDefault(1.0);
-    towerForwardsSpeed.setDefault(0.5);
-    kickerForwardsSpeed.setDefault(-0.3);
-
-    rollerBackwardsSpeed.setDefault(-1.0);
-    hopperBackwardsSpeed.setDefault(-1.0);
+    forwardsSpeed.setDefault(1.0);
+    backwardsSpeed.setDefault(-1.0);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    feeder.requestIntakeForwards(forwards);
+    feeder.requestIntakeBackwards(!forwards);
+    intake.runPercent(forwards ? forwardsSpeed.get() : backwardsSpeed.get());
     leds.setIntaking(true);
-    stopTower = tower.getLowerCargoSensor() && tower.getUpperCargoSensor();
-    sensorStopTimer.reset();
-    sensorStopTimer.start();
 
-    rumbleLastOneTripped = tower.getUpperCargoSensor();
+    rumbleLastOneTripped = feeder.getUpperProxSensor();
     rumbleLastTwoTripped =
-        tower.getLowerCargoSensor() && tower.getUpperCargoSensor();
+        feeder.getLowerProxSensor() && feeder.getUpperProxSensor();
     rumbleOneActive = false;
     rumbleTwoActive = false;
     rumbleOneTimer.reset();
@@ -121,26 +94,9 @@ public class RunIntake extends CommandBase {
     Logger.getInstance().recordOutput("ActiveCommands/RunIntake", true);
 
     if (forwards) {
-      intake.runPercent(rollerForwardsSpeed.get());
-      intake.runHopperPercent(hopperForwardsSpeed.get());
-
-      boolean sensorsTripped =
-          tower.getLowerCargoSensor() && tower.getUpperCargoSensor();
-      if (!sensorsTripped) {
-        sensorStopTimer.reset();
-      }
-      if (sensorStopDelay.get() == 0.0) {
-        stopTower = sensorsTripped;
-      } else if (sensorStopTimer.hasElapsed(sensorStopDelay.get())) {
-        stopTower = true;
-      }
-      tower.runPercent(stopTower ? 0.0 : towerForwardsSpeed.get());
-      kicker.runPercent(stopTower ? 0.0 : kickerForwardsSpeed.get());
-
-      // Manage rumble
-      boolean rumbleOneTripped = tower.getUpperCargoSensor();
+      boolean rumbleOneTripped = feeder.getUpperProxSensor();
       boolean rumbleTwoTripped =
-          tower.getUpperCargoSensor() && tower.getLowerCargoSensor();
+          feeder.getUpperProxSensor() && feeder.getLowerProxSensor();
       if (rumbleOneTripped && !rumbleLastOneTripped && enableRumbleFirstCargo) {
         rumbleOneActive = true;
         rumbleOneTimer.reset();
@@ -160,24 +116,19 @@ public class RunIntake extends CommandBase {
       }
       rumbleLastOneTripped = rumbleOneTripped;
       rumbleLastTwoTripped = rumbleTwoTripped;
-
-    } else {
-      intake.runPercent(rollerBackwardsSpeed.get());
-      intake.runHopperPercent(hopperBackwardsSpeed.get());
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    rumbleConsumer.accept(0.0);
+    feeder.requestIntakeForwards(false);
+    feeder.requestIntakeBackwards(false);
+    intake.stop();
     leds.setIntaking(false);
-    sensorStopTimer.stop();
+    rumbleConsumer.accept(0.0);
     rumbleOneTimer.stop();
     rumbleTwoTimer.stop();
-    intake.stop();
-    tower.stop();
-    kicker.stop();
   }
 
   // Returns true when the command should end.

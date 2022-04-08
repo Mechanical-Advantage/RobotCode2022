@@ -83,14 +83,6 @@ public interface HandheldOI {
     return new Trigger();
   }
 
-  public default Trigger getTowerUpButton() {
-    return new Trigger();
-  }
-
-  public default Trigger getTowerDownButton() {
-    return new Trigger();
-  }
-
   public default Trigger getClimbTop() {
     return new Trigger();
   }

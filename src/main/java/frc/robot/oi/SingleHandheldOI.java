@@ -98,16 +98,6 @@ public class SingleHandheldOI implements HandheldOI {
   }
 
   @Override
-  public Trigger getTowerUpButton() {
-    return new Trigger(() -> controller.getPOV() == 0);
-  }
-
-  @Override
-  public Trigger getTowerDownButton() {
-    return new Trigger(() -> controller.getPOV() == 180);
-  }
-
-  @Override
   public Trigger getShooterIncrement() {
     return new Trigger(() -> controller.getPOV() == 90);
   }

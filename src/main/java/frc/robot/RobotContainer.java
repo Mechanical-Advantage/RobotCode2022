@@ -27,7 +27,6 @@ import frc.robot.commands.FeedForwardCharacterizationStepped;
 import frc.robot.commands.PrepareShooterAuto;
 import frc.robot.commands.PrepareShooterPreset;
 import frc.robot.commands.RunIntake;
-import frc.robot.commands.RunTower;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.TrackWidthCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
@@ -60,6 +59,9 @@ import frc.robot.subsystems.drive.DriveIORomi;
 import frc.robot.subsystems.drive.DriveIOSim;
 import frc.robot.subsystems.drive.DriveIOSparkMAX;
 import frc.robot.subsystems.drive.DriveIOTalonSRX;
+import frc.robot.subsystems.feeder.Feeder;
+import frc.robot.subsystems.feeder.FeederIO;
+import frc.robot.subsystems.feeder.FeederIOSparkMAX;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.flywheels.FlywheelsIO;
 import frc.robot.subsystems.flywheels.FlywheelsIOSim;
@@ -71,9 +73,6 @@ import frc.robot.subsystems.hood.HoodIOSparkMAX;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOSparkMAX;
-import frc.robot.subsystems.kicker.Kicker;
-import frc.robot.subsystems.kicker.KickerIO;
-import frc.robot.subsystems.kicker.KickerIOSparkMAX;
 import frc.robot.subsystems.leds.Leds;
 import frc.robot.subsystems.leds.LedsIO;
 import frc.robot.subsystems.leds.LedsIORio;
@@ -81,9 +80,6 @@ import frc.robot.subsystems.pneumatics.Pneumatics;
 import frc.robot.subsystems.pneumatics.PneumaticsIO;
 import frc.robot.subsystems.pneumatics.PneumaticsIOCTRE;
 import frc.robot.subsystems.pneumatics.PneumaticsIOREV;
-import frc.robot.subsystems.tower.Tower;
-import frc.robot.subsystems.tower.TowerIO;
-import frc.robot.subsystems.tower.TowerIOSparkMAX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
@@ -92,6 +88,7 @@ import frc.robot.util.DisabledInstantCommand;
 import frc.robot.util.GeomUtil;
 import frc.robot.util.LoggedChoosers;
 import frc.robot.util.SparkMAXBurnManager;
+import frc.robot.util.StickyTrigger;
 import frc.robot.util.Alert.AlertType;
 
 /**
@@ -109,8 +106,7 @@ public class RobotContainer {
   private Vision vision;
   private Flywheels flywheels;
   private Hood hood;
-  private Kicker kicker;
-  private Tower tower;
+  private Feeder feeder;
   private Intake intake;
   private Climber climber;
   private Pneumatics pneumatics;
@@ -140,8 +136,7 @@ public class RobotContainer {
           vision = new Vision(new VisionIOLimelight());
           flywheels = new Flywheels(new FlywheelsIOSparkMAX());
           hood = new Hood(new HoodIOSparkMAX());
-          kicker = new Kicker(new KickerIOSparkMAX());
-          tower = new Tower(new TowerIOSparkMAX());
+          feeder = new Feeder(new FeederIOSparkMAX());
           intake = new Intake(new IntakeIOSparkMAX());
           climber = new Climber(new ClimberIOSparkMAX());
           pneumatics = new Pneumatics(new PneumaticsIOREV());
@@ -175,8 +170,7 @@ public class RobotContainer {
     flywheels =
         flywheels != null ? flywheels : new Flywheels(new FlywheelsIO() {});
     hood = hood != null ? hood : new Hood(new HoodIO() {});
-    kicker = kicker != null ? kicker : new Kicker(new KickerIO() {});
-    tower = tower != null ? tower : new Tower(new TowerIO() {});
+    feeder = feeder != null ? feeder : new Feeder(new FeederIO() {});
     intake = intake != null ? intake : new Intake(new IntakeIO() {});
     climber = climber != null ? climber : new Climber(new ClimberIO() {});
     pneumatics =
@@ -200,8 +194,8 @@ public class RobotContainer {
     flywheels.setLeds(leds);
     hood.setDefaultCommand(new RunCommand(hood::moveToIdle, hood));
     hood.setRobotState(robotState);
-    tower.setLeds(leds);
-    tower.setOverride(() -> overrideOI.getCargoSensorDisable());
+    feeder.setSubsystems(leds, intake, flywheels, hood);
+    feeder.setOverride(() -> overrideOI.getCargoSensorDisable());
     pneumatics.setSupplier(() -> overrideOI.getClimbMode());
 
     // Set up auto routines
@@ -209,69 +203,62 @@ public class RobotContainer {
         new AutoRoutine(AutoPosition.ORIGIN, true, new InstantCommand()));
 
     autoRoutineMap.put("Five cargo (TD)",
-        new AutoRoutine(AutoPosition.TARMAC_D, false,
-            new FiveCargoAuto(robotState, drive, vision, flywheels, hood, tower,
-                kicker, intake, leds)));
+        new AutoRoutine(AutoPosition.TARMAC_D, false, new FiveCargoAuto(
+            robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
     autoRoutineMap.put("Four cargo, standard (TD)",
-        new AutoRoutine(AutoPosition.TARMAC_D, false,
-            new FourCargoAuto(robotState, drive, vision, flywheels, hood, tower,
-                kicker, intake, leds)));
+        new AutoRoutine(AutoPosition.TARMAC_D, false, new FourCargoAuto(
+            robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
     autoRoutineMap.put("Four cargo, cross field (TA)",
-        new AutoRoutine(AutoPosition.TARMAC_A, false,
-            new FourCargoAutoCross(robotState, drive, vision, flywheels, hood,
-                tower, kicker, intake, leds)));
+        new AutoRoutine(AutoPosition.TARMAC_A, false, new FourCargoAutoCross(
+            robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
     autoRoutineMap.put("Four cargo, avoid tarmac D (TC)",
-        new AutoRoutine(AutoPosition.TARMAC_C, false,
-            new FourCargoAutoAvoidD(robotState, drive, vision, flywheels, hood,
-                tower, kicker, intake, leds)));
+        new AutoRoutine(AutoPosition.TARMAC_C, false, new FourCargoAutoAvoidD(
+            robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
     autoRoutineMap.put("Three cargo, standard (TD)",
-        new AutoRoutine(AutoPosition.TARMAC_D, false,
-            new ThreeCargoAuto(robotState, drive, vision, flywheels, hood,
-                tower, kicker, intake, leds)));
+        new AutoRoutine(AutoPosition.TARMAC_D, false, new ThreeCargoAuto(
+            robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
     autoRoutineMap.put("Three cargo, cross midline (TA)",
         new AutoRoutine(AutoPosition.TARMAC_A, false,
             new ThreeCargoAutoCrossMidline(robotState, drive, vision, flywheels,
-                hood, tower, kicker, intake, leds)));
+                hood, feeder, intake, leds)));
     autoRoutineMap.put("Three cargo, collect partner (FA)",
-        new AutoRoutine(AutoPosition.FENDER_A, false,
-            new PartnerAuto(robotState, drive, vision, flywheels, hood, tower,
-                kicker, intake, leds)));
+        new AutoRoutine(AutoPosition.FENDER_A, false, new PartnerAuto(
+            robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
 
     autoRoutineMap.put("Two cargo, eject opponent (TA)",
-        new AutoRoutine(AutoPosition.TARMAC_A, false,
-            new TwoCargoAutoAndEject(robotState, drive, vision, flywheels, hood,
-                tower, kicker, intake, leds)));
+        new AutoRoutine(AutoPosition.TARMAC_A, false, new TwoCargoAutoAndEject(
+            robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
     autoRoutineMap.put("Two cargo (TA)",
         new AutoRoutine(AutoPosition.TARMAC_A, false,
             new TwoCargoAuto(true, AutoPosition.TARMAC_A, robotState, drive,
-                vision, flywheels, hood, tower, kicker, intake, leds)));
+                vision, flywheels, hood, feeder, intake, leds)));
     autoRoutineMap.put("Two cargo (TC)",
         new AutoRoutine(AutoPosition.TARMAC_C, false,
             new TwoCargoAuto(true, AutoPosition.TARMAC_C, robotState, drive,
-                vision, flywheels, hood, tower, kicker, intake, leds)));
+                vision, flywheels, hood, feeder, intake, leds)));
     autoRoutineMap.put("Two cargo (TD)",
         new AutoRoutine(AutoPosition.TARMAC_D, false,
             new TwoCargoAuto(true, AutoPosition.TARMAC_D, robotState, drive,
-                vision, flywheels, hood, tower, kicker, intake, leds)));
+                vision, flywheels, hood, feeder, intake, leds)));
 
     autoRoutineMap.put("One cargo (TA)",
         new AutoRoutine(AutoPosition.TARMAC_A, true, new OneCargoAuto(false,
-            robotState, drive, vision, flywheels, hood, tower, kicker, leds)));
+            robotState, drive, vision, flywheels, hood, feeder, leds)));
     autoRoutineMap.put("One cargo (TB)",
         new AutoRoutine(AutoPosition.TARMAC_B, true, new OneCargoAuto(false,
-            robotState, drive, vision, flywheels, hood, tower, kicker, leds)));
+            robotState, drive, vision, flywheels, hood, feeder, leds)));
     autoRoutineMap.put("One cargo (TC)",
         new AutoRoutine(AutoPosition.TARMAC_C, true, new OneCargoAuto(false,
-            robotState, drive, vision, flywheels, hood, tower, kicker, leds)));
+            robotState, drive, vision, flywheels, hood, feeder, leds)));
     autoRoutineMap.put("One cargo (TD)",
         new AutoRoutine(AutoPosition.TARMAC_D, true, new OneCargoAuto(false,
-            robotState, drive, vision, flywheels, hood, tower, kicker, leds)));
+            robotState, drive, vision, flywheels, hood, feeder, leds)));
     autoRoutineMap.put("One cargo (FA)",
         new AutoRoutine(AutoPosition.FENDER_A, true, new OneCargoAuto(true,
-            robotState, drive, vision, flywheels, hood, tower, kicker, leds)));
+            robotState, drive, vision, flywheels, hood, feeder, leds)));
     autoRoutineMap.put("One cargo (FB)",
         new AutoRoutine(AutoPosition.FENDER_B, true, new OneCargoAuto(true,
-            robotState, drive, vision, flywheels, hood, tower, kicker, leds)));
+            robotState, drive, vision, flywheels, hood, feeder, leds)));
 
     autoRoutineMap.put("Taxi (TA)",
         new AutoRoutine(AutoPosition.TARMAC_A, true, new Taxi(drive, false)));
@@ -287,7 +274,7 @@ public class RobotContainer {
         new AutoRoutine(AutoPosition.FENDER_B, true, new Taxi(drive, true)));
 
     autoRoutineMap.put("HP Practice", new AutoRoutine(AutoPosition.ORIGIN,
-        false, new HPPractice(robotState, drive, intake, tower, kicker, leds)));
+        false, new HPPractice(robotState, drive, intake, feeder, leds)));
 
     autoRoutineMap.put("Track Width Characterization",
         new AutoRoutine(AutoPosition.ORIGIN, false,
@@ -369,7 +356,7 @@ public class RobotContainer {
     Trigger hoodReady = new Trigger(hood::atGoal);
     handheldOI.getShootButton().and(flywheelsReady).and(hoodReady)
         .whileActiveContinuous(
-            new Shoot(tower, kicker, leds, handheldOI::setDriverRumble), false);
+            new Shoot(feeder, leds, handheldOI::setDriverRumble));
 
     // *** OPERATOR CONTROLS ***
     Trigger climbMode = new Trigger(overrideOI::getClimbMode);
@@ -382,40 +369,41 @@ public class RobotContainer {
         .whenActive(intake::extend, intake)
         .whenInactive(intake::retract, intake);
     handheldOI.getIntakeForwardsRunButton().and(normalMode)
-        .whileActiveContinuous(new RunIntake(true, intake, tower, kicker, leds,
+        .whileActiveContinuous(new RunIntake(true, intake, feeder, leds,
             handheldOI::setOperatorRumble));
     handheldOI.getIntakeBackwardsRunButton().and(normalMode)
-        .whileActiveContinuous(new RunIntake(false, intake, tower, kicker, leds,
+        .whileActiveContinuous(new RunIntake(false, intake, feeder, leds,
             handheldOI::setOperatorRumble));
 
-    Command flywheelFenderCommand = new PrepareShooterPreset(flywheels, hood,
-        tower, ShooterPreset.UPPER_FENDER);
-    Command flywheelTarmacCommand = new PrepareShooterPreset(flywheels, hood,
-        tower, ShooterPreset.UPPER_TARMAC);
-    Command flywheelLaunchpadCommand = new PrepareShooterPreset(flywheels, hood,
-        tower, ShooterPreset.UPPER_LAUNCHPAD);
-    Command flywheelAutoCommand =
-        new PrepareShooterAuto(flywheels, hood, tower, robotState);
+
+    StickyTrigger flywheelFenderTrigger = new StickyTrigger();
+    flywheelFenderTrigger.whileActiveContinuous(new PrepareShooterPreset(
+        flywheels, hood, feeder, ShooterPreset.UPPER_FENDER));
+    StickyTrigger flywheelTarmacTrigger = new StickyTrigger();
+    flywheelTarmacTrigger.whileActiveContinuous(new PrepareShooterPreset(
+        flywheels, hood, feeder, ShooterPreset.UPPER_TARMAC));
+    StickyTrigger flywheelLaunchpadTrigger = new StickyTrigger();
+    flywheelLaunchpadTrigger.whileActiveContinuous(new PrepareShooterPreset(
+        flywheels, hood, feeder, ShooterPreset.UPPER_LAUNCHPAD));
+    StickyTrigger flywheelAutoTrigger = new StickyTrigger();
+    flywheelAutoTrigger.whileActiveContinuous(
+        new PrepareShooterAuto(flywheels, hood, feeder, robotState));
 
     Trigger usePresets = new Trigger(overrideOI::getShootPresets);
     handheldOI.getStartFlywheelFenderButton().and(normalMode)
-        .whenActive(flywheelFenderCommand);
+        .whenActive(flywheelFenderTrigger::setActive);
     handheldOI.getStartFlywheelTarmacButton().and(normalMode).and(usePresets)
-        .whenActive(flywheelTarmacCommand);
+        .whenActive(flywheelTarmacTrigger::setActive);
     handheldOI.getStartFlywheelLaunchpadButton().and(normalMode).and(usePresets)
-        .whenActive(flywheelLaunchpadCommand);
+        .whenActive(flywheelLaunchpadTrigger::setActive);
     handheldOI.getStartFlywheelAutoButton().and(normalMode)
-        .and(usePresets.negate()).whenActive(flywheelAutoCommand);
-    handheldOI.getStopFlywheelButton().and(normalMode)
-        .cancelWhenActive(flywheelFenderCommand)
-        .cancelWhenActive(flywheelTarmacCommand)
-        .cancelWhenActive(flywheelLaunchpadCommand)
-        .cancelWhenActive(flywheelAutoCommand);
-
-    handheldOI.getTowerUpButton().and(normalMode)
-        .whileActiveContinuous(new RunTower(tower, true));
-    handheldOI.getTowerDownButton().and(normalMode)
-        .whileActiveContinuous(new RunTower(tower, false));
+        .and(usePresets.negate()).whenActive(flywheelAutoTrigger::setActive);
+    handheldOI.getStopFlywheelButton()
+        .or(new Trigger(DriverStation::isDisabled)).and(normalMode)
+        .whenActive(flywheelFenderTrigger::setInactive)
+        .whenActive(flywheelTarmacTrigger::setInactive)
+        .whenActive(flywheelLaunchpadTrigger::setInactive)
+        .whenActive(flywheelAutoTrigger::setInactive);
 
     handheldOI.getShooterIncrement()
         .whenActive(new DisabledInstantCommand(flywheels::incrementOffset));
@@ -427,10 +415,10 @@ public class RobotContainer {
         () -> leds.setClimbing(true), () -> leds.setClimbing(false)));
     climbMode.whileActiveContinuous(new RunClimberWithJoystick(climber,
         handheldOI::getClimbStick, overrideOI::getClimbOpenLoop));
-    climbMode.cancelWhenActive(flywheelFenderCommand)
-        .cancelWhenActive(flywheelTarmacCommand)
-        .cancelWhenActive(flywheelLaunchpadCommand)
-        .cancelWhenActive(flywheelAutoCommand);
+    climbMode.whenActive(flywheelFenderTrigger::setInactive)
+        .whenActive(flywheelTarmacTrigger::setInactive)
+        .whenActive(flywheelLaunchpadTrigger::setInactive)
+        .whenActive(flywheelAutoTrigger::setInactive);
     climbMode.whenActive(intake::retract, intake);
     climbMode
         .whileActiveContinuous(new RunCommand(() -> hood.moveToBottom(), hood));

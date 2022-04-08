@@ -23,9 +23,8 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.leds.Leds;
-import frc.robot.subsystems.tower.Tower;
+import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.GeomUtil;
 
@@ -41,11 +40,10 @@ public class FourCargoAuto extends SequentialCommandGroup {
    * Creates a new FourCargoAuto. Collects the cargo surrounding tarmac CD and the terminal.
    */
   public FourCargoAuto(RobotState robotState, Drive drive, Vision vision,
-      Flywheels flywheels, Hood hood, Tower tower, Kicker kicker, Intake intake,
-      Leds leds) {
+      Flywheels flywheels, Hood hood, Feeder feeder, Intake intake, Leds leds) {
     addCommands(
         new TwoCargoAuto(false, AutoPosition.TARMAC_D, robotState, drive,
-            vision, flywheels, hood, tower, kicker, intake, leds),
+            vision, flywheels, hood, feeder, intake, leds),
         deadline(
             sequence(
                 sequence(new TurnToAngleProfile(drive, robotState,
@@ -65,10 +63,10 @@ public class FourCargoAuto extends SequentialCommandGroup {
                             TwoCargoAuto.cargoPositions
                                 .get(AutoPosition.TARMAC_C)),
                         0.0, true)).deadlineWith(
-                            new RunIntake(true, intake, tower, kicker, leds)),
-                new Shoot(tower, kicker, leds)
+                            new RunIntake(true, intake, feeder, leds)),
+                new Shoot(feeder, leds)
                     .withTimeout(OneCargoAuto.shootDurationSecs)),
-            new PrepareShooterAuto(flywheels, hood, tower,
+            new PrepareShooterAuto(flywheels, hood, feeder,
                 TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_C)
                     .getTranslation())));
   }

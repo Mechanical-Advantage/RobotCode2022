@@ -109,7 +109,7 @@ public class FeederIOSparkMAX implements FeederIO {
     inputs.colorSensorRed = color.red;
     inputs.colorSensorGreen = color.green;
     inputs.colorSensorBlue = color.blue;
-    inputs.colorSensorBlue = colorSensor.getProximity();
+    inputs.colorSensorProx = colorSensor.getProximity();
 
     inputs.hopperPositionRad =
         Units.rotationsToRadians(hopperEncoder.getPosition())

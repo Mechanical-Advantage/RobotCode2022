@@ -9,7 +9,7 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
-import frc.robot.subsystems.tower.Tower;
+import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.util.TunableNumber;
 
 public class PrepareShooterPreset extends CommandBase {
@@ -48,21 +48,28 @@ public class PrepareShooterPreset extends CommandBase {
   public static final TunableNumber hangarEjectTower =
       new TunableNumber("PrepareShooterPreset/HangarEject/TowerPercent");
 
+  public static final TunableNumber opponentEjectRpm =
+      new TunableNumber("PrepareShooterPreset/OpponentEject/RPM");
+  public static final TunableNumber opponentEjectAngle =
+      new TunableNumber("PrepareShooterPreset/OpponentEject/Angle");
+  public static final TunableNumber opponentEjectTower =
+      new TunableNumber("PrepareShooterPreset/OpponentEject/TowerPercent");
+
   private final Flywheels flywheels;
   private final Hood hood;
-  private final Tower tower;
+  private final Feeder feeder;
   private final ShooterPreset preset;
 
   /**
    * Creates a new PrepareShooterPreset. Runs the flywheel and sets the hood position for the given
    * preset.
    */
-  public PrepareShooterPreset(Flywheels flywheels, Hood hood, Tower tower,
+  public PrepareShooterPreset(Flywheels flywheels, Hood hood, Feeder feeder,
       ShooterPreset preset) {
     addRequirements(flywheels, hood);
     this.flywheels = flywheels;
     this.hood = hood;
-    this.tower = tower;
+    this.feeder = feeder;
     this.preset = preset;
 
     lowerFenderRpm.setDefault(500.0);
@@ -84,6 +91,10 @@ public class PrepareShooterPreset extends CommandBase {
     hangarEjectRpm.setDefault(200.0);
     hangarEjectAngle.setDefault(31.0); // Max angle
     hangarEjectTower.setDefault(0.6);
+
+    opponentEjectRpm.setDefault(800.0);
+    opponentEjectAngle.setDefault(3.0); // Min angle
+    opponentEjectTower.setDefault(0.0); // NA
   }
 
   // Called when the command is initially scheduled.
@@ -120,12 +131,17 @@ public class PrepareShooterPreset extends CommandBase {
         hoodAngle = hangarEjectAngle.get();
         towerSpeed = hangarEjectTower.get();
         break;
+      case OPPONENT_EJECT:
+        flywheelSpeed = opponentEjectRpm.get();
+        hoodAngle = opponentEjectAngle.get();
+        towerSpeed = opponentEjectTower.get();
+        break;
       default:
         break;
     }
     flywheels.runVelocity(flywheelSpeed);
     hood.moveToAngle(hoodAngle);
-    tower.requestShootPercent(towerSpeed);
+    feeder.requestTowerShootPercent(towerSpeed);
     Logger.getInstance().recordOutput("ActiveCommands/PrepareShooterPreset",
         true);
   }
@@ -143,6 +159,6 @@ public class PrepareShooterPreset extends CommandBase {
   }
 
   public static enum ShooterPreset {
-    LOWER_FENDER, UPPER_FENDER, UPPER_TARMAC, UPPER_LAUNCHPAD, HANGAR_EJECT
+    LOWER_FENDER, UPPER_FENDER, UPPER_TARMAC, UPPER_LAUNCHPAD, HANGAR_EJECT, OPPONENT_EJECT
   }
 }

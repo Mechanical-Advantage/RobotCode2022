@@ -11,10 +11,10 @@ import frc.robot.util.TunableNumber;
 
 public class Taxi extends CommandBase {
   private static TunableNumber longDuration =
-      new TunableNumber("SimpleTaxi/LongDurationSecs");
+      new TunableNumber("Taxi/LongDurationSecs");
   private static TunableNumber shortDuration =
-      new TunableNumber("SimpleTaxi/ShortDurationSecs");
-  private static TunableNumber speed = new TunableNumber("SimpleTaxi/Speed");
+      new TunableNumber("Taxi/ShortDurationSecs");
+  private static TunableNumber speed = new TunableNumber("Taxi/Speed");
 
   private final Drive drive;
   private final boolean isLong;

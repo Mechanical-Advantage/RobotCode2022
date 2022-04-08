@@ -17,17 +17,16 @@ import frc.robot.RobotState;
 import frc.robot.commands.MotionProfileCommand;
 import frc.robot.commands.RunIntake;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.leds.Leds;
-import frc.robot.subsystems.tower.Tower;
 
 public class HPPractice extends SequentialCommandGroup {
   private static final double terminalWaitSecs = 1.5;
 
   /** Creates a new HPPractice. */
   public HPPractice(RobotState robotState, Drive drive, Intake intake,
-      Tower tower, Kicker kicker, Leds leds) {
+      Feeder feeder, Leds leds) {
     MotionProfileCommand driveForwards =
         new MotionProfileCommand(drive, robotState, 0.0,
             List.of(new Pose2d(),
@@ -49,6 +48,6 @@ public class HPPractice extends SequentialCommandGroup {
                 new StartEndCommand(() -> leds.setAutoAlert(true),
                     () -> leds.setAutoAlert(false)).withTimeout(
                         FiveCargoAuto.alertEarlySecs + terminalWaitSecs)),
-            new RunIntake(true, intake, tower, kicker, leds)));
+            new RunIntake(true, intake, feeder, leds)));
   }
 }

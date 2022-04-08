@@ -24,9 +24,8 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.kicker.Kicker;
 import frc.robot.subsystems.leds.Leds;
-import frc.robot.subsystems.tower.Tower;
+import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.GeomUtil;
 
@@ -46,7 +45,7 @@ public class TwoCargoAuto extends SequentialCommandGroup {
   /** Creates a new TwoCargoAuto. Collects a second cargo from around the tarmac and shoots. */
   public TwoCargoAuto(boolean taxiFinish, AutoPosition position,
       RobotState robotState, Drive drive, Vision vision, Flywheels flywheels,
-      Hood hood, Tower tower, Kicker kicker, Intake intake, Leds leds) {
+      Hood hood, Feeder feeder, Intake intake, Leds leds) {
     addCommands(
         deadline(
             sequence(new InstantCommand(intake::extend, intake),
@@ -56,10 +55,10 @@ public class TwoCargoAuto extends SequentialCommandGroup {
                             cargoPositions.get(position)),
                         0.0, false),
                     new WaitCommand(intakeLengthSecs)).deadlineWith(
-                        new RunIntake(true, intake, tower, kicker, leds)),
-                new Shoot(tower, kicker, leds)
+                        new RunIntake(true, intake, feeder, leds)),
+                new Shoot(feeder, leds)
                     .withTimeout(OneCargoAuto.shootDurationSecs)),
-            new PrepareShooterAuto(flywheels, hood, tower,
+            new PrepareShooterAuto(flywheels, hood, feeder,
                 cargoPositions.get(position).getTranslation())),
         taxiFinish ? new Taxi(drive, false) : new InstantCommand());
   }
