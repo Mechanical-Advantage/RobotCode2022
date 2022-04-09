@@ -74,7 +74,6 @@ public class RunIntake extends CommandBase {
   public void initialize() {
     feeder.requestIntakeForwards(forwards);
     feeder.requestIntakeBackwards(!forwards);
-    intake.runPercent(forwards ? forwardsSpeed.get() : backwardsSpeed.get());
     leds.setIntaking(true);
 
     rumbleLastOneTripped = feeder.getUpperProxSensor();
@@ -94,9 +93,15 @@ public class RunIntake extends CommandBase {
     Logger.getInstance().recordOutput("ActiveCommands/RunIntake", true);
 
     if (forwards) {
-      boolean rumbleOneTripped = feeder.getUpperProxSensor();
-      boolean rumbleTwoTripped =
-          feeder.getUpperProxSensor() && feeder.getLowerProxSensor();
+      int cargoCount = feeder.getCargoCount();
+      if (cargoCount == 2) {
+        intake.runPercent(0.0);
+      } else {
+        intake.runPercent(forwardsSpeed.get());
+      }
+
+      boolean rumbleOneTripped = cargoCount >= 1;
+      boolean rumbleTwoTripped = cargoCount >= 2;
       if (rumbleOneTripped && !rumbleLastOneTripped && enableRumbleFirstCargo) {
         rumbleOneActive = true;
         rumbleOneTimer.reset();
@@ -116,6 +121,8 @@ public class RunIntake extends CommandBase {
       }
       rumbleLastOneTripped = rumbleOneTripped;
       rumbleLastTwoTripped = rumbleTwoTripped;
+    } else {
+      intake.runPercent(backwardsSpeed.get());
     }
   }
 

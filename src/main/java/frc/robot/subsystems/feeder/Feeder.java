@@ -69,8 +69,10 @@ public class Feeder extends SubsystemBase {
   private final TunableNumber ejectTopKickerPercent =
       new TunableNumber("Feeder/EJECT_TOP/Kicker", 0.3);
 
+  private final TunableNumber intakeForwardsStopDelay =
+      new TunableNumber("Feeder/INTAKE_FORWARDS/StopDelay", 0.15);
   private final TunableNumber ejectBottomAllDuration =
-      new TunableNumber("Feeder/EJECT_BOTTOM_ALL/Duration", 0.12);
+      new TunableNumber("Feeder/EJECT_BOTTOM_ALL/Duration", 0.2);
   private final TunableNumber ejectBottomFinishDuration =
       new TunableNumber("Feeder/EJECT_BOTTOM_FINISH/Duration", 0.4);
   private final TunableNumber ejectTopFinishDuration =
@@ -88,6 +90,7 @@ public class Feeder extends SubsystemBase {
 
   private FeederState state = FeederState.IDLE;
   private Timer stateTimer = new Timer();
+  private Timer intakingStopTimer = new Timer();
   private boolean intakingProxValue = false;
   private int intakingProxCount = 0;
 
@@ -115,6 +118,8 @@ public class Feeder extends SubsystemBase {
     io.setKickerBrakeMode(false);
     stateTimer.start();
     stateTimer.reset();
+    intakingStopTimer.start();
+    intakingStopTimer.reset();
   }
 
   public void setSubsystems(Leds leds, Intake intake, Flywheels flywheels,
@@ -166,6 +171,8 @@ public class Feeder extends SubsystemBase {
         getLowerProxSensor());
     Logger.getInstance().recordOutput("Feeder/ProxSensors/Upper",
         getUpperProxSensor());
+    Logger.getInstance().recordOutput("Feeder/ProxSensors/Color",
+        getColorSensorProx());
     Logger.getInstance().recordOutput("Feeder/DetectedColor",
         getCargoColor().toString());
     SmartDashboard.putBoolean("Feeder/One Cargo", getUpperProxSensor());
@@ -173,13 +180,7 @@ public class Feeder extends SubsystemBase {
         getUpperProxSensor() && getLowerProxSensor());
 
     // Set cargo count for LEDs
-    if (getUpperProxSensor() && getLowerProxSensor()) {
-      leds.setTowerCount(2);
-    } else if (getUpperProxSensor()) {
-      leds.setTowerCount(1);
-    } else {
-      leds.setTowerCount(0);
-    }
+    leds.setTowerCount(getCargoCount());
 
     // Log normalized color
     double mag = inputs.colorSensorRed + inputs.colorSensorGreen
@@ -196,7 +197,7 @@ public class Feeder extends SubsystemBase {
 
     // Update color sensor value
     boolean hasWrongColor = false;
-    if (DriverStation.isTeleop()) {
+    if (getColorSensorProx() && DriverStation.isTeleop()) {
       switch (DriverStation.getAlliance()) {
         case Red:
           hasWrongColor = getCargoColor() == CargoColor.BLUE;
@@ -222,7 +223,9 @@ public class Feeder extends SubsystemBase {
         case IDLE:
           if (shootRequested) {
             setState(FeederState.SHOOT);
-          } else if (intakeForwardsRequested) {
+          } else if (intakeForwardsRequested
+              && (!(getLowerProxSensor() && getUpperProxSensor())
+                  || hasWrongColor)) {
             setState(FeederState.INTAKE_FORWARDS);
             intakingProxValue = false;
             intakingProxCount = 0;
@@ -238,18 +241,27 @@ public class Feeder extends SubsystemBase {
           }
           break;
         case INTAKE_FORWARDS:
+          hopperPercent = intakeForwardsHopperPercent.get();
+          towerPercent = intakeForwardsTowerPercent.get();
+          kickerPercent = intakeForwardsKickerPercent.get();
+
           // Count balls
-          if (getLowerProxSensor() && !intakingProxValue) {
+          if (getColorSensorProx() && !intakingProxValue) {
             intakingProxCount++;
           }
-          intakingProxValue = getLowerProxSensor();
+          intakingProxValue = getColorSensorProx();
+
+          // Time since both prox sensors tripped
+          if (!(getLowerProxSensor() && getUpperProxSensor())) {
+            intakingStopTimer.reset();
+          }
 
           // Select next state
           if (shootRequested) {
             setState(FeederState.SHOOT);
           } else if (!intakeForwardsRequested) {
             setState(FeederState.IDLE);
-          } else if (getLowerProxSensor() && hasWrongColor) { // Time to eject
+          } else if (hasWrongColor) { // Time to eject
             if (getUpperProxSensor() || intakingProxCount >= 2) { // Second cargo, eject bottom
               setState(FeederState.EJECT_BOTTOM_ALL);
               intakeCommand.schedule(false);
@@ -257,15 +269,10 @@ public class Feeder extends SubsystemBase {
               setState(FeederState.EJECT_TOP_WAIT);
               prepareShooterCommand.schedule(false);
             }
-          } else if (getLowerProxSensor() && getUpperProxSensor()) {
+          } else if (intakingStopTimer
+              .hasElapsed(intakeForwardsStopDelay.get())) {
             setState(FeederState.IDLE);
-            break; // Break out before speeds are set to avoid toggle
           }
-
-          // Set speeds at the end to avoid toggle
-          hopperPercent = intakeForwardsHopperPercent.get();
-          towerPercent = intakeForwardsTowerPercent.get();
-          kickerPercent = intakeForwardsKickerPercent.get();
           break;
         case INTAKE_BACKWARDS:
           hopperPercent = intakeBackwardsHopperPercent.get();
@@ -300,7 +307,7 @@ public class Feeder extends SubsystemBase {
           hopperPercent = ejectTopHopperPercent.get();
           towerPercent = ejectTopTowerPercent.get();
           kickerPercent = ejectTopKickerPercent.get();
-          if (getLowerProxSensor() && hasWrongColor) {
+          if (hasWrongColor) {
             stateTimer.reset();
           }
           if (stateTimer.hasElapsed(ejectTopFinishDuration.get())) {
@@ -344,18 +351,33 @@ public class Feeder extends SubsystemBase {
     towerShootSpeed = percent;
   }
 
+  public int getCargoCount() {
+    if (getUpperProxSensor() && getLowerProxSensor()) {
+      return 2;
+    } else if (getUpperProxSensor()) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+
   /** Returns whether the lower prox sensor is tripped, defaults to false if disconnected. */
   public boolean getLowerProxSensor() {
-    if (!colorSensorDisableSupplier.get() && inputs.colorSensorConnected) {
-      return inputs.colorSensorProx > colorSensorProxThreshold;
-    } else {
-      return !inputs.lowerProxSensor1;
-    }
+    return !inputs.lowerProxSensor1;
   }
 
   /** Returns whether the upper prox sensor is tripped, defaults to false if disconnected. */
   public boolean getUpperProxSensor() {
     return !inputs.upperProxSensor1;
+  }
+
+  /** Returns whether the color sensor's prox sensor is tripped. */
+  public boolean getColorSensorProx() {
+    if (!colorSensorDisableSupplier.get() && inputs.colorSensorConnected) {
+      return inputs.colorSensorProx > colorSensorProxThreshold;
+    } else {
+      return false;
+    }
   }
 
   /** Returns the color of the cargo detected by the color sensor. */
