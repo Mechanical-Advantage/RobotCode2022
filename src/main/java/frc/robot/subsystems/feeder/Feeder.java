@@ -152,9 +152,9 @@ public class Feeder extends SubsystemBase {
     }
 
     // Log prox sensor states
-    Logger.getInstance().recordOutput("Tower/LowerProxSensor",
+    Logger.getInstance().recordOutput("Feeder/LowerProxSensor",
         getLowerProxSensor());
-    Logger.getInstance().recordOutput("Tower/UpperProxSensor",
+    Logger.getInstance().recordOutput("Feeder/UpperProxSensor",
         getUpperProxSensor());
     SmartDashboard.putBoolean("Feeder/One Cargo", getUpperProxSensor());
     SmartDashboard.putBoolean("Feeder/Two Cargo",
