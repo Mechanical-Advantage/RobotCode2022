@@ -5,7 +5,6 @@
 package frc.robot.subsystems.feeder;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.ColorSensorV3;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -13,10 +12,10 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.I2C.Port;
-import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.Constants;
+import frc.robot.util.PicoColorSensor;
 import frc.robot.util.SparkMAXBurnManager;
+import frc.robot.util.PicoColorSensor.RawColor;
 
 public class FeederIOSparkMAX implements FeederIO {
   private boolean hopperInvert = false;
@@ -37,7 +36,7 @@ public class FeederIOSparkMAX implements FeederIO {
   private final DigitalInput lowerProxSensor2;
   private final DigitalInput upperProxSensor1;
   private final DigitalInput upperProxSensor2;
-  private final ColorSensorV3 colorSensor;
+  private final PicoColorSensor colorSensor;
 
   public FeederIOSparkMAX() {
     switch (Constants.getRobot()) {
@@ -58,7 +57,7 @@ public class FeederIOSparkMAX implements FeederIO {
         lowerProxSensor2 = new DigitalInput(5);
         upperProxSensor1 = new DigitalInput(6);
         upperProxSensor2 = new DigitalInput(7);
-        colorSensor = new ColorSensorV3(Port.kMXP);
+        colorSensor = new PicoColorSensor();
         break;
       default:
         throw new RuntimeException("Invalid robot for FeederIOSparkMax!");
@@ -99,17 +98,17 @@ public class FeederIOSparkMAX implements FeederIO {
 
   @Override
   public void updateInputs(FeederIOInputs inputs) {
-    inputs.proxSensorsAvailable = true;
     inputs.lowerProxSensor1 = lowerProxSensor1.get();
     inputs.lowerProxSensor2 = lowerProxSensor2.get();
     inputs.upperProxSensor1 = upperProxSensor1.get();
     inputs.upperProxSensor2 = upperProxSensor2.get();
 
-    Color color = colorSensor.getColor();
+    RawColor color = colorSensor.getRawColor0();
+    inputs.colorSensorConnected = colorSensor.isSensor0Connected();
     inputs.colorSensorRed = color.red;
-    inputs.colorSensorGreen = color.green;
-    inputs.colorSensorBlue = color.blue;
-    inputs.colorSensorProx = colorSensor.getProximity();
+    inputs.colorSensorGreen = color.blue; // Green and blue channels swapped
+    inputs.colorSensorBlue = color.green;
+    inputs.colorSensorProx = colorSensor.getProximity0();
 
     inputs.hopperPositionRad =
         Units.rotationsToRadians(hopperEncoder.getPosition())

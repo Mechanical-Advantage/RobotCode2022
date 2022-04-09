@@ -11,14 +11,14 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 public interface FeederIO {
   /** Contains all of the input data received from hardware. */
   public static class FeederIOInputs implements LoggableInputs {
-    public boolean proxSensorsAvailable = false;
     public boolean lowerProxSensor1 = true;
     public boolean lowerProxSensor2 = true;
     public boolean upperProxSensor1 = true;
     public boolean upperProxSensor2 = true;
-    public double colorSensorRed = 0.0;
-    public double colorSensorGreen = 0.0;
-    public double colorSensorBlue = 0.0;
+    public boolean colorSensorConnected = false;
+    public int colorSensorRed = 0;
+    public int colorSensorGreen = 0;
+    public int colorSensorBlue = 0;
     public int colorSensorProx = 0;
 
     public double hopperPositionRad = 0.0;
@@ -40,11 +40,11 @@ public interface FeederIO {
     public double[] kickerTempCelcius = new double[] {};
 
     public void toLog(LogTable table) {
-      table.put("ProxSensorsAvailable", proxSensorsAvailable);
       table.put("LowerProxSensor1", lowerProxSensor1);
       table.put("LowerProxSensor2", lowerProxSensor2);
       table.put("UpperProxSensor1", upperProxSensor1);
       table.put("UpperProxSensor2", upperProxSensor2);
+      table.put("ColorSensorConnected", colorSensorConnected);
       table.put("ColorSensorRed", colorSensorRed);
       table.put("ColorSensorGreen", colorSensorGreen);
       table.put("ColorSensorBlue", colorSensorBlue);
@@ -71,15 +71,15 @@ public interface FeederIO {
     }
 
     public void fromLog(LogTable table) {
-      proxSensorsAvailable =
-          table.getBoolean("ProxSensorsAvailable", proxSensorsAvailable);
       lowerProxSensor1 = table.getBoolean("LowerProxSensor1", lowerProxSensor1);
       lowerProxSensor2 = table.getBoolean("LowerProxSensor2", lowerProxSensor2);
       upperProxSensor1 = table.getBoolean("UpperProxSensor1", upperProxSensor1);
       upperProxSensor2 = table.getBoolean("UpperProxSensor2", upperProxSensor2);
-      colorSensorRed = table.getDouble("ColorSensorRed", colorSensorRed);
-      colorSensorGreen = table.getDouble("ColorSensorGreen", colorSensorGreen);
-      colorSensorBlue = table.getDouble("ColorSensorBlue", colorSensorBlue);
+      colorSensorConnected =
+          table.getBoolean("ColorSensorConnected", colorSensorConnected);
+      colorSensorRed = table.getInteger("ColorSensorRed", colorSensorRed);
+      colorSensorGreen = table.getInteger("ColorSensorGreen", colorSensorGreen);
+      colorSensorBlue = table.getInteger("ColorSensorBlue", colorSensorBlue);
       colorSensorProx = table.getInteger("ColorSensorProx", colorSensorProx);
 
       hopperPositionRad =

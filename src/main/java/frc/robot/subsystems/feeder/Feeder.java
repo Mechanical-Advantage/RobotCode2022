@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.feeder;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
@@ -11,10 +12,13 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.Constants.RobotType;
 import frc.robot.commands.PrepareShooterPreset;
 import frc.robot.commands.PrepareShooterPreset.ShooterPreset;
 import frc.robot.subsystems.feeder.FeederIO.FeederIOInputs;
@@ -27,6 +31,8 @@ import frc.robot.util.TunableNumber;
 import frc.robot.util.Alert.AlertType;
 
 public class Feeder extends SubsystemBase {
+  private static final List<RobotType> supportedRobots =
+      List.of(RobotType.ROBOT_2022C);
   private static final int proxSensorFaultCycles = 3; // Send alert after invalid data for this many
                                                       // cycles
   private static final double colorSensorChannelThreshold = 1.5;
@@ -98,6 +104,8 @@ public class Feeder extends SubsystemBase {
   private final Alert upperProxDisconnectedAlert =
       new Alert("Invalid data from upper cargo sensor. Is is connected?",
           AlertType.ERROR);
+  private final Alert colorSensorDisconnectedAlert = new Alert(
+      "Color sensor disconnected, using simple prox instead.", AlertType.ERROR);
 
   /** Creates a new Feeder. */
   public Feeder(FeederIO io) {
@@ -130,8 +138,8 @@ public class Feeder extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Feeder", inputs);
 
-    // Check for prox sensor faults
-    if (inputs.proxSensorsAvailable) {
+    // Check for prox and color sensor faults
+    if (supportedRobots.contains(Constants.getRobot())) {
       if (inputs.lowerProxSensor1 == inputs.lowerProxSensor2) {
         lowerProxSensorFaultCounter += 1;
         if (lowerProxSensorFaultCounter >= proxSensorFaultCycles) {
@@ -149,13 +157,17 @@ public class Feeder extends SubsystemBase {
       } else {
         upperProxSensorFaultCounter = 0;
       }
+
+      colorSensorDisconnectedAlert.set(!inputs.colorSensorConnected);
     }
 
-    // Log prox sensor states
-    Logger.getInstance().recordOutput("Feeder/LowerProxSensor",
+    // Log sensor states
+    Logger.getInstance().recordOutput("Feeder/ProxSensors/Lower",
         getLowerProxSensor());
-    Logger.getInstance().recordOutput("Feeder/UpperProxSensor",
+    Logger.getInstance().recordOutput("Feeder/ProxSensors/Upper",
         getUpperProxSensor());
+    Logger.getInstance().recordOutput("Feeder/DetectedColor",
+        getCargoColor().toString());
     SmartDashboard.putBoolean("Feeder/One Cargo", getUpperProxSensor());
     SmartDashboard.putBoolean("Feeder/Two Cargo",
         getUpperProxSensor() && getLowerProxSensor());
@@ -169,17 +181,28 @@ public class Feeder extends SubsystemBase {
       leds.setTowerCount(0);
     }
 
+    // Log normalized color
+    double mag = inputs.colorSensorRed + inputs.colorSensorGreen
+        + inputs.colorSensorBlue;
+    mag = (mag == 0.0 ? 1.0 : mag);
+    Color color = new Color(((double) inputs.colorSensorRed / mag),
+        ((double) inputs.colorSensorGreen / mag),
+        ((double) inputs.colorSensorBlue / mag));
+    Logger.getInstance().recordOutput("Feeder/NormalizedColor/Red", color.red);
+    Logger.getInstance().recordOutput("Feeder/NormalizedColor/Green",
+        color.green);
+    Logger.getInstance().recordOutput("Feeder/NormalizedColor/Blue",
+        color.blue);
+
     // Update color sensor value
     boolean hasWrongColor = false;
-    if (!colorSensorDisableSupplier.get() && DriverStation.isTeleop()) {
+    if (DriverStation.isTeleop()) {
       switch (DriverStation.getAlliance()) {
         case Red:
-          hasWrongColor = inputs.colorSensorBlue > inputs.colorSensorRed
-              * colorSensorChannelThreshold;
+          hasWrongColor = getCargoColor() == CargoColor.BLUE;
           break;
         case Blue:
-          hasWrongColor = inputs.colorSensorRed > inputs.colorSensorBlue
-              * colorSensorChannelThreshold;
+          hasWrongColor = getCargoColor() == CargoColor.RED;
           break;
         default:
           break;
@@ -323,10 +346,10 @@ public class Feeder extends SubsystemBase {
 
   /** Returns whether the lower prox sensor is tripped, defaults to false if disconnected. */
   public boolean getLowerProxSensor() {
-    if (colorSensorDisableSupplier.get()) {
-      return !inputs.lowerProxSensor1;
-    } else {
+    if (!colorSensorDisableSupplier.get() && inputs.colorSensorConnected) {
       return inputs.colorSensorProx > colorSensorProxThreshold;
+    } else {
+      return !inputs.lowerProxSensor1;
     }
   }
 
@@ -335,7 +358,26 @@ public class Feeder extends SubsystemBase {
     return !inputs.upperProxSensor1;
   }
 
+  /** Returns the color of the cargo detected by the color sensor. */
+  public CargoColor getCargoColor() {
+    if (!colorSensorDisableSupplier.get() && inputs.colorSensorConnected) {
+      if (inputs.colorSensorRed > inputs.colorSensorBlue
+          * colorSensorChannelThreshold) {
+        return CargoColor.RED;
+      }
+      if (inputs.colorSensorBlue > inputs.colorSensorRed
+          * colorSensorChannelThreshold) {
+        return CargoColor.BLUE;
+      }
+    }
+    return CargoColor.UNKNOWN;
+  }
+
   private static enum FeederState {
     IDLE, SHOOT, INTAKE_FORWARDS, INTAKE_BACKWARDS, EJECT_BOTTOM_ALL, EJECT_BOTTOM_FINISH, EJECT_TOP_WAIT, EJECT_TOP_FINISH
+  }
+
+  private static enum CargoColor {
+    UNKNOWN, BLUE, RED;
   }
 }
