@@ -225,5 +225,6 @@ public class Hood extends SubsystemBase {
   /** Starts the reset sequence to the minimum position. */
   public void reset() {
     resetComplete = false;
+    closedLoop = false;
   }
 }

@@ -15,7 +15,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Mode;
 import frc.robot.commands.AutoAim;
@@ -26,6 +28,7 @@ import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterizationStepped;
 import frc.robot.commands.PrepareShooterAuto;
 import frc.robot.commands.PrepareShooterPreset;
+import frc.robot.commands.ResetHood;
 import frc.robot.commands.RunIntake;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.TrackWidthCharacterization;
@@ -90,6 +93,7 @@ import frc.robot.util.GeomUtil;
 import frc.robot.util.LoggedChoosers;
 import frc.robot.util.SparkMAXBurnManager;
 import frc.robot.util.StickyTrigger;
+import frc.robot.util.UninterruptibleScheduleCommand;
 import frc.robot.util.Alert.AlertType;
 
 /**
@@ -353,11 +357,14 @@ public class RobotContainer {
         new AutoAimSimple(drive, vision, handheldOI::getLeftDriveY)
             .perpetually());
 
+    Command hoodResetSequence = new SequentialCommandGroup(new WaitCommand(1.5),
+        new UninterruptibleScheduleCommand(new ResetHood(hood)));
     Trigger flywheelsReady = new Trigger(flywheels::atGoal);
     Trigger hoodReady = new Trigger(hood::atGoal);
     handheldOI.getShootButton().and(flywheelsReady).and(hoodReady)
         .whileActiveContinuous(
-            new Shoot(feeder, leds, handheldOI::setDriverRumble));
+            new Shoot(feeder, leds, handheldOI::setDriverRumble))
+        .whenInactive(hoodResetSequence).cancelWhenActive(hoodResetSequence);
 
     // *** OPERATOR CONTROLS ***
     Trigger climbMode = new Trigger(overrideOI::getClimbMode);
@@ -375,7 +382,6 @@ public class RobotContainer {
     handheldOI.getIntakeBackwardsRunButton().and(normalMode)
         .whileActiveContinuous(new RunIntake(IntakeMode.BACKWARDS, intake,
             feeder, leds, handheldOI::setOperatorRumble));
-
 
     StickyTrigger flywheelFenderTrigger = new StickyTrigger();
     flywheelFenderTrigger.whileActiveContinuous(new PrepareShooterPreset(
