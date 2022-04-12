@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.RobotState;
 import frc.robot.commands.MotionProfileCommand;
 import frc.robot.commands.RunIntake;
+import frc.robot.commands.RunIntake.IntakeMode;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.intake.Intake;
@@ -48,6 +49,6 @@ public class HPPractice extends SequentialCommandGroup {
                 new StartEndCommand(() -> leds.setAutoAlert(true),
                     () -> leds.setAutoAlert(false)).withTimeout(
                         FiveCargoAuto.alertEarlySecs + terminalWaitSecs)),
-            new RunIntake(true, intake, feeder, leds)));
+            new RunIntake(IntakeMode.FORWARDS, intake, feeder, leds)));
   }
 }

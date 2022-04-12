@@ -34,6 +34,7 @@ import frc.robot.commands.Shoot;
 import frc.robot.commands.TurnToAngle;
 import frc.robot.commands.TurnToAngleProfile;
 import frc.robot.commands.PrepareShooterPreset.ShooterPreset;
+import frc.robot.commands.RunIntake.IntakeMode;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.feeder.Feeder.CargoColor;
@@ -106,11 +107,12 @@ public class ThreeCargoAutoCrossMidline extends SequentialCommandGroup {
                 .getRotation(),
             firstTurnPosition.getRotation()),
         new MotionProfileCommand(drive, robotState, 0.0,
-            List.of(firstTurnPosition, ejectPosition), 0.0, false)
-                .deadlineWith(new RunIntake(true, intake, feeder, leds)),
+            List.of(firstTurnPosition, ejectPosition), 0.0, false).deadlineWith(
+                new RunIntake(IntakeMode.FORWARDS, intake, feeder, leds)),
         new TurnToAngle(drive, robotState, ejectPosition.getRotation())
             .perpetually().withTimeout(ejectAlignDuration),
-        new RunIntake(false, intake, feeder, leds).withTimeout(ejectDuration),
+        new RunIntake(IntakeMode.BACKWARDS_SLOW, intake, feeder, leds)
+            .withTimeout(ejectDuration),
         deadline(
             sequence(
                 new MotionProfileCommand(drive, robotState, 0.0,
@@ -118,7 +120,8 @@ public class ThreeCargoAutoCrossMidline extends SequentialCommandGroup {
                     List.of(collectConstraint)),
                 new MotionProfileCommand(drive, robotState, 0.0,
                     List.of(collectPosition, shootPosition), 0.0, true)),
-            new RunIntake(true, intake, feeder, leds), monitorColorCommand),
+            new RunIntake(IntakeMode.FORWARDS, intake, feeder, leds),
+            monitorColorCommand),
         new AutoAim(drive, robotState, vision).withTimeout(autoAimTimeout),
         shootCommand
             .deadlineWith(new StartEndCommand(() -> vision.setForceLeds(true),

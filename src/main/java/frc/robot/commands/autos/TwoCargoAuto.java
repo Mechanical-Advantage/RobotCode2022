@@ -20,6 +20,7 @@ import frc.robot.commands.MotionProfileCommand;
 import frc.robot.commands.PrepareShooterAuto;
 import frc.robot.commands.RunIntake;
 import frc.robot.commands.Shoot;
+import frc.robot.commands.RunIntake.IntakeMode;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
@@ -54,8 +55,9 @@ public class TwoCargoAuto extends SequentialCommandGroup {
                         List.of(position.getPose(),
                             cargoPositions.get(position)),
                         0.0, false),
-                    new WaitCommand(intakeLengthSecs)).deadlineWith(
-                        new RunIntake(true, intake, feeder, leds)),
+                    new WaitCommand(intakeLengthSecs))
+                        .deadlineWith(new RunIntake(IntakeMode.FORWARDS, intake,
+                            feeder, leds)),
                 new Shoot(feeder, leds)
                     .withTimeout(OneCargoAuto.shootDurationSecs)),
             new PrepareShooterAuto(flywheels, hood, feeder,

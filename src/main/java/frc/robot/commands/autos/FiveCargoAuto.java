@@ -24,6 +24,7 @@ import frc.robot.commands.PrepareShooterAuto;
 import frc.robot.commands.RunIntake;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.TurnToAngleProfile;
+import frc.robot.commands.RunIntake.IntakeMode;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
@@ -122,12 +123,13 @@ public class FiveCargoAuto extends SequentialCommandGroup {
         + secondCargoToSecondShot.getDuration() + secondShotLateSecs;
     double thirdShotStart = endTime - thirdShotDurationSecs;
     Command shootSequence = sequence(
-        new RunIntake(true, intake, feeder, leds).withTimeout(firstShotStart),
+        new RunIntake(IntakeMode.FORWARDS, intake, feeder, leds)
+            .withTimeout(firstShotStart),
         new Shoot(feeder, leds).withTimeout(firstShotDurationSecs),
-        new RunIntake(true, intake, feeder, leds).withTimeout(
+        new RunIntake(IntakeMode.FORWARDS, intake, feeder, leds).withTimeout(
             secondShotStart - firstShotStart - firstShotDurationSecs),
         new Shoot(feeder, leds).withTimeout(secondShotDurationSecs),
-        new RunIntake(true, intake, feeder, leds).withTimeout(
+        new RunIntake(IntakeMode.FORWARDS, intake, feeder, leds).withTimeout(
             thirdShotStart - secondShotStart - secondShotDurationSecs),
         new Shoot(feeder, leds).withTimeout(thirdShotDurationSecs));
 

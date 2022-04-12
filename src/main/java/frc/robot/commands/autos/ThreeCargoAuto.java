@@ -19,6 +19,7 @@ import frc.robot.commands.PrepareShooterAuto;
 import frc.robot.commands.RunIntake;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.TurnToAngleProfile;
+import frc.robot.commands.RunIntake.IntakeMode;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.flywheels.Flywheels;
@@ -57,8 +58,9 @@ public class ThreeCargoAuto extends SequentialCommandGroup {
                         0.0, false),
                     new MotionProfileCommand(drive, robotState, 0.0,
                         List.of(tarmacCCargoPosition, tarmacCShootPosition),
-                        0.0, true)).deadlineWith(
-                            new RunIntake(true, intake, feeder, leds)),
+                        0.0, true))
+                            .deadlineWith(new RunIntake(IntakeMode.FORWARDS,
+                                intake, feeder, leds)),
                 new Shoot(feeder, leds)
                     .withTimeout(OneCargoAuto.shootDurationSecs)),
             new PrepareShooterAuto(flywheels, hood, feeder,

@@ -31,6 +31,7 @@ import frc.robot.commands.Shoot;
 import frc.robot.commands.TrackWidthCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.commands.PrepareShooterPreset.ShooterPreset;
+import frc.robot.commands.RunIntake.IntakeMode;
 import frc.robot.commands.autos.FiveCargoAuto;
 import frc.robot.commands.autos.FourCargoAuto;
 import frc.robot.commands.autos.FourCargoAutoAvoidD;
@@ -369,11 +370,11 @@ public class RobotContainer {
         .whenActive(intake::extend, intake)
         .whenInactive(intake::retract, intake);
     handheldOI.getIntakeForwardsRunButton().and(normalMode)
-        .whileActiveContinuous(new RunIntake(true, intake, feeder, leds,
-            handheldOI::setOperatorRumble));
+        .whileActiveContinuous(new RunIntake(IntakeMode.FORWARDS, intake,
+            feeder, leds, handheldOI::setOperatorRumble));
     handheldOI.getIntakeBackwardsRunButton().and(normalMode)
-        .whileActiveContinuous(new RunIntake(false, intake, feeder, leds,
-            handheldOI::setOperatorRumble));
+        .whileActiveContinuous(new RunIntake(IntakeMode.BACKWARDS, intake,
+            feeder, leds, handheldOI::setOperatorRumble));
 
 
     StickyTrigger flywheelFenderTrigger = new StickyTrigger();

@@ -20,6 +20,7 @@ import frc.robot.commands.MotionProfileCommand;
 import frc.robot.commands.PrepareShooterAuto;
 import frc.robot.commands.RunIntake;
 import frc.robot.commands.Shoot;
+import frc.robot.commands.RunIntake.IntakeMode;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
@@ -56,13 +57,12 @@ public class FourCargoAutoCross extends SequentialCommandGroup {
     addCommands(
         new TwoCargoAuto(false, AutoPosition.TARMAC_A, robotState, drive,
             vision, flywheels, hood, feeder, intake, leds),
-        deadline(
-            sequence(
-                sequence(firstShotToTerminal, new WaitCommand(terminalWaitSecs),
-                    terminalToSecondShot).deadlineWith(
-                        new RunIntake(true, intake, feeder, leds)),
-                new Shoot(feeder, leds)
-                    .withTimeout(OneCargoAuto.shootDurationSecs)),
+        deadline(sequence(
+            sequence(firstShotToTerminal, new WaitCommand(terminalWaitSecs),
+                terminalToSecondShot).deadlineWith(
+                    new RunIntake(IntakeMode.FORWARDS, intake, feeder, leds)),
+            new Shoot(feeder, leds)
+                .withTimeout(OneCargoAuto.shootDurationSecs)),
             sequence(
                 new WaitCommand(firstShotToTerminal.getDuration()
                     - FiveCargoAuto.alertEarlySecs),
