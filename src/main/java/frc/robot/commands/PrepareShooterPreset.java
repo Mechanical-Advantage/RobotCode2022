@@ -94,7 +94,7 @@ public class PrepareShooterPreset extends CommandBase {
 
     opponentEjectRpm.setDefault(800.0);
     opponentEjectAngle.setDefault(3.0); // Min angle
-    opponentEjectTower.setDefault(0.0); // NA
+    opponentEjectTower.setDefault(0.6);
   }
 
   // Called when the command is initially scheduled.

@@ -399,7 +399,7 @@ public class Feeder extends SubsystemBase {
     IDLE, SHOOT, INTAKE_FORWARDS, INTAKE_BACKWARDS, EJECT_BOTTOM_ALL, EJECT_BOTTOM_FINISH, EJECT_TOP_WAIT, EJECT_TOP_FINISH
   }
 
-  private static enum CargoColor {
+  public static enum CargoColor {
     UNKNOWN, BLUE, RED;
   }
 }
