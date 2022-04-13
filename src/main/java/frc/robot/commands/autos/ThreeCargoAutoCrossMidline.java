@@ -6,6 +6,7 @@ package frc.robot.commands.autos;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -50,13 +51,14 @@ public class ThreeCargoAutoCrossMidline extends SequentialCommandGroup {
       TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_A).getTranslation(),
       Rotation2d.fromDegrees(90.0));
 
-  private static final double ejectAlignDuration = 0.5;
+  private static final double ejectAlignDuration = 0.35;
   private static final double ejectDuration = 1.5;
   private static final Pose2d cargoPosition =
       FieldConstants.cargoFOpposite.transformBy(
           new Transform2d(new Translation2d(), Rotation2d.fromDegrees(-60.0)));
   private static final Pose2d ejectPosition =
-      cargoPosition.transformBy(GeomUtil.transformFromTranslation(-1.3, 0.0));
+      cargoPosition.transformBy(new Transform2d(new Translation2d(-1.3, 0.0),
+          Rotation2d.fromDegrees(5.0)));
   private static final Pose2d collectPosition =
       cargoPosition.transformBy(GeomUtil.transformFromTranslation(0.3, 0.0));
   private static final TrajectoryConstraint collectConstraint =
@@ -64,7 +66,6 @@ public class ThreeCargoAutoCrossMidline extends SequentialCommandGroup {
   private static final Pose2d shootPosition =
       TwoCargoAuto.calcAimedPose(FieldConstants.referenceA);
   private static final double autoAimTimeout = 0.5;
-  private static final double shootDuration = 0.5;
 
   /**
    * Creates a new ThreeCargoAutoAlternative. Collects a second cargo from around tarmac A, then
@@ -74,29 +75,27 @@ public class ThreeCargoAutoCrossMidline extends SequentialCommandGroup {
       Vision vision, Flywheels flywheels, Hood hood, Feeder feeder,
       Intake intake, Leds leds) {
 
+    Supplier<Command> shootSequenceSupplier =
+        () -> sequence(new WaitCommand(0.1),
+            new WaitUntilCommand(() -> flywheels.atGoal() && hood.atGoal()),
+            new Shoot(feeder, leds).raceWith(sequence(
+                new WaitUntilCommand(() -> feeder.getUpperProxSensor()),
+                new WaitUntilCommand(() -> !feeder.getUpperProxSensor()))));
+    Supplier<Command> shootOwnCommandSupplier =
+        () -> shootSequenceSupplier.get().deadlineWith(
+            new PrepareShooterAuto(flywheels, hood, feeder, robotState));
+    Supplier<Command> shootOpponentCommandSupplier =
+        () -> shootSequenceSupplier.get().deadlineWith(new PrepareShooterPreset(
+            flywheels, hood, feeder, ShooterPreset.OPPONENT_EJECT));
+
     MonitorColor monitorColorCommand = new MonitorColor(feeder);
-    Command shootOwnFirstCommand = sequence(
-        sequence(new WaitCommand(0.1),
-            new WaitUntilCommand(() -> flywheels.atGoal() && hood.atGoal()),
-            new Shoot(feeder, leds).withTimeout(shootDuration)).deadlineWith(
-                new PrepareShooterAuto(flywheels, hood, feeder, robotState)),
-        sequence(new WaitCommand(0.1),
-            new WaitUntilCommand(() -> flywheels.atGoal() && hood.atGoal()),
-            new Shoot(feeder, leds).withTimeout(shootDuration))
-                .deadlineWith(new PrepareShooterPreset(flywheels, hood, feeder,
-                    ShooterPreset.OPPONENT_EJECT)));
-    Command shootOpponentFirstCommand = sequence(
-        sequence(new WaitCommand(0.1),
-            new WaitUntilCommand(() -> flywheels.atGoal() && hood.atGoal()),
-            new Shoot(feeder, leds).withTimeout(shootDuration))
-                .deadlineWith(new PrepareShooterPreset(flywheels, hood, feeder,
-                    ShooterPreset.OPPONENT_EJECT)),
-        sequence(new WaitCommand(0.1),
-            new WaitUntilCommand(() -> flywheels.atGoal() && hood.atGoal()),
-            new Shoot(feeder, leds).withTimeout(shootDuration)).deadlineWith(
-                new PrepareShooterAuto(flywheels, hood, feeder, robotState)));
-    Command shootCommand = new SelectCommand(
-        Map.of(false, shootOwnFirstCommand, true, shootOpponentFirstCommand),
+    Command selectedShootCommand = new SelectCommand(
+        Map.of(false,
+            sequence(shootOwnCommandSupplier.get(),
+                shootOpponentCommandSupplier.get()),
+            true,
+            sequence(shootOpponentCommandSupplier.get(),
+                shootOwnCommandSupplier.get())),
         monitorColorCommand::opponentIsFirst);
 
     addCommands(
@@ -122,8 +121,10 @@ public class ThreeCargoAutoCrossMidline extends SequentialCommandGroup {
                     List.of(collectPosition, shootPosition), 0.0, true)),
             new RunIntake(IntakeMode.FORWARDS, intake, feeder, leds),
             monitorColorCommand),
-        new AutoAim(drive, robotState, vision).withTimeout(autoAimTimeout),
-        shootCommand
+        new AutoAim(drive, robotState, vision).withTimeout(autoAimTimeout)
+            .deadlineWith(new PrepareShooterPreset(flywheels, hood, feeder,
+                ShooterPreset.OPPONENT_EJECT)),
+        selectedShootCommand
             .deadlineWith(new StartEndCommand(() -> vision.setForceLeds(true),
                 () -> vision.setForceLeds(false), vision)));
   }
