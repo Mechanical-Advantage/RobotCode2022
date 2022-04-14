@@ -43,7 +43,7 @@ public class DriveIOSparkMAX implements DriveIO {
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
         afterEncoderReduction = 6.0; // Internal encoders
-        hasExternalEncoders = true;
+        hasExternalEncoders = false;
         hasThreeControllers = true;
         leftInverted = true;
         rightInverted = false;
@@ -62,7 +62,7 @@ public class DriveIOSparkMAX implements DriveIO {
         break;
       case ROBOT_2022P:
         afterEncoderReduction = 6.0; // Internal encoders
-        hasExternalEncoders = true;
+        hasExternalEncoders = false;
         hasThreeControllers = true;
         leftInverted = true;
         rightInverted = false;
