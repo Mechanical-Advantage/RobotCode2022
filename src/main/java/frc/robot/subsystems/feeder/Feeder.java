@@ -36,7 +36,7 @@ public class Feeder extends SubsystemBase {
   private static final int proxSensorFaultCycles = 3; // Send alert after invalid data for this many
                                                       // cycles
   private static final double colorSensorChannelThreshold = 1.5;
-  private static final int colorSensorProxThreshold = 300;
+  private static final int colorSensorProxThreshold = 250;
 
   private final TunableNumber shootKickerPercent =
       new TunableNumber("Feeder/SHOOT/Kicker", 0.3);

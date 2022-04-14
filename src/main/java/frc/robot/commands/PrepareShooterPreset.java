@@ -62,7 +62,7 @@ public class PrepareShooterPreset extends CommandBase {
 
   /**
    * Creates a new PrepareShooterPreset. Runs the flywheel and sets the hood position for the given
-   * preset.
+   * preset. Set the feeder to null to disable controlling the tower speed.
    */
   public PrepareShooterPreset(Flywheels flywheels, Hood hood, Feeder feeder,
       ShooterPreset preset) {
@@ -141,7 +141,9 @@ public class PrepareShooterPreset extends CommandBase {
     }
     flywheels.runVelocity(flywheelSpeed);
     hood.moveToAngle(hoodAngle);
-    feeder.requestTowerShootPercent(towerSpeed);
+    if (feeder != null) {
+      feeder.requestTowerShootPercent(towerSpeed);
+    }
     Logger.getInstance().recordOutput("ActiveCommands/PrepareShooterPreset",
         true);
   }

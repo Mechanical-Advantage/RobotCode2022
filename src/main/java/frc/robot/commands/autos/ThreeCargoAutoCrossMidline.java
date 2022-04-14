@@ -18,6 +18,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
@@ -32,7 +33,6 @@ import frc.robot.commands.PrepareShooterAuto;
 import frc.robot.commands.PrepareShooterPreset;
 import frc.robot.commands.RunIntake;
 import frc.robot.commands.Shoot;
-import frc.robot.commands.TurnToAngle;
 import frc.robot.commands.TurnToAngleProfile;
 import frc.robot.commands.PrepareShooterPreset.ShooterPreset;
 import frc.robot.commands.RunIntake.IntakeMode;
@@ -52,20 +52,22 @@ public class ThreeCargoAutoCrossMidline extends SequentialCommandGroup {
       Rotation2d.fromDegrees(90.0));
 
   private static final double ejectAlignDuration = 0.35;
-  private static final double ejectDuration = 1.5;
+  private static final double ejectDuration = 1.3;
   private static final Pose2d cargoPosition =
       FieldConstants.cargoFOpposite.transformBy(
           new Transform2d(new Translation2d(), Rotation2d.fromDegrees(-60.0)));
   private static final Pose2d ejectPosition =
-      cargoPosition.transformBy(new Transform2d(new Translation2d(-1.3, 0.0),
-          Rotation2d.fromDegrees(5.0)));
+      cargoPosition.transformBy(new Transform2d(new Translation2d(-1.45, 0.0),
+          Rotation2d.fromDegrees(0.0)));
   private static final Pose2d collectPosition =
-      cargoPosition.transformBy(GeomUtil.transformFromTranslation(0.3, 0.0));
+      cargoPosition.transformBy(GeomUtil.transformFromTranslation(0.35, 0.0));
   private static final TrajectoryConstraint collectConstraint =
       new MaxVelocityConstraint(Units.inchesToMeters(100.0));
   private static final Pose2d shootPosition =
-      TwoCargoAuto.calcAimedPose(FieldConstants.referenceA);
+      TwoCargoAuto.calcAimedPose(FieldConstants.referenceA
+          .transformBy(GeomUtil.transformFromTranslation(0.0, -0.35)));
   private static final double autoAimTimeout = 0.5;
+  private static final double towerPercent = 0.35;
 
   /**
    * Creates a new ThreeCargoAutoAlternative. Collects a second cargo from around tarmac A, then
@@ -80,13 +82,14 @@ public class ThreeCargoAutoCrossMidline extends SequentialCommandGroup {
             new WaitUntilCommand(() -> flywheels.atGoal() && hood.atGoal()),
             new Shoot(feeder, leds).raceWith(sequence(
                 new WaitUntilCommand(() -> feeder.getUpperProxSensor()),
-                new WaitUntilCommand(() -> !feeder.getUpperProxSensor()))));
+                new WaitUntilCommand(() -> !feeder.getUpperProxSensor()))),
+            new WaitCommand(0.25));
     Supplier<Command> shootOwnCommandSupplier =
         () -> shootSequenceSupplier.get().deadlineWith(
-            new PrepareShooterAuto(flywheels, hood, feeder, robotState));
+            new PrepareShooterAuto(flywheels, hood, null, robotState));
     Supplier<Command> shootOpponentCommandSupplier =
         () -> shootSequenceSupplier.get().deadlineWith(new PrepareShooterPreset(
-            flywheels, hood, feeder, ShooterPreset.OPPONENT_EJECT));
+            flywheels, hood, null, ShooterPreset.OPPONENT_EJECT));
 
     MonitorColor monitorColorCommand = new MonitorColor(feeder);
     Command selectedShootCommand = new SelectCommand(
@@ -100,7 +103,9 @@ public class ThreeCargoAutoCrossMidline extends SequentialCommandGroup {
 
     addCommands(
         new TwoCargoAuto(false, AutoPosition.TARMAC_A, robotState, drive,
-            vision, flywheels, hood, feeder, intake, leds),
+            vision, flywheels, hood, feeder, intake, leds).deadlineWith(
+                new StartEndCommand(() -> vision.setForceLeds(true),
+                    () -> vision.setForceLeds(false), vision)),
         new TurnToAngleProfile(drive, robotState,
             TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_A)
                 .getRotation(),
@@ -108,8 +113,9 @@ public class ThreeCargoAutoCrossMidline extends SequentialCommandGroup {
         new MotionProfileCommand(drive, robotState, 0.0,
             List.of(firstTurnPosition, ejectPosition), 0.0, false).deadlineWith(
                 new RunIntake(IntakeMode.FORWARDS, intake, feeder, leds)),
-        new TurnToAngle(drive, robotState, ejectPosition.getRotation())
-            .perpetually().withTimeout(ejectAlignDuration),
+        new AutoAim(drive, robotState, null,
+            FieldConstants.cargoFOpposite.getTranslation(), null).perpetually()
+                .withTimeout(ejectAlignDuration),
         new RunIntake(IntakeMode.BACKWARDS_SLOW, intake, feeder, leds)
             .withTimeout(ejectDuration),
         deadline(
@@ -121,9 +127,11 @@ public class ThreeCargoAutoCrossMidline extends SequentialCommandGroup {
                     List.of(collectPosition, shootPosition), 0.0, true)),
             new RunIntake(IntakeMode.FORWARDS, intake, feeder, leds),
             monitorColorCommand),
-        new AutoAim(drive, robotState, vision).withTimeout(autoAimTimeout)
+        new AutoAim(drive, robotState, vision, null, null).perpetually()
+            .withTimeout(autoAimTimeout)
             .deadlineWith(new PrepareShooterPreset(flywheels, hood, feeder,
                 ShooterPreset.OPPONENT_EJECT)),
+        new InstantCommand(() -> feeder.requestTowerShootPercent(towerPercent)),
         selectedShootCommand
             .deadlineWith(new StartEndCommand(() -> vision.setForceLeds(true),
                 () -> vision.setForceLeds(false), vision)));
@@ -144,7 +152,8 @@ public class ThreeCargoAutoCrossMidline extends SequentialCommandGroup {
 
     @Override
     public void execute() {
-      if (color == null && feeder.getColorSensorProx()) {
+      if (color == null && feeder.getColorSensorProx()
+          && feeder.getCargoColor() != CargoColor.UNKNOWN) {
         color = feeder.getCargoColor();
       }
     }

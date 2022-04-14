@@ -64,7 +64,8 @@ public class PrepareShooterAuto extends CommandBase {
 
   /**
    * Creates a new PrepareShooterAuto. Runs the flywheel and sets the hood position for the upper
-   * shot based on a known shooting position.
+   * shot based on a known shooting position. Set the feeder to null to disable controlling the
+   * tower speed.
    */
   public PrepareShooterAuto(Flywheels flywheels, Hood hood, Feeder feeder,
       Translation2d position) {
@@ -78,7 +79,7 @@ public class PrepareShooterAuto extends CommandBase {
 
   /**
    * Creates a new PrepareShooterAuto. Runs the flywheel and sets the hood position for the upper
-   * shot based on odometry.
+   * shot based on odometry. Set the feeder to null to disable controlling the tower speed.
    */
   public PrepareShooterAuto(Flywheels flywheels, Hood hood, Feeder feeder,
       RobotState robotState) {
@@ -112,7 +113,10 @@ public class PrepareShooterAuto extends CommandBase {
     double distance = position.getDistance(FieldConstants.hubCenter);
     flywheels.runVelocity(flywheelSpeedInterpolation.predict(distance));
     hood.moveToAngle(hoodAngleInterpolation.predict(distance));
-    feeder.requestTowerShootPercent(towerSpeedInterpolation.predict(distance));
+    if (feeder != null) {
+      feeder
+          .requestTowerShootPercent(towerSpeedInterpolation.predict(distance));
+    }
   }
 
   // Called once the command ends or is interrupted.

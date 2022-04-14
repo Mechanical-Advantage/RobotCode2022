@@ -27,7 +27,7 @@ public class OneCargoAuto extends SequentialCommandGroup {
     addCommands(
         deadline(
             sequence(new WaitForVision(robotState),
-                new AutoAim(drive, robotState, vision),
+                new AutoAim(drive, robotState, vision, null, null),
                 new WaitUntilCommand(
                     () -> flywheels.atSetpoint() && hood.atGoal()),
                 new Shoot(feeder, leds).withTimeout(shootDurationSecs)),

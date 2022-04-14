@@ -25,6 +25,7 @@ public class AutoAim extends CommandBase {
   private final Drive drive;
   private final RobotState robotState;
   private final Vision vision;
+  private final Translation2d target;
   private final Supplier<Double> speedSupplier;
 
   private final PIDController controller;
@@ -43,18 +44,22 @@ public class AutoAim extends CommandBase {
   private static final TunableNumber toleranceTime =
       new TunableNumber("AutoAim/ToleranceTime");
 
-  public AutoAim(Drive drive, RobotState robotState, Vision vision) {
-    this(drive, robotState, vision, () -> 0.0);
-  }
-
-  /** Creates a new AutoAim. Points towards the center of the field using odometry data. */
+  /**
+   * Creates a new AutoAim. Points towards the center of the field using odometry data. Set the
+   * vision to null to disable controlling LEDs, target to null to point to the hub, or
+   * speedSupplier to null to disable operator controls.
+   */
   public AutoAim(Drive drive, RobotState robotState, Vision vision,
-      Supplier<Double> speedSupplier) {
-    addRequirements(drive, vision);
+      Translation2d target, Supplier<Double> speedSupplier) {
+    addRequirements(drive);
+    if (vision != null) {
+      addRequirements(vision);
+    }
     this.drive = drive;
     this.robotState = robotState;
     this.vision = vision;
-    this.speedSupplier = speedSupplier;
+    this.target = target;
+    this.speedSupplier = speedSupplier == null ? () -> 0.0 : speedSupplier;
 
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
@@ -101,7 +106,9 @@ public class AutoAim extends CommandBase {
     controller.reset();
     toleranceTimer.reset();
     toleranceTimer.start();
-    vision.setForceLeds(true);
+    if (vision != null) {
+      vision.setForceLeds(true);
+    }
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -122,9 +129,15 @@ public class AutoAim extends CommandBase {
     }
 
     // Update setpoint
-    controller.setSetpoint(
-        getTargetRotation(robotState.getLatestPose().getTranslation())
-            .getDegrees());
+    if (target == null) {
+      controller.setSetpoint(
+          getTargetRotation(robotState.getLatestPose().getTranslation())
+              .getDegrees());
+    } else {
+      controller.setSetpoint(
+          getTargetRotation(robotState.getLatestPose().getTranslation(), target,
+              false).getDegrees());
+    }
 
     // Check if in tolerance
     if (!controller.atSetpoint()) {
@@ -154,15 +167,31 @@ public class AutoAim extends CommandBase {
   }
 
   /**
-   * Calculates the rotation which points the robot towards the target.
+   * Calculates the rotation which points the robot towards the hub for shooting.
    * 
    * @param position The current robot position
    */
   public static Rotation2d getTargetRotation(Translation2d position) {
-    Translation2d vehicleToCenter = FieldConstants.hubCenter.minus(position);
+    return getTargetRotation(position, FieldConstants.hubCenter, true);
+  }
+
+  /**
+   * Calculates the rotation which points the robot towards a target.
+   * 
+   * @param position The current robot position
+   * @param target The position to aim towards
+   * @param reversed Point the back of the robot towards the target
+   */
+  public static Rotation2d getTargetRotation(Translation2d position,
+      Translation2d target, boolean reversed) {
+    Translation2d vehicleToCenter = target.minus(position);
     Rotation2d targetRotation =
         new Rotation2d(vehicleToCenter.getX(), vehicleToCenter.getY());
-    return targetRotation.plus(Rotation2d.fromDegrees(180));
+    if (reversed) {
+      return targetRotation.plus(Rotation2d.fromDegrees(180));
+    } else {
+      return targetRotation;
+    }
   }
 
   // Called once the command ends or is interrupted.
@@ -170,7 +199,9 @@ public class AutoAim extends CommandBase {
   public void end(boolean interrupted) {
     drive.stop();
     toleranceTimer.stop();
-    vision.setForceLeds(false);
+    if (vision != null) {
+      vision.setForceLeds(false);
+    }
   }
 
   // Returns true when the command should end.
