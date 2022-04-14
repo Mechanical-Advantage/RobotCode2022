@@ -43,10 +43,18 @@ public class TwoCargoAuto extends SequentialCommandGroup {
           AutoPosition.TARMAC_D, calcAimedPose(FieldConstants.cargoE
               .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.0))));
 
-  /** Creates a new TwoCargoAuto. Collects a second cargo from around the tarmac and shoots. */
   public TwoCargoAuto(boolean taxiFinish, AutoPosition position,
       RobotState robotState, Drive drive, Vision vision, Flywheels flywheels,
       Hood hood, Feeder feeder, Intake intake, Leds leds) {
+    this(taxiFinish, position, robotState, drive, vision, flywheels, hood,
+        feeder, intake, leds, OneCargoAuto.shootDurationSecs);
+  }
+
+  /** Creates a new TwoCargoAuto. Collects a second cargo from around the tarmac and shoots. */
+  public TwoCargoAuto(boolean taxiFinish, AutoPosition position,
+      RobotState robotState, Drive drive, Vision vision, Flywheels flywheels,
+      Hood hood, Feeder feeder, Intake intake, Leds leds,
+      double shootDurationSecs) {
     addCommands(
         deadline(
             sequence(new InstantCommand(intake::extend, intake),
@@ -58,8 +66,7 @@ public class TwoCargoAuto extends SequentialCommandGroup {
                     new WaitCommand(intakeLengthSecs))
                         .deadlineWith(new RunIntake(IntakeMode.FORWARDS, intake,
                             feeder, leds)),
-                new Shoot(feeder, leds)
-                    .withTimeout(OneCargoAuto.shootDurationSecs)),
+                new Shoot(feeder, leds).withTimeout(shootDurationSecs)),
             new PrepareShooterAuto(flywheels, hood, feeder,
                 cargoPositions.get(position).getTranslation())),
         taxiFinish ? new Taxi(drive, false) : new InstantCommand());

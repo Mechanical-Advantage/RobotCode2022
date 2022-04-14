@@ -7,6 +7,7 @@ package frc.robot.commands;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
@@ -26,25 +27,27 @@ public class AutoAimSimple extends CommandBase {
 
   private final Drive drive;
   private final Vision vision;
+  private final boolean cargoTracking;
   private final Supplier<Double> speedSupplier;
 
   private final PIDController controller;
   private final Timer toleranceTimer = new Timer();
   private final AxisProcessor axisProcessor = new AxisProcessor();
 
-  public AutoAimSimple(Drive drive, Vision vision) {
-    this(drive, vision, () -> 0.0);
+  public AutoAimSimple(Drive drive, Vision vision, boolean cargoTracking) {
+    this(drive, vision, cargoTracking, () -> 0.0);
   }
 
   /**
    * Creates a new AutoAimSimple. Points towards the center of the field using simple vision data.
    */
-  public AutoAimSimple(Drive drive, Vision vision,
-      Supplier<Double> speedSupplie) {
+  public AutoAimSimple(Drive drive, Vision vision, boolean cargoTracking,
+      Supplier<Double> speedSupplier) {
     addRequirements(drive, vision);
     this.drive = drive;
     this.vision = vision;
-    this.speedSupplier = speedSupplie;
+    this.cargoTracking = cargoTracking;
+    this.speedSupplier = speedSupplier;
 
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
@@ -76,12 +79,15 @@ public class AutoAimSimple extends CommandBase {
     controller.reset();
     toleranceTimer.reset();
     toleranceTimer.start();
-    vision.setForceLeds(true);
+    vision.setForceLeds(!cargoTracking);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    // Set pipeline number
+    updatePipeline();
+
     // Update tunable numbers
     if (kP.hasChanged()) {
       controller.setP(kP.get());
@@ -107,6 +113,7 @@ public class AutoAimSimple extends CommandBase {
       angularSpeed = controller.calculate(vision.getSimpleTargetAngle());
     } else {
       controller.reset();
+      toleranceTimer.reset();
     }
 
     // Run at calculated speed
@@ -114,10 +121,29 @@ public class AutoAimSimple extends CommandBase {
     drive.drivePercent(linearSpeed - angularSpeed, linearSpeed + angularSpeed);
   }
 
+  public void updatePipeline() {
+    if (cargoTracking) {
+      switch (DriverStation.getAlliance()) {
+        case Red:
+          vision.setPipeline(2);
+          break;
+        case Blue:
+          vision.setPipeline(1);
+          break;
+        default:
+          vision.setPipeline(1);
+          break;
+      }
+    } else {
+      vision.setPipeline(0);
+    }
+  }
+
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     drive.stop();
+    vision.setPipeline(0);
     toleranceTimer.stop();
     vision.setForceLeds(false);
   }

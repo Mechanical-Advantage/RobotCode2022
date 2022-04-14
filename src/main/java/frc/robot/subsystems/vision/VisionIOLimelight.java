@@ -23,6 +23,8 @@ public class VisionIOLimelight implements VisionIO {
 
   private final NetworkTableEntry ledEntry = NetworkTableInstance.getDefault()
       .getTable("limelight").getEntry("ledMode");
+  private final NetworkTableEntry pipelineEntry = NetworkTableInstance
+      .getDefault().getTable("limelight").getEntry("pipeline");
   private final NetworkTableEntry validEntry =
       NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv");
   private final NetworkTableEntry latencyEntry =
@@ -76,5 +78,10 @@ public class VisionIOLimelight implements VisionIO {
   @Override
   public void setLeds(boolean enabled) {
     ledEntry.forceSetDouble(enabled ? 3.0 : 1.0);
+  }
+
+  @Override
+  public void setPipeline(int pipeline) {
+    pipelineEntry.forceSetNumber(pipeline);
   }
 }

@@ -40,4 +40,6 @@ public interface VisionIO {
   /** Enabled or disabled vision LEDs. */
   public default void setLeds(boolean enabled) {}
 
+  /** Sets the pipeline number. */
+  public default void setPipeline(int pipeline) {}
 }

@@ -18,6 +18,8 @@ import frc.robot.util.TunableNumber;
 public class TurnToAngle extends CommandBase {
   private final Drive drive;
   private final RobotState robotState;
+  private final Rotation2d setpoint;
+  private final boolean relative;
 
   private final PIDController controller;
   private final Timer toleranceTimer = new Timer();
@@ -35,10 +37,13 @@ public class TurnToAngle extends CommandBase {
       new TunableNumber("TurnToAngle/ToleranceTime");
 
   /** Creates a new TurnToAngle. Turns to the specified rotation. */
-  public TurnToAngle(Drive drive, RobotState robotState, Rotation2d setpoint) {
+  public TurnToAngle(Drive drive, RobotState robotState, Rotation2d setpoint,
+      boolean relative) {
     addRequirements(drive);
     this.drive = drive;
     this.robotState = robotState;
+    this.setpoint = setpoint;
+    this.relative = relative;
 
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
@@ -77,7 +82,6 @@ public class TurnToAngle extends CommandBase {
         Constants.loopPeriodSecs);
     controller.setTolerance(toleranceDegrees.get());
     controller.enableContinuousInput(-180, 180);
-    controller.setSetpoint(setpoint.getDegrees());
   }
 
   // Called when the command is initially scheduled.
@@ -86,6 +90,13 @@ public class TurnToAngle extends CommandBase {
     controller.reset();
     toleranceTimer.reset();
     toleranceTimer.start();
+
+    if (relative) {
+      controller.setSetpoint(
+          robotState.getLatestRotation().rotateBy(setpoint).getDegrees());
+    } else {
+      controller.setSetpoint(setpoint.getDegrees());
+    }
   }
 
   // Called every time the scheduler runs while the command is scheduled.

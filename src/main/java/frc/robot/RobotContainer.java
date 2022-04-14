@@ -193,6 +193,8 @@ public class RobotContainer {
         () -> overrideOI.getOpenLoop(), () -> overrideOI.getInternalEncoders());
     drive.setRobotState(robotState);
     drive.setLeds(leds);
+    vision
+        .setDefaultCommand(new RunCommand(() -> vision.setPipeline(0), vision));
     vision.setSuppliers(() -> overrideOI.getVisionLedMode(),
         () -> overrideOI.getClimbMode());
     vision.setRobotState(robotState);
@@ -354,7 +356,7 @@ public class RobotContainer {
         new AutoAim(drive, robotState, vision, null, handheldOI::getLeftDriveY)
             .perpetually());
     handheldOI.getAutoAimButton().and(simpleAutoAim).whileActiveOnce(
-        new AutoAimSimple(drive, vision, handheldOI::getLeftDriveY)
+        new AutoAimSimple(drive, vision, false, handheldOI::getLeftDriveY)
             .perpetually());
 
     Command hoodResetSequence = new SequentialCommandGroup(new WaitCommand(1.5),

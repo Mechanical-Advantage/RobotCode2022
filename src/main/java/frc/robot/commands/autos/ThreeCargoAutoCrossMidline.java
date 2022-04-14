@@ -16,6 +16,7 @@ import edu.wpi.first.math.trajectory.constraint.MaxVelocityConstraint;
 import edu.wpi.first.math.trajectory.constraint.TrajectoryConstraint;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -28,11 +29,13 @@ import frc.robot.FieldConstants;
 import frc.robot.RobotState;
 import frc.robot.RobotContainer.AutoPosition;
 import frc.robot.commands.AutoAim;
+import frc.robot.commands.AutoAimSimple;
 import frc.robot.commands.MotionProfileCommand;
 import frc.robot.commands.PrepareShooterAuto;
 import frc.robot.commands.PrepareShooterPreset;
 import frc.robot.commands.RunIntake;
 import frc.robot.commands.Shoot;
+import frc.robot.commands.TurnToAngle;
 import frc.robot.commands.TurnToAngleProfile;
 import frc.robot.commands.PrepareShooterPreset.ShooterPreset;
 import frc.robot.commands.RunIntake.IntakeMode;
@@ -51,7 +54,8 @@ public class ThreeCargoAutoCrossMidline extends SequentialCommandGroup {
       TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_A).getTranslation(),
       Rotation2d.fromDegrees(90.0));
 
-  private static final double ejectAlignDuration = 0.35;
+  private static final double firstShootSecs = 0.6;
+  private static final double ejectAlignDuration = 0.25;
   private static final double ejectDuration = 1.3;
   private static final Pose2d cargoPosition =
       FieldConstants.cargoFOpposite.transformBy(
@@ -59,14 +63,15 @@ public class ThreeCargoAutoCrossMidline extends SequentialCommandGroup {
   private static final Pose2d ejectPosition =
       cargoPosition.transformBy(new Transform2d(new Translation2d(-1.45, 0.0),
           Rotation2d.fromDegrees(0.0)));
-  private static final Pose2d collectPosition =
-      cargoPosition.transformBy(GeomUtil.transformFromTranslation(0.35, 0.0));
+  private static final Pose2d collectPositionRed =
+      cargoPosition.transformBy(GeomUtil.transformFromTranslation(0.3, 0.0));
+  private static final Pose2d collectPositionBlue =
+      cargoPosition.transformBy(GeomUtil.transformFromTranslation(0.2, -0.1));
   private static final TrajectoryConstraint collectConstraint =
-      new MaxVelocityConstraint(Units.inchesToMeters(100.0));
-  private static final Pose2d shootPosition =
-      TwoCargoAuto.calcAimedPose(FieldConstants.referenceA
-          .transformBy(GeomUtil.transformFromTranslation(0.0, -0.35)));
-  private static final double autoAimTimeout = 0.5;
+      new MaxVelocityConstraint(Units.inchesToMeters(120.0));
+  private static final double cargoTrackingHoodAngle = 75.0;
+  private static final double intakeWaitSecs = 0.1;
+  private static final double autoAimTimeout = 1.2;
   private static final double towerPercent = 0.35;
 
   /**
@@ -76,6 +81,8 @@ public class ThreeCargoAutoCrossMidline extends SequentialCommandGroup {
   public ThreeCargoAutoCrossMidline(RobotState robotState, Drive drive,
       Vision vision, Flywheels flywheels, Hood hood, Feeder feeder,
       Intake intake, Leds leds) {
+
+    AutoAimSimple cargoTrackingAutoAim = new AutoAimSimple(drive, vision, true);
 
     Supplier<Command> shootSequenceSupplier =
         () -> sequence(new WaitCommand(0.1),
@@ -103,9 +110,10 @@ public class ThreeCargoAutoCrossMidline extends SequentialCommandGroup {
 
     addCommands(
         new TwoCargoAuto(false, AutoPosition.TARMAC_A, robotState, drive,
-            vision, flywheels, hood, feeder, intake, leds).deadlineWith(
-                new StartEndCommand(() -> vision.setForceLeds(true),
-                    () -> vision.setForceLeds(false), vision)),
+            vision, flywheels, hood, feeder, intake, leds, firstShootSecs),
+        new InstantCommand(() -> hood.moveToAngle(cargoTrackingHoodAngle),
+            hood),
+        new InstantCommand(() -> cargoTrackingAutoAim.updatePipeline(), hood),
         new TurnToAngleProfile(drive, robotState,
             TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_A)
                 .getRotation(),
@@ -113,24 +121,34 @@ public class ThreeCargoAutoCrossMidline extends SequentialCommandGroup {
         new MotionProfileCommand(drive, robotState, 0.0,
             List.of(firstTurnPosition, ejectPosition), 0.0, false).deadlineWith(
                 new RunIntake(IntakeMode.FORWARDS, intake, feeder, leds)),
-        new AutoAim(drive, robotState, null,
-            FieldConstants.cargoFOpposite.getTranslation(), null).perpetually()
-                .withTimeout(ejectAlignDuration),
+        new TurnToAngle(drive, robotState,
+            ejectPosition.getRotation().rotateBy(Rotation2d.fromDegrees(180.0)),
+            false),
+        cargoTrackingAutoAim.perpetually().withTimeout(ejectAlignDuration),
+        new InstantCommand(() -> hood.moveToIdle(), hood),
+        new TurnToAngle(drive, robotState, Rotation2d.fromDegrees(180.0), true),
         new RunIntake(IntakeMode.BACKWARDS_SLOW, intake, feeder, leds)
             .withTimeout(ejectDuration),
         deadline(
             sequence(
-                new MotionProfileCommand(drive, robotState, 0.0,
-                    List.of(ejectPosition, collectPosition), 0.0, false,
-                    List.of(collectConstraint)),
-                new MotionProfileCommand(drive, robotState, 0.0,
-                    List.of(collectPosition, shootPosition), 0.0, true)),
+                new SelectCommand(
+                    Map.of(Alliance.Red,
+                        new MotionProfileCommand(drive, robotState, 0.0,
+                            List.of(ejectPosition, collectPositionRed), 0.0,
+                            false, List.of(collectConstraint)),
+                        Alliance.Blue,
+                        new MotionProfileCommand(drive, robotState, 0.0,
+                            List.of(ejectPosition, collectPositionBlue), 0.0,
+                            false, List.of(collectConstraint))),
+                    DriverStation::getAlliance),
+                new WaitCommand(intakeWaitSecs),
+                new InstantCommand(intake::retract),
+                new AutoAim(drive, robotState, vision, null, null).perpetually()
+                    .withTimeout(autoAimTimeout)),
             new RunIntake(IntakeMode.FORWARDS, intake, feeder, leds),
+            new PrepareShooterPreset(flywheels, hood, feeder,
+                ShooterPreset.OPPONENT_EJECT),
             monitorColorCommand),
-        new AutoAim(drive, robotState, vision, null, null).perpetually()
-            .withTimeout(autoAimTimeout)
-            .deadlineWith(new PrepareShooterPreset(flywheels, hood, feeder,
-                ShooterPreset.OPPONENT_EJECT)),
         new InstantCommand(() -> feeder.requestTowerShootPercent(towerPercent)),
         selectedShootCommand
             .deadlineWith(new StartEndCommand(() -> vision.setForceLeds(true),

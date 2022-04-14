@@ -63,6 +63,7 @@ public class Vision extends SubsystemBase {
   private double lastTranslationsTimestamp = 0.0;
   private List<Translation2d> lastTranslations = new ArrayList<>();
 
+  private int pipeline = 0;
   private boolean ledsOn = false;
   private boolean forceLeds = false;
   private boolean autoEnabled = false;
@@ -89,6 +90,11 @@ public class Vision extends SubsystemBase {
     forceLeds = on;
   }
 
+  /** Sets the current pipeline number. */
+  public void setPipeline(int pipeline) {
+    this.pipeline = pipeline;
+  }
+
   public void setAutoEnabled(boolean enabled) {
     autoEnabled = enabled;
   }
@@ -105,15 +111,21 @@ public class Vision extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Vision", inputs);
-    int targetCount = ledsOn ? inputs.cornerX.length / 4 : 0;
+    io.setPipeline(pipeline);
 
     // Update LED idle state
-    if (targetCount > 0) {
-      targetGraceTimer.reset();
+    int targetCount = 0;
+    boolean idleOn = false;
+    if (pipeline == 0) {
+      targetCount = ledsOn ? inputs.cornerX.length / 4 : 0;
+
+      if (targetCount > 0) {
+        targetGraceTimer.reset();
+      }
+      idleOn = targetGraceTimer.get() < targetGraceSecs
+          || Timer.getFPGATimestamp() % blinkPeriodSecs < blinkLengthSecs
+          || alwaysIdleOn;
     }
-    boolean idleOn = targetGraceTimer.get() < targetGraceSecs
-        || Timer.getFPGATimestamp() % blinkPeriodSecs < blinkLengthSecs
-        || alwaysIdleOn;
 
     // Update LED state based on switch
     switch (modeSupplier.get()) {
@@ -143,7 +155,9 @@ public class Vision extends SubsystemBase {
     io.setLeds(ledsOn);
 
     // Process vision data
-    processFrame(targetCount);
+    if (pipeline == 0) {
+      processFrame(targetCount);
+    }
 
     // Log individual translations
     List<Double> xList = new ArrayList<>();
