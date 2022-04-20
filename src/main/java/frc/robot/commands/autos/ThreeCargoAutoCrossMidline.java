@@ -66,11 +66,11 @@ public class ThreeCargoAutoCrossMidline extends SequentialCommandGroup {
   private static final Pose2d collectPositionRed =
       cargoPosition.transformBy(GeomUtil.transformFromTranslation(0.3, 0.0));
   private static final Pose2d collectPositionBlue =
-      cargoPosition.transformBy(GeomUtil.transformFromTranslation(0.2, -0.1));
+      cargoPosition.transformBy(GeomUtil.transformFromTranslation(0.15, -0.2));
   private static final TrajectoryConstraint collectConstraint =
       new MaxVelocityConstraint(Units.inchesToMeters(120.0));
   private static final double cargoTrackingHoodAngle = 75.0;
-  private static final double intakeWaitSecs = 0.1;
+  private static final double intakeWaitSecs = 0.2;
   private static final double autoAimTimeout = 1.2;
   private static final double towerPercent = 0.35;
 
@@ -90,7 +90,7 @@ public class ThreeCargoAutoCrossMidline extends SequentialCommandGroup {
             new Shoot(feeder, leds).raceWith(sequence(
                 new WaitUntilCommand(() -> feeder.getUpperProxSensor()),
                 new WaitUntilCommand(() -> !feeder.getUpperProxSensor()))),
-            new WaitCommand(0.25));
+            new WaitCommand(0.2));
     Supplier<Command> shootOwnCommandSupplier =
         () -> shootSequenceSupplier.get().deadlineWith(
             new PrepareShooterAuto(flywheels, hood, null, robotState));
