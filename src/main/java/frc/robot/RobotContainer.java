@@ -409,7 +409,7 @@ public class RobotContainer {
         .whenActive(flywheelTarmacTrigger::setActive) // Activate only requested command
         .whenActive(flywheelLaunchpadTrigger::setInactive)
         .whenActive(flywheelAutoTrigger::setInactive);
-    handheldOI.getStartFlywheelLaunchpadButton().and(normalMode).and(usePresets)
+    handheldOI.getStartFlywheelLaunchpadButton().and(normalMode)
         .whenActive(flywheelFenderTrigger::setInactive)
         .whenActive(flywheelTarmacTrigger::setInactive)
         .whenActive(flywheelLaunchpadTrigger::setActive) // Activate only requested command
