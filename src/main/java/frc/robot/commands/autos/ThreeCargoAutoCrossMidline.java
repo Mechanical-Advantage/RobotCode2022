@@ -66,7 +66,7 @@ public class ThreeCargoAutoCrossMidline extends SequentialCommandGroup {
   private static final Pose2d collectPositionRed =
       cargoPosition.transformBy(GeomUtil.transformFromTranslation(0.3, 0.0));
   private static final Pose2d collectPositionBlue =
-      cargoPosition.transformBy(GeomUtil.transformFromTranslation(0.15, -0.3));
+      cargoPosition.transformBy(GeomUtil.transformFromTranslation(0.15, -0.2));
   private static final TrajectoryConstraint collectConstraint =
       new MaxVelocityConstraint(Units.inchesToMeters(120.0));
   private static final double cargoTrackingHoodAngle = 75.0;
