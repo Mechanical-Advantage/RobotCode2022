@@ -70,7 +70,7 @@ public class ThreeCargoAutoCrossMidline extends SequentialCommandGroup {
   private static final TrajectoryConstraint collectConstraint =
       new MaxVelocityConstraint(Units.inchesToMeters(120.0));
   private static final double cargoTrackingHoodAngle = 75.0;
-  private static final double intakeWaitSecs = 0.2;
+  private static final double intakeWaitSecs = 0.45;
   private static final double autoAimTimeout = 1.2;
   private static final double towerPercent = 0.35;
 
