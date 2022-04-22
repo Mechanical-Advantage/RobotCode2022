@@ -80,7 +80,7 @@ public class TwoCargoAutoAndEject extends SequentialCommandGroup {
               List.of(fenderEjectTurnPosition, fenderEjectPosition), 0.0, false)
                   .deadlineWith(
                       new RunIntake(IntakeMode.FORWARDS, intake, feeder, leds)),
-          new RunIntake(IntakeMode.BACKWARDS, intake, feeder, leds)
+          new RunIntake(IntakeMode.BACKWARDS_SLOW, intake, feeder, leds)
               .withTimeout(5.0));
     }
 

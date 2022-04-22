@@ -237,7 +237,7 @@ public class RobotContainer {
             new TwoCargoAutoAndEject(true, robotState, drive, vision, flywheels,
                 hood, feeder, intake, leds)));
     autoRoutineMap.put("Two cargo, eject fender (TA)",
-        new AutoRoutine(AutoPosition.TARMAC_A, true,
+        new AutoRoutine(AutoPosition.TARMAC_A, false,
             new TwoCargoAutoAndEject(false, robotState, drive, vision,
                 flywheels, hood, feeder, intake, leds)));
     autoRoutineMap.put("Two cargo (TA)",
