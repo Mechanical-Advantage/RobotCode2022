@@ -90,7 +90,7 @@ public class ThreeCargoAutoCrossMidline extends SequentialCommandGroup {
             new Shoot(feeder, leds).raceWith(sequence(
                 new WaitUntilCommand(() -> feeder.getUpperProxSensor()),
                 new WaitUntilCommand(() -> !feeder.getUpperProxSensor()))),
-            new WaitCommand(0.2));
+            new WaitCommand(0.15));
     Supplier<Command> shootOwnCommandSupplier =
         () -> shootSequenceSupplier.get().deadlineWith(
             new PrepareShooterAuto(flywheels, hood, null, robotState));

@@ -51,7 +51,7 @@ public class TwoCargoAutoAndEject extends SequentialCommandGroup {
           new Transform2d(new Translation2d(), Rotation2d.fromDegrees(135.0)));
   private static final Pose2d fenderEjectPosition =
       FieldConstants.fenderA.transformBy(new Transform2d(
-          new Translation2d(0.75, 0.0), Rotation2d.fromDegrees(180.0)));
+          new Translation2d(1.0, 0.0), Rotation2d.fromDegrees(180.0)));
 
   /**
    * Creates a new TwoCargoAutoAndEject. Collects a second cargo from around tarmac A, then collects
