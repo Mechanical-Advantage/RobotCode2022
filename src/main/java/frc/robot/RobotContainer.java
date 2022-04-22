@@ -232,9 +232,14 @@ public class RobotContainer {
         new AutoRoutine(AutoPosition.FENDER_A, false, new PartnerAuto(
             robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
 
-    autoRoutineMap.put("Two cargo, eject opponent (TA)",
-        new AutoRoutine(AutoPosition.TARMAC_A, false, new TwoCargoAutoAndEject(
-            robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
+    autoRoutineMap.put("Two cargo, eject hangar (TA)",
+        new AutoRoutine(AutoPosition.TARMAC_A, false,
+            new TwoCargoAutoAndEject(true, robotState, drive, vision, flywheels,
+                hood, feeder, intake, leds)));
+    autoRoutineMap.put("Two cargo, eject fender (TA)",
+        new AutoRoutine(AutoPosition.TARMAC_A, true,
+            new TwoCargoAutoAndEject(false, robotState, drive, vision,
+                flywheels, hood, feeder, intake, leds)));
     autoRoutineMap.put("Two cargo (TA)",
         new AutoRoutine(AutoPosition.TARMAC_A, false,
             new TwoCargoAuto(true, AutoPosition.TARMAC_A, robotState, drive,

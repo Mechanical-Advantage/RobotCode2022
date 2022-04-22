@@ -68,7 +68,7 @@ public class RunIntake extends CommandBase {
     rumbleDurationSecs.setDefault(0.2);
 
     forwardsSpeed.setDefault(1.0);
-    backwardsSpeed.setDefault(-1.0);
+    backwardsSpeed.setDefault(-0.75);
     backwardsSlowSpeed.setDefault(-0.45);
   }
 
