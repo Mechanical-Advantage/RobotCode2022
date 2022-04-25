@@ -107,8 +107,9 @@ public class Feeder extends SubsystemBase {
   private final Alert upperProxDisconnectedAlert =
       new Alert("Invalid data from upper cargo sensor. Is is connected?",
           AlertType.ERROR);
-  private final Alert colorSensorDisconnectedAlert = new Alert(
-      "Color sensor disconnected, using simple prox instead.", AlertType.ERROR);
+  private final Alert colorSensorDisconnectedAlert =
+      new Alert("Color sensor disconnected, opponent rejection disabled.",
+          AlertType.ERROR);
 
   /** Creates a new Feeder. */
   public Feeder(FeederIO io) {

@@ -232,9 +232,14 @@ public class RobotContainer {
         new AutoRoutine(AutoPosition.FENDER_A, false, new PartnerAuto(
             robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
 
-    autoRoutineMap.put("Two cargo, eject opponent (TA)",
-        new AutoRoutine(AutoPosition.TARMAC_A, false, new TwoCargoAutoAndEject(
-            robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
+    autoRoutineMap.put("Two cargo, eject hangar (TA)",
+        new AutoRoutine(AutoPosition.TARMAC_A, false,
+            new TwoCargoAutoAndEject(true, robotState, drive, vision, flywheels,
+                hood, feeder, intake, leds)));
+    autoRoutineMap.put("Two cargo, eject fender (TA)",
+        new AutoRoutine(AutoPosition.TARMAC_A, false,
+            new TwoCargoAutoAndEject(false, robotState, drive, vision,
+                flywheels, hood, feeder, intake, leds)));
     autoRoutineMap.put("Two cargo (TA)",
         new AutoRoutine(AutoPosition.TARMAC_A, false,
             new TwoCargoAuto(true, AutoPosition.TARMAC_A, robotState, drive,
@@ -400,13 +405,25 @@ public class RobotContainer {
 
     Trigger usePresets = new Trigger(overrideOI::getShootPresets);
     handheldOI.getStartFlywheelFenderButton().and(normalMode)
-        .whenActive(flywheelFenderTrigger::setActive);
+        .whenActive(flywheelFenderTrigger::setActive) // Activate only requested command
+        .whenActive(flywheelTarmacTrigger::setInactive)
+        .whenActive(flywheelLaunchpadTrigger::setInactive)
+        .whenActive(flywheelAutoTrigger::setInactive);
     handheldOI.getStartFlywheelTarmacButton().and(normalMode).and(usePresets)
-        .whenActive(flywheelTarmacTrigger::setActive);
-    handheldOI.getStartFlywheelLaunchpadButton().and(normalMode).and(usePresets)
-        .whenActive(flywheelLaunchpadTrigger::setActive);
+        .whenActive(flywheelFenderTrigger::setInactive)
+        .whenActive(flywheelTarmacTrigger::setActive) // Activate only requested command
+        .whenActive(flywheelLaunchpadTrigger::setInactive)
+        .whenActive(flywheelAutoTrigger::setInactive);
+    handheldOI.getStartFlywheelLaunchpadButton().and(normalMode)
+        .whenActive(flywheelFenderTrigger::setInactive)
+        .whenActive(flywheelTarmacTrigger::setInactive)
+        .whenActive(flywheelLaunchpadTrigger::setActive) // Activate only requested command
+        .whenActive(flywheelAutoTrigger::setInactive);
     handheldOI.getStartFlywheelAutoButton().and(normalMode)
-        .and(usePresets.negate()).whenActive(flywheelAutoTrigger::setActive);
+        .and(usePresets.negate()).whenActive(flywheelFenderTrigger::setInactive)
+        .whenActive(flywheelTarmacTrigger::setInactive)
+        .whenActive(flywheelLaunchpadTrigger::setInactive)
+        .whenActive(flywheelAutoTrigger::setActive); // Activate only requested command
     handheldOI.getStopFlywheelButton()
         .or(new Trigger(DriverStation::isDisabled)).and(normalMode)
         .whenActive(flywheelFenderTrigger::setInactive)
