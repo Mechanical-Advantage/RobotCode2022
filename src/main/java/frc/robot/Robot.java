@@ -4,6 +4,11 @@
 
 package frc.robot;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.TreeMap;
+import java.util.Map.Entry;
+
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggedNetworkTables;
@@ -12,9 +17,13 @@ import org.littletonrobotics.junction.io.ByteLogReceiver;
 import org.littletonrobotics.junction.io.ByteLogReplay;
 import org.littletonrobotics.junction.io.LogSocketServer;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -22,6 +31,7 @@ import frc.robot.Constants.Mode;
 import frc.robot.Constants.RobotType;
 import frc.robot.util.Alert;
 import frc.robot.util.BatteryTracker;
+import frc.robot.util.GeomUtil;
 import frc.robot.util.Alert.AlertType;
 
 /**
@@ -47,6 +57,10 @@ public class Robot extends LoggedRobot {
       "Failed to open log file. Data will NOT be logged", AlertType.ERROR);
   private final Alert logWriteAlert = new Alert(
       "Failed write to the log file. Data will NOT be logged", AlertType.ERROR);
+
+  private final String zebraPath = "/path/to/file.csv";
+  private TreeMap<Double, Translation2d> zebraData = new TreeMap<>();
+  private Double matchStartTimestamp = null;
 
   public Robot() {
     super(Constants.loopPeriodSecs);
@@ -115,6 +129,25 @@ public class Robot extends LoggedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();
+
+    // Read zebra data from file
+    String line = "";
+    try (BufferedReader bufferedReader =
+        new BufferedReader(new FileReader(zebraPath))) {
+      while (true) {
+        line = bufferedReader.readLine();
+        if (line == null) {
+          break;
+        }
+        String[] entryData = line.split(",");
+        zebraData.put(Double.parseDouble(entryData[0]),
+            new Translation2d(
+                Units.feetToMeters(Double.parseDouble(entryData[1])),
+                Units.feetToMeters(Double.parseDouble(entryData[2]))));
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
   /**
@@ -157,6 +190,45 @@ public class Robot extends LoggedRobot {
                   Timer.getFPGATimestamp() - autoStart));
         }
         autoMessagePrinted = true;
+      }
+    }
+
+    // Log zebra data
+    if (matchStartTimestamp == null) {
+      if (DriverStation.isEnabled()) {
+        matchStartTimestamp = Timer.getFPGATimestamp();
+      }
+    }
+    if (matchStartTimestamp != null) {
+      Entry<Double, Translation2d> zebraEntry =
+          zebraData.lowerEntry(Timer.getFPGATimestamp() - matchStartTimestamp);
+      if (zebraEntry != null) {
+        Pose2d robotPose = robotContainer.getPose();
+        Pose2d zebraPose =
+            new Pose2d(zebraEntry.getValue(), robotPose.getRotation());
+        if (DriverStation.getAlliance() == Alliance.Red) {
+          zebraPose =
+              new Pose2d(zebraEntry.getValue(), robotPose.getRotation());
+        } else {
+          zebraPose = new Pose2d(
+              new Translation2d(FieldConstants.fieldLength,
+                  FieldConstants.fieldWidth).minus(zebraEntry.getValue()),
+              robotPose.getRotation());
+        }
+        Pose2d zebraPoseShifted =
+            zebraPose.transformBy(GeomUtil.transformFromTranslation(0.2, 0.0)); // Shift from
+                                                                                // climbers to
+                                                                                // center
+
+        Logger.getInstance().recordOutput("Odometry/ZebraPose",
+            new double[] {zebraPose.getX(), zebraPose.getY(),
+                zebraPose.getRotation().getRadians()});
+        Logger.getInstance().recordOutput("Odometry/ZebraPoseShifted",
+            new double[] {zebraPoseShifted.getX(), zebraPoseShifted.getY(),
+                zebraPoseShifted.getRotation().getRadians()});
+        Logger.getInstance().recordOutput("ZebraErrorMeters",
+            zebraPoseShifted.getTranslation()
+                .getDistance(robotContainer.getPose().getTranslation()));
       }
     }
   }

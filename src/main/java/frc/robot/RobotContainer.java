@@ -475,6 +475,10 @@ public class RobotContainer {
     leds.update();
   }
 
+  public Pose2d getPose() {
+    return robotState.getLatestPose();
+  }
+
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
