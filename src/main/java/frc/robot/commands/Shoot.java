@@ -29,6 +29,8 @@ public class Shoot extends CommandBase {
   private boolean rumbleActive = false;
   private final Timer rumbleTimer = new Timer();
 
+  private static boolean active = false; // Is an instance of the command scheduled?
+
   /** Creates a new Shoot. Runs the feeder to fire cargo. */
   public Shoot(Feeder feeder, Leds leds) {
     this(feeder, leds, x -> {
@@ -48,6 +50,8 @@ public class Shoot extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    active = true;
+
     feeder.requestShoot(true);
     leds.setShooting(true);
 
@@ -78,6 +82,8 @@ public class Shoot extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    active = false;
+
     feeder.requestShoot(false);
     leds.setShooting(false);
     rumbleConsumer.accept(0.0);
@@ -88,5 +94,9 @@ public class Shoot extends CommandBase {
   @Override
   public boolean isFinished() {
     return false;
+  }
+
+  public static boolean isActive() {
+    return active;
   }
 }

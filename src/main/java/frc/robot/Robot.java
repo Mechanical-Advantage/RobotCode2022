@@ -18,6 +18,8 @@ import org.littletonrobotics.junction.io.ByteLogReplay;
 import org.littletonrobotics.junction.io.LogSocketServer;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -29,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.Mode;
 import frc.robot.Constants.RobotType;
+import frc.robot.commands.Shoot;
 import frc.robot.util.Alert;
 import frc.robot.util.BatteryTracker;
 import frc.robot.util.GeomUtil;
@@ -59,6 +62,8 @@ public class Robot extends LoggedRobot {
       "Failed write to the log file. Data will NOT be logged", AlertType.ERROR);
 
   private final String zebraPath = "/path/to/file.csv";
+  private final Transform2d zebraToCenter =
+      new Transform2d(new Translation2d(0.2, 0.0), new Rotation2d());
   private TreeMap<Double, Translation2d> zebraData = new TreeMap<>();
   private Double matchStartTimestamp = null;
 
@@ -141,9 +146,8 @@ public class Robot extends LoggedRobot {
         }
         String[] entryData = line.split(",");
         zebraData.put(Double.parseDouble(entryData[0]),
-            new Translation2d(
-                Units.feetToMeters(Double.parseDouble(entryData[1])),
-                Units.feetToMeters(Double.parseDouble(entryData[2]))));
+            new Translation2d(Double.parseDouble(entryData[1]),
+                Double.parseDouble(entryData[2])));
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -200,35 +204,48 @@ public class Robot extends LoggedRobot {
       }
     }
     if (matchStartTimestamp != null) {
-      Entry<Double, Translation2d> zebraEntry =
-          zebraData.lowerEntry(Timer.getFPGATimestamp() - matchStartTimestamp);
-      if (zebraEntry != null) {
-        Pose2d robotPose = robotContainer.getPose();
-        Pose2d zebraPose =
-            new Pose2d(zebraEntry.getValue(), robotPose.getRotation());
-        if (DriverStation.getAlliance() == Alliance.Red) {
-          zebraPose =
-              new Pose2d(zebraEntry.getValue(), robotPose.getRotation());
-        } else {
-          zebraPose = new Pose2d(
-              new Translation2d(FieldConstants.fieldLength,
-                  FieldConstants.fieldWidth).minus(zebraEntry.getValue()),
-              robotPose.getRotation());
-        }
-        Pose2d zebraPoseShifted =
-            zebraPose.transformBy(GeomUtil.transformFromTranslation(0.2, 0.0)); // Shift from
-                                                                                // climbers to
-                                                                                // center
+      double zebraTimestamp = Timer.getFPGATimestamp() - matchStartTimestamp;
 
-        Logger.getInstance().recordOutput("Odometry/ZebraPose",
+      Entry<Double, Translation2d> zebraEntryFloor =
+          zebraData.floorEntry(zebraTimestamp);
+      Entry<Double, Translation2d> zebraEntryCeiling =
+          zebraData.ceilingEntry(zebraTimestamp);
+      if (zebraEntryFloor != null && zebraEntryCeiling != null) {
+        Pose2d robotPose = robotContainer.getPose();
+        Translation2d zebraTranslation = GeomUtil
+            .interpolate(
+                new Pose2d(zebraEntryFloor.getValue(), new Rotation2d()),
+                new Pose2d(zebraEntryCeiling.getValue(), new Rotation2d()),
+                (zebraTimestamp - zebraEntryFloor.getKey())
+                    / (zebraEntryCeiling.getKey() - zebraEntryFloor.getKey()))
+            .getTranslation();
+
+        // Convert to meters
+        zebraTranslation =
+            new Translation2d(Units.feetToMeters(zebraTranslation.getX()),
+                Units.feetToMeters(zebraTranslation.getY()));
+
+        // Flip pose for blue alliance (needs to be relative to own driver station wall)
+        if (DriverStation.getAlliance() == Alliance.Blue) {
+          zebraTranslation = new Translation2d(FieldConstants.fieldLength,
+              FieldConstants.fieldWidth).minus(zebraTranslation);
+        }
+
+        // Find pose of robot center
+        Pose2d zebraPose = new Pose2d(zebraTranslation, robotPose.getRotation())
+            .transformBy(zebraToCenter);
+
+        Logger.getInstance().recordOutput("Zebra/Pose",
             new double[] {zebraPose.getX(), zebraPose.getY(),
                 zebraPose.getRotation().getRadians()});
-        Logger.getInstance().recordOutput("Odometry/ZebraPoseShifted",
-            new double[] {zebraPoseShifted.getX(), zebraPoseShifted.getY(),
-                zebraPoseShifted.getRotation().getRadians()});
-        Logger.getInstance().recordOutput("ZebraErrorMeters",
-            zebraPoseShifted.getTranslation()
+        Logger.getInstance().recordOutput("Zebra/ErrorMetersAll",
+            zebraPose.getTranslation()
                 .getDistance(robotContainer.getPose().getTranslation()));
+        if (Shoot.isActive()) {
+          Logger.getInstance().recordOutput("Zebra/ErrorMetersShooting",
+              zebraPose.getTranslation()
+                  .getDistance(robotContainer.getPose().getTranslation()));
+        }
       }
     }
   }
