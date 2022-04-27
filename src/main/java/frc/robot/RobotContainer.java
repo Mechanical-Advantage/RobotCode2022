@@ -479,6 +479,10 @@ public class RobotContainer {
     return robotState.getLatestPose();
   }
 
+  public boolean isClimbMode() {
+    return overrideOI.getClimbMode();
+  }
+
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *

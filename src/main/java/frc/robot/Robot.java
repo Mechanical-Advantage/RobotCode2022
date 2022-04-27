@@ -238,13 +238,17 @@ public class Robot extends LoggedRobot {
         Logger.getInstance().recordOutput("Zebra/Pose",
             new double[] {zebraPose.getX(), zebraPose.getY(),
                 zebraPose.getRotation().getRadians()});
-        Logger.getInstance().recordOutput("Zebra/ErrorMetersAll",
-            zebraPose.getTranslation()
-                .getDistance(robotContainer.getPose().getTranslation()));
+
+        double errorMeters = zebraPose.getTranslation()
+            .getDistance(robotContainer.getPose().getTranslation());
+        Logger.getInstance().recordOutput("Zebra/ErrorMetersAll", errorMeters);
+        if (!robotContainer.isClimbMode()) {
+          Logger.getInstance().recordOutput("Zebra/ErrorMetersNonClimb",
+              errorMeters);
+        }
         if (Shoot.isActive()) {
           Logger.getInstance().recordOutput("Zebra/ErrorMetersShooting",
-              zebraPose.getTranslation()
-                  .getDistance(robotContainer.getPose().getTranslation()));
+              errorMeters);
         }
       }
     }
