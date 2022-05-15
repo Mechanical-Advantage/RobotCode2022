@@ -370,8 +370,10 @@ public class RobotContainer {
     Trigger hoodReady = new Trigger(hood::atGoal);
     handheldOI.getShootButton().and(flywheelsReady).and(hoodReady)
         .whileActiveContinuous(
-            new Shoot(feeder, leds, handheldOI::setDriverRumble))
-        .whenInactive(hoodResetSequence).cancelWhenActive(hoodResetSequence);
+            new Shoot(feeder, leds, handheldOI::setDriverRumble));
+    // .whenInactive(hoodResetSequence).cancelWhenActive(hoodResetSequence);
+    handheldOI.getShootButton().whileActiveContinuous(
+        new PrepareShooterPreset(flywheels, hood, feeder, ShooterPreset.DEMO));
 
     // *** OPERATOR CONTROLS ***
     Trigger climbMode = new Trigger(overrideOI::getClimbMode);
@@ -390,46 +392,46 @@ public class RobotContainer {
         .whileActiveContinuous(new RunIntake(IntakeMode.BACKWARDS, intake,
             feeder, leds, handheldOI::setOperatorRumble));
 
-    StickyTrigger flywheelFenderTrigger = new StickyTrigger();
-    flywheelFenderTrigger.whileActiveContinuous(new PrepareShooterPreset(
-        flywheels, hood, feeder, ShooterPreset.UPPER_FENDER));
-    StickyTrigger flywheelTarmacTrigger = new StickyTrigger();
-    flywheelTarmacTrigger.whileActiveContinuous(new PrepareShooterPreset(
-        flywheels, hood, feeder, ShooterPreset.UPPER_TARMAC));
-    StickyTrigger flywheelLaunchpadTrigger = new StickyTrigger();
-    flywheelLaunchpadTrigger.whileActiveContinuous(new PrepareShooterPreset(
-        flywheels, hood, feeder, ShooterPreset.UPPER_LAUNCHPAD));
-    StickyTrigger flywheelAutoTrigger = new StickyTrigger();
-    flywheelAutoTrigger.whileActiveContinuous(
-        new PrepareShooterAuto(flywheels, hood, feeder, robotState));
+    // StickyTrigger flywheelFenderTrigger = new StickyTrigger();
+    // flywheelFenderTrigger.whileActiveContinuous(new PrepareShooterPreset(
+    // flywheels, hood, feeder, ShooterPreset.UPPER_FENDER));
+    // StickyTrigger flywheelTarmacTrigger = new StickyTrigger();
+    // flywheelTarmacTrigger.whileActiveContinuous(new PrepareShooterPreset(
+    // flywheels, hood, feeder, ShooterPreset.UPPER_TARMAC));
+    // StickyTrigger flywheelLaunchpadTrigger = new StickyTrigger();
+    // flywheelLaunchpadTrigger.whileActiveContinuous(new PrepareShooterPreset(
+    // flywheels, hood, feeder, ShooterPreset.UPPER_LAUNCHPAD));
+    // StickyTrigger flywheelAutoTrigger = new StickyTrigger();
+    // flywheelAutoTrigger.whileActiveContinuous(
+    // new PrepareShooterAuto(flywheels, hood, feeder, robotState));
 
-    Trigger usePresets = new Trigger(overrideOI::getShootPresets);
-    handheldOI.getStartFlywheelFenderButton().and(normalMode)
-        .whenActive(flywheelFenderTrigger::setActive) // Activate only requested command
-        .whenActive(flywheelTarmacTrigger::setInactive)
-        .whenActive(flywheelLaunchpadTrigger::setInactive)
-        .whenActive(flywheelAutoTrigger::setInactive);
-    handheldOI.getStartFlywheelTarmacButton().and(normalMode).and(usePresets)
-        .whenActive(flywheelFenderTrigger::setInactive)
-        .whenActive(flywheelTarmacTrigger::setActive) // Activate only requested command
-        .whenActive(flywheelLaunchpadTrigger::setInactive)
-        .whenActive(flywheelAutoTrigger::setInactive);
-    handheldOI.getStartFlywheelLaunchpadButton().and(normalMode)
-        .whenActive(flywheelFenderTrigger::setInactive)
-        .whenActive(flywheelTarmacTrigger::setInactive)
-        .whenActive(flywheelLaunchpadTrigger::setActive) // Activate only requested command
-        .whenActive(flywheelAutoTrigger::setInactive);
-    handheldOI.getStartFlywheelAutoButton().and(normalMode)
-        .and(usePresets.negate()).whenActive(flywheelFenderTrigger::setInactive)
-        .whenActive(flywheelTarmacTrigger::setInactive)
-        .whenActive(flywheelLaunchpadTrigger::setInactive)
-        .whenActive(flywheelAutoTrigger::setActive); // Activate only requested command
-    handheldOI.getStopFlywheelButton()
-        .or(new Trigger(DriverStation::isDisabled)).and(normalMode)
-        .whenActive(flywheelFenderTrigger::setInactive)
-        .whenActive(flywheelTarmacTrigger::setInactive)
-        .whenActive(flywheelLaunchpadTrigger::setInactive)
-        .whenActive(flywheelAutoTrigger::setInactive);
+    // Trigger usePresets = new Trigger(overrideOI::getShootPresets);
+    // handheldOI.getStartFlywheelFenderButton().and(normalMode)
+    // .whenActive(flywheelFenderTrigger::setActive) // Activate only requested command
+    // .whenActive(flywheelTarmacTrigger::setInactive)
+    // .whenActive(flywheelLaunchpadTrigger::setInactive)
+    // .whenActive(flywheelAutoTrigger::setInactive);
+    // handheldOI.getStartFlywheelTarmacButton().and(normalMode).and(usePresets)
+    // .whenActive(flywheelFenderTrigger::setInactive)
+    // .whenActive(flywheelTarmacTrigger::setActive) // Activate only requested command
+    // .whenActive(flywheelLaunchpadTrigger::setInactive)
+    // .whenActive(flywheelAutoTrigger::setInactive);
+    // handheldOI.getStartFlywheelLaunchpadButton().and(normalMode)
+    // .whenActive(flywheelFenderTrigger::setInactive)
+    // .whenActive(flywheelTarmacTrigger::setInactive)
+    // .whenActive(flywheelLaunchpadTrigger::setActive) // Activate only requested command
+    // .whenActive(flywheelAutoTrigger::setInactive);
+    // handheldOI.getStartFlywheelAutoButton().and(normalMode)
+    // .and(usePresets.negate()).whenActive(flywheelFenderTrigger::setInactive)
+    // .whenActive(flywheelTarmacTrigger::setInactive)
+    // .whenActive(flywheelLaunchpadTrigger::setInactive)
+    // .whenActive(flywheelAutoTrigger::setActive); // Activate only requested command
+    // handheldOI.getStopFlywheelButton()
+    // .or(new Trigger(DriverStation::isDisabled)).and(normalMode)
+    // .whenActive(flywheelFenderTrigger::setInactive)
+    // .whenActive(flywheelTarmacTrigger::setInactive)
+    // .whenActive(flywheelLaunchpadTrigger::setInactive)
+    // .whenActive(flywheelAutoTrigger::setInactive);
 
     handheldOI.getShooterIncrement()
         .whenActive(new DisabledInstantCommand(flywheels::incrementOffset));
@@ -441,10 +443,10 @@ public class RobotContainer {
         () -> leds.setClimbing(true), () -> leds.setClimbing(false)));
     climbMode.whileActiveContinuous(new RunClimberWithJoystick(climber,
         handheldOI::getClimbStick, overrideOI::getClimbOpenLoop));
-    climbMode.whenActive(flywheelFenderTrigger::setInactive)
-        .whenActive(flywheelTarmacTrigger::setInactive)
-        .whenActive(flywheelLaunchpadTrigger::setInactive)
-        .whenActive(flywheelAutoTrigger::setInactive);
+    // climbMode.whenActive(flywheelFenderTrigger::setInactive)
+    // .whenActive(flywheelTarmacTrigger::setInactive)
+    // .whenActive(flywheelLaunchpadTrigger::setInactive)
+    // .whenActive(flywheelAutoTrigger::setInactive);
     climbMode.whenActive(intake::retract, intake);
     climbMode
         .whileActiveContinuous(new RunCommand(() -> hood.moveToBottom(), hood));

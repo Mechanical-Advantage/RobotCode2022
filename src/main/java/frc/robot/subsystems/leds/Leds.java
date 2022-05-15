@@ -46,46 +46,47 @@ public class Leds {
 
     // Select LED mode
     LedMode mode;
-    if (DriverStation.isDisabled()) {
-      switch (alliance) {
-        case Red:
-          mode = LedMode.DISABLED_RED;
-          break;
-        case Blue:
-          mode = LedMode.DISABLED_BLUE;
-          break;
-        default:
-          mode = LedMode.DISABLED_NEUTRAL;
-          break;
-      }
-    } else if (fallen) {
-      mode = LedMode.FALLEN;
-    } else if (climbing) {
-      if (climbFailure) {
-        mode = LedMode.CLIMB_FAILURE;
-      } else if (climbSuccess) {
-        mode = LedMode.CLIMB_SUCCESS;
-      } else {
-        mode = LedMode.CLIMB_NORMAL;
-      }
-    } else if (autoAlert) {
-      mode = LedMode.AUTO_ALERT;
-    } else if (shooting && DriverStation.isAutonomous()) {
-      mode = LedMode.SHOOTING;
-      // } else if (targeted && flywheelsReady && towerCount > 0
-      // && DriverStation.isTeleop()) {
-      // mode = LedMode.TARGETED;
-    } else if (towerCount == 2 && DriverStation.isTeleop()) {
-      mode = LedMode.TOWER_TWO_CARGO;
-    } else if (towerCount == 1 && DriverStation.isTeleop()) {
-      mode = LedMode.TOWER_ONE_CARGO;
-    } else if (intaking && DriverStation.isTeleop()) {
-      mode = LedMode.INTAKING;
-    } else if (DriverStation.isAutonomous()) {
-      mode = LedMode.DEFAULT_AUTO;
-    } else {
-      mode = LedMode.DEFAULT_TELEOP;
-    }
+    // if (DriverStation.isDisabled()) {
+    // switch (alliance) {
+    // case Red:
+    // mode = LedMode.DISABLED_RED;
+    // break;
+    // case Blue:
+    // mode = LedMode.DISABLED_BLUE;
+    // break;
+    // default:
+    // mode = LedMode.DISABLED_NEUTRAL;
+    // break;
+    // }
+    // } else if (fallen) {
+    // mode = LedMode.FALLEN;
+    // } else if (climbing) {
+    // if (climbFailure) {
+    // mode = LedMode.CLIMB_FAILURE;
+    // } else if (climbSuccess) {
+    // mode = LedMode.CLIMB_SUCCESS;
+    // } else {
+    // mode = LedMode.CLIMB_NORMAL;
+    // }
+    // } else if (autoAlert) {
+    // mode = LedMode.AUTO_ALERT;
+    // } else if (shooting && DriverStation.isAutonomous()) {
+    // mode = LedMode.SHOOTING;
+    // // } else if (targeted && flywheelsReady && towerCount > 0
+    // // && DriverStation.isTeleop()) {
+    // // mode = LedMode.TARGETED;
+    // } else if (towerCount == 2 && DriverStation.isTeleop()) {
+    // mode = LedMode.TOWER_TWO_CARGO;
+    // } else if (towerCount == 1 && DriverStation.isTeleop()) {
+    // mode = LedMode.TOWER_ONE_CARGO;
+    // } else if (intaking && DriverStation.isTeleop()) {
+    // mode = LedMode.INTAKING;
+    // } else if (DriverStation.isAutonomous()) {
+    // mode = LedMode.DEFAULT_AUTO;
+    // } else {
+    // mode = LedMode.DEFAULT_TELEOP;
+    // }
+    mode = LedMode.CLIMB_NORMAL;
     io.setMode(mode);
     Logger.getInstance().recordOutput("LEDMode", mode.toString());
   }

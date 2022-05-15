@@ -55,6 +55,13 @@ public class PrepareShooterPreset extends CommandBase {
   public static final TunableNumber opponentEjectTower =
       new TunableNumber("PrepareShooterPreset/OpponentEject/TowerPercent");
 
+  public static final TunableNumber demoRpm =
+      new TunableNumber("PrepareShooterPreset/Demo/RPM");
+  public static final TunableNumber demoAngle =
+      new TunableNumber("PrepareShooterPreset/Demo/Angle");
+  public static final TunableNumber demoTower =
+      new TunableNumber("PrepareShooterPreset/Demo/TowerPercent");
+
   private final Flywheels flywheels;
   private final Hood hood;
   private final Feeder feeder;
@@ -95,6 +102,10 @@ public class PrepareShooterPreset extends CommandBase {
     opponentEjectRpm.setDefault(800.0);
     opponentEjectAngle.setDefault(3.0); // Min angle
     opponentEjectTower.setDefault(0.6);
+
+    demoRpm.setDefault(2500.0);
+    demoAngle.setDefault(31.0); // Max angle
+    demoTower.setDefault(0.6);
   }
 
   // Called when the command is initially scheduled.
@@ -136,6 +147,10 @@ public class PrepareShooterPreset extends CommandBase {
         hoodAngle = opponentEjectAngle.get();
         towerSpeed = opponentEjectTower.get();
         break;
+      case DEMO:
+        flywheelSpeed = demoRpm.get();
+        hoodAngle = demoAngle.get();
+        towerSpeed = demoTower.get();
       default:
         break;
     }
@@ -161,6 +176,6 @@ public class PrepareShooterPreset extends CommandBase {
   }
 
   public static enum ShooterPreset {
-    LOWER_FENDER, UPPER_FENDER, UPPER_TARMAC, UPPER_LAUNCHPAD, HANGAR_EJECT, OPPONENT_EJECT
+    LOWER_FENDER, UPPER_FENDER, UPPER_TARMAC, UPPER_LAUNCHPAD, HANGAR_EJECT, OPPONENT_EJECT, DEMO
   }
 }
