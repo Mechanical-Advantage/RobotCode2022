@@ -86,7 +86,11 @@ public class Leds {
     // } else {
     // mode = LedMode.DEFAULT_TELEOP;
     // }
-    mode = LedMode.CLIMB_NORMAL;
+    if (shooting) {
+      mode = LedMode.SHOOTING;
+    } else {
+      mode = LedMode.CLIMB_NORMAL;
+    }
     io.setMode(mode);
     Logger.getInstance().recordOutput("LEDMode", mode.toString());
   }
