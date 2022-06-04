@@ -40,6 +40,7 @@ import frc.robot.commands.autos.FourCargoAuto;
 import frc.robot.commands.autos.FourCargoAutoAvoidD;
 import frc.robot.commands.autos.FourCargoAutoCross;
 import frc.robot.commands.autos.HPPractice;
+import frc.robot.commands.autos.MysteryCargo;
 import frc.robot.commands.autos.OneCargoAuto;
 import frc.robot.commands.autos.PartnerAuto;
 import frc.robot.commands.autos.Taxi;
@@ -212,6 +213,19 @@ public class RobotContainer {
     autoRoutineMap.put("Five cargo (TD)",
         new AutoRoutine(AutoPosition.TARMAC_D, false, new FiveCargoAuto(
             robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
+    autoRoutineMap.put("Mystery, stands (TA)",
+        new AutoRoutine(AutoPosition.TARMAC_A, false,
+            new MysteryCargo(ShooterPreset.MYSTERY_STANDS, robotState, drive,
+                vision, flywheels, hood, feeder, intake, leds)));
+    autoRoutineMap.put("Mystery, alliance station (TA)",
+        new AutoRoutine(AutoPosition.TARMAC_A, false,
+            new MysteryCargo(ShooterPreset.MYSTERY_ALLIANCE_STATION, robotState,
+                drive, vision, flywheels, hood, feeder, intake, leds)));
+    autoRoutineMap.put("Mystery, human player (TA)",
+        new AutoRoutine(AutoPosition.TARMAC_A, false,
+            new MysteryCargo(ShooterPreset.MYSTERY_HUMAN_PLAYER, robotState,
+                drive, vision, flywheels, hood, feeder, intake, leds)));
+
     autoRoutineMap.put("Four cargo, standard (TD)",
         new AutoRoutine(AutoPosition.TARMAC_D, false, new FourCargoAuto(
             robotState, drive, vision, flywheels, hood, feeder, intake, leds)));

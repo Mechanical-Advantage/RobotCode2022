@@ -112,6 +112,10 @@ public final class FieldConstants {
   public static final Pose2d cargoG = terminalCenter
       .transformBy(GeomUtil.transformFromTranslation(terminalCargoOffset, 0.0));
 
+  // Mystery cargo
+  public static final Pose2d cargoMystery = cargoB.transformBy(
+      GeomUtil.transformFromTranslation(Units.inchesToMeters(24.0), 0.0));
+
   // Opposite reference points
   public static final Pose2d referenceAOpposite = opposite(referenceA);
   public static final Pose2d referenceBOpposite = opposite(referenceB);

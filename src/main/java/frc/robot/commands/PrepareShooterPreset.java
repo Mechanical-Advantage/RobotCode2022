@@ -55,6 +55,22 @@ public class PrepareShooterPreset extends CommandBase {
   public static final TunableNumber opponentEjectTower =
       new TunableNumber("PrepareShooterPreset/OpponentEject/TowerPercent");
 
+  public static final TunableNumber mysteryTower =
+      new TunableNumber("PrepareShooterPreset/Mystery/TowerPercent");
+  public static final TunableNumber mysteryStandsRpm =
+      new TunableNumber("PrepareShooterPreset/Mystery/StandsRPM");
+  public static final TunableNumber mysteryStandsAngle =
+      new TunableNumber("PrepareShooterPreset/Mystery/StandsAngle");
+  public static final TunableNumber mysteryAllianceStationRpm =
+      new TunableNumber("PrepareShooterPreset/Mystery/AllianceStationRPM");
+  public static final TunableNumber mysteryAllianceStationAngle =
+      new TunableNumber("PrepareShooterPreset/Mystery/AllianceStationAngle");
+  public static final TunableNumber mysteryHumanPlayerRpm =
+      new TunableNumber("PrepareShooterPreset/Mystery/HumanPlayerRPM");
+  public static final TunableNumber mysteryHumanPlayerAngle =
+      new TunableNumber("PrepareShooterPreset/Mystery/HumanPlayerAngle");
+
+
   private final Flywheels flywheels;
   private final Hood hood;
   private final Feeder feeder;
@@ -95,6 +111,14 @@ public class PrepareShooterPreset extends CommandBase {
     opponentEjectRpm.setDefault(800.0);
     opponentEjectAngle.setDefault(3.0); // Min angle
     opponentEjectTower.setDefault(0.6);
+
+    mysteryTower.setDefault(0.6);
+    mysteryStandsRpm.setDefault(1800.0);
+    mysteryStandsAngle.setDefault(31.0);
+    mysteryAllianceStationRpm.setDefault(1500.0);
+    mysteryAllianceStationAngle.setDefault(31.0);
+    mysteryHumanPlayerRpm.setDefault(2100.0);
+    mysteryHumanPlayerAngle.setDefault(31.0);
   }
 
   // Called when the command is initially scheduled.
@@ -136,6 +160,21 @@ public class PrepareShooterPreset extends CommandBase {
         hoodAngle = opponentEjectAngle.get();
         towerSpeed = opponentEjectTower.get();
         break;
+      case MYSTERY_STANDS:
+        flywheelSpeed = mysteryStandsRpm.get();
+        hoodAngle = mysteryStandsAngle.get();
+        towerSpeed = mysteryTower.get();
+        break;
+      case MYSTERY_ALLIANCE_STATION:
+        flywheelSpeed = mysteryAllianceStationRpm.get();
+        hoodAngle = mysteryAllianceStationAngle.get();
+        towerSpeed = mysteryTower.get();
+        break;
+      case MYSTERY_HUMAN_PLAYER:
+        flywheelSpeed = mysteryHumanPlayerRpm.get();
+        hoodAngle = mysteryHumanPlayerAngle.get();
+        towerSpeed = mysteryTower.get();
+        break;
       default:
         break;
     }
@@ -161,6 +200,6 @@ public class PrepareShooterPreset extends CommandBase {
   }
 
   public static enum ShooterPreset {
-    LOWER_FENDER, UPPER_FENDER, UPPER_TARMAC, UPPER_LAUNCHPAD, HANGAR_EJECT, OPPONENT_EJECT
+    LOWER_FENDER, UPPER_FENDER, UPPER_TARMAC, UPPER_LAUNCHPAD, HANGAR_EJECT, OPPONENT_EJECT, MYSTERY_STANDS, MYSTERY_ALLIANCE_STATION, MYSTERY_HUMAN_PLAYER
   }
 }
