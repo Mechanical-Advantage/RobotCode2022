@@ -34,7 +34,8 @@ public class MysteryCargo extends SequentialCommandGroup {
       FieldConstants.cargoMystery
           .transformBy(GeomUtil.transformFromTranslation(-0.2, 0.0));
   public static final Map<ShooterPreset, Rotation2d> shootRotations =
-      Map.of(ShooterPreset.MYSTERY_STANDS, Rotation2d.fromDegrees(-90.0),
+      Map.of(ShooterPreset.MYSTERY_STANDS_NEAR, Rotation2d.fromDegrees(-90.0),
+          ShooterPreset.MYSTERY_STANDS_FAR, Rotation2d.fromDegrees(100.0),
           ShooterPreset.MYSTERY_ALLIANCE_STATION, new Rotation2d(),
           ShooterPreset.MYSTERY_HUMAN_PLAYER,
           GeomUtil.direction(mysteryCollectPosition.getTranslation()));

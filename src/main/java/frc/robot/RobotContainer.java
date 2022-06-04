@@ -213,10 +213,14 @@ public class RobotContainer {
     autoRoutineMap.put("Five cargo (TD)",
         new AutoRoutine(AutoPosition.TARMAC_D, false, new FiveCargoAuto(
             robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
-    autoRoutineMap.put("Mystery, stands (TA)",
+    autoRoutineMap.put("Mystery, near stands (TA)",
         new AutoRoutine(AutoPosition.TARMAC_A, false,
-            new MysteryCargo(ShooterPreset.MYSTERY_STANDS, robotState, drive,
-                vision, flywheels, hood, feeder, intake, leds)));
+            new MysteryCargo(ShooterPreset.MYSTERY_STANDS_NEAR, robotState,
+                drive, vision, flywheels, hood, feeder, intake, leds)));
+    autoRoutineMap.put("Mystery, far stands (TA)",
+        new AutoRoutine(AutoPosition.TARMAC_A, false,
+            new MysteryCargo(ShooterPreset.MYSTERY_STANDS_FAR, robotState,
+                drive, vision, flywheels, hood, feeder, intake, leds)));
     autoRoutineMap.put("Mystery, alliance station (TA)",
         new AutoRoutine(AutoPosition.TARMAC_A, false,
             new MysteryCargo(ShooterPreset.MYSTERY_ALLIANCE_STATION, robotState,
