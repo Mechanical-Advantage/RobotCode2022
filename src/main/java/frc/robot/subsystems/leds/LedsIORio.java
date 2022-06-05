@@ -23,7 +23,8 @@ public class LedsIORio implements LedsIO {
   private static final double waveFastDuration = 0.25; // How long until the cycle repeats
   private static final double waveAllianceFullLength = 15.0; // How many LEDs for a full cycle
   private static final double waveAllianceDuration = 2.0; // How many LEDs for a full cycle
-  private static final double waveSlowFullLength = 40.0; // How many LEDs for a full cycle
+  // private static final double waveSlowFullLength = 40.0; // How many LEDs for a full cycle
+  private static final double waveSlowFullLength = 10.0; // How many LEDs for a full cycle
   private static final double waveSlowDuration = 3.0; // How long until the cycle repeats
 
   private final AddressableLED leds;
@@ -86,8 +87,8 @@ public class LedsIORio implements LedsIO {
             waveAllianceDuration);
         break;
       case DISABLED_NEUTRAL:
-        wave(Color.kGold, Color.kDarkBlue, waveSlowFullLength,
-            waveSlowDuration);
+        // wave(Color.kGold, Color.kDarkBlue, waveSlowFullLength, waveSlowDuration);
+        wave(Color.kRed, Color.kGreen, waveSlowFullLength, waveSlowDuration);
         break;
       default:
         solid(Color.kBlack);
