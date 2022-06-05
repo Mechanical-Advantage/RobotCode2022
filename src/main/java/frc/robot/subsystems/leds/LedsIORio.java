@@ -25,7 +25,7 @@ public class LedsIORio implements LedsIO {
   private static final double waveAllianceDuration = 2.0; // How many LEDs for a full cycle
   // private static final double waveSlowFullLength = 40.0; // How many LEDs for a full cycle
   private static final double waveSlowFullLength = 10.0; // How many LEDs for a full cycle
-  private static final double waveSlowDuration = 3.0; // How long until the cycle repeats
+  private static final double waveSlowDuration = 1.0; // How long until the cycle repeats
 
   private final AddressableLED leds;
   private final AddressableLEDBuffer buffer;
