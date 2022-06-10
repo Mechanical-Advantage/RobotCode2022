@@ -30,7 +30,7 @@ import frc.robot.util.GeomUtil;
 
 public class Vision extends SubsystemBase {
   private static final double circleFitPrecision = 0.01;
-  private static final int minTargetCount = 2; // For calculating odometry
+  private static final int minTargetCount = 3; // For calculating odometry
   private static final double extraLatencySecs = 0.06; // Approximate camera + network latency
 
   private static final boolean alwaysIdleOn = true; // Always light the LEDs during teleop
@@ -127,6 +127,8 @@ public class Vision extends SubsystemBase {
           || alwaysIdleOn;
     }
 
+    Logger.getInstance().recordOutput("Vision/TargetCount", targetCount);
+
     // Update LED state based on switch
     switch (modeSupplier.get()) {
       case ALWAYS_OFF:
@@ -199,7 +201,9 @@ public class Vision extends SubsystemBase {
         VisionConstants.getCameraPosition(hoodAngle.get());
 
     // Calculate camera to target translation
-    if (targetCount >= minTargetCount) {
+    if (targetCount >= minTargetCount
+        && inputs.cornerX.length == inputs.cornerY.length
+        && inputs.cornerX.length % 4 == 0) {
 
       // Calculate individual corner translations
       List<Translation2d> cameraToTargetTranslations = new ArrayList<>();
