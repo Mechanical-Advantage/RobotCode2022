@@ -37,44 +37,6 @@ public class Waypoint {
   }
 
   /**
-   * Constructs a Waypoint with a pose and holonomic rotation.
-   * 
-   * @param pose Waypoint position and drive velocity rotation (required)
-   * @param holonomicRotation Holonomic rotation (optional, can be null)
-   */
-  public Waypoint(Pose2d pose, Rotation2d holonomicRotation) {
-    requireNonNullParam(pose, "pose", "Waypoint");
-    this.translation = pose.getTranslation();
-    this.driveRotation = pose.getRotation();
-    this.holonomicRotation = holonomicRotation;
-  }
-
-  /**
-   * Constructs a Waypoint with a translation and drive rotation (but no holonomic rotation).
-   * 
-   * @param translation Waypoint position (required)
-   * @param driveRotation Drive velocity rotation (optional, can be null)
-   */
-  public Waypoint(Translation2d translation, Rotation2d driveRotation) {
-    this.translation =
-        requireNonNullParam(translation, "translation", "Waypoint");
-    this.driveRotation = driveRotation;
-    this.holonomicRotation = null;
-  }
-
-  /**
-   * Constructs a Waypoint from a pose (rotation is used as drive rotation)
-   * 
-   * @param pose Waypoint position and drive rotation (required)
-   */
-  public Waypoint(Pose2d pose) {
-    requireNonNullParam(pose, "pose", "Waypoint");
-    this.translation = pose.getTranslation();
-    this.driveRotation = pose.getRotation();
-    this.holonomicRotation = null;
-  }
-
-  /**
    * Constructs a Waypoint with a translation (but no drive or holonomic rotation).
    * 
    * @param translation Waypoint position (required)
@@ -84,6 +46,52 @@ public class Waypoint {
         requireNonNullParam(translation, "translation", "Waypoint");
     this.driveRotation = null;
     this.holonomicRotation = null;
+  }
+
+  /**
+   * Constucts a Waypoint based on a pose.
+   * 
+   * @param pose Source pose (where the rotation describes the drive rotation)
+   */
+  public static Waypoint fromDifferentialPose(Pose2d pose) {
+    requireNonNullParam(pose, "pose", "Waypoint");
+    return new Waypoint(pose.getTranslation(), pose.getRotation(), null);
+  }
+
+  /**
+   * Constucts a Waypoint based on a pose.
+   * 
+   * @param pose Source pose (where the rotation describes the drive rotation)
+   * @param holonomicRotation Holonomic rotation
+   */
+  public static Waypoint fromDifferentialPose(Pose2d pose,
+      Rotation2d holonomicRotation) {
+    requireNonNullParam(pose, "pose", "Waypoint");
+    return new Waypoint(pose.getTranslation(), pose.getRotation(),
+        holonomicRotation);
+  }
+
+  /**
+   * Constucts a Waypoint based on a pose.
+   * 
+   * @param pose Source pose (where the rotation describes the holonomic rotation)
+   */
+  public static Waypoint fromHolonomicPose(Pose2d pose) {
+    requireNonNullParam(pose, "pose", "Waypoint");
+    return new Waypoint(pose.getTranslation(), null, pose.getRotation());
+  }
+
+  /**
+   * Constucts a Waypoint based on a pose.
+   * 
+   * @param pose Source pose (where the rotation describes the holonomic rotation)
+   * @param driveRotation Drive rotation
+   */
+  public static Waypoint fromHolonomicPose(Pose2d pose,
+      Rotation2d driveRotation) {
+    requireNonNullParam(pose, "pose", "Waypoint");
+    return new Waypoint(pose.getTranslation(), driveRotation,
+        pose.getRotation());
   }
 
   /** Returns the translation component of the waypoint. */

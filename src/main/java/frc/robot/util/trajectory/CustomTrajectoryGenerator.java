@@ -17,7 +17,8 @@ import frc.robot.util.GeomUtil;
 
 /** Generator for creating a drive trajectory and rotation sequence from a series of waypoints. */
 public class CustomTrajectoryGenerator {
-  private Trajectory driveTrajectory = new Trajectory();
+  private Trajectory driveTrajectory =
+      new Trajectory(List.of(new Trajectory.State()));
   private RotationSequence holonomicRotationSequence =
       new RotationSequence(new TreeMap<>());
 
@@ -175,8 +176,6 @@ public class CustomTrajectoryGenerator {
       }
     }
     holonomicRotationSequence = new RotationSequence(holonomicWaypoints);
-
-    System.out.println(holonomicWaypoints);
   }
 
   private TrajectoryConfig copyConfig(TrajectoryConfig config) {

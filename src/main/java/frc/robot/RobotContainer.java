@@ -213,63 +213,35 @@ public class RobotContainer {
     // Set up auto routines
     // autoRoutineMap.put("Do Nothing",
     // new AutoRoutine(AutoPosition.ORIGIN, true, new InstantCommand()));
-    // autoRoutineMap.put("Do Nothing", new AutoRoutine(AutoPosition.ORIGIN, true,
-    // new SwerveMotionProfileCommand(drive, robotState,
-    // List.of(new Waypoint(new Translation2d(1.0, 1.0), new Rotation2d()),
-    // new Waypoint(new Translation2d(3.0, 1.2),
-    // Rotation2d.fromDegrees(90.0), new Rotation2d()),
-    // new Waypoint(new Translation2d(4.0, 2.0)),
-    // new Waypoint(new Translation2d(4.0, 3.0), null,
-    // Rotation2d.fromDegrees(90.0))))));
-    autoRoutineMap
-        .put("Do Nothing",
-            new AutoRoutine(AutoPosition.TARMAC_D, false,
-                new SequentialCommandGroup(
-                    new SwerveMotionProfileCommand(drive, robotState,
-                        List.of(new Waypoint(
-                            AutoPosition.TARMAC_D.getPose().getTranslation(),
-                            null,
-                            AutoPosition.TARMAC_D.getPose().getRotation()),
-                            new Waypoint(TwoCargoAuto.cargoPositions
-                                .get(AutoPosition.TARMAC_D).getTranslation(),
-                                null,
-                                TwoCargoAuto.cargoPositions
-                                    .get(AutoPosition.TARMAC_D)
-                                    .getRotation()))),
-                    new SwerveMotionProfileCommand(drive, robotState,
-                        List.of(
-                            new Waypoint(
-                                TwoCargoAuto.cargoPositions.get(
-                                    AutoPosition.TARMAC_D).getTranslation(),
-                                null,
-                                TwoCargoAuto.cargoPositions
-                                    .get(AutoPosition.TARMAC_D).getRotation()),
-                            new Waypoint(
-                                TwoCargoAuto.cargoPositions
-                                    .get(AutoPosition.TARMAC_C),
-                                TwoCargoAuto.cargoPositions.get(
-                                    AutoPosition.TARMAC_C).getRotation()))),
-                    new SwerveMotionProfileCommand(drive, robotState,
-                        List.of(
-                            new Waypoint(
-                                TwoCargoAuto.cargoPositions.get(
-                                    AutoPosition.TARMAC_C).getTranslation(),
-                                null,
-                                TwoCargoAuto.cargoPositions
-                                    .get(AutoPosition.TARMAC_C).getRotation()),
-                            new Waypoint(FourCargoAuto.terminalCargoPosition,
-                                FourCargoAuto.terminalCargoPosition
-                                    .getRotation()))),
-                    new SwerveMotionProfileCommand(drive, robotState, List.of(
-                        new Waypoint(
+    autoRoutineMap.put("Do Nothing",
+        new AutoRoutine(AutoPosition.TARMAC_D, false,
+            new SequentialCommandGroup(
+                new SwerveMotionProfileCommand(drive, robotState, List.of(
+                    Waypoint.fromHolonomicPose(AutoPosition.TARMAC_D.getPose()),
+                    Waypoint.fromHolonomicPose(TwoCargoAuto.cargoPositions
+                        .get(AutoPosition.TARMAC_D)))),
+                new SwerveMotionProfileCommand(drive, robotState, List.of(
+                    Waypoint.fromHolonomicPose(
+                        TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_D)),
+                    Waypoint.fromHolonomicPose(
+                        TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_C),
+                        TwoCargoAuto.cargoPositions.get(AutoPosition.TARMAC_C)
+                            .getRotation()))),
+                new SwerveMotionProfileCommand(drive, robotState,
+                    List.of(
+                        Waypoint
+                            .fromHolonomicPose(TwoCargoAuto.cargoPositions
+                                .get(AutoPosition.TARMAC_C)),
+                        Waypoint.fromHolonomicPose(
+                            FourCargoAuto.terminalCargoPosition,
                             FourCargoAuto.terminalCargoPosition
-                                .getTranslation(),
-                            null,
-                            FourCargoAuto.terminalCargoPosition.getRotation()),
-                        new Waypoint(
-                            FiveCargoAuto.thirdShotPosition.getTranslation(),
-                            null,
-                            FiveCargoAuto.thirdShotPosition.getRotation()))))));
+                                .getRotation()))),
+                new SwerveMotionProfileCommand(drive, robotState, List.of(
+                    Waypoint
+                        .fromHolonomicPose(FourCargoAuto.terminalCargoPosition),
+                    Waypoint.fromHolonomicPose(TwoCargoAuto
+                        .calcAimedPose(new Pose2d(new Translation2d(5.0, 2.0),
+                            new Rotation2d()))))))));
 
     autoRoutineMap.put("Five cargo (TD)",
         new AutoRoutine(AutoPosition.TARMAC_D, false, new FiveCargoAuto(
