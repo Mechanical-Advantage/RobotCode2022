@@ -104,7 +104,7 @@ public class PrepareShooterPreset extends CommandBase {
     opponentEjectTower.setDefault(0.6);
 
     demoRpm.setDefault(2500.0);
-    demoAngle.setDefault(31.0); // Max angle
+    demoAngle.setDefault(45.0);
     demoTower.setDefault(0.6);
   }
 
