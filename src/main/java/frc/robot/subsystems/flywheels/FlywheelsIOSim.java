@@ -25,12 +25,10 @@ public class FlywheelsIOSim implements FlywheelsIO {
 
   public void updateInputs(FlywheelsIOInputs inputs) {
     if (closedLoop) {
-      double bigVolts = MathUtil.clamp(
+      appliedVolts = MathUtil.clamp(
           pid.calculate(sim.getAngularVelocityRadPerSec()) + ffVolts, -12.0,
           12.0);
-      appliedVolts = bigVolts;
       sim.setInputVoltage(appliedVolts);
-
     }
 
     sim.update(Constants.loopPeriodSecs);
@@ -42,23 +40,19 @@ public class FlywheelsIOSim implements FlywheelsIO {
     inputs.tempCelcius = new double[] {};
   }
 
-  public void setVoltage(double bigVolts, double littleVolts) {
+  public void setVoltage(double volts) {
     closedLoop = false;
-    appliedVolts = MathUtil.clamp(bigVolts, -12.0, 12.0);
+    appliedVolts = MathUtil.clamp(volts, -12.0, 12.0);
     sim.setInputVoltage(appliedVolts);
   }
 
-  public void setVelocity(double bigVelocityRadPerSec,
-      double littleVelocityRadPerSec, double bigFFVolts, double littleFFVolts) {
+  public void setVelocity(double velocityRadPerSec, double ffVolts) {
     closedLoop = true;
-    pid.setSetpoint(bigVelocityRadPerSec);
-    this.ffVolts = bigFFVolts;
+    pid.setSetpoint(velocityRadPerSec);
+    this.ffVolts = ffVolts;
   }
 
-  public void configurePID(double bigKp, double bigKi, double bigKd,
-      double littleKp, double littleKi, double littleKd) {
-    pid.setP(bigKp);
-    pid.setI(bigKi);
-    pid.setD(bigKd);
+  public void configurePID(double kP, double kI, double kD) {
+    pid.setPID(kP, kI, kD);
   }
 }
