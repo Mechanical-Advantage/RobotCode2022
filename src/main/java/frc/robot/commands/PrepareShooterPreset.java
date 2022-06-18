@@ -105,7 +105,7 @@ public class PrepareShooterPreset extends CommandBase {
 
     demoRpm.setDefault(2500.0);
     demoAngle.setDefault(45.0);
-    demoTower.setDefault(0.6);
+    demoTower.setDefault(1.0);
   }
 
   // Called when the command is initially scheduled.
