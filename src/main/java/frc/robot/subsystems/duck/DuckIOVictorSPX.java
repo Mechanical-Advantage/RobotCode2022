@@ -4,86 +4,55 @@
 
 package frc.robot.subsystems.duck;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.CANSparkMax.IdleMode;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import java.util.HashMap;
+import java.util.Map;
 
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.VictorSPX;
+
+import edu.wpi.first.wpilibj.DigitalOutput;
 import frc.robot.Constants;
-import frc.robot.subsystems.pneumatics.Pneumatics;
-import frc.robot.util.SparkMAXBurnManager;
 
 public class DuckIOVictorSPX implements DuckIO {
-  private boolean invert = false;
-
-  private double afterEncoderReduction = 1.0;
-  private final CANSparkMax motor;
-  private final RelativeEncoder encoder;
-
-  private final DoubleSolenoid solenoid;
+  private final VictorSPX motor;
+  private final Map<DuckSound, DigitalOutput> sounds;
 
   public DuckIOVictorSPX() {
     switch (Constants.getRobot()) {
-      case ROBOT_2022C:
-        solenoid = new DoubleSolenoid(Pneumatics.revModuleID,
-            PneumaticsModuleType.REVPH, 2, 5);
-        motor = new CANSparkMax(4, MotorType.kBrushless);
-        afterEncoderReduction = 60.0 / 16.0;
-        invert = true;
-
-        encoder = motor.getEncoder();
+      case ROBOT_2022P:
+        motor = new VictorSPX(0);
+        sounds = new HashMap<>();
+        sounds.put(DuckSound.MATCH_START, new DigitalOutput(0));
+        sounds.put(DuckSound.QUACK_1, new DigitalOutput(1));
+        sounds.put(DuckSound.QUACK_2, new DigitalOutput(2));
+        sounds.put(DuckSound.QUACK_3, new DigitalOutput(3));
+        sounds.put(DuckSound.QUACK_4, new DigitalOutput(4));
+        sounds.put(DuckSound.QUACK_5, new DigitalOutput(5));
         break;
       default:
         throw new RuntimeException("Invalid robot for DuckIOVictorSPX!");
     }
 
-    if (SparkMAXBurnManager.shouldBurn()) {
-      motor.restoreFactoryDefaults();
-    }
+    motor.configFactoryDefault();
+    motor.configVoltageCompSaturation(12.0);
 
-    motor.setInverted(invert);
-    motor.setSmartCurrentLimit(30);
-    motor.enableVoltageCompensation(12.0);
-
-    motor.setCANTimeout(0);
-
-    if (SparkMAXBurnManager.shouldBurn()) {
-      motor.burnFlash();
-    }
+    playSound(null);
   }
 
   @Override
   public void updateInputs(DuckIOInputs inputs) {
-    inputs.extended = solenoid.get() == Value.kReverse;
-
-    inputs.positionRad =
-        Units.rotationsToRadians(encoder.getPosition()) / afterEncoderReduction;
-    inputs.velocityRadPerSec =
-        Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity())
-            / afterEncoderReduction;
-    inputs.appliedVolts =
-        motor.getAppliedOutput() * RobotController.getBatteryVoltage();
-    inputs.currentAmps = new double[] {motor.getOutputCurrent()};
-    inputs.tempCelcius = new double[] {motor.getMotorTemperature()};
+    inputs.appliedVolts = motor.getMotorOutputVoltage();
   }
 
   @Override
   public void setVoltage(double volts) {
-    motor.setVoltage(volts);
+    motor.set(ControlMode.PercentOutput, volts / 12.0);
   }
 
   @Override
-  public void setBrakeMode(boolean enable) {
-    motor.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
-  }
-
-  @Override
-  public void setExtended(boolean extended) {
-    solenoid.set(extended ? Value.kReverse : Value.kForward);
+  public void playSound(DuckSound sound) {
+    for (Map.Entry<DuckSound, DigitalOutput> entry : sounds.entrySet()) {
+      entry.getValue().set(entry.getKey() == sound);
+    }
   }
 }

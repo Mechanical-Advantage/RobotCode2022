@@ -11,45 +11,27 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 public interface DuckIO {
   /** Contains all of the input data received from hardware. */
   public static class DuckIOInputs implements LoggableInputs {
-    public boolean extended = false;
-
-    public double positionRad = 0.0;
-    public double velocityRadPerSec = 0.0;
     public double appliedVolts = 0.0;
-    public double[] currentAmps = new double[] {};
-    public double[] tempCelcius = new double[] {};
 
     public void toLog(LogTable table) {
-      table.put("Extended", extended);
-
-      table.put("PositionRad", positionRad);
-      table.put("VelocityRadPerSec", velocityRadPerSec);
       table.put("AppliedVolts", appliedVolts);
-      table.put("CurrentAmps", currentAmps);
-      table.put("TempCelcius", tempCelcius);
     }
 
     public void fromLog(LogTable table) {
-      extended = table.getBoolean("Extended", extended);
-
-      positionRad = table.getDouble("PositionRad", positionRad);
-      velocityRadPerSec =
-          table.getDouble("VelocityRadPerSec", velocityRadPerSec);
       appliedVolts = table.getDouble("AppliedVolts", appliedVolts);
-      currentAmps = table.getDoubleArray("CurrentAmps", currentAmps);
-      tempCelcius = table.getDoubleArray("TempCelcius", tempCelcius);
     }
   }
 
   /** Updates the set of loggable inputs. */
   public default void updateInputs(DuckIOInputs inputs) {}
 
-  /** Run the roller open loop at the specified voltage. */
+  /** Run the duck open loop at the specified voltage. */
   public default void setVoltage(double volts) {}
 
-  /** Enable or disable brake mode on the roller. */
-  public default void setBrakeMode(boolean enable) {}
+  /** Plays the specified sound. */
+  public default void playSound(DuckSound sound) {}
 
-  /** Set solenoid state. */
-  public default void setExtended(boolean extended) {}
+  public static enum DuckSound {
+    MATCH_START, QUACK_1, QUACK_2, QUACK_3, QUACK_4, QUACK_5
+  }
 }
