@@ -37,11 +37,13 @@ public class DriveIOSparkMAX implements DriveIO {
   private final SparkMaxPIDController leftPID;
   private final SparkMaxPIDController rightPID;
 
-  private final AHRS gyro = new AHRS(SPI.Port.kMXP);
+  private final AHRS gyro;
 
   public DriveIOSparkMAX() {
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
+        gyro = new AHRS(SPI.Port.kMXP);
+
         afterEncoderReduction = 6.0; // Internal encoders
         hasExternalEncoders = false;
         hasThreeControllers = true;
@@ -61,6 +63,8 @@ public class DriveIOSparkMAX implements DriveIO {
         rightExternalEncoder.setDistancePerPulse(1.0 / 2048.0);
         break;
       case ROBOT_2022P:
+        gyro = null;
+
         afterEncoderReduction = 6.0; // Internal encoders
         hasExternalEncoders = false;
         hasThreeControllers = true;
@@ -80,6 +84,8 @@ public class DriveIOSparkMAX implements DriveIO {
         rightExternalEncoder.setDistancePerPulse(1.0 / 2048.0);
         break;
       case ROBOT_2020:
+        gyro = new AHRS(SPI.Port.kMXP);
+
         afterEncoderReduction = 1.0 / ((9.0 / 62.0) * (18.0 / 30.0));
         hasExternalEncoders = false;
         hasThreeControllers = false;
@@ -145,7 +151,6 @@ public class DriveIOSparkMAX implements DriveIO {
       rightFollower2.setCANTimeout(0);
     }
 
-
     if (SparkMAXBurnManager.shouldBurn()) {
       leftLeader.burnFlash();
       leftFollower.burnFlash();
@@ -157,7 +162,9 @@ public class DriveIOSparkMAX implements DriveIO {
       }
     }
 
-    gyro.calibrate();
+    if (gyro != null) {
+      gyro.calibrate();
+    }
   }
 
   @Override
@@ -214,11 +221,13 @@ public class DriveIOSparkMAX implements DriveIO {
           rightFollower.getMotorTemperature()};
     }
 
-    inputs.gyroYawPositionRad = Math.toRadians(gyro.getAngle());
-    inputs.gyroYawVelocityRadPerSec = Math.toRadians(gyro.getRate());
-    inputs.gyroPitchPositionRad = Math.toRadians(gyro.getRoll());
-    inputs.gyroRollPositionRad = Math.toRadians(gyro.getPitch());
-    inputs.gyroZAccelMetersPerSec2 = gyro.getWorldLinearAccelZ() * 9.806;
+    if (gyro != null) {
+      inputs.gyroYawPositionRad = Math.toRadians(gyro.getAngle());
+      inputs.gyroYawVelocityRadPerSec = Math.toRadians(gyro.getRate());
+      inputs.gyroPitchPositionRad = Math.toRadians(gyro.getRoll());
+      inputs.gyroRollPositionRad = Math.toRadians(gyro.getPitch());
+      inputs.gyroZAccelMetersPerSec2 = gyro.getWorldLinearAccelZ() * 9.806;
+    }
   }
 
   @Override
