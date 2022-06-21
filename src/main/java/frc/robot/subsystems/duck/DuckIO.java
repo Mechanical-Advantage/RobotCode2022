@@ -7,6 +7,8 @@ package frc.robot.subsystems.duck;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
+import frc.robot.subsystems.duck.Duck.DuckSound;
+
 /** Duck subsystem hardware interface. */
 public interface DuckIO {
   /** Contains all of the input data received from hardware. */
@@ -30,8 +32,4 @@ public interface DuckIO {
 
   /** Plays the specified sound. */
   public default void playSound(DuckSound sound) {}
-
-  public static enum DuckSound {
-    MATCH_START, QUACK_1, QUACK_2, QUACK_3, QUACK_4, QUACK_5
-  }
 }

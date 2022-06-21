@@ -9,6 +9,9 @@ import java.util.Map;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.MjpegServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -20,10 +23,13 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Mode;
+import frc.robot.Constants.RobotType;
 import frc.robot.commands.AutoAim;
 import frc.robot.commands.AutoAimSimple;
 import frc.robot.commands.DriveToTarget;
 import frc.robot.commands.DriveWithJoysticks;
+import frc.robot.commands.IdleDuck;
+import frc.robot.commands.PlayDuckSound;
 import frc.robot.commands.FeedForwardCharacterization;
 import frc.robot.commands.FeedForwardCharacterizationStepped;
 import frc.robot.commands.PrepareShooterAuto;
@@ -42,6 +48,7 @@ import frc.robot.commands.autos.FourCargoAutoCross;
 import frc.robot.commands.autos.HPPractice;
 import frc.robot.commands.autos.OneCargoAuto;
 import frc.robot.commands.autos.PartnerAuto;
+import frc.robot.commands.autos.Spin;
 import frc.robot.commands.autos.Taxi;
 import frc.robot.commands.autos.ThreeCargoAuto;
 import frc.robot.commands.autos.ThreeCargoAutoCrossMidline;
@@ -63,6 +70,10 @@ import frc.robot.subsystems.drive.DriveIORomi;
 import frc.robot.subsystems.drive.DriveIOSim;
 import frc.robot.subsystems.drive.DriveIOSparkMAX;
 import frc.robot.subsystems.drive.DriveIOTalonSRX;
+import frc.robot.subsystems.duck.Duck;
+import frc.robot.subsystems.duck.DuckIO;
+import frc.robot.subsystems.duck.DuckIOVictorSPX;
+import frc.robot.subsystems.duck.Duck.DuckSound;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.feeder.FeederIO;
 import frc.robot.subsystems.feeder.FeederIOSparkMAX;
@@ -116,6 +127,7 @@ public class RobotContainer {
   private Climber climber;
   private Pneumatics pneumatics;
   private Leds leds;
+  private Duck duck;
 
   // OI objects
   private OverrideOI overrideOI = new OverrideOI();
@@ -150,6 +162,7 @@ public class RobotContainer {
         case ROBOT_2022P:
           drive = new Drive(new DriveIOSparkMAX());
           flywheels = new Flywheels(new FlywheelsIOSim());
+          duck = new Duck(new DuckIOVictorSPX());
           break;
         case ROBOT_2020:
           drive = new Drive(new DriveIOSparkMAX());
@@ -181,6 +194,7 @@ public class RobotContainer {
     pneumatics =
         pneumatics != null ? pneumatics : new Pneumatics(new PneumaticsIO() {});
     leds = leds != null ? leds : new Leds(new LedsIO() {});
+    duck = duck != null ? duck : new Duck(new DuckIO() {});
 
     // Set up subsystems
     robotState.setLeds(leds);
@@ -204,10 +218,18 @@ public class RobotContainer {
     feeder.setSubsystems(leds, intake, flywheels, hood);
     feeder.setOverride(() -> overrideOI.getCargoSensorDisable());
     pneumatics.setSupplier(() -> overrideOI.getClimbMode());
+    duck.setDefaultCommand(new IdleDuck(duck, drive));
 
     // Set up auto routines
     autoRoutineMap.put("Do Nothing",
         new AutoRoutine(AutoPosition.ORIGIN, true, new InstantCommand()));
+
+    autoRoutineMap.put("Duck taxi (short)",
+        new AutoRoutine(AutoPosition.FENDER_A, true,
+            new Taxi(drive, false).andThen(new Spin(drive))));
+    autoRoutineMap.put("Duck taxi (long)",
+        new AutoRoutine(AutoPosition.FENDER_A, true,
+            new Taxi(drive, true).andThen(new Spin(drive))));
 
     autoRoutineMap.put("Five cargo (TD)",
         new AutoRoutine(AutoPosition.TARMAC_D, false, new FiveCargoAuto(
@@ -332,6 +354,15 @@ public class RobotContainer {
           AlertType.INFO).set(true);
     }
 
+    // Set up camera for practice bot
+    if (Constants.getMode() == Mode.REAL
+        && Constants.getRobot() == RobotType.ROBOT_2022P) {
+      UsbCamera camera = CameraServer.startAutomaticCapture("Driver Cam", 0);
+      camera.setResolution(320, 240);
+      camera.setFPS(15);
+      ((MjpegServer) CameraServer.getServer()).setCompression(50);;
+    }
+
     // Instantiate OI classes and bind buttons
     updateOI();
   }
@@ -436,6 +467,17 @@ public class RobotContainer {
     handheldOI.getShooterDecrement()
         .whenActive(new DisabledInstantCommand(flywheels::decrementOffset));
 
+    handheldOI.getDuckSoundButton1()
+        .whenActive(new PlayDuckSound(duck, DuckSound.QUACK_1));
+    handheldOI.getDuckSoundButton2()
+        .whenActive(new PlayDuckSound(duck, DuckSound.QUACK_2));
+    handheldOI.getDuckSoundButton3()
+        .whenActive(new PlayDuckSound(duck, DuckSound.QUACK_3));
+    handheldOI.getDuckSoundButton4()
+        .whenActive(new PlayDuckSound(duck, DuckSound.QUACK_4));
+    handheldOI.getDuckSoundButton5()
+        .whenActive(new PlayDuckSound(duck, DuckSound.QUACK_5));
+
     // *** CLIMB CONTROLS ***
     climbMode.whileActiveContinuous(new StartEndCommand(
         () -> leds.setClimbing(true), () -> leds.setClimbing(false)));
@@ -473,6 +515,12 @@ public class RobotContainer {
   /** Updates the LED mode periodically. */
   public void updateLeds() {
     leds.update();
+  }
+
+  /** Called at the start of auto to schedule the match start quack. */
+  public void scheduleMatchStartQuack() {
+    new WaitCommand(2.5).andThen(new PlayDuckSound(duck, DuckSound.MATCH_START))
+        .schedule();
   }
 
   /**

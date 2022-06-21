@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.duck;
 
+import java.util.Map;
+
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -12,6 +14,11 @@ import frc.robot.subsystems.duck.DuckIO.DuckIOInputs;
 public class Duck extends SubsystemBase {
   private final DuckIO io;
   private final DuckIOInputs inputs = new DuckIOInputs();
+
+  public static final Map<DuckSound, Double> soundLengths =
+      Map.of(DuckSound.MATCH_START, 1.49, DuckSound.QUACK_1, 0.22,
+          DuckSound.QUACK_2, 0.56, DuckSound.QUACK_3, 0.41, DuckSound.QUACK_4,
+          0.59, DuckSound.QUACK_5, 2.78);
 
   /** Creates a new Duck. */
   public Duck(DuckIO io) {
@@ -27,5 +34,14 @@ public class Duck extends SubsystemBase {
   /** Run the duck at the specified percentage. */
   public void runPercent(double percent) {
     io.setVoltage(percent * 12.0);
+  }
+
+  /** Plays the specified sound. */
+  public void playSound(DuckSound sound) {
+    io.playSound(sound);
+  }
+
+  public static enum DuckSound {
+    MATCH_START, QUACK_1, QUACK_2, QUACK_3, QUACK_4, QUACK_5
   }
 }

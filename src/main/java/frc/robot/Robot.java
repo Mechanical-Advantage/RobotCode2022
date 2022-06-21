@@ -179,6 +179,7 @@ public class Robot extends LoggedRobot {
     if (autoCommand != null) {
       autoCommand.schedule();
     }
+    robotContainer.scheduleMatchStartQuack();
   }
 
   /** This function is called periodically during autonomous. */

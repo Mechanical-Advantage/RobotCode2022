@@ -83,6 +83,26 @@ public interface HandheldOI {
     return new Trigger();
   }
 
+  public default Trigger getDuckSoundButton1() {
+    return new Trigger();
+  }
+
+  public default Trigger getDuckSoundButton2() {
+    return new Trigger();
+  }
+
+  public default Trigger getDuckSoundButton3() {
+    return new Trigger();
+  }
+
+  public default Trigger getDuckSoundButton4() {
+    return new Trigger();
+  }
+
+  public default Trigger getDuckSoundButton5() {
+    return new Trigger();
+  }
+
   public default Trigger getClimbTop() {
     return new Trigger();
   }

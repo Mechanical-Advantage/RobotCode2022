@@ -98,6 +98,26 @@ public class SingleHandheldOI implements HandheldOI {
   }
 
   @Override
+  public Trigger getDuckSoundButton1() {
+    return new Trigger(controller::getYButton);
+  }
+
+  @Override
+  public Trigger getDuckSoundButton2() {
+    return new Trigger(controller::getBButton);
+  }
+
+  @Override
+  public Trigger getDuckSoundButton3() {
+    return new Trigger(controller::getAButton);
+  }
+
+  @Override
+  public Trigger getDuckSoundButton4() {
+    return new Trigger(controller::getXButton);
+  }
+
+  @Override
   public Trigger getShooterIncrement() {
     return new Trigger(() -> controller.getPOV() == 90);
   }

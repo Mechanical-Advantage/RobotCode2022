@@ -12,6 +12,7 @@ import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 import edu.wpi.first.wpilibj.DigitalOutput;
 import frc.robot.Constants;
+import frc.robot.subsystems.duck.Duck.DuckSound;
 
 public class DuckIOVictorSPX implements DuckIO {
   private final VictorSPX motor;
