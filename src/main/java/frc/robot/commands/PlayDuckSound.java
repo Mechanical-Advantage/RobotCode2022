@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.duck.Duck;
 import frc.robot.subsystems.duck.Duck.DuckSound;
@@ -28,5 +30,10 @@ public class PlayDuckSound extends WaitCommand {
     super.initialize();
     duck.runPercent(duckPercentage);
     duck.playSound(sound);
+  }
+
+  @Override
+  public void execute() {
+    Logger.getInstance().recordOutput("ActiveCommands/PlayDuckSound", true);
   }
 }

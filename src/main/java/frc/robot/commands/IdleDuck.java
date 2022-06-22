@@ -15,7 +15,7 @@ import frc.robot.subsystems.duck.Duck;
 import frc.robot.subsystems.duck.Duck.DuckSound;
 
 public class IdleDuck extends CommandBase {
-  private static double minSpeedMetersPerSec = Units.inchesToMeters(2.0);
+  private static double minSpeedMetersPerSec = Units.inchesToMeters(0.5);
   private static double maxSpeedMetersPerSec = Units.inchesToMeters(125.0);
   private static double minQuackPeriodSecs = 0.25;
   private static double maxQuackPeriodSecs = 2.0;
@@ -46,7 +46,7 @@ public class IdleDuck extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Logger.getInstance().recordOutput("ActiveCommands/DuckIdle", true);
+    Logger.getInstance().recordOutput("ActiveCommands/IdleDuck", true);
 
     double averageSpeedMetersPerSec =
         (Math.abs(drive.getLeftVelocityMetersPerSec())
