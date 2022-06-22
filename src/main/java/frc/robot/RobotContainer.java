@@ -357,10 +357,9 @@ public class RobotContainer {
     // Set up camera for practice bot
     if (Constants.getMode() == Mode.REAL
         && Constants.getRobot() == RobotType.ROBOT_2022P) {
-      UsbCamera camera = CameraServer.startAutomaticCapture("Driver Cam", 0);
-      camera.setResolution(320, 240);
+      UsbCamera camera = CameraServer.startAutomaticCapture("Driver Camera", 0);
+      camera.setResolution(160, 120);
       camera.setFPS(15);
-      ((MjpegServer) CameraServer.getServer()).setCompression(50);;
     }
 
     // Instantiate OI classes and bind buttons

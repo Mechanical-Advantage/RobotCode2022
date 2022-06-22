@@ -77,11 +77,6 @@ public class DriveIOSparkMAX implements DriveIO {
         rightLeader = new CANSparkMax(15, MotorType.kBrushless);
         rightFollower = new CANSparkMax(1, MotorType.kBrushless);
         rightFollower2 = new CANSparkMax(30, MotorType.kBrushless);
-
-        leftExternalEncoder = new Encoder(2, 3);
-        rightExternalEncoder = new Encoder(0, 1);
-        leftExternalEncoder.setDistancePerPulse(-1.0 / 2048.0);
-        rightExternalEncoder.setDistancePerPulse(1.0 / 2048.0);
         break;
       case ROBOT_2020:
         gyro = new AHRS(SPI.Port.kMXP);

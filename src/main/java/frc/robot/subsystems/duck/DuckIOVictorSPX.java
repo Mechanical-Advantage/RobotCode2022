@@ -21,7 +21,7 @@ public class DuckIOVictorSPX implements DuckIO {
   public DuckIOVictorSPX() {
     switch (Constants.getRobot()) {
       case ROBOT_2022P:
-        motor = new VictorSPX(0);
+        motor = new VictorSPX(10);
         sounds = new HashMap<>();
         sounds.put(DuckSound.MATCH_START, new DigitalOutput(0));
         sounds.put(DuckSound.QUACK_1, new DigitalOutput(1));
