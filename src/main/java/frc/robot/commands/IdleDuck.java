@@ -56,7 +56,7 @@ public class IdleDuck extends CommandBase {
             / (maxSpeedMetersPerSec - minSpeedMetersPerSec), 0.0, 1.0);
     duck.runPercent(speedScalar); // Spin the duck
 
-    if (averageSpeedMetersPerSec < minQuackPeriodSecs) {
+    if (averageSpeedMetersPerSec < minSpeedMetersPerSec) {
       return; // Too slow to quack :(
     }
 
