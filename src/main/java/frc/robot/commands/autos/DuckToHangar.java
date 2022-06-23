@@ -18,6 +18,7 @@ import frc.robot.RobotState;
 import frc.robot.RobotContainer.AutoPosition;
 import frc.robot.commands.MotionProfileCommand;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.util.GeomUtil;
 
 public class DuckToHangar extends SequentialCommandGroup {
   /** Creates a new DuckToHangar. Taxis to the hangar then spins in place. */
@@ -28,6 +29,8 @@ public class DuckToHangar extends SequentialCommandGroup {
             List.of(
                 startAtFender ? AutoPosition.FENDER_A.getPose()
                     : AutoPosition.TARMAC_B.getPose(),
+                AutoPosition.TARMAC_B.getPose()
+                    .transformBy(GeomUtil.transformFromTranslation(1.0, 0.0)),
                 new Pose2d(FieldConstants.hangarLength / 2.0,
                     FieldConstants.fieldWidth - FieldConstants.hangarWidth
                         + 0.5,
@@ -38,6 +41,6 @@ public class DuckToHangar extends SequentialCommandGroup {
                     Rotation2d.fromDegrees(90.0))),
             0.0, false,
             List.of(new MaxVelocityConstraint(Units.inchesToMeters(100.0)))),
-        new WaitCommand(1.0), new Spin(drive));
+        new WaitCommand(2.0), new Spin(drive));
   }
 }
