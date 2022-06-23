@@ -27,8 +27,9 @@ public class LoggedChoosers extends SubsystemBase {
   public LoggedChoosers() {
     addOptions(joystickModeChooser,
         List.of("Curvature", "Split Arcade", "Tank"));
-    addOptions(autoRoutineChooser, List.of("Do Nothing", "Duck taxi (long)",
-        "Duck taxi (short)", "Five cargo (TD)", "Four cargo, standard (TD)",
+    addOptions(autoRoutineChooser, List.of("Do Nothing", "Duck to hangar (TB)",
+        "Simple duck taxi (long)", "Simple duck taxi (short)",
+        "Five cargo (TD)", "Four cargo, standard (TD)",
         "Four cargo, cross field (TA)", "Four cargo, avoid tarmac D (TC)",
         "Three cargo, standard (TD)", "Three cargo, cross midline (TA)",
         "Three cargo, collect partner (FA)", "Two cargo, eject hangar (TA)",

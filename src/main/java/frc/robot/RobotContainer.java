@@ -41,6 +41,7 @@ import frc.robot.commands.TrackWidthCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.commands.PrepareShooterPreset.ShooterPreset;
 import frc.robot.commands.RunIntake.IntakeMode;
+import frc.robot.commands.autos.DuckToHangar;
 import frc.robot.commands.autos.FiveCargoAuto;
 import frc.robot.commands.autos.FourCargoAuto;
 import frc.robot.commands.autos.FourCargoAutoAvoidD;
@@ -225,11 +226,13 @@ public class RobotContainer {
     autoRoutineMap.put("Do Nothing",
         new AutoRoutine(AutoPosition.ORIGIN, true, new InstantCommand()));
 
-    autoRoutineMap.put("Duck taxi (short)",
-        new AutoRoutine(AutoPosition.FENDER_A, true,
+    autoRoutineMap.put("Duck to hangar (TB)", new AutoRoutine(
+        AutoPosition.TARMAC_B, false, new DuckToHangar(drive, robotState)));
+    autoRoutineMap.put("Simple duck taxi (short)",
+        new AutoRoutine(AutoPosition.FENDER_A, false,
             new Taxi(drive, false).andThen(new Spin(drive))));
-    autoRoutineMap.put("Duck taxi (long)",
-        new AutoRoutine(AutoPosition.FENDER_A, true,
+    autoRoutineMap.put("Simple duck taxi (long)",
+        new AutoRoutine(AutoPosition.FENDER_A, false,
             new Taxi(drive, true).andThen(new Spin(drive))));
 
     autoRoutineMap.put("Five cargo (TD)",
