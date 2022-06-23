@@ -30,6 +30,6 @@ public interface DuckIO {
   /** Run the duck open loop at the specified voltage. */
   public default void setVoltage(double volts) {}
 
-  /** Plays the specified sound. */
-  public default void playSound(DuckSound sound) {}
+  /** Activates the pin for the specified sound (or none if null). */
+  public default void setActive(DuckSound sound) {}
 }

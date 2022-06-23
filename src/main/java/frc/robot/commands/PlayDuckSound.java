@@ -18,7 +18,7 @@ public class PlayDuckSound extends WaitCommand {
 
   /** Creates a new PlayDuckSound. Plays the specified duck sound while spinning the duck. */
   public PlayDuckSound(Duck duck, DuckSound sound) {
-    super(Duck.soundLengths.get(sound));
+    super(Duck.getDuration(sound));
     addRequirements(duck);
     this.duck = duck;
     this.sound = sound;

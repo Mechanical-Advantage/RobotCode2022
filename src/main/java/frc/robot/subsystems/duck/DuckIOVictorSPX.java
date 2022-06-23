@@ -21,6 +21,7 @@ public class DuckIOVictorSPX implements DuckIO {
   public DuckIOVictorSPX() {
     switch (Constants.getRobot()) {
       case ROBOT_2022P:
+      case ROBOT_SIMBOT:
         motor = new VictorSPX(10);
         sounds = new HashMap<>();
         sounds.put(DuckSound.MATCH_START, new DigitalOutput(0));
@@ -36,8 +37,6 @@ public class DuckIOVictorSPX implements DuckIO {
 
     motor.configFactoryDefault();
     motor.configVoltageCompSaturation(12.0);
-
-    playSound(null);
   }
 
   @Override
@@ -51,9 +50,9 @@ public class DuckIOVictorSPX implements DuckIO {
   }
 
   @Override
-  public void playSound(DuckSound sound) {
+  public void setActive(DuckSound sound) {
     for (Map.Entry<DuckSound, DigitalOutput> entry : sounds.entrySet()) {
-      entry.getValue().set(entry.getKey() == sound);
+      entry.getValue().set(entry.getKey() != sound); // Down to activate
     }
   }
 }

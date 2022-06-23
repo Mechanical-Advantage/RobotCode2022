@@ -175,6 +175,7 @@ public class RobotContainer {
           drive = new Drive(new DriveIOSim());
           flywheels = new Flywheels(new FlywheelsIOSim());
           hood = new Hood(new HoodIOSim());
+          duck = new Duck(new DuckIOVictorSPX());
           break;
         case ROBOT_ROMI:
           drive = new Drive(new DriveIORomi());
