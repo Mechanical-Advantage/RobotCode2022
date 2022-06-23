@@ -228,10 +228,10 @@ public class RobotContainer {
 
     autoRoutineMap.put("Duck to hangar (TB)", new AutoRoutine(
         AutoPosition.TARMAC_B, false, new DuckToHangar(drive, robotState)));
-    autoRoutineMap.put("Simple duck taxi (short)",
+    autoRoutineMap.put("Short duck taxi (FA)",
         new AutoRoutine(AutoPosition.FENDER_A, false,
             new Taxi(drive, false).andThen(new Spin(drive))));
-    autoRoutineMap.put("Simple duck taxi (long)",
+    autoRoutineMap.put("Long duck taxi (FA)",
         new AutoRoutine(AutoPosition.FENDER_A, false,
             new Taxi(drive, true).andThen(new Spin(drive))));
 
