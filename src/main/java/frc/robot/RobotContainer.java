@@ -226,8 +226,12 @@ public class RobotContainer {
     autoRoutineMap.put("Do Nothing",
         new AutoRoutine(AutoPosition.ORIGIN, true, new InstantCommand()));
 
-    autoRoutineMap.put("Duck to hangar (TB)", new AutoRoutine(
-        AutoPosition.TARMAC_B, false, new DuckToHangar(drive, robotState)));
+    autoRoutineMap.put("Duck to hangar (TB)",
+        new AutoRoutine(AutoPosition.TARMAC_B, false,
+            new DuckToHangar(false, drive, robotState)));
+    autoRoutineMap.put("Duck to hangar (FA)",
+        new AutoRoutine(AutoPosition.FENDER_A, false,
+            new DuckToHangar(true, drive, robotState)));
     autoRoutineMap.put("Short duck taxi (FA)",
         new AutoRoutine(AutoPosition.FENDER_A, false,
             new Taxi(drive, false).andThen(new Spin(drive))));
