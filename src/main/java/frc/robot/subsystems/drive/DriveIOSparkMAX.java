@@ -63,7 +63,7 @@ public class DriveIOSparkMAX implements DriveIO {
         rightExternalEncoder.setDistancePerPulse(1.0 / 2048.0);
         break;
       case ROBOT_2022P:
-        gyro = null;
+        gyro = new AHRS(SPI.Port.kMXP);
 
         afterEncoderReduction = 6.0; // Internal encoders
         hasExternalEncoders = false;
