@@ -18,10 +18,10 @@ public class Duck extends SubsystemBase {
   private static final double playDelaySecs = 0.12; // How long after pulse before sound starts
   private static final double pulseLengthSecs = 0.2; // Pulse length to trigger playback
 
-  private static final Map<DuckSound, Double> soundLengthsSecs =
-      Map.of(DuckSound.MATCH_START, 1.49, DuckSound.QUACK_1, 0.22,
-          DuckSound.QUACK_2, 0.59, DuckSound.QUACK_3, 0.41, DuckSound.QUACK_4,
-          0.56, DuckSound.QUACK_5, 2.78);
+  private static final Map<DuckSound, Double> soundLengthsSecs = Map.of(
+      DuckSound.MATCH_START, 1.49, DuckSound.QUACK_1, 0.22, DuckSound.QUACK_2,
+      0.59, DuckSound.QUACK_3, 0.41, DuckSound.QUACK_4, 0.56,
+      DuckSound.DONALD_ANGRY, 2.78, DuckSound.DONALD_COMING_THROUGH, 1.96);
 
   private final DuckIO io;
   private final DuckIOInputs inputs = new DuckIOInputs();
@@ -70,6 +70,6 @@ public class Duck extends SubsystemBase {
   }
 
   public static enum DuckSound {
-    MATCH_START, QUACK_1, QUACK_2, QUACK_3, QUACK_4, QUACK_5
+    MATCH_START, QUACK_1, QUACK_2, QUACK_3, QUACK_4, DONALD_ANGRY, DONALD_COMING_THROUGH
   }
 }

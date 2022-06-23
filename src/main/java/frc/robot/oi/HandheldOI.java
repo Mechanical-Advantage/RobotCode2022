@@ -99,7 +99,11 @@ public interface HandheldOI {
     return new Trigger();
   }
 
-  public default Trigger getDuckSoundButton5() {
+  public default Trigger getDuckSoundButtonDonaldAngry() {
+    return new Trigger();
+  }
+
+  public default Trigger getDuckSoundButtonDonaldComingThrough() {
     return new Trigger();
   }
 

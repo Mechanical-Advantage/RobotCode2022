@@ -482,8 +482,10 @@ public class RobotContainer {
         .whenActive(new PlayDuckSound(duck, DuckSound.QUACK_3));
     handheldOI.getDuckSoundButton4()
         .whenActive(new PlayDuckSound(duck, DuckSound.QUACK_4));
-    handheldOI.getDuckSoundButton5()
-        .whenActive(new PlayDuckSound(duck, DuckSound.QUACK_5));
+    handheldOI.getDuckSoundButtonDonaldAngry()
+        .whenActive(new PlayDuckSound(duck, DuckSound.DONALD_ANGRY));
+    handheldOI.getDuckSoundButtonDonaldComingThrough()
+        .whenActive(new PlayDuckSound(duck, DuckSound.DONALD_COMING_THROUGH));
 
     // *** CLIMB CONTROLS ***
     climbMode.whileActiveContinuous(new StartEndCommand(

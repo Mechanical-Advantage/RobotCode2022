@@ -29,7 +29,8 @@ public class DuckIOVictorSPX implements DuckIO {
         sounds.put(DuckSound.QUACK_2, new DigitalOutput(2));
         sounds.put(DuckSound.QUACK_3, new DigitalOutput(3));
         sounds.put(DuckSound.QUACK_4, new DigitalOutput(4));
-        sounds.put(DuckSound.QUACK_5, new DigitalOutput(5));
+        sounds.put(DuckSound.DONALD_ANGRY, new DigitalOutput(5));
+        sounds.put(DuckSound.DONALD_COMING_THROUGH, new DigitalOutput(6));
         break;
       default:
         throw new RuntimeException("Invalid robot for DuckIOVictorSPX!");

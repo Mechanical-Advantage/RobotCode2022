@@ -132,8 +132,13 @@ public class DualHandheldOI implements HandheldOI {
   }
 
   @Override
-  public Trigger getDuckSoundButton5() {
+  public Trigger getDuckSoundButtonDonaldAngry() {
     return new Trigger(operatorController::getRightBumper);
+  }
+
+  @Override
+  public Trigger getDuckSoundButtonDonaldComingThrough() {
+    return new Trigger(operatorController::getLeftBumper);
   }
 
   @Override
