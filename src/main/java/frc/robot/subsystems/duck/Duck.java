@@ -36,6 +36,11 @@ public class Duck extends SubsystemBase {
     io.setVoltage(percent * 12.0);
   }
 
+  /** Stops the movement of the duck. */
+  public void stop() {
+    runPercent(0.0);
+  }
+
   /** Plays the specified sound. */
   public void playSound(DuckSound sound) {
     io.playSound(sound.ordinal());

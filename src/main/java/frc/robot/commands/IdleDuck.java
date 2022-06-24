@@ -16,8 +16,8 @@ import frc.robot.subsystems.duck.Duck.DuckSound;
 
 public class IdleDuck extends CommandBase {
   private static DuckSound quackSound = DuckSound.QUACK_1;
-  private static double minSpeedMetersPerSec = Units.inchesToMeters(0.5);
-  private static double maxSpeedMetersPerSec = Units.inchesToMeters(125.0);
+  private static double minSpeedMetersPerSec = Units.inchesToMeters(2.0);
+  private static double maxSpeedMetersPerSec = Units.inchesToMeters(150.0);
   private static double minQuackPeriodSecs = 0.25;
   private static double maxQuackPeriodSecs = 1.25;
 
@@ -70,7 +70,9 @@ public class IdleDuck extends CommandBase {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    duck.stop();
+  }
 
   // Returns true when the command should end.
   @Override

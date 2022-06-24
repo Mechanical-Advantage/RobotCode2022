@@ -11,7 +11,7 @@ import frc.robot.subsystems.duck.Duck;
 import frc.robot.subsystems.duck.Duck.DuckSound;
 
 public class PlayDuckSound extends WaitCommand {
-  private static final double duckPercentage = 0.75;
+  private static final double duckPercentage = 1.0;
 
   private final Duck duck;
   private final DuckSound sound;
@@ -24,7 +24,6 @@ public class PlayDuckSound extends WaitCommand {
     this.sound = sound;
   }
 
-  // Called when the command is initially scheduled.
   @Override
   public void initialize() {
     super.initialize();
@@ -35,5 +34,11 @@ public class PlayDuckSound extends WaitCommand {
   @Override
   public void execute() {
     Logger.getInstance().recordOutput("ActiveCommands/PlayDuckSound", true);
+  }
+
+  @Override
+  public void end(boolean interrupted) {
+    super.end(interrupted);
+    duck.stop();
   }
 }
