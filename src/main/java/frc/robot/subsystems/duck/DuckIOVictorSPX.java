@@ -4,33 +4,23 @@
 
 package frc.robot.subsystems.duck;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
-import edu.wpi.first.wpilibj.DigitalOutput;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.Constants;
-import frc.robot.subsystems.duck.Duck.DuckSound;
 
 public class DuckIOVictorSPX implements DuckIO {
   private final VictorSPX motor;
-  private final Map<DuckSound, DigitalOutput> sounds;
+  private final NetworkTableEntry playbackEntry =
+      NetworkTableInstance.getDefault().getEntry("/quacker/playback");
 
   public DuckIOVictorSPX() {
     switch (Constants.getRobot()) {
       case ROBOT_2022P:
       case ROBOT_SIMBOT:
         motor = new VictorSPX(10);
-        sounds = new HashMap<>();
-        sounds.put(DuckSound.MATCH_START, new DigitalOutput(0));
-        sounds.put(DuckSound.QUACK_1, new DigitalOutput(1));
-        sounds.put(DuckSound.QUACK_2, new DigitalOutput(2));
-        sounds.put(DuckSound.QUACK_3, new DigitalOutput(3));
-        sounds.put(DuckSound.QUACK_4, new DigitalOutput(4));
-        sounds.put(DuckSound.DONALD_ANGRY, new DigitalOutput(5));
-        sounds.put(DuckSound.DONALD_COMING_THROUGH, new DigitalOutput(6));
         break;
       default:
         throw new RuntimeException("Invalid robot for DuckIOVictorSPX!");
@@ -51,9 +41,7 @@ public class DuckIOVictorSPX implements DuckIO {
   }
 
   @Override
-  public void setActive(DuckSound sound) {
-    for (Map.Entry<DuckSound, DigitalOutput> entry : sounds.entrySet()) {
-      entry.getValue().set(entry.getKey() != sound); // Down to activate
-    }
+  public void playSound(int id) {
+    playbackEntry.forceSetDouble(id);
   }
 }

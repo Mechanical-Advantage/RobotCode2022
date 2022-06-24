@@ -7,8 +7,6 @@ package frc.robot.subsystems.duck;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
-import frc.robot.subsystems.duck.Duck.DuckSound;
-
 /** Duck subsystem hardware interface. */
 public interface DuckIO {
   /** Contains all of the input data received from hardware. */
@@ -30,6 +28,6 @@ public interface DuckIO {
   /** Run the duck open loop at the specified voltage. */
   public default void setVoltage(double volts) {}
 
-  /** Activates the pin for the specified sound (or none if null). */
-  public default void setActive(DuckSound sound) {}
+  /** Plays the sound for the specified ID. */
+  public default void playSound(int id) {}
 }

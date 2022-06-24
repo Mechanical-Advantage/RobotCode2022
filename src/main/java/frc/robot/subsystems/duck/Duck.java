@@ -8,17 +8,11 @@ import java.util.Map;
 
 import org.littletonrobotics.junction.Logger;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.duck.DuckIO.DuckIOInputs;
 
 public class Duck extends SubsystemBase {
-
-  // https://learn.adafruit.com/adafruit-audio-fx-sound-board/triggering-audio
-  private static final double playDelaySecs = 0.12; // How long after pulse before sound starts
-  private static final double pulseLengthSecs = 0.2; // Pulse length to trigger playback
-
-  private static final Map<DuckSound, Double> soundLengthsSecs = Map.of(
+  private static final Map<DuckSound, Double> soundDurations = Map.of(
       DuckSound.MATCH_START, 1.49, DuckSound.QUACK_1, 0.22, DuckSound.QUACK_2,
       0.59, DuckSound.QUACK_3, 0.41, DuckSound.QUACK_4, 0.56,
       DuckSound.DONALD_ANGRY, 2.78, DuckSound.DONALD_COMING_THROUGH, 1.96);
@@ -26,30 +20,15 @@ public class Duck extends SubsystemBase {
   private final DuckIO io;
   private final DuckIOInputs inputs = new DuckIOInputs();
 
-  private boolean pulseActive = false;
-  private Timer pulseTimer = new Timer();
-
   /** Creates a new Duck. */
   public Duck(DuckIO io) {
     this.io = io;
-
-    io.setActive(null);
-    pulseActive = false;
-    pulseTimer.reset();
-    pulseTimer.start();
   }
 
   @Override
   public void periodic() {
     io.updateInputs(inputs);
     Logger.getInstance().processInputs("Duck", inputs);
-
-    if (pulseActive) {
-      if (pulseTimer.hasElapsed(pulseLengthSecs)) {
-        io.setActive(null);
-        pulseActive = false;
-      }
-    }
   }
 
   /** Run the duck at the specified percentage. */
@@ -59,14 +38,12 @@ public class Duck extends SubsystemBase {
 
   /** Plays the specified sound. */
   public void playSound(DuckSound sound) {
-    io.setActive(sound);
-    pulseActive = true;
-    pulseTimer.reset();
+    io.playSound(sound.ordinal());
   }
 
-  /** Gets the duration from trigger until a sound's completion. */
+  /** Gets the duration in seconds for a sound. */
   public static double getDuration(DuckSound sound) {
-    return playDelaySecs + soundLengthsSecs.get(sound);
+    return soundDurations.get(sound);
   }
 
   public static enum DuckSound {

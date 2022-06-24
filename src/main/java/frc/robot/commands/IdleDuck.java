@@ -15,10 +15,10 @@ import frc.robot.subsystems.duck.Duck;
 import frc.robot.subsystems.duck.Duck.DuckSound;
 
 public class IdleDuck extends CommandBase {
+  private static DuckSound quackSound = DuckSound.QUACK_1;
   private static double minSpeedMetersPerSec = Units.inchesToMeters(0.5);
   private static double maxSpeedMetersPerSec = Units.inchesToMeters(125.0);
-  private static DuckSound quackSound = DuckSound.QUACK_1;
-  private static double minQuackPeriodSecs = Duck.getDuration(quackSound);
+  private static double minQuackPeriodSecs = 0.25;
   private static double maxQuackPeriodSecs = 1.25;
 
   private final Duck duck;
