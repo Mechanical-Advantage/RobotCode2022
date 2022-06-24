@@ -66,7 +66,7 @@ public class Drive extends SubsystemBase {
       case ROBOT_2022P:
         maxVelocityMetersPerSec = Units.inchesToMeters(210.0);
         wheelRadiusMeters = Units.inchesToMeters(2.0);
-        trackWidthMeters = Units.inchesToMeters(25.528);
+        trackWidthMeters = 0.78383;
         leftModel = new SimpleMotorFeedforward(0.20554, 0.10965, 0.016329);
         rightModel = new SimpleMotorFeedforward(0.20231, 0.11768, 0.0085871);
         kP.setDefault(0.00002);
