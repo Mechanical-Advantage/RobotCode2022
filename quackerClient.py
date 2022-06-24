@@ -2,7 +2,7 @@
 
 import time
 import os
-from networktables import NetworkTable, NetworkTablesInstance
+from networktables import NetworkTablesInstance
 
 team = 9982
 audioFolder = "/home/pi/audio/"
