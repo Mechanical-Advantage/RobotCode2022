@@ -16,7 +16,7 @@ public class Spin extends CommandBase {
   /** Creates a new Spin. */
   public Spin(Drive drive) {
     addRequirements(drive);
-    speed.setDefault(0.8);
+    speed.setDefault(0.3);
     this.drive = drive;
   }
 
