@@ -231,12 +231,14 @@ public class RobotContainer {
     autoRoutineMap.put("Duck to hangar (FA)",
         new AutoRoutine(AutoPosition.FENDER_A, false,
             new DuckToHangar(true, drive, robotState)));
-    autoRoutineMap.put("Short duck taxi (FA)",
-        new AutoRoutine(AutoPosition.FENDER_A, false,
-            new Taxi(drive, false).andThen(new Spin(drive))));
-    autoRoutineMap.put("Long duck taxi (FA)",
-        new AutoRoutine(AutoPosition.FENDER_A, false,
-            new Taxi(drive, true).andThen(new Spin(drive))));
+    autoRoutineMap.put("Wait + short duck taxi (TB)",
+        new AutoRoutine(AutoPosition.TARMAC_B, false,
+            new SequentialCommandGroup(new WaitCommand(10.0),
+                new Taxi(drive, false), new Spin(drive))));
+    autoRoutineMap.put("Wait + long duck taxi (TB)",
+        new AutoRoutine(AutoPosition.TARMAC_B, false,
+            new SequentialCommandGroup(new WaitCommand(10.0),
+                new Taxi(drive, true), new Spin(drive))));
 
     autoRoutineMap.put("Five cargo (TD)",
         new AutoRoutine(AutoPosition.TARMAC_D, false, new FiveCargoAuto(
