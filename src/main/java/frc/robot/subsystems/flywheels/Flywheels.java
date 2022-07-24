@@ -15,7 +15,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.flywheels.FlywheelsIO.FlywheelsIOInputs;
 import frc.robot.subsystems.leds.Leds;
+import frc.robot.util.DerivedVelocityCalculator;
 import frc.robot.util.TunableNumber;
+import frc.robot.util.DerivedVelocityCalculator.TimeUnit;
 
 public class Flywheels extends SubsystemBase {
   private final FlywheelsIO io;
@@ -39,6 +41,8 @@ public class Flywheels extends SubsystemBase {
   private boolean closedLoop = false;
   private TrapezoidProfile.State profileGoal = new TrapezoidProfile.State();
   private TrapezoidProfile.State profileState = new TrapezoidProfile.State();
+  private DerivedVelocityCalculator derivedVelocityCalculator =
+      new DerivedVelocityCalculator(TimeUnit.MINUTE);
   private double offsetRpm = 0;
   private Leds leds;
 
@@ -103,6 +107,9 @@ public class Flywheels extends SubsystemBase {
     // Log data
     Logger.getInstance().recordOutput("Flywheels/RPM", getVelocity());
     Logger.getInstance().recordOutput("Flywheels/OffsetRPM", offsetRpm);
+    Logger.getInstance().recordOutput("Flywheels/DerivedRPM",
+        derivedVelocityCalculator
+            .calculate(Units.radiansToRotations(inputs.positionRad)));
     SmartDashboard.putNumber("Flywheel Offset", offsetRpm);
 
     // Set closed loop setpoint
