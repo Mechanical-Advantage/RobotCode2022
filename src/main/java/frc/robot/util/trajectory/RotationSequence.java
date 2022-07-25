@@ -30,7 +30,7 @@ public class RotationSequence {
     double velocityRadiansPerSec;
 
     Entry<Double, Rotation2d> lastPoint = sequence.floorEntry(timeSeconds);
-    Entry<Double, Rotation2d> nextPoint = sequence.ceilingEntry(timeSeconds);
+    Entry<Double, Rotation2d> nextPoint = sequence.higherEntry(timeSeconds);
     if (lastPoint == null && nextPoint == null) { // No points in sequence
       positionRadians = 0.0;
       velocityRadiansPerSec = 0.0;
