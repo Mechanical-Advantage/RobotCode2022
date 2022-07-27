@@ -32,6 +32,7 @@ public class DriveWithJoysticks extends CommandBase {
                                                                         // factor
   private final Drive drive;
   private final Supplier<String> modeSupplier;
+  private final Supplier<String> demoSpeedLimitSupplier;
   private final Supplier<Double> leftXSupplier;
   private final Supplier<Double> leftYSupplier;
   private final Supplier<Double> rightXSupplier;
@@ -45,12 +46,13 @@ public class DriveWithJoysticks extends CommandBase {
 
   /** Creates a new DriveWithJoysticks. Drives based on the joystick values. */
   public DriveWithJoysticks(Drive drive, Supplier<String> modeSupplier,
-      Supplier<Double> leftXSupplier, Supplier<Double> leftYSupplier,
-      Supplier<Double> rightXSupplier, Supplier<Double> rightYSupplier,
-      Supplier<Boolean> sniperModeSupplier) {
+      Supplier<String> demoSpeedLimitSupplier, Supplier<Double> leftXSupplier,
+      Supplier<Double> leftYSupplier, Supplier<Double> rightXSupplier,
+      Supplier<Double> rightYSupplier, Supplier<Boolean> sniperModeSupplier) {
     addRequirements(drive);
     this.drive = drive;
     this.modeSupplier = modeSupplier;
+    this.demoSpeedLimitSupplier = demoSpeedLimitSupplier;
     this.leftXSupplier = leftXSupplier;
     this.leftYSupplier = leftYSupplier;
     this.rightXSupplier = rightXSupplier;
@@ -113,8 +115,26 @@ public class DriveWithJoysticks extends CommandBase {
           speeds.right * sniperLevel.get());
     }
 
-    double leftPercent = MathUtil.clamp(speeds.left, -1.0, 1.0);
-    double rightPercent = MathUtil.clamp(speeds.right, -1.0, 1.0);
+    double demoSpeedLimit = 1.0;
+    switch (demoSpeedLimitSupplier.get()) {
+      case "Fast Speed (70%)":
+        demoSpeedLimit = 0.7;
+        break;
+      case "Medium Speed (30%)":
+        demoSpeedLimit = 0.3;
+        break;
+      case "Slow Speed (15%)":
+        demoSpeedLimit = 0.15;
+        break;
+      default:
+        break;
+    }
+
+    double leftPercent =
+        MathUtil.clamp(speeds.left, -1.0, 1.0) * demoSpeedLimit;
+    double rightPercent =
+        MathUtil.clamp(speeds.right, -1.0, 1.0) * demoSpeedLimit;
+
     Logger.getInstance().recordOutput("ActiveCommands/DriveWithJoysticks",
         true);
     Logger.getInstance().recordOutput("DriveWithJoysticks/LeftPercent",

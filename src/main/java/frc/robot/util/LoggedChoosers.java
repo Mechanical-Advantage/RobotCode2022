@@ -17,16 +17,20 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 /** Manages all SendableChoosers, including replaying values without NT. */
 public class LoggedChoosers extends SubsystemBase {
 
+  private final SendableChooser<String> autoRoutineChooser =
+      new SendableChooser<String>();
   private final SendableChooser<String> joystickModeChooser =
       new SendableChooser<String>();
-  private final SendableChooser<String> autoRoutineChooser =
+  private final SendableChooser<String> demoSpeedLimitChooser =
+      new SendableChooser<String>();
+  private final SendableChooser<String> demoShooterPresetChooser =
+      new SendableChooser<String>();
+  private final SendableChooser<String> demoLedModeChooser =
       new SendableChooser<String>();
 
   private final ChooserData data = new ChooserData();
 
   public LoggedChoosers() {
-    addOptions(joystickModeChooser,
-        List.of("Curvature", "Split Arcade", "Tank"));
     addOptions(autoRoutineChooser, List.of("Do Nothing", "Five cargo (TD)",
         "Four cargo, standard (TD)", "Four cargo, cross field (TA)",
         "Four cargo, avoid tarmac D (TC)", "Three cargo, standard (TD)",
@@ -40,9 +44,20 @@ public class LoggedChoosers extends SubsystemBase {
         "FF Characterization (Drive/Backwards)",
         "FF Characterization (Flywheels/Forwards)",
         "FF Characterization (Flywheels/Backwards)"));
+    addOptions(joystickModeChooser,
+        List.of("Curvature", "Split Arcade", "Tank"));
+    addOptions(demoSpeedLimitChooser, List.of("--Competition Mode--",
+        "Fast Speed (70%)", "Medium Speed (30%)", "Slow Speed (15%)"));
+    addOptions(demoShooterPresetChooser, List.of("--Competition Mode--",
+        "Short Shot", "Medium Shot", "Long Shot", "Tall Shot"));
+    addOptions(demoLedModeChooser,
+        List.of("--Competition Mode--", "Team Colors", "Rainbow"));
 
-    SmartDashboard.putData("Joystick Mode", joystickModeChooser);
     SmartDashboard.putData("Auto Routine", autoRoutineChooser);
+    SmartDashboard.putData("Joystick Mode", joystickModeChooser);
+    SmartDashboard.putData("Demo/Speed Limit", demoSpeedLimitChooser);
+    SmartDashboard.putData("Demo/Shooter Preset", demoShooterPresetChooser);
+    SmartDashboard.putData("Demo/LED Mode", demoLedModeChooser);
   }
 
   /** Adds a set of options to a SendableChooser. */
@@ -61,19 +76,29 @@ public class LoggedChoosers extends SubsystemBase {
 
   /** Represents the selected values of all of the choosers. */
   private static class ChooserData implements LoggableInputs {
-    public String joystickMode = "";
     public String autoRoutine = "";
+    public String joystickMode = "";
+    public String demoSpeedLimit = "";
+    public String demoShooterPreset = "";
+    public String demoLedMode = "";
 
     @Override
     public void toLog(LogTable table) {
-      table.put("JoystickMode", joystickMode);
       table.put("AutoRoutine", autoRoutine);
+      table.put("JoystickMode", joystickMode);
+      table.put("DemoSpeedLimit", demoSpeedLimit);
+      table.put("DemoShooterPreset", demoShooterPreset);
+      table.put("DemoLedMode", demoLedMode);
     }
 
     @Override
     public void fromLog(LogTable table) {
-      joystickMode = table.getString("JoystickMode", joystickMode);
       autoRoutine = table.getString("AutoRoutine", autoRoutine);
+      joystickMode = table.getString("JoystickMode", joystickMode);
+      demoSpeedLimit = table.getString("DemoSpeedLimit", demoSpeedLimit);
+      demoShooterPreset =
+          table.getString("DemoShooterPreset", demoShooterPreset);
+      demoLedMode = table.getString("DemoLedMode", demoLedMode);
     }
   }
 
@@ -81,17 +106,32 @@ public class LoggedChoosers extends SubsystemBase {
   @Override
   public void periodic() {
     if (!Logger.getInstance().hasReplaySource()) {
-      data.joystickMode = joystickModeChooser.getSelected();
       data.autoRoutine = autoRoutineChooser.getSelected();
+      data.joystickMode = joystickModeChooser.getSelected();
+      data.demoSpeedLimit = demoSpeedLimitChooser.getSelected();
+      data.demoShooterPreset = demoShooterPresetChooser.getSelected();
+      data.demoLedMode = demoLedModeChooser.getSelected();
     }
     Logger.getInstance().processInputs("Choosers", data);
+  }
+
+  public String getAutoRoutine() {
+    return data.autoRoutine;
   }
 
   public String getJoystickMode() {
     return data.joystickMode;
   }
 
-  public String getAutoRoutine() {
-    return data.autoRoutine;
+  public String getDemoSpeedLimit() {
+    return data.demoSpeedLimit;
+  }
+
+  public String getDemoShooterPreset() {
+    return data.demoShooterPreset;
+  }
+
+  public String getDemoLedMode() {
+    return data.demoLedMode;
   }
 }

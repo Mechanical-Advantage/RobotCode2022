@@ -44,6 +44,7 @@ public class LedsIORio implements LedsIO {
         strobe(Color.kWhite);
         break;
       case CLIMB_NORMAL:
+      case DEMO_RAINBOW:
         rainbow();
         break;
       case CLIMB_FAILURE:
@@ -86,6 +87,7 @@ public class LedsIORio implements LedsIO {
             waveAllianceDuration);
         break;
       case DISABLED_NEUTRAL:
+      case DEMO_TEAM:
         wave(Color.kGold, Color.kDarkBlue, waveSlowFullLength,
             waveSlowDuration);
         break;
