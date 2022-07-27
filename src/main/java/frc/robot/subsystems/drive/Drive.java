@@ -19,7 +19,9 @@ import frc.robot.Constants;
 import frc.robot.RobotState;
 import frc.robot.subsystems.drive.DriveIO.DriveIOInputs;
 import frc.robot.subsystems.leds.Leds;
+import frc.robot.util.Alert;
 import frc.robot.util.TunableNumber;
+import frc.robot.util.Alert.AlertType;
 
 public class Drive extends SubsystemBase {
   private static final double maxCoastVelocityMetersPerSec = 0.05; // Need to be under this to
@@ -27,6 +29,10 @@ public class Drive extends SubsystemBase {
   private static final double ledsClimbFailureAccelMetersPerSec2 = 40.0; // Threshold to detect
                                                                          // climb failures
   private static final double ledsFallenAngleDegrees = 75.0; // Threshold to detect falls
+
+  private final Alert gyroDisconnectedAlert =
+      new Alert("Gyro sensor disconnected, odometry will be very inaccurate",
+          AlertType.ERROR);
 
   private final double wheelRadiusMeters;
   private final double maxVelocityMetersPerSec;
@@ -44,8 +50,10 @@ public class Drive extends SubsystemBase {
   private RobotState robotState;
   private Leds leds;
 
-  private double lastDistanceMeters = 0.0;
-  private Rotation2d lastRotation = new Rotation2d();
+  private double lastLeftPositionMeters = 0.0;
+  private double lastRightPositionMeters = 0.0;
+  private boolean lastGyroConnected = false;
+  private Rotation2d lastGyroRotation = new Rotation2d();
   private boolean brakeMode = false;
   private boolean pitchResetComplete = false;
   private double basePitchRadians = 0.0;
@@ -146,14 +154,35 @@ public class Drive extends SubsystemBase {
     Logger.getInstance().processInputs("Drive", inputs);
 
     // Update odometry
-    double distanceMeters =
-        (getLeftPositionMeters() + getRightPositionMeters()) / 2.0;
-    Rotation2d currentRotation = new Rotation2d(inputs.gyroYawPositionRad * -1);
-    robotState.addDriveData(Timer.getFPGATimestamp(),
-        new Twist2d(distanceMeters - lastDistanceMeters, 0.0,
-            currentRotation.minus(lastRotation).getRadians()));
-    lastDistanceMeters = distanceMeters;
-    lastRotation = currentRotation;
+    Rotation2d currentGyroRotation =
+        new Rotation2d(inputs.gyroYawPositionRad * -1);
+    double leftPositionMetersDelta =
+        getLeftPositionMeters() - lastLeftPositionMeters;
+    double rightPositionMetersDelta =
+        getRightPositionMeters() - lastRightPositionMeters;
+    double avgPositionMetersDelta =
+        (leftPositionMetersDelta + rightPositionMetersDelta) / 2.0;
+    Rotation2d gyroRotationDelta =
+        (inputs.gyroConnected && !lastGyroConnected) ? new Rotation2d()
+            : currentGyroRotation.minus(lastGyroRotation);
+
+    if (inputs.gyroConnected) {
+      robotState.addDriveData(Timer.getFPGATimestamp(), new Twist2d(
+          avgPositionMetersDelta, 0.0, gyroRotationDelta.getRadians()));
+    } else {
+      robotState.addDriveData(Timer.getFPGATimestamp(),
+          new Twist2d(avgPositionMetersDelta, 0.0,
+              (rightPositionMetersDelta - leftPositionMetersDelta)
+                  / trackWidthMeters));
+    }
+
+    lastLeftPositionMeters = getLeftPositionMeters();
+    lastRightPositionMeters = getRightPositionMeters();
+    lastGyroConnected = inputs.gyroConnected;
+    lastGyroRotation = currentGyroRotation;
+
+    // Update gyro alert
+    gyroDisconnectedAlert.set(!inputs.gyroConnected);
 
     // Manage pitch rotation
     if (!pitchResetComplete) {
