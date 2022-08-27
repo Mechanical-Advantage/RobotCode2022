@@ -16,12 +16,12 @@ public class SparkMaxDerivedVelocityController {
   private final ControllerThread thread;
 
   public SparkMaxDerivedVelocityController(CANSparkMax device, double period) {
-    int periodMs = (int) period * 1000;
+    int periodMs = (int) (period * 1000);
     device.setControlFramePeriodMs(periodMs);
     device.setPeriodicFramePeriod(PeriodicFrame.kStatus2, periodMs);
 
     thread = new ControllerThread(device, period);
-    thread.run();
+    thread.start();
   }
 
   public void setReference(double setpoint) {
@@ -41,8 +41,8 @@ public class SparkMaxDerivedVelocityController {
   }
 
   private static class ControllerThread extends Thread {
-    private static final double sleepLengthMultiplier = 0.2;
-    private static final double stationaryTimeoutMultiplier = 2.0;
+    private static final double sleepLengthMultiplier = 0.1;
+    private static final double stationaryTimeoutMultiplier = 3.0;
 
     private final CANSparkMax device;
     private final double period;
@@ -76,6 +76,7 @@ public class SparkMaxDerivedVelocityController {
           double timestampDelta = timestamp - lastTimestamp;
           if (stationaryMode) {
             if (position != lastPosition) { // Exit stationary mode
+              System.out.println("Exiting stationary mode");
               stationaryMode = false;
               timestampDelta = period; // Assume a full period
             } else if (timestamp - lastTimestamp < period) { // Not a full period yet
@@ -84,6 +85,7 @@ public class SparkMaxDerivedVelocityController {
           } else {
             if (timestamp - lastTimestamp > period
                 * stationaryTimeoutMultiplier) { // Switch to stationary mode
+              System.out.println("Entering stationary mode");
               stationaryMode = true;
             } else if (position == lastPosition) { // Not changed, wait for new data
               continue;
@@ -97,6 +99,9 @@ public class SparkMaxDerivedVelocityController {
               device.set(output);
             }
           }
+
+          lastPosition = position;
+          lastTimestamp = timestamp;
         }
       } catch (InterruptedException exception) {
         exception.printStackTrace();

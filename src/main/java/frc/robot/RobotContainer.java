@@ -54,6 +54,7 @@ import frc.robot.commands.climber.RunClimberToPosition;
 import frc.robot.oi.HandheldOI;
 import frc.robot.oi.OISelector;
 import frc.robot.oi.OverrideOI;
+import frc.robot.subsystems.TestFlywheels;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIO;
 import frc.robot.subsystems.climber.ClimberIOSparkMAX;
@@ -116,6 +117,7 @@ public class RobotContainer {
   private Climber climber;
   private Pneumatics pneumatics;
   private Leds leds;
+  private TestFlywheels testFlywheels = new TestFlywheels();
 
   // OI objects
   private OverrideOI overrideOI = new OverrideOI();
@@ -137,13 +139,13 @@ public class RobotContainer {
     if (Constants.getMode() != Mode.REPLAY) {
       switch (Constants.getRobot()) {
         case ROBOT_2022C:
-          drive = new Drive(new DriveIOSparkMAX());
-          vision = new Vision(new VisionIOLimelight());
-          flywheels = new Flywheels(new FlywheelsIOSparkMAX());
-          hood = new Hood(new HoodIOSparkMAX());
-          feeder = new Feeder(new FeederIOSparkMAX());
-          intake = new Intake(new IntakeIOSparkMAX());
-          climber = new Climber(new ClimberIOSparkMAX());
+          // drive = new Drive(new DriveIOSparkMAX());
+          // vision = new Vision(new VisionIOLimelight());
+          // flywheels = new Flywheels(new FlywheelsIOSparkMAX());
+          // hood = new Hood(new HoodIOSparkMAX());
+          // feeder = new Feeder(new FeederIOSparkMAX());
+          // intake = new Intake(new IntakeIOSparkMAX());
+          // climber = new Climber(new ClimberIOSparkMAX());
           pneumatics = new Pneumatics(new PneumaticsIOREV());
           leds = new Leds(new LedsIORio());
           break;
@@ -207,7 +209,9 @@ public class RobotContainer {
 
     // Set up auto routines
     autoRoutineMap.put("Do Nothing",
-        new AutoRoutine(AutoPosition.ORIGIN, true, new InstantCommand()));
+        new AutoRoutine(AutoPosition.ORIGIN, true,
+            new StartEndCommand(() -> testFlywheels.runVoltage(1.5),
+                () -> testFlywheels.runVoltage(0.0), testFlywheels)));
 
     autoRoutineMap.put("Five cargo (TD)",
         new AutoRoutine(AutoPosition.TARMAC_D, false, new FiveCargoAuto(
