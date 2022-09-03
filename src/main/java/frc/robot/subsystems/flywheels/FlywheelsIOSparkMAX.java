@@ -5,7 +5,6 @@
 package frc.robot.subsystems.flywheels;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -16,13 +15,14 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants;
 import frc.robot.util.SparkMAXBurnManager;
+import frc.robot.util.SparkMaxDerivedEncoder;
 
 public class FlywheelsIOSparkMAX implements FlywheelsIO {
   private boolean invert = false;
   private double afterEncoderReduction = 1.0;
 
   private CANSparkMax motor;
-  private RelativeEncoder encoder;
+  private SparkMaxDerivedEncoder encoder;
   private SparkMaxPIDController pid;
 
   public FlywheelsIOSparkMAX() {
@@ -44,7 +44,7 @@ public class FlywheelsIOSparkMAX implements FlywheelsIO {
     motor.setSmartCurrentLimit(50);
     motor.enableVoltageCompensation(12.0);
 
-    encoder = motor.getEncoder();
+    encoder = new SparkMaxDerivedEncoder(motor);
     pid = motor.getPIDController();
 
     motor.setCANTimeout(0);
@@ -56,6 +56,8 @@ public class FlywheelsIOSparkMAX implements FlywheelsIO {
 
   @Override
   public void updateInputs(FlywheelsIOInputs inputs) {
+    encoder.update();
+
     inputs.positionRad =
         Units.rotationsToRadians(encoder.getPosition()) / afterEncoderReduction;
     inputs.velocityRadPerSec =
