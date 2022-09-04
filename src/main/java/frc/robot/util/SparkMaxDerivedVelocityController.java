@@ -101,6 +101,7 @@ public class SparkMaxDerivedVelocityController {
 
         if (DriverStation.isDisabled()) {
           enabled = false;
+          sparkMax.stopMotor();
         }
         if (enabled) {
           sparkMax.setVoltage(ffVolts + velocityController.calculate(velocity));
@@ -129,7 +130,9 @@ public class SparkMaxDerivedVelocityController {
    * measurements will continue to update.
    */
   public synchronized void disable() {
-    sparkMax.stopMotor();
+    if (enabled) {
+      sparkMax.stopMotor();
+    }
     enabled = false;
   }
 
