@@ -4,26 +4,26 @@
 
 package frc.robot.subsystems.flywheels;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.SparkMaxPIDController.ArbFFUnits;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants;
 import frc.robot.util.SparkMAXBurnManager;
-import frc.robot.util.SparkMaxDerivedEncoder;
+import frc.robot.util.SparkMaxDerivedVelocityController;
 
 public class FlywheelsIOSparkMAX implements FlywheelsIO {
   private boolean invert = false;
   private double afterEncoderReduction = 1.0;
 
   private CANSparkMax motor;
-  private SparkMaxDerivedEncoder encoder;
-  private SparkMaxPIDController pid;
+  private RelativeEncoder defaultEncoder;
+  private SparkMaxDerivedVelocityController derivedVelocityController;
 
   public FlywheelsIOSparkMAX() {
     switch (Constants.getRobot()) {
@@ -44,8 +44,8 @@ public class FlywheelsIOSparkMAX implements FlywheelsIO {
     motor.setSmartCurrentLimit(50);
     motor.enableVoltageCompensation(12.0);
 
-    encoder = new SparkMaxDerivedEncoder(motor);
-    pid = motor.getPIDController();
+    defaultEncoder = motor.getEncoder();
+    derivedVelocityController = new SparkMaxDerivedVelocityController(motor);
 
     motor.setCANTimeout(0);
 
@@ -56,30 +56,34 @@ public class FlywheelsIOSparkMAX implements FlywheelsIO {
 
   @Override
   public void updateInputs(FlywheelsIOInputs inputs) {
-    encoder.update();
+    Logger.getInstance().recordOutput("FlywheelTesting/DefaultRPM",
+        defaultEncoder.getVelocity());
+    Logger.getInstance().recordOutput("FlywheelTesting/DerivedRPM",
+        derivedVelocityController.getVelocity());
 
     inputs.positionRad =
-        Units.rotationsToRadians(encoder.getPosition()) / afterEncoderReduction;
-    inputs.velocityRadPerSec =
-        Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity())
+        Units.rotationsToRadians(derivedVelocityController.getPosition())
             / afterEncoderReduction;
+    inputs.velocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(
+        derivedVelocityController.getVelocity()) / afterEncoderReduction;
     inputs.appliedVolts =
         motor.getAppliedOutput() * RobotController.getBatteryVoltage();
-    inputs.currentAmps = new double[] {motor.getOutputCurrent(),};
+    inputs.currentAmps = new double[] {motor.getOutputCurrent()};
     inputs.tempCelcius = new double[] {motor.getMotorTemperature()};
   }
 
   @Override
   public void setVoltage(double volts) {
+    derivedVelocityController.disable();
     motor.setVoltage(volts);
   }
 
   @Override
   public void setVelocity(double velocityRadPerSec, double ffVolts) {
-    pid.setReference(
+    derivedVelocityController.setReference(
         Units.radiansPerSecondToRotationsPerMinute(velocityRadPerSec)
             * afterEncoderReduction,
-        ControlType.kVelocity, 0, ffVolts, ArbFFUnits.kVoltage);
+        ffVolts);
   }
 
   @Override
@@ -89,9 +93,6 @@ public class FlywheelsIOSparkMAX implements FlywheelsIO {
 
   @Override
   public void configurePID(double kP, double kI, double kD) {
-    pid.setP(kP, 0);
-    pid.setI(kI, 0);
-    pid.setD(kD, 0);
-    pid.setFF(0, 0);
+    derivedVelocityController.setPID(kP, kI, kD);
   }
 }
