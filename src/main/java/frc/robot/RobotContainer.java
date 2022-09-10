@@ -288,6 +288,9 @@ public class RobotContainer {
 
     autoRoutineMap.put("HP Practice", new AutoRoutine(AutoPosition.ORIGIN,
         false, new HPPractice(robotState, drive, intake, feeder, leds)));
+    autoRoutineMap.put("Demo Circles",
+        new AutoRoutine(AutoPosition.ORIGIN, true, new StartEndCommand(
+            () -> drive.drivePercent(0.1, 0.01), drive::stop, drive)));
 
     autoRoutineMap.put("Track Width Characterization",
         new AutoRoutine(AutoPosition.ORIGIN, false,
