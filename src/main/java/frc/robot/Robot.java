@@ -4,13 +4,15 @@
 
 package frc.robot;
 
+import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggedNetworkTables;
 import org.littletonrobotics.junction.inputs.LoggedSystemStats;
-import org.littletonrobotics.junction.io.ByteLogReceiver;
-import org.littletonrobotics.junction.io.ByteLogReplay;
-import org.littletonrobotics.junction.io.LogSocketServer;
+import org.littletonrobotics.junction.rlog.RLOGReader;
+import org.littletonrobotics.junction.rlog.RLOGServer;
+import org.littletonrobotics.junction.rlog.RLOGWriter;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -32,7 +34,7 @@ import frc.robot.util.Alert.AlertType;
  */
 public class Robot extends LoggedRobot {
   private RobotContainer robotContainer;
-  private ByteLogReceiver logReceiver;
+  private RLOGWriter logReceiver;
   private Command autoCommand;
   private double autoStart;
   private boolean autoMessagePrinted;
@@ -87,12 +89,12 @@ public class Robot extends LoggedRobot {
       case REAL:
         String folder = Constants.logFolders.get(Constants.getRobot());
         if (folder != null) {
-          logReceiver = new ByteLogReceiver(folder);
+          logReceiver = new RLOGWriter(folder);
           logger.addDataReceiver(logReceiver);
         } else {
           logNoFileAlert.set(true);
         }
-        logger.addDataReceiver(new LogSocketServer(5800));
+        logger.addDataReceiver(new RLOGServer(5800));
         if (Constants.getRobot() == RobotType.ROBOT_2022C) {
           LoggedSystemStats.getInstance().setPowerDistributionConfig(50,
               ModuleType.kRev);
@@ -100,14 +102,14 @@ public class Robot extends LoggedRobot {
         break;
 
       case SIM:
-        logger.addDataReceiver(new LogSocketServer(5800));
+        logger.addDataReceiver(new RLOGServer(5800));
         break;
 
       case REPLAY:
-        String path = ByteLogReplay.promptForPath();
-        logger.setReplaySource(new ByteLogReplay(path));
-        logger.addDataReceiver(
-            new ByteLogReceiver(ByteLogReceiver.addPathSuffix(path, "_sim")));
+        String path = LogFileUtil.findReplayLog();
+        logger.setReplaySource(new RLOGReader(path));
+        logger.addDataReceiver(new WPILOGWriter(
+            "/Users/jonah/Downloads/Log_22-06-25_13-00-34_q27_sim.wpilog"));
         break;
     }
     logger.start();

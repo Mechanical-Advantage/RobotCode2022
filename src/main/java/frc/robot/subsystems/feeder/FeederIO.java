@@ -16,10 +16,10 @@ public interface FeederIO {
     public boolean upperProxSensor1 = true;
     public boolean upperProxSensor2 = true;
     public boolean colorSensorConnected = false;
-    public int colorSensorRed = 0;
-    public int colorSensorGreen = 0;
-    public int colorSensorBlue = 0;
-    public int colorSensorProx = 0;
+    public long colorSensorRed = 0;
+    public long colorSensorGreen = 0;
+    public long colorSensorBlue = 0;
+    public long colorSensorProx = 0;
 
     public double hopperPositionRad = 0.0;
     public double hopperVelocityRadPerSec = 0.0;
