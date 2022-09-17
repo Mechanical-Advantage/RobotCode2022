@@ -131,7 +131,8 @@ public class Robot extends LoggedRobot {
     robotContainer = new RobotContainer();
 
     // Check for battery alert
-    if (!BatteryTracker.getName().equals(BatteryTracker.defaultName)) {
+    if (Constants.getMode() == Mode.REAL
+        && !BatteryTracker.getName().equals(BatteryTracker.defaultName)) {
       File file = new File(batteryNameFile);
       if (file.exists()) {
         // Read previous battery name
@@ -201,7 +202,7 @@ public class Robot extends LoggedRobot {
     }
 
     // Write battery name if connected to field
-    if (!batteryNameWritten
+    if (Constants.getMode() == Mode.REAL && !batteryNameWritten
         && !BatteryTracker.getName().equals(BatteryTracker.defaultName)
         && DriverStation.isFMSAttached()) {
       batteryNameWritten = true;
