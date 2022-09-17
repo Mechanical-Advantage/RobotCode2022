@@ -27,7 +27,8 @@ public class SparkMAXBurnManager {
 
   public static void update() {
     if (RobotBase.isSimulation()) {
-      System.out.println("[SparkMAXBurnManager] Running in simulation, will not burn SparkMAX flash");
+      System.out.println(
+          "[SparkMAXBurnManager] Running in simulation, will not burn SparkMAX flash.");
       shouldBurn = false;
       return;
     }

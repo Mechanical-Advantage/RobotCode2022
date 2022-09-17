@@ -8,7 +8,7 @@ package frc.robot.subsystems.leds;
 public interface LedsIO {
 
   /** Sets the current LED mode. */
-  public default void setMode(LedMode mode) {}
+  public default void setMode(LedMode mode, boolean sameBattery) {}
 
   /**
    * Possible LED modes based on robot state, IO implementations should select an appropriate

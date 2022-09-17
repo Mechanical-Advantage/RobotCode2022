@@ -33,6 +33,7 @@ public class Leds {
   private int towerCount = 0;
   private boolean intaking = false;
   private boolean fallen = false;
+  private boolean sameBattery = false;
 
   private Alliance alliance = Alliance.Invalid;
 
@@ -114,7 +115,7 @@ public class Leds {
     } else {
       mode = LedMode.DEFAULT_TELEOP;
     }
-    io.setMode(mode);
+    io.setMode(mode, sameBattery);
     Logger.getInstance().recordOutput("LEDMode", mode.toString());
   }
 
@@ -164,5 +165,9 @@ public class Leds {
 
   public void setIntaking(boolean active) {
     intaking = active;
+  }
+
+  public void setSameBatteryAlert(boolean active) {
+    sameBattery = active;
   }
 }

@@ -511,6 +511,11 @@ public class RobotContainer {
     leds.update();
   }
 
+  /** Sets whether to display the "same battery" alert. */
+  public void setSameBatteryAlert(boolean active) {
+    leds.setSameBatteryAlert(active);
+  }
+
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
