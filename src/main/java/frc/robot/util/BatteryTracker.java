@@ -33,7 +33,7 @@ public class BatteryTracker {
       if (supportedRobots.contains(Constants.getRobot())) {
         // Only scan on supported robots and in real mode
 
-        try (SerialPort port = new SerialPort(9600, SerialPort.Port.kUSB)) {
+        try (SerialPort port = new SerialPort(9600, SerialPort.Port.kUSB2)) {
           port.setTimeout(timeout);
           port.setWriteBufferSize(scanCommand.length);
           port.setReadBufferSize(fullResponseLength);
