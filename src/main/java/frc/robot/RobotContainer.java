@@ -408,14 +408,14 @@ public class RobotContainer {
 
     new Trigger(DriverStation::isTeleopEnabled).whenActive(intake::retract,
         intake);
-    handheldOI.getIntakeForwardsExtendButton()
-        .or(handheldOI.getIntakeBackwardsExtendButton()).and(normalMode)
+    handheldOI.getIntakeForwardsButton()
+        .or(handheldOI.getIntakeBackwardsButton())
         .whenActive(intake::extend, intake)
         .whenInactive(intake::retract, intake);
-    handheldOI.getIntakeForwardsRunButton().and(normalMode)
+    handheldOI.getIntakeForwardsButton().and(normalMode)
         .whileActiveContinuous(new RunIntake(IntakeMode.FORWARDS, intake,
             feeder, leds, handheldOI::setOperatorRumble));
-    handheldOI.getIntakeBackwardsRunButton().and(normalMode)
+    handheldOI.getIntakeBackwardsButton().and(normalMode)
         .whileActiveContinuous(new RunIntake(IntakeMode.BACKWARDS, intake,
             feeder, leds, handheldOI::setOperatorRumble));
 
