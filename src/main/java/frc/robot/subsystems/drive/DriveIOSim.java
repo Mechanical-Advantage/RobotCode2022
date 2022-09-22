@@ -58,6 +58,7 @@ public class DriveIOSim implements DriveIO {
     inputs.rightCurrentAmps = new double[] {sim.getRightCurrentDrawAmps()};
     inputs.rightTempCelcius = new double[] {};
 
+    inputs.gyroConnected = true;
     double lastGyroPosition = inputs.gyroYawPositionRad;
     inputs.gyroYawPositionRad = sim.getHeading().getRadians() * -1;
     inputs.gyroYawVelocityRadPerSec =

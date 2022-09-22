@@ -2,17 +2,18 @@ package frc.robot.subsystems.drive;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.SparkMaxPIDController.ArbFFUnits;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.SerialPort;
 import frc.robot.Constants;
 import frc.robot.util.SparkMAXBurnManager;
 
@@ -42,7 +43,7 @@ public class DriveIOSparkMAX implements DriveIO {
   public DriveIOSparkMAX() {
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
-        gyro = new AHRS(SPI.Port.kMXP);
+        gyro = new AHRS(SerialPort.Port.kUSB);
 
         afterEncoderReduction = 6.0; // Internal encoders
         hasExternalEncoders = false;
@@ -217,11 +218,14 @@ public class DriveIOSparkMAX implements DriveIO {
     }
 
     if (gyro != null) {
+      inputs.gyroConnected = gyro.isConnected();
       inputs.gyroYawPositionRad = Math.toRadians(gyro.getAngle());
       inputs.gyroYawVelocityRadPerSec = Math.toRadians(gyro.getRate());
       inputs.gyroPitchPositionRad = Math.toRadians(gyro.getRoll());
       inputs.gyroRollPositionRad = Math.toRadians(gyro.getPitch());
       inputs.gyroZAccelMetersPerSec2 = gyro.getWorldLinearAccelZ() * 9.806;
+    } else {
+      inputs.gyroConnected = false;
     }
   }
 

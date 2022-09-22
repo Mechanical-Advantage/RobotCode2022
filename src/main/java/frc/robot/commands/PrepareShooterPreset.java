@@ -55,6 +55,20 @@ public class PrepareShooterPreset extends CommandBase {
   public static final TunableNumber opponentEjectTower =
       new TunableNumber("PrepareShooterPreset/OpponentEject/TowerPercent");
 
+  public static final TunableNumber demoLongRpm =
+      new TunableNumber("PrepareShooterPreset/DemoLong/RPM");
+  public static final TunableNumber demoLongAngle =
+      new TunableNumber("PrepareShooterPreset/DemoLong/Angle");
+  public static final TunableNumber demoLongTower =
+      new TunableNumber("PrepareShooterPreset/DemoLong/TowerPercent");
+
+  public static final TunableNumber demoTallRpm =
+      new TunableNumber("PrepareShooterPreset/DemoTall/RPM");
+  public static final TunableNumber demoTallAngle =
+      new TunableNumber("PrepareShooterPreset/DemoTall/Angle");
+  public static final TunableNumber demoTallTower =
+      new TunableNumber("PrepareShooterPreset/DemoTall/TowerPercent");
+
   private final Flywheels flywheels;
   private final Hood hood;
   private final Feeder feeder;
@@ -95,6 +109,14 @@ public class PrepareShooterPreset extends CommandBase {
     opponentEjectRpm.setDefault(800.0);
     opponentEjectAngle.setDefault(3.0); // Min angle
     opponentEjectTower.setDefault(0.6);
+
+    demoLongRpm.setDefault(2500.0);
+    demoLongAngle.setDefault(45.0);
+    demoLongTower.setDefault(0.6);
+
+    demoTallRpm.setDefault(2500.0);
+    demoTallAngle.setDefault(3.0); // Min angle
+    demoTallTower.setDefault(0.35);
   }
 
   // Called when the command is initially scheduled.
@@ -136,6 +158,16 @@ public class PrepareShooterPreset extends CommandBase {
         hoodAngle = opponentEjectAngle.get();
         towerSpeed = opponentEjectTower.get();
         break;
+      case DEMO_LONG:
+        flywheelSpeed = demoLongRpm.get();
+        hoodAngle = demoLongAngle.get();
+        towerSpeed = demoLongTower.get();
+        break;
+      case DEMO_TALL:
+        flywheelSpeed = demoTallRpm.get();
+        hoodAngle = demoTallAngle.get();
+        towerSpeed = demoTallTower.get();
+        break;
       default:
         break;
     }
@@ -161,6 +193,6 @@ public class PrepareShooterPreset extends CommandBase {
   }
 
   public static enum ShooterPreset {
-    LOWER_FENDER, UPPER_FENDER, UPPER_TARMAC, UPPER_LAUNCHPAD, HANGAR_EJECT, OPPONENT_EJECT
+    LOWER_FENDER, UPPER_FENDER, UPPER_TARMAC, UPPER_LAUNCHPAD, HANGAR_EJECT, OPPONENT_EJECT, DEMO_LONG, DEMO_TALL
   }
 }

@@ -29,6 +29,7 @@ public interface DriveIO {
     public double externalRightPositionRad = 0.0;
     public double externalRightVelocityRadPerSec = 0.0;
 
+    public boolean gyroConnected = false;
     public double gyroYawPositionRad = 0.0;
     public double gyroYawVelocityRadPerSec = 0.0;
     public double gyroPitchPositionRad = 0.0;
@@ -55,6 +56,7 @@ public interface DriveIO {
       table.put("ExternalRightVelocityRadPerSec",
           externalRightVelocityRadPerSec);
 
+      table.put("GyroConnected", gyroConnected);
       table.put("GyroYawPositionRad", gyroYawPositionRad);
       table.put("GyroYawVelocityRadPerSec", gyroYawVelocityRadPerSec);
       table.put("GyroPitchPositionRad", gyroPitchPositionRad);
@@ -93,6 +95,7 @@ public interface DriveIO {
       externalRightVelocityRadPerSec = table.getDouble(
           "ExternalRightVelocityRadPerSec", externalRightVelocityRadPerSec);
 
+      gyroConnected = table.getBoolean("GyroConnected", gyroConnected);
       gyroYawPositionRad =
           table.getDouble("GyroYawPositionRad", gyroYawPositionRad);
       gyroYawVelocityRadPerSec =

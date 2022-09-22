@@ -14,9 +14,13 @@ public class LedsIORio implements LedsIO {
   private static final int length = 119;
   private static final int centerLed = 95;
   private static final int halfLength = (int) Math.ceil(length / 2.0);
+  private static final int batteryStartIndex = 72;
+  private static final int batteryEndIndex = 118;
   private static final double strobeDuration = 0.2; // How long is each flash
-  private static final double rainbowFullLength = 40.0; // How many LEDs for a full cycle
-  private static final double rainbowDuration = 0.25; // How long until the cycle repeats
+  private static final double rainbowFastFullLength = 40.0; // How many LEDs for a full cycle
+  private static final double rainbowFastDuration = 0.25; // How long until the cycle repeats
+  private static final double rainbowSlowFullLength = 80.0; // How many LEDs for a full cycle
+  private static final double rainbowSlowDuration = 4.0; // How long until the cycle repeats
   private static final double breathDuration = 2.0; // How long until the cycle repeats
   private static final double waveExponent = 0.4; // Controls the length of the transition
   private static final double waveFastFullLength = 40.0; // How many LEDs for a full cycle
@@ -38,13 +42,13 @@ public class LedsIORio implements LedsIO {
   }
 
   @Override
-  public void setMode(LedMode mode) {
+  public void setMode(LedMode mode, boolean sameBattery) {
     switch (mode) {
       case FALLEN:
         strobe(Color.kWhite);
         break;
       case CLIMB_NORMAL:
-        rainbow();
+        rainbow(rainbowFastFullLength, rainbowFastDuration);
         break;
       case CLIMB_FAILURE:
         breath(Color.kRed, Color.kBlack);
@@ -86,13 +90,26 @@ public class LedsIORio implements LedsIO {
             waveAllianceDuration);
         break;
       case DISABLED_NEUTRAL:
+      case DEMO_TEAM:
         wave(Color.kGold, Color.kDarkBlue, waveSlowFullLength,
             waveSlowDuration);
+        break;
+      case DEMO_RAINBOW:
+        rainbow(rainbowSlowFullLength, rainbowSlowDuration);
         break;
       default:
         solid(Color.kBlack);
         break;
     }
+
+    if (sameBattery) {
+      boolean on =
+          ((Timer.getFPGATimestamp() % strobeDuration) / strobeDuration) > 0.5;
+      for (int i = batteryStartIndex; i < batteryEndIndex; i++) {
+        buffer.setLED(i, on ? Color.kRed : Color.kBlack);
+      }
+    }
+
     leds.setData(buffer);
   }
 
@@ -118,10 +135,9 @@ public class LedsIORio implements LedsIO {
     solid(new Color(red, green, blue));
   }
 
-  private void rainbow() {
-    double x =
-        (1 - ((Timer.getFPGATimestamp() / rainbowDuration) % 1.0)) * 180.0;
-    double xDiffPerLed = 180.0 / rainbowFullLength;
+  private void rainbow(double fullLength, double duration) {
+    double x = (1 - ((Timer.getFPGATimestamp() / duration) % 1.0)) * 180.0;
+    double xDiffPerLed = 180.0 / fullLength;
     for (int i = 0; i < halfLength; i++) {
       x += xDiffPerLed;
       x %= 180.0;

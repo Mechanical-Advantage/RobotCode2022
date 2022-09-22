@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.leds;
 
+import java.util.function.Supplier;
+
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -18,6 +20,7 @@ import frc.robot.subsystems.leds.LedsIO.LedMode;
 public class Leds {
 
   private final LedsIO io;
+  private Supplier<String> demoModeSupplier = () -> "";
 
   // Robot state tracking
   private boolean climbing = false;
@@ -30,11 +33,16 @@ public class Leds {
   private int towerCount = 0;
   private boolean intaking = false;
   private boolean fallen = false;
+  private boolean sameBattery = false;
 
   private Alliance alliance = Alliance.Invalid;
 
   public Leds(LedsIO io) {
     this.io = io;
+  }
+
+  public void setDemoModeSupplier(Supplier<String> demoModeSupplier) {
+    this.demoModeSupplier = demoModeSupplier;
   }
 
   /** Updates the current LED mode based on robot state. */
@@ -44,9 +52,30 @@ public class Leds {
       alliance = DriverStation.getAlliance();
     }
 
+    // Get demo mode
+    boolean demoTeam = false;
+    boolean demoRainbow = false;
+    switch (demoModeSupplier.get()) {
+      case "Team Colors":
+        demoTeam = true;
+        break;
+      case "Rainbow":
+        demoRainbow = true;
+        break;
+    }
+
     // Select LED mode
-    LedMode mode;
-    if (DriverStation.isDisabled()) {
+    LedMode mode = LedMode.DISABLED_NEUTRAL;
+    if (demoTeam || demoRainbow) { // Disable all other modes except shooting
+      if (shooting) {
+        mode = LedMode.SHOOTING;
+      } else if (demoTeam) {
+        mode = LedMode.DEMO_TEAM;
+      } else if (demoRainbow) {
+        mode = LedMode.DEMO_RAINBOW;
+      }
+
+    } else if (DriverStation.isDisabled()) {
       switch (alliance) {
         case Red:
           mode = LedMode.DISABLED_RED;
@@ -86,7 +115,7 @@ public class Leds {
     } else {
       mode = LedMode.DEFAULT_TELEOP;
     }
-    io.setMode(mode);
+    io.setMode(mode, sameBattery);
     Logger.getInstance().recordOutput("LEDMode", mode.toString());
   }
 
@@ -136,5 +165,9 @@ public class Leds {
 
   public void setIntaking(boolean active) {
     intaking = active;
+  }
+
+  public void setSameBatteryAlert(boolean active) {
+    sameBattery = active;
   }
 }

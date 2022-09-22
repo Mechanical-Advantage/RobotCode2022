@@ -54,6 +54,7 @@ public class DriveIORomi implements DriveIO {
     inputs.rightCurrentAmps = new double[] {};
     inputs.rightTempCelcius = new double[] {};
 
+    inputs.gyroConnected = true;
     inputs.gyroYawPositionRad = Math.toRadians(gyro.getAngleZ());
     inputs.gyroYawVelocityRadPerSec = Math.toRadians(gyro.getRateZ());
   }

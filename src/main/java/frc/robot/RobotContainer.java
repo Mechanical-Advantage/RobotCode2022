@@ -205,9 +205,9 @@ public class RobotContainer {
     // Set up subsystems
     robotState.setLeds(leds);
     drive.setDefaultCommand(new DriveWithJoysticks(drive,
-        () -> choosers.getJoystickMode(), () -> handheldOI.getLeftDriveX(),
-        () -> handheldOI.getLeftDriveY(), () -> handheldOI.getRightDriveX(),
-        () -> handheldOI.getRightDriveY(),
+        () -> choosers.getJoystickMode(), () -> choosers.getDemoSpeedLimit(),
+        () -> handheldOI.getLeftDriveX(), () -> handheldOI.getLeftDriveY(),
+        () -> handheldOI.getRightDriveX(), () -> handheldOI.getRightDriveY(),
         () -> handheldOI.getSniperModeButton().get()));
     drive.setSuppliers(() -> overrideOI.getDriveDisable(),
         () -> overrideOI.getOpenLoop(), () -> overrideOI.getInternalEncoders());
@@ -224,7 +224,7 @@ public class RobotContainer {
     feeder.setSubsystems(leds, intake, flywheels, hood);
     feeder.setOverride(() -> overrideOI.getCargoSensorDisable());
     pneumatics.setSupplier(() -> overrideOI.getClimbMode());
-    duck.setDefaultCommand(new IdleDuck(duck, drive));
+    leds.setDemoModeSupplier(() -> choosers.getDemoLedMode());
 
     // Set up auto routines
     autoRoutineMap.put("Do Nothing",
@@ -328,6 +328,9 @@ public class RobotContainer {
 
     autoRoutineMap.put("HP Practice", new AutoRoutine(AutoPosition.ORIGIN,
         false, new HPPractice(robotState, drive, intake, feeder, leds)));
+    autoRoutineMap.put("Demo Circles",
+        new AutoRoutine(AutoPosition.ORIGIN, true, new StartEndCommand(
+            () -> drive.drivePercent(0.1, 0.01), drive::stop, drive)));
 
     autoRoutineMap.put("Track Width Characterization",
         new AutoRoutine(AutoPosition.ORIGIN, false,
@@ -401,6 +404,18 @@ public class RobotContainer {
     handheldOI.getLogMarkerButton().whileActiveContinuous(new RunCommand(
         () -> Logger.getInstance().recordOutput("Marker", true)));
 
+    // Demo triggers
+    Trigger demoShortTrigger =
+        new Trigger(() -> choosers.getDemoShooterPreset() == "Short Shot");
+    Trigger demoMediumTrigger =
+        new Trigger(() -> choosers.getDemoShooterPreset() == "Medium Shot");
+    Trigger demoLongTrigger =
+        new Trigger(() -> choosers.getDemoShooterPreset() == "Long Shot");
+    Trigger demoTallTrigger =
+        new Trigger(() -> choosers.getDemoShooterPreset() == "Tall Shot");
+    Trigger shooterDemoMode = demoShortTrigger.or(demoMediumTrigger)
+        .or(demoLongTrigger).or(demoTallTrigger);
+
     // *** DRIVER CONTROLS ***
     handheldOI.getAutoDriveButton().whileActiveContinuous(new DriveToTarget(
         drive, robotState, vision, handheldOI::getLeftDriveY));
@@ -422,20 +437,33 @@ public class RobotContainer {
             new Shoot(feeder, leds, handheldOI::setDriverRumble))
         .whenInactive(hoodResetSequence).cancelWhenActive(hoodResetSequence);
 
+    handheldOI.getShootButton().and(shooterDemoMode).and(demoShortTrigger)
+        .whileActiveContinuous(new PrepareShooterPreset(flywheels, hood, feeder,
+            ShooterPreset.LOWER_FENDER));
+    handheldOI.getShootButton().and(shooterDemoMode).and(demoMediumTrigger)
+        .whileActiveContinuous(new PrepareShooterPreset(flywheels, hood, feeder,
+            ShooterPreset.UPPER_LAUNCHPAD));
+    handheldOI.getShootButton().and(shooterDemoMode).and(demoLongTrigger)
+        .whileActiveContinuous(new PrepareShooterPreset(flywheels, hood, feeder,
+            ShooterPreset.DEMO_LONG));
+    handheldOI.getShootButton().and(shooterDemoMode).and(demoTallTrigger)
+        .whileActiveContinuous(new PrepareShooterPreset(flywheels, hood, feeder,
+            ShooterPreset.DEMO_TALL));
+
     // *** OPERATOR CONTROLS ***
     Trigger climbMode = new Trigger(overrideOI::getClimbMode);
     Trigger normalMode = climbMode.negate();
 
     new Trigger(DriverStation::isTeleopEnabled).whenActive(intake::retract,
         intake);
-    handheldOI.getIntakeForwardsExtendButton()
-        .or(handheldOI.getIntakeBackwardsExtendButton()).and(normalMode)
+    handheldOI.getIntakeForwardsButton()
+        .or(handheldOI.getIntakeBackwardsButton())
         .whenActive(intake::extend, intake)
         .whenInactive(intake::retract, intake);
-    handheldOI.getIntakeForwardsRunButton().and(normalMode)
+    handheldOI.getIntakeForwardsButton().and(normalMode)
         .whileActiveContinuous(new RunIntake(IntakeMode.FORWARDS, intake,
             feeder, leds, handheldOI::setOperatorRumble));
-    handheldOI.getIntakeBackwardsRunButton().and(normalMode)
+    handheldOI.getIntakeBackwardsButton().and(normalMode)
         .whileActiveContinuous(new RunIntake(IntakeMode.BACKWARDS, intake,
             feeder, leds, handheldOI::setOperatorRumble));
 
@@ -453,32 +481,44 @@ public class RobotContainer {
         new PrepareShooterAuto(flywheels, hood, feeder, robotState));
 
     Trigger usePresets = new Trigger(overrideOI::getShootPresets);
-    handheldOI.getStartFlywheelFenderButton().and(normalMode)
-        .whenActive(flywheelFenderTrigger::setActive) // Activate only requested command
+    handheldOI.getStartFlywheelFenderButton().and(shooterDemoMode.negate())
+        .and(normalMode).whenActive(flywheelFenderTrigger::setActive) // Activate
         .whenActive(flywheelTarmacTrigger::setInactive)
         .whenActive(flywheelLaunchpadTrigger::setInactive)
         .whenActive(flywheelAutoTrigger::setInactive);
-    handheldOI.getStartFlywheelTarmacButton().and(normalMode).and(usePresets)
+    handheldOI.getStartFlywheelTarmacButton().and(shooterDemoMode.negate())
+        .and(normalMode).and(usePresets)
         .whenActive(flywheelFenderTrigger::setInactive)
-        .whenActive(flywheelTarmacTrigger::setActive) // Activate only requested command
+        .whenActive(flywheelTarmacTrigger::setActive) // Activate
         .whenActive(flywheelLaunchpadTrigger::setInactive)
         .whenActive(flywheelAutoTrigger::setInactive);
-    handheldOI.getStartFlywheelLaunchpadButton().and(normalMode)
+    handheldOI.getStartFlywheelLaunchpadButton().and(shooterDemoMode.negate())
+        .and(normalMode).whenActive(flywheelFenderTrigger::setInactive)
+        .whenActive(flywheelTarmacTrigger::setInactive)
+        .whenActive(flywheelLaunchpadTrigger::setActive) // Activate
+        .whenActive(flywheelAutoTrigger::setInactive);
+    handheldOI.getStartFlywheelAutoButton().and(shooterDemoMode.negate())
+        .and(normalMode).and(usePresets.negate())
         .whenActive(flywheelFenderTrigger::setInactive)
         .whenActive(flywheelTarmacTrigger::setInactive)
-        .whenActive(flywheelLaunchpadTrigger::setActive) // Activate only requested command
-        .whenActive(flywheelAutoTrigger::setInactive);
-    handheldOI.getStartFlywheelAutoButton().and(normalMode)
-        .and(usePresets.negate()).whenActive(flywheelFenderTrigger::setInactive)
-        .whenActive(flywheelTarmacTrigger::setInactive)
         .whenActive(flywheelLaunchpadTrigger::setInactive)
-        .whenActive(flywheelAutoTrigger::setActive); // Activate only requested command
+        .whenActive(flywheelAutoTrigger::setActive); // Activate
     handheldOI.getStopFlywheelButton()
         .or(new Trigger(DriverStation::isDisabled)).and(normalMode)
         .whenActive(flywheelFenderTrigger::setInactive)
         .whenActive(flywheelTarmacTrigger::setInactive)
         .whenActive(flywheelLaunchpadTrigger::setInactive)
         .whenActive(flywheelAutoTrigger::setInactive);
+
+    shooterDemoMode.whenActive(flywheelFenderTrigger::setInactive)
+        .whenActive(flywheelTarmacTrigger::setInactive)
+        .whenActive(flywheelLaunchpadTrigger::setInactive)
+        .whenActive(flywheelAutoTrigger::setInactive);
+    normalMode.whenInactive(flywheelFenderTrigger::setInactive)
+        .whenInactive(flywheelTarmacTrigger::setInactive)
+        .whenInactive(flywheelLaunchpadTrigger::setInactive)
+        .whenInactive(flywheelAutoTrigger::setInactive);
+    normalMode.whenInactive(intake::retract, intake);
 
     handheldOI.getShooterIncrement()
         .whenActive(new DisabledInstantCommand(flywheels::incrementOffset));
@@ -503,11 +543,6 @@ public class RobotContainer {
         () -> leds.setClimbing(true), () -> leds.setClimbing(false)));
     climbMode.whileActiveContinuous(new RunClimberWithJoystick(climber,
         handheldOI::getClimbStick, overrideOI::getClimbOpenLoop));
-    climbMode.whenActive(flywheelFenderTrigger::setInactive)
-        .whenActive(flywheelTarmacTrigger::setInactive)
-        .whenActive(flywheelLaunchpadTrigger::setInactive)
-        .whenActive(flywheelAutoTrigger::setInactive);
-    climbMode.whenActive(intake::retract, intake);
     climbMode
         .whileActiveContinuous(new RunCommand(() -> hood.moveToBottom(), hood));
     climbMode.whenInactive(() -> climber.runVoltage(0.0), climber);
