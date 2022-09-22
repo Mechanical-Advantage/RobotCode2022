@@ -224,6 +224,7 @@ public class RobotContainer {
     feeder.setSubsystems(leds, intake, flywheels, hood);
     feeder.setOverride(() -> overrideOI.getCargoSensorDisable());
     pneumatics.setSupplier(() -> overrideOI.getClimbMode());
+    duck.setDefaultCommand(new IdleDuck(duck, drive));
     leds.setDemoModeSupplier(() -> choosers.getDemoLedMode());
 
     // Set up auto routines

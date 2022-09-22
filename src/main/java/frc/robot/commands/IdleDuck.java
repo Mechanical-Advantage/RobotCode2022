@@ -8,6 +8,8 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.BuiltInAccelerometer;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.drive.Drive;
@@ -18,8 +20,12 @@ public class IdleDuck extends CommandBase {
   private static DuckSound quackSound = DuckSound.QUACK_1;
   private static double minSpeedMetersPerSec = Units.inchesToMeters(2.0);
   private static double maxSpeedMetersPerSec = Units.inchesToMeters(150.0);
+  private static double minAccelG = 0.1;
+  private static double maxAccelG = 1.5;
   private static double minQuackPeriodSecs = 0.25;
   private static double maxQuackPeriodSecs = 1.25;
+
+  private final BuiltInAccelerometer accelerometer = new BuiltInAccelerometer();
 
   private final Duck duck;
   private final Drive drive;
@@ -48,16 +54,26 @@ public class IdleDuck extends CommandBase {
   public void execute() {
     Logger.getInstance().recordOutput("ActiveCommands/IdleDuck", true);
 
-    double averageSpeedMetersPerSec =
-        (Math.abs(drive.getLeftVelocityMetersPerSec())
-            + Math.abs(drive.getRightVelocityMetersPerSec())) / 2.0;
-    double speedScalar =
-        MathUtil.clamp((averageSpeedMetersPerSec - minSpeedMetersPerSec)
-            / (maxSpeedMetersPerSec - minSpeedMetersPerSec), 0.0, 1.0);
-    duck.runPercent(speedScalar); // Spin the duck
+    double speedScalar = 0;
 
-    if (averageSpeedMetersPerSec < minSpeedMetersPerSec) {
-      return; // Too slow to quack :(
+    if (DriverStation.isEnabled()) { // Use drive speed
+      double averageSpeedMetersPerSec =
+          (Math.abs(drive.getLeftVelocityMetersPerSec())
+              + Math.abs(drive.getRightVelocityMetersPerSec())) / 2.0;
+      speedScalar =
+          MathUtil.clamp((averageSpeedMetersPerSec - minSpeedMetersPerSec)
+              / (maxSpeedMetersPerSec - minSpeedMetersPerSec), 0.0, 1.0);
+      duck.runPercent(speedScalar); // Spin the duck
+
+      if (averageSpeedMetersPerSec < minSpeedMetersPerSec) {
+        return; // Too slow to quack :(
+      }
+    } else { // Use accelerometer
+      double totalG =
+          Math.abs(accelerometer.getX()) + Math.abs(accelerometer.getY());
+      Logger.getInstance().recordOutput("IdleDuck/TotalG", totalG);
+      speedScalar = MathUtil
+          .clamp((totalG - minAccelG) / (maxAccelG - minAccelG), 0.0, 1.0);
     }
 
     double quackPeriod = maxQuackPeriodSecs
@@ -78,5 +94,10 @@ public class IdleDuck extends CommandBase {
   @Override
   public boolean isFinished() {
     return false;
+  }
+
+  @Override
+  public boolean runsWhenDisabled() {
+    return true;
   }
 }
