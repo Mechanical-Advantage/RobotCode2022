@@ -64,10 +64,6 @@ public class IdleDuck extends CommandBase {
           MathUtil.clamp((averageSpeedMetersPerSec - minSpeedMetersPerSec)
               / (maxSpeedMetersPerSec - minSpeedMetersPerSec), 0.0, 1.0);
       duck.runPercent(speedScalar); // Spin the duck
-
-      if (averageSpeedMetersPerSec < minSpeedMetersPerSec) {
-        return; // Too slow to quack :(
-      }
     } else { // Use accelerometer
       double totalG =
           Math.abs(accelerometer.getX()) + Math.abs(accelerometer.getY());
@@ -76,11 +72,13 @@ public class IdleDuck extends CommandBase {
           .clamp((totalG - minAccelG) / (maxAccelG - minAccelG), 0.0, 1.0);
     }
 
-    double quackPeriod = maxQuackPeriodSecs
-        - ((maxQuackPeriodSecs - minQuackPeriodSecs) * speedScalar);
-    if (timer.hasElapsed(quackPeriod)) {
-      duck.playSound(quackSound);
-      timer.reset();
+    if (speedScalar > 0) {
+      double quackPeriod = maxQuackPeriodSecs
+          - ((maxQuackPeriodSecs - minQuackPeriodSecs) * speedScalar);
+      if (timer.hasElapsed(quackPeriod)) {
+        duck.playSound(quackSound);
+        timer.reset();
+      }
     }
   }
 
