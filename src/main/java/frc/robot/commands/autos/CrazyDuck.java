@@ -28,7 +28,7 @@ public class CrazyDuck extends SequentialCommandGroup {
       FieldConstants.cargoDOpposite.transformBy(new Transform2d(
           new Translation2d(0.0, 0.0), Rotation2d.fromDegrees(-45.0)));
   public static final Pose2d endPosition =
-      new Pose2d(new Translation2d(FieldConstants.fieldLength - 1.0,
+      new Pose2d(new Translation2d(FieldConstants.fieldLength - 2.5,
           FieldConstants.fieldWidth / 2.0), Rotation2d.fromDegrees(-45.0));
 
   /** Creates a new CrazyDuck. */
