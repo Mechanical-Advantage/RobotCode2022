@@ -572,6 +572,11 @@ public class RobotContainer {
     leds.update();
   }
 
+  /** Sets whether to display the "same battery" alert. */
+  public void setSameBatteryAlert(boolean active) {
+    leds.setSameBatteryAlert(active);
+  }
+
   /** Called at the start of auto to schedule the match start quack. */
   public void scheduleMatchStartQuack() {
     new WaitCommand(2.5).andThen(new PlayDuckSound(duck, DuckSound.MATCH_START))
