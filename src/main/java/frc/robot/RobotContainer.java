@@ -13,6 +13,9 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.MjpegServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -41,6 +44,8 @@ import frc.robot.commands.TrackWidthCharacterization;
 import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.commands.PrepareShooterPreset.ShooterPreset;
 import frc.robot.commands.RunIntake.IntakeMode;
+import frc.robot.commands.autos.CrazyDuck;
+import frc.robot.commands.autos.CrazyDuckFast;
 import frc.robot.commands.autos.DuckToHangar;
 import frc.robot.commands.autos.FiveCargoAuto;
 import frc.robot.commands.autos.FourCargoAuto;
@@ -225,6 +230,11 @@ public class RobotContainer {
     autoRoutineMap.put("Do Nothing",
         new AutoRoutine(AutoPosition.ORIGIN, true, new InstantCommand()));
 
+    autoRoutineMap.put("Crazy duck (TA*)", new AutoRoutine(
+        AutoPosition.TARMAC_A_FAR, false, new CrazyDuck(drive, robotState)));
+    autoRoutineMap.put("Fast crazy duck (TA*)",
+        new AutoRoutine(AutoPosition.TARMAC_A_FAR_TURNED, false,
+            new CrazyDuckFast(drive, robotState)));
     autoRoutineMap.put("Duck to hangar (TB)",
         new AutoRoutine(AutoPosition.TARMAC_B, false,
             new DuckToHangar(false, drive, robotState)));
@@ -570,7 +580,7 @@ public class RobotContainer {
   }
 
   public static enum AutoPosition {
-    ORIGIN, TARMAC_A, TARMAC_B, TARMAC_C, TARMAC_D, FENDER_A, FENDER_B;
+    ORIGIN, TARMAC_A, TARMAC_B, TARMAC_C, TARMAC_D, FENDER_A, FENDER_B, TARMAC_A_FAR, TARMAC_A_FAR_TURNED;
 
     public Pose2d getPose() {
       switch (this) {
@@ -594,6 +604,15 @@ public class RobotContainer {
         case FENDER_B:
           return FieldConstants.fenderB
               .transformBy(GeomUtil.transformFromTranslation(0.5, 0.0));
+        case TARMAC_A_FAR:
+          return FieldConstants.referenceA
+              .transformBy(new Transform2d(new Translation2d(-0.65, -0.1),
+                  Rotation2d.fromDegrees(-360.0 / 16.0)));
+        case TARMAC_A_FAR_TURNED:
+          return FieldConstants.referenceA
+              .transformBy(new Transform2d(new Translation2d(-0.65, -0.1),
+                  Rotation2d.fromDegrees(-360.0 / 16.0)
+                      .rotateBy(Rotation2d.fromDegrees(-90.0))));
         default:
           return new Pose2d();
       }
