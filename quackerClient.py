@@ -4,7 +4,7 @@ import time
 import os
 from networktables import NetworkTablesInstance
 
-team = 9999
+team = 9992
 audioFolder = "/home/pi/audio/"
 audioExtension = "wav"
 playbackKey = "/quacker/playback"
