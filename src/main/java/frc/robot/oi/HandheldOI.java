@@ -75,6 +75,10 @@ public interface HandheldOI {
     return new Trigger();
   }
 
+  public default double getDuckAxis() {
+    return 0.0;
+  }
+
   public default Trigger getDuckSoundButton1() {
     return new Trigger();
   }

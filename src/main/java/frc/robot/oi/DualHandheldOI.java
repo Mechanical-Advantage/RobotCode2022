@@ -43,15 +43,15 @@ public class DualHandheldOI implements HandheldOI {
     return new Trigger(driverController::getRightBumper);
   }
 
-  @Override
-  public Trigger getAutoDriveButton() {
-    return new Trigger(() -> driverController.getLeftTriggerAxis() > 0.5);
-  }
+  // @Override
+  // public Trigger getAutoDriveButton() {
+  // return new Trigger(() -> driverController.getLeftTriggerAxis() > 0.5);
+  // }
 
-  @Override
-  public Trigger getAutoAimButton() {
-    return new Trigger(() -> driverController.getRightTriggerAxis() > 0.5);
-  }
+  // @Override
+  // public Trigger getAutoAimButton() {
+  // return new Trigger(() -> driverController.getRightTriggerAxis() > 0.5);
+  // }
 
   @Override
   public Trigger getShootButton() {
@@ -66,15 +66,15 @@ public class DualHandheldOI implements HandheldOI {
         .or(new Trigger(operatorController::getBackButton));
   }
 
-  @Override
-  public Trigger getIntakeForwardsButton() {
-    return new Trigger(() -> operatorController.getRightTriggerAxis() > 0.95);
-  }
+  // @Override
+  // public Trigger getIntakeForwardsButton() {
+  // return new Trigger(() -> operatorController.getRightTriggerAxis() > 0.95);
+  // }
 
-  @Override
-  public Trigger getIntakeBackwardsButton() {
-    return new Trigger(() -> operatorController.getLeftTriggerAxis() > 0.95);
-  }
+  // @Override
+  // public Trigger getIntakeBackwardsButton() {
+  // return new Trigger(() -> operatorController.getLeftTriggerAxis() > 0.95);
+  // }
 
   @Override
   public Trigger getStopFlywheelButton() {
@@ -99,6 +99,12 @@ public class DualHandheldOI implements HandheldOI {
   @Override
   public Trigger getStartFlywheelAutoButton() {
     return new Trigger(operatorController::getAButton);
+  }
+
+  @Override
+  public double getDuckAxis() {
+    return driverController.getLeftTriggerAxis()
+        - driverController.getRightTriggerAxis();
   }
 
   @Override

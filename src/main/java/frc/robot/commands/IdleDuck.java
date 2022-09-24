@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import java.util.function.Supplier;
+
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.MathUtil;
@@ -29,6 +31,7 @@ public class IdleDuck extends CommandBase {
 
   private final Duck duck;
   private final Drive drive;
+  private final Supplier<Double> speedSupplier;
 
   private final Timer timer = new Timer();
 
@@ -36,10 +39,11 @@ public class IdleDuck extends CommandBase {
    * Creates a new IdleDuck. Automatically plays quacking sounds and spins the duck based on the
    * drive speed.
    */
-  public IdleDuck(Duck duck, Drive drive) {
+  public IdleDuck(Duck duck, Drive drive, Supplier<Double> speedSupplier) {
     addRequirements(duck);
     this.duck = duck;
     this.drive = drive;
+    this.speedSupplier = speedSupplier;
     timer.start();
   }
 
@@ -54,6 +58,7 @@ public class IdleDuck extends CommandBase {
   public void execute() {
     Logger.getInstance().recordOutput("ActiveCommands/IdleDuck", true);
 
+    duck.runPercent(speedSupplier.get());
     double speedScalar = 0;
 
     if (DriverStation.isEnabled()) { // Use drive speed
@@ -63,7 +68,6 @@ public class IdleDuck extends CommandBase {
       speedScalar =
           MathUtil.clamp((averageSpeedMetersPerSec - minSpeedMetersPerSec)
               / (maxSpeedMetersPerSec - minSpeedMetersPerSec), 0.0, 1.0);
-      duck.runPercent(0); // Do not spin the duck
     } else { // Use accelerometer
       double totalG =
           Math.abs(accelerometer.getX()) + Math.abs(accelerometer.getY());

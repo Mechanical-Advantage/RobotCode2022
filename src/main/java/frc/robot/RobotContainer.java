@@ -224,7 +224,8 @@ public class RobotContainer {
     feeder.setSubsystems(leds, intake, flywheels, hood);
     feeder.setOverride(() -> overrideOI.getCargoSensorDisable());
     pneumatics.setSupplier(() -> overrideOI.getClimbMode());
-    duck.setDefaultCommand(new IdleDuck(duck, drive));
+    duck.setDefaultCommand(
+        new IdleDuck(duck, drive, () -> handheldOI.getDuckAxis()));
     leds.setDemoModeSupplier(() -> choosers.getDemoLedMode());
 
     // Set up auto routines
@@ -536,8 +537,8 @@ public class RobotContainer {
         .whenActive(new PlayDuckSound(duck, DuckSound.QUACK_4, -1));
     handheldOI.getDuckSoundButtonDonaldAngry()
         .whenActive(new PlayDuckSound(duck, DuckSound.DONALD_ANGRY, 0.0));
-    handheldOI.getDuckSoundButtonDonaldComingThrough()
-        .whenActive(new PlayDuckSound(duck, DuckSound.DONALD_COMING_THROUGH, 0.0));
+    handheldOI.getDuckSoundButtonDonaldComingThrough().whenActive(
+        new PlayDuckSound(duck, DuckSound.DONALD_COMING_THROUGH, 0.0));
 
     // *** CLIMB CONTROLS ***
     climbMode.whileActiveContinuous(new StartEndCommand(
@@ -580,7 +581,8 @@ public class RobotContainer {
 
   /** Called at the start of auto to schedule the match start quack. */
   public void scheduleMatchStartQuack() {
-    new WaitCommand(2.5).andThen(new PlayDuckSound(duck, DuckSound.MATCH_START, 0.0))
+    new WaitCommand(2.5)
+        .andThen(new PlayDuckSound(duck, DuckSound.MATCH_START, 0.0))
         .schedule();
   }
 

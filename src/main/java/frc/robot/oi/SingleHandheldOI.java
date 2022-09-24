@@ -57,15 +57,15 @@ public class SingleHandheldOI implements HandheldOI {
         .or(new Trigger(controller::getBackButton));
   }
 
-  @Override
-  public Trigger getIntakeForwardsButton() {
-    return new Trigger(() -> controller.getRightTriggerAxis() > 0.95);
-  }
+  // @Override
+  // public Trigger getIntakeForwardsButton() {
+  // return new Trigger(() -> controller.getRightTriggerAxis() > 0.95);
+  // }
 
-  @Override
-  public Trigger getIntakeBackwardsButton() {
-    return new Trigger(() -> controller.getLeftTriggerAxis() > 0.95);
-  }
+  // @Override
+  // public Trigger getIntakeBackwardsButton() {
+  // return new Trigger(() -> controller.getLeftTriggerAxis() > 0.95);
+  // }
 
   @Override
   public Trigger getStopFlywheelButton() {
@@ -85,6 +85,11 @@ public class SingleHandheldOI implements HandheldOI {
   @Override
   public Trigger getStartFlywheelAutoButton() {
     return new Trigger(controller::getAButton);
+  }
+
+  @Override
+  public double getDuckAxis() {
+    return controller.getLeftTriggerAxis() - controller.getRightTriggerAxis();
   }
 
   @Override
