@@ -57,7 +57,7 @@ public class Flywheels extends SubsystemBase {
         kI.setDefault(0.0);
         kD.setDefault(0.0);
         toleranceRpm.setDefault(50.0);
-        offsetRpm = 0.0;
+        offsetRpm = -30.0;
         break;
       case ROBOT_2022P:
       case ROBOT_SIMBOT:
