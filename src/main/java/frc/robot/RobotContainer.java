@@ -46,6 +46,7 @@ import frc.robot.commands.PrepareShooterPreset.ShooterPreset;
 import frc.robot.commands.RunIntake.IntakeMode;
 import frc.robot.commands.autos.CrazyDuck;
 import frc.robot.commands.autos.CrazyDuckFast;
+import frc.robot.commands.autos.DuckFinallyScores;
 import frc.robot.commands.autos.DuckToHangar;
 import frc.robot.commands.autos.FiveCargoAuto;
 import frc.robot.commands.autos.FourCargoAuto;
@@ -237,6 +238,9 @@ public class RobotContainer {
     autoRoutineMap.put("Fast crazy duck (TA*)",
         new AutoRoutine(AutoPosition.TARMAC_A_FAR_TURNED, false,
             new CrazyDuckFast(drive, robotState)));
+    autoRoutineMap.put("Duck finally scores (FB*)",
+        new AutoRoutine(AutoPosition.FENDER_B_REVERSED, false,
+            new DuckFinallyScores(drive, robotState)));
     autoRoutineMap.put("Duck to hangar (TB)",
         new AutoRoutine(AutoPosition.TARMAC_B, false,
             new DuckToHangar(false, drive, robotState)));
@@ -623,7 +627,7 @@ public class RobotContainer {
   }
 
   public static enum AutoPosition {
-    ORIGIN, TARMAC_A, TARMAC_B, TARMAC_C, TARMAC_D, FENDER_A, FENDER_B, TARMAC_A_FAR, TARMAC_A_FAR_TURNED;
+    ORIGIN, TARMAC_A, TARMAC_B, TARMAC_C, TARMAC_D, FENDER_A, FENDER_B, FENDER_B_REVERSED, TARMAC_A_FAR, TARMAC_A_FAR_TURNED;
 
     public Pose2d getPose() {
       switch (this) {
@@ -647,6 +651,9 @@ public class RobotContainer {
         case FENDER_B:
           return FieldConstants.fenderB
               .transformBy(GeomUtil.transformFromTranslation(0.5, 0.0));
+        case FENDER_B_REVERSED:
+          return FieldConstants.fenderB.transformBy(new Transform2d(
+              new Translation2d(0.5, 0.0), Rotation2d.fromDegrees(180.0)));
         case TARMAC_A_FAR:
           return FieldConstants.referenceA
               .transformBy(new Transform2d(new Translation2d(-0.65, -0.1),
