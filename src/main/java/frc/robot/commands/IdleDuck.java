@@ -63,7 +63,7 @@ public class IdleDuck extends CommandBase {
       speedScalar =
           MathUtil.clamp((averageSpeedMetersPerSec - minSpeedMetersPerSec)
               / (maxSpeedMetersPerSec - minSpeedMetersPerSec), 0.0, 1.0);
-      duck.runPercent(speedScalar); // Spin the duck
+      duck.runPercent(0); // Do not spin the duck
     } else { // Use accelerometer
       double totalG =
           Math.abs(accelerometer.getX()) + Math.abs(accelerometer.getY());

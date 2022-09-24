@@ -527,17 +527,17 @@ public class RobotContainer {
         .whenActive(new DisabledInstantCommand(flywheels::decrementOffset));
 
     handheldOI.getDuckSoundButton1()
-        .whenActive(new PlayDuckSound(duck, DuckSound.QUACK_1));
+        .whenActive(new PlayDuckSound(duck, DuckSound.QUACK_1, 1));
     handheldOI.getDuckSoundButton2()
-        .whenActive(new PlayDuckSound(duck, DuckSound.QUACK_2));
+        .whenActive(new PlayDuckSound(duck, DuckSound.QUACK_2, 1));
     handheldOI.getDuckSoundButton3()
-        .whenActive(new PlayDuckSound(duck, DuckSound.QUACK_3));
+        .whenActive(new PlayDuckSound(duck, DuckSound.QUACK_3, -1));
     handheldOI.getDuckSoundButton4()
-        .whenActive(new PlayDuckSound(duck, DuckSound.QUACK_4));
+        .whenActive(new PlayDuckSound(duck, DuckSound.QUACK_4, -1));
     handheldOI.getDuckSoundButtonDonaldAngry()
-        .whenActive(new PlayDuckSound(duck, DuckSound.DONALD_ANGRY));
+        .whenActive(new PlayDuckSound(duck, DuckSound.DONALD_ANGRY, 0.0));
     handheldOI.getDuckSoundButtonDonaldComingThrough()
-        .whenActive(new PlayDuckSound(duck, DuckSound.DONALD_COMING_THROUGH));
+        .whenActive(new PlayDuckSound(duck, DuckSound.DONALD_COMING_THROUGH, 0.0));
 
     // *** CLIMB CONTROLS ***
     climbMode.whileActiveContinuous(new StartEndCommand(
@@ -580,7 +580,7 @@ public class RobotContainer {
 
   /** Called at the start of auto to schedule the match start quack. */
   public void scheduleMatchStartQuack() {
-    new WaitCommand(2.5).andThen(new PlayDuckSound(duck, DuckSound.MATCH_START))
+    new WaitCommand(2.5).andThen(new PlayDuckSound(duck, DuckSound.MATCH_START, 0.0))
         .schedule();
   }
 
