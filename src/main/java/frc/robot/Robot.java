@@ -21,6 +21,7 @@ import org.littletonrobotics.junction.io.LogSocketServer;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -168,6 +169,7 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void robotPeriodic() {
+    Threads.setCurrentThreadPriority(true, 99);
     CommandScheduler.getInstance().run();
 
     // Update LED mode
@@ -214,6 +216,8 @@ public class Robot extends LoggedRobot {
         e.printStackTrace();
       }
     }
+
+    Threads.setCurrentThreadPriority(true, 10);
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
