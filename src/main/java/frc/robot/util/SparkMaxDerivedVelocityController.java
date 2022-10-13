@@ -60,7 +60,7 @@ public class SparkMaxDerivedVelocityController {
    * Creates a new SparkMaxDerivedVelocityController using a default set of parameters.
    */
   public SparkMaxDerivedVelocityController(CANSparkMax sparkMax) {
-    this(sparkMax, 0.005, 12);
+    this(sparkMax, 0.02, 5);
   }
 
   /** Creates a new SparkMaxDerivedVelocityController. */
