@@ -9,9 +9,8 @@ import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggedNetworkTables;
 import org.littletonrobotics.junction.inputs.LoggedSystemStats;
-import org.littletonrobotics.junction.rlog.RLOGReader;
 import org.littletonrobotics.junction.rlog.RLOGServer;
-import org.littletonrobotics.junction.rlog.RLOGWriter;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -34,7 +33,7 @@ import frc.robot.util.Alert.AlertType;
  */
 public class Robot extends LoggedRobot {
   private RobotContainer robotContainer;
-  private RLOGWriter logReceiver;
+  private WPILOGWriter logReceiver;
   private Command autoCommand;
   private double autoStart;
   private boolean autoMessagePrinted;
@@ -89,7 +88,7 @@ public class Robot extends LoggedRobot {
       case REAL:
         String folder = Constants.logFolders.get(Constants.getRobot());
         if (folder != null) {
-          logReceiver = new RLOGWriter(folder);
+          logReceiver = new WPILOGWriter(folder);
           logger.addDataReceiver(logReceiver);
         } else {
           logNoFileAlert.set(true);
@@ -107,9 +106,7 @@ public class Robot extends LoggedRobot {
 
       case REPLAY:
         String path = LogFileUtil.findReplayLog();
-        logger.setReplaySource(new RLOGReader(path));
-        logger.addDataReceiver(new WPILOGWriter(
-            "/Users/jonah/Downloads/Log_22-06-25_13-00-34_q27_sim.wpilog"));
+        logger.setReplaySource(new WPILOGReader(path));
         break;
     }
     logger.start();
@@ -142,10 +139,10 @@ public class Robot extends LoggedRobot {
 
     // Check logging faults
     logReceiverQueueAlert.set(Logger.getInstance().getReceiverQueueFault());
-    if (logReceiver != null) {
-      logOpenFileAlert.set(logReceiver.getOpenFault());
-      logWriteAlert.set(logReceiver.getWriteFault());
-    }
+    // if (logReceiver != null) {
+    // logOpenFileAlert.set(logReceiver.get());
+    // logWriteAlert.set(logReceiver.getWriteFault());
+    // }
 
     // Print auto duration
     if (autoCommand != null) {
