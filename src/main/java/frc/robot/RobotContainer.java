@@ -288,6 +288,9 @@ public class RobotContainer {
 
     autoRoutineMap.put("HP Practice", new AutoRoutine(AutoPosition.ORIGIN,
         false, new HPPractice(robotState, drive, intake, feeder, leds)));
+    autoRoutineMap.put("Demo Circles",
+        new AutoRoutine(AutoPosition.ORIGIN, true, new StartEndCommand(
+            () -> drive.drivePercent(0.1, 0.01), drive::stop, drive)));
 
     autoRoutineMap.put("Track Width Characterization",
         new AutoRoutine(AutoPosition.ORIGIN, false,
@@ -405,14 +408,14 @@ public class RobotContainer {
 
     new Trigger(DriverStation::isTeleopEnabled).whenActive(intake::retract,
         intake);
-    handheldOI.getIntakeForwardsExtendButton()
-        .or(handheldOI.getIntakeBackwardsExtendButton()).and(normalMode)
+    handheldOI.getIntakeForwardsButton()
+        .or(handheldOI.getIntakeBackwardsButton())
         .whenActive(intake::extend, intake)
         .whenInactive(intake::retract, intake);
-    handheldOI.getIntakeForwardsRunButton().and(normalMode)
+    handheldOI.getIntakeForwardsButton().and(normalMode)
         .whileActiveContinuous(new RunIntake(IntakeMode.FORWARDS, intake,
             feeder, leds, handheldOI::setOperatorRumble));
-    handheldOI.getIntakeBackwardsRunButton().and(normalMode)
+    handheldOI.getIntakeBackwardsButton().and(normalMode)
         .whileActiveContinuous(new RunIntake(IntakeMode.BACKWARDS, intake,
             feeder, leds, handheldOI::setOperatorRumble));
 
@@ -506,6 +509,11 @@ public class RobotContainer {
   /** Updates the LED mode periodically. */
   public void updateLeds() {
     leds.update();
+  }
+
+  /** Sets whether to display the "same battery" alert. */
+  public void setSameBatteryAlert(boolean active) {
+    leds.setSameBatteryAlert(active);
   }
 
   /**

@@ -47,19 +47,11 @@ public interface HandheldOI {
     return new Trigger();
   }
 
-  public default Trigger getIntakeForwardsExtendButton() {
+  public default Trigger getIntakeForwardsButton() {
     return new Trigger();
   }
 
-  public default Trigger getIntakeBackwardsExtendButton() {
-    return new Trigger();
-  }
-
-  public default Trigger getIntakeForwardsRunButton() {
-    return new Trigger();
-  }
-
-  public default Trigger getIntakeBackwardsRunButton() {
+  public default Trigger getIntakeBackwardsButton() {
     return new Trigger();
   }
 

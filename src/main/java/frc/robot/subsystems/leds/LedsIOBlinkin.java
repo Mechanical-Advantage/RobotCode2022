@@ -37,7 +37,7 @@ public class LedsIOBlinkin implements LedsIO {
   }
 
   @Override
-  public void setMode(LedMode mode) {
+  public void setMode(LedMode mode, boolean sameBattery) {
     if (modeLookup.containsKey(mode)) {
       blinkin.setMode(modeLookup.get(mode));
     } else {

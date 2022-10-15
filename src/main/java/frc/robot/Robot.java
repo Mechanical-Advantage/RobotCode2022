@@ -4,6 +4,13 @@
 
 package frc.robot;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -32,11 +39,14 @@ import frc.robot.util.Alert.AlertType;
  * project.
  */
 public class Robot extends LoggedRobot {
+  private static final String batteryNameFile = "/home/lvuser/battery-name.txt";
+
   private RobotContainer robotContainer;
   private WPILOGWriter logReceiver;
   private Command autoCommand;
   private double autoStart;
   private boolean autoMessagePrinted;
+  private boolean batteryNameWritten = false;
 
   private final Alert logNoFileAlert =
       new Alert("No log path set for current robot. Data will NOT be logged.",
@@ -45,9 +55,13 @@ public class Robot extends LoggedRobot {
       new Alert("Logging queue exceeded capacity, data will NOT be logged.",
           AlertType.ERROR);
   private final Alert logOpenFileAlert = new Alert(
-      "Failed to open log file. Data will NOT be logged", AlertType.ERROR);
-  private final Alert logWriteAlert = new Alert(
-      "Failed write to the log file. Data will NOT be logged", AlertType.ERROR);
+      "Failed to open log file. Data will NOT be logged.", AlertType.ERROR);
+  private final Alert logWriteAlert =
+      new Alert("Failed write to the log file. Data will NOT be logged.",
+          AlertType.ERROR);
+  private final Alert sameBatteryAlert =
+      new Alert("The battery has not been changed since the last match.",
+          AlertType.WARNING);
 
   public Robot() {
     super(Constants.loopPeriodSecs);
@@ -114,6 +128,33 @@ public class Robot extends LoggedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();
+
+    // Check for battery alert
+    if (Constants.getMode() == Mode.REAL
+        && !BatteryTracker.getName().equals(BatteryTracker.defaultName)) {
+      File file = new File(batteryNameFile);
+      if (file.exists()) {
+        // Read previous battery name
+        String previousBatteryName = "";
+        try {
+          previousBatteryName =
+              new String(Files.readAllBytes(Paths.get(batteryNameFile)),
+                  StandardCharsets.UTF_8);
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+
+
+        if (previousBatteryName.equals(BatteryTracker.getName())) {
+          // Same battery, set alert
+          sameBatteryAlert.set(true);
+          robotContainer.setSameBatteryAlert(true);
+        } else {
+          // New battery, delete file
+          file.delete();
+        }
+      }
+    }
   }
 
   /**
@@ -156,6 +197,20 @@ public class Robot extends LoggedRobot {
                   Timer.getFPGATimestamp() - autoStart));
         }
         autoMessagePrinted = true;
+      }
+    }
+
+    // Write battery name if connected to field
+    if (Constants.getMode() == Mode.REAL && !batteryNameWritten
+        && !BatteryTracker.getName().equals(BatteryTracker.defaultName)
+        && DriverStation.isFMSAttached()) {
+      batteryNameWritten = true;
+      try {
+        FileWriter fileWriter = new FileWriter(batteryNameFile);
+        fileWriter.write(BatteryTracker.getName());
+        fileWriter.close();
+      } catch (IOException e) {
+        e.printStackTrace();
       }
     }
   }

@@ -14,6 +14,8 @@ public class LedsIORio implements LedsIO {
   private static final int length = 119;
   private static final int centerLed = 95;
   private static final int halfLength = (int) Math.ceil(length / 2.0);
+  private static final int batteryStartIndex = 72;
+  private static final int batteryEndIndex = 118;
   private static final double strobeDuration = 0.2; // How long is each flash
   private static final double rainbowFastFullLength = 40.0; // How many LEDs for a full cycle
   private static final double rainbowFastDuration = 0.25; // How long until the cycle repeats
@@ -40,7 +42,7 @@ public class LedsIORio implements LedsIO {
   }
 
   @Override
-  public void setMode(LedMode mode) {
+  public void setMode(LedMode mode, boolean sameBattery) {
     switch (mode) {
       case FALLEN:
         strobe(Color.kWhite);
@@ -99,6 +101,15 @@ public class LedsIORio implements LedsIO {
         solid(Color.kBlack);
         break;
     }
+
+    if (sameBattery) {
+      boolean on =
+          ((Timer.getFPGATimestamp() % strobeDuration) / strobeDuration) > 0.5;
+      for (int i = batteryStartIndex; i < batteryEndIndex; i++) {
+        buffer.setLED(i, on ? Color.kRed : Color.kBlack);
+      }
+    }
+
     leds.setData(buffer);
   }
 

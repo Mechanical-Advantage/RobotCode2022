@@ -39,8 +39,8 @@ public class LoggedChoosers extends SubsystemBase {
         "Two cargo (TA)", "Two cargo (TC)", "Two cargo (TD)", "One cargo (TA)",
         "One cargo (TB)", "One cargo (TC)", "One cargo (TD)", "One cargo (FA)",
         "One cargo (FB)", "Taxi (TA)", "Taxi (TB)", "Taxi (TC)", "Taxi (TD)",
-        "Taxi (FA)", "Taxi (FB)", "HP Practice", "Track Width Characterization",
-        "FF Characterization (Drive/Forwards)",
+        "Taxi (FA)", "Taxi (FB)", "HP Practice", "Demo Circles",
+        "Track Width Characterization", "FF Characterization (Drive/Forwards)",
         "FF Characterization (Drive/Backwards)",
         "FF Characterization (Flywheels/Forwards)",
         "FF Characterization (Flywheels/Backwards)"));

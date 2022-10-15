@@ -11,6 +11,7 @@ import frc.robot.Constants.RobotType;
 public class BatteryTracker {
   private static final List<RobotType> supportedRobots =
       List.of(RobotType.ROBOT_2022C);
+  public static final String defaultName = "BAT-0000-000";
 
   private static final int nameLength = 12;
   private static final byte[] scanCommand = new byte[] {0x7e, 0x00, 0x08, 0x01,
@@ -21,7 +22,7 @@ public class BatteryTracker {
   private static final int fullResponseLength =
       responsePrefix.length + nameLength + 1;
 
-  public static String name = "BAT-0000-000";
+  private static String name = defaultName;
 
   /**
    * Scans the battery. This should be called before the first loop cycle
@@ -33,7 +34,7 @@ public class BatteryTracker {
       if (supportedRobots.contains(Constants.getRobot())) {
         // Only scan on supported robots and in real mode
 
-        try (SerialPort port = new SerialPort(9600, SerialPort.Port.kUSB)) {
+        try (SerialPort port = new SerialPort(9600, SerialPort.Port.kUSB2)) {
           port.setTimeout(timeout);
           port.setWriteBufferSize(scanCommand.length);
           port.setReadBufferSize(fullResponseLength);
@@ -85,4 +86,8 @@ public class BatteryTracker {
     return name;
   }
 
+  /** Returns the name of the last scanned battery. */
+  public static String getName() {
+    return name;
+  }
 }
