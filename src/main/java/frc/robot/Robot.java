@@ -14,7 +14,6 @@ import java.nio.file.Paths;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.inputs.LoggedNetworkTables;
 import org.littletonrobotics.junction.inputs.LoggedSystemStats;
 import org.littletonrobotics.junction.rlog.RLOGServer;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
@@ -75,8 +74,6 @@ public class Robot extends LoggedRobot {
   public void robotInit() {
     Logger logger = Logger.getInstance();
     setUseTiming(Constants.getMode() != Mode.REPLAY);
-    LoggedNetworkTables.getInstance()
-        .addTable("/SmartDashboard/TunableNumbers");
     logger.recordMetadata("Robot", Constants.getRobot().toString());
     logger.recordMetadata("BatteryName", BatteryTracker.scanBattery(1.0));
     logger.recordMetadata("TuningMode", Boolean.toString(Constants.tuningMode));
