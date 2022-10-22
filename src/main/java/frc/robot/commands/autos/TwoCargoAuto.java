@@ -58,15 +58,13 @@ public class TwoCargoAuto extends SequentialCommandGroup {
     addCommands(
         deadline(
             sequence(new InstantCommand(intake::extend, intake),
-                sequence(
-                    new MotionProfileCommand(drive, robotState, 0.0,
-                        List.of(position.getPose(),
-                            cargoPositions.get(position)),
-                        0.0, false),
-                    new WaitCommand(intakeLengthSecs))
-                        .deadlineWith(new RunIntake(IntakeMode.FORWARDS, intake,
-                            feeder, leds)),
-                new Shoot(feeder, leds).withTimeout(shootDurationSecs)),
+                new MotionProfileCommand(drive, robotState, 0.0,
+                    List.of(position.getPose(), cargoPositions.get(position)),
+                    0.0, false),
+                new WaitCommand(intakeLengthSecs),
+                new Shoot(feeder, leds).withTimeout(shootDurationSecs))
+                    .deadlineWith(new RunIntake(IntakeMode.FORWARDS, intake,
+                        feeder, leds, true)),
             new PrepareShooterAuto(flywheels, hood, feeder,
                 cargoPositions.get(position).getTranslation())),
         taxiFinish ? new Taxi(drive, false) : new InstantCommand());
