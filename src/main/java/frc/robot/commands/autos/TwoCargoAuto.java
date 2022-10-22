@@ -57,7 +57,7 @@ public class TwoCargoAuto extends SequentialCommandGroup {
       double shootDurationSecs) {
     addCommands(
         deadline(
-            sequence(new InstantCommand(intake::extend, intake),
+            sequence(new InstantCommand(intake::extend),
                 new MotionProfileCommand(drive, robotState, 0.0,
                     List.of(position.getPose(), cargoPositions.get(position)),
                     0.0, false),
