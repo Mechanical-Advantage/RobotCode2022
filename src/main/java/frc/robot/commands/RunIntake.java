@@ -34,6 +34,7 @@ public class RunIntake extends CommandBase {
   private final Intake intake;
   private final Feeder feeder;
   private final Leds leds;
+  private final boolean forceRollers;
 
   private final Consumer<Double> rumbleConsumer;
 
@@ -45,10 +46,10 @@ public class RunIntake extends CommandBase {
   private final Timer rumbleTwoTimer = new Timer();
 
   /**
-   * Creates a new RunIntake. Runs the intake forwards or backwards, intended for operator controls.
+   * Creates a new RunIntake. Runs the intake forwards or backwards.
    */
   public RunIntake(IntakeMode mode, Intake intake, Feeder feeder, Leds leds) {
-    this(mode, intake, feeder, leds, x -> {
+    this(mode, intake, feeder, leds, false, x -> {
     });
   }
 
@@ -57,11 +58,29 @@ public class RunIntake extends CommandBase {
    */
   public RunIntake(IntakeMode mode, Intake intake, Feeder feeder, Leds leds,
       Consumer<Double> rumbleConsumer) {
+    this(mode, intake, feeder, leds, false, rumbleConsumer);
+  }
+
+  /**
+   * Creates a new RunIntake. Runs the intake forwards or backwards.
+   */
+  public RunIntake(IntakeMode mode, Intake intake, Feeder feeder, Leds leds,
+      boolean forceRollers) {
+    this(mode, intake, feeder, leds, forceRollers, x -> {
+    });
+  }
+
+  /**
+   * Creates a new RunIntake. Runs the intake forwards or backwards, intended for operator controls.
+   */
+  public RunIntake(IntakeMode mode, Intake intake, Feeder feeder, Leds leds,
+      boolean forceRollers, Consumer<Double> rumbleConsumer) {
     addRequirements(intake);
     this.mode = mode;
     this.intake = intake;
     this.feeder = feeder;
     this.leds = leds;
+    this.forceRollers = forceRollers;
     this.rumbleConsumer = rumbleConsumer;
 
     rumblePercent.setDefault(0.5);
@@ -99,7 +118,7 @@ public class RunIntake extends CommandBase {
     switch (mode) {
       case FORWARDS:
         int cargoCount = feeder.getCargoCount();
-        if (cargoCount == 2) {
+        if (cargoCount == 2 && !forceRollers) {
           intake.runPercent(0.0);
         } else {
           intake.runPercent(forwardsSpeed.get());

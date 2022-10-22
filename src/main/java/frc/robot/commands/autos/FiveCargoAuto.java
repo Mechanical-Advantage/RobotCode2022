@@ -35,8 +35,8 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.GeomUtil;
 
 public class FiveCargoAuto extends SequentialCommandGroup {
-  public static final double firstShotLateSecs = 0.75; // How long after stop to begin feeding
-  public static final double firstShotDurationSecs = 1.0; // How long to feed
+  public static final double firstShotLateSecs = 0.25; // How long after stop to begin feeding
+  public static final double firstShotDurationSecs = 1.5; // How long to feed
   public static final double secondShotLateSecs = 0.0; // How long after stop to begin feeding
   public static final double secondShotDurationSecs = 0.6; // How long to feed
   public static final double thirdShotDurationSecs = 1.0; // How long to feed
@@ -123,9 +123,12 @@ public class FiveCargoAuto extends SequentialCommandGroup {
         + secondCargoToSecondShot.getDuration() + secondShotLateSecs;
     double thirdShotStart = endTime - thirdShotDurationSecs;
     Command shootSequence = sequence(
-        new RunIntake(IntakeMode.FORWARDS, intake, feeder, leds)
+        new RunIntake(IntakeMode.FORWARDS, intake, feeder, leds, true)
             .withTimeout(firstShotStart),
-        new Shoot(feeder, leds).withTimeout(firstShotDurationSecs),
+        new Shoot(feeder, leds)
+            .alongWith(
+                new RunIntake(IntakeMode.FORWARDS, intake, feeder, leds, true)) // Continue rollers
+            .withTimeout(firstShotDurationSecs),
         new RunIntake(IntakeMode.FORWARDS, intake, feeder, leds).withTimeout(
             secondShotStart - firstShotStart - firstShotDurationSecs),
         new Shoot(feeder, leds).withTimeout(secondShotDurationSecs),

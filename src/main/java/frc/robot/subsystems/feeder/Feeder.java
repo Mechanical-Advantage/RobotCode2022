@@ -38,6 +38,8 @@ public class Feeder extends SubsystemBase {
   private static final double colorSensorChannelThreshold = 1.5;
   private static final int colorSensorProxThreshold = 250;
 
+  private final TunableNumber shootHopperPercent =
+      new TunableNumber("Feeder/SHOOT/Hopper", 1.0);
   private final TunableNumber shootKickerPercent =
       new TunableNumber("Feeder/SHOOT/Kicker", 0.3);
 
@@ -235,6 +237,7 @@ public class Feeder extends SubsystemBase {
           }
           break;
         case SHOOT:
+          hopperPercent = shootHopperPercent.get();
           towerPercent = towerShootSpeed;
           kickerPercent = shootKickerPercent.get();
           if (!shootRequested) {
