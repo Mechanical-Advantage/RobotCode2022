@@ -1,6 +1,9 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.util;
 
@@ -14,18 +17,17 @@ import edu.wpi.first.math.geometry.Twist2d;
 public class GeomUtil {
   /**
    * Creates a pure translating transform
-   * 
+   *
    * @param translation The translation to create the transform with
    * @return The resulting transform
    */
-  public static Transform2d transformFromTranslation(
-      Translation2d translation) {
+  public static Transform2d transformFromTranslation(Translation2d translation) {
     return new Transform2d(translation, new Rotation2d());
   }
 
   /**
    * Creates a pure translating transform
-   * 
+   *
    * @param x The x componenet of the translation
    * @param y The y componenet of the translation
    * @return The resulting transform
@@ -36,7 +38,7 @@ public class GeomUtil {
 
   /**
    * Creates a pure rotating transform
-   * 
+   *
    * @param rotation The rotation to create the transform with
    * @return The resulting transform
    */
@@ -46,7 +48,7 @@ public class GeomUtil {
 
   /**
    * Creates a pure translated pose
-   * 
+   *
    * @param translation The translation to create the pose with
    * @return The resulting pose
    */
@@ -56,7 +58,7 @@ public class GeomUtil {
 
   /**
    * Creates a pure rotated pose
-   * 
+   *
    * @param rotation The rotation to create the pose with
    * @return The resulting pose
    */
@@ -66,7 +68,7 @@ public class GeomUtil {
 
   /**
    * Converts a Pose2d to a Transform2d to be used in a kinematic chain
-   * 
+   *
    * @param pose The pose that will represent the transform
    * @return The resulting transform
    */
@@ -77,7 +79,7 @@ public class GeomUtil {
   /**
    * Converts a Transform2d to a Pose2d to be used as a position or as the start of a kinematic
    * chain
-   * 
+   *
    * @param transform The transform that will represent the pose
    * @return The resulting pose
    */
@@ -90,12 +92,12 @@ public class GeomUtil {
    * the first pose, t=1 would result in the last pose, and t=0.5 would result in a pose which is
    * exactly halfway between the two poses. Values of t less than zero return the first pose, and
    * values of t greater than 1 return the last pose.
-   * 
+   *
    * @param lhs The left hand side, or first pose to use for interpolation
    * @param rhs The right hand side, or last pose to use for interpolation
    * @param t The scale factor, 0 <= t <= 1
    * @return The pose which represents the interpolation. For t <= 0, the "lhs" parameter is
-   *         returned directly. For t >= 1, the "rhs" parameter is returned directly.
+   *     returned directly. For t >= 1, the "rhs" parameter is returned directly.
    */
   public static Pose2d interpolate(Pose2d lhs, Pose2d rhs, double t) {
     if (t <= 0) {
@@ -110,7 +112,7 @@ public class GeomUtil {
 
   /**
    * Returns the direction that this translation makes with the origin as a Rotation2d
-   * 
+   *
    * @param translation The translation
    * @return The direction of the translation
    */

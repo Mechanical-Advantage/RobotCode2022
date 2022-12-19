@@ -1,10 +1,11 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.commands;
-
-import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -14,15 +15,14 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.TunableNumber;
+import org.littletonrobotics.junction.Logger;
 
 public class TurnToAngleProfile extends CommandBase {
   private static final double maxVelocityDegreesPerSec = 360.0;
   private static final double maxAccelerationDegreesPerSec2 = 720.0;
 
-  private static final TunableNumber kP =
-      new TunableNumber("TurnToAngleProfile/kP");
-  private static final TunableNumber kD =
-      new TunableNumber("TurnToAngleProfile/kD");
+  private static final TunableNumber kP = new TunableNumber("TurnToAngleProfile/kP");
+  private static final TunableNumber kD = new TunableNumber("TurnToAngleProfile/kD");
 
   private final Drive drive;
   private final RobotState robotState;
@@ -34,8 +34,8 @@ public class TurnToAngleProfile extends CommandBase {
   private boolean shouldExit = false;
 
   /** Creates a new TurnToAngleProfile. */
-  public TurnToAngleProfile(Drive drive, RobotState robotState,
-      Rotation2d startRotation, Rotation2d endRotation) {
+  public TurnToAngleProfile(
+      Drive drive, RobotState robotState, Rotation2d startRotation, Rotation2d endRotation) {
     addRequirements(drive);
     this.drive = drive;
     this.robotState = robotState;
@@ -45,11 +45,12 @@ public class TurnToAngleProfile extends CommandBase {
     kD.setDefault(0.0);
 
     Rotation2d relativeEndRotation = endRotation.minus(startRotation);
-    profile = new TrapezoidProfile(
-        new TrapezoidProfile.Constraints(maxVelocityDegreesPerSec,
-            maxAccelerationDegreesPerSec2),
-        new TrapezoidProfile.State(relativeEndRotation.getDegrees(), 0.0),
-        new TrapezoidProfile.State(0.0, 0.0));
+    profile =
+        new TrapezoidProfile(
+            new TrapezoidProfile.Constraints(
+                maxVelocityDegreesPerSec, maxAccelerationDegreesPerSec2),
+            new TrapezoidProfile.State(relativeEndRotation.getDegrees(), 0.0),
+            new TrapezoidProfile.State(0.0, 0.0));
 
     controller.enableContinuousInput(-180.0, 180.0);
     controller.setP(kP.get());
@@ -74,21 +75,18 @@ public class TurnToAngleProfile extends CommandBase {
     }
 
     Rotation2d setpoint =
-        Rotation2d.fromDegrees(profile.calculate(timer.get()).position)
-            .plus(startRotation);
-    double speed = controller.calculate(
-        robotState.getLatestRotation().getDegrees(), setpoint.getDegrees());
+        Rotation2d.fromDegrees(profile.calculate(timer.get()).position).plus(startRotation);
+    double speed =
+        controller.calculate(robotState.getLatestRotation().getDegrees(), setpoint.getDegrees());
     drive.drivePercent(-speed, speed);
 
     if (profile.isFinished(timer.get())) {
       shouldExit = true;
     }
 
-    Logger.getInstance().recordOutput("TurnToAngleProfile/Setpoint",
-        setpoint.getDegrees());
+    Logger.getInstance().recordOutput("TurnToAngleProfile/Setpoint", setpoint.getDegrees());
     Logger.getInstance().recordOutput("TurnToAngleProfile/Speed", speed);
-    Logger.getInstance().recordOutput("ActiveCommands/TurnToAngleProfile",
-        true);
+    Logger.getInstance().recordOutput("ActiveCommands/TurnToAngleProfile", true);
   }
 
   // Called once the command ends or is interrupted.

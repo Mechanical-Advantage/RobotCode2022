@@ -1,19 +1,21 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.subsystems.intake;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
+import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import frc.robot.Constants;
 import frc.robot.subsystems.pneumatics.Pneumatics;
 import frc.robot.util.SparkMAXBurnManager;
@@ -30,8 +32,7 @@ public class IntakeIOSparkMAX implements IntakeIO {
   public IntakeIOSparkMAX() {
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
-        solenoid = new DoubleSolenoid(Pneumatics.revModuleID,
-            PneumaticsModuleType.REVPH, 2, 5);
+        solenoid = new DoubleSolenoid(Pneumatics.revModuleID, PneumaticsModuleType.REVPH, 2, 5);
         motor = new CANSparkMax(4, MotorType.kBrushless);
         afterEncoderReduction = 60.0 / 16.0;
         invert = true;
@@ -61,13 +62,10 @@ public class IntakeIOSparkMAX implements IntakeIO {
   public void updateInputs(IntakeIOInputs inputs) {
     inputs.extended = solenoid.get() == Value.kReverse;
 
-    inputs.positionRad =
-        Units.rotationsToRadians(encoder.getPosition()) / afterEncoderReduction;
+    inputs.positionRad = Units.rotationsToRadians(encoder.getPosition()) / afterEncoderReduction;
     inputs.velocityRadPerSec =
-        Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity())
-            / afterEncoderReduction;
-    inputs.appliedVolts =
-        motor.getAppliedOutput() * RobotController.getBatteryVoltage();
+        Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity()) / afterEncoderReduction;
+    inputs.appliedVolts = motor.getAppliedOutput() * RobotController.getBatteryVoltage();
     inputs.currentAmps = new double[] {motor.getOutputCurrent()};
     inputs.tempCelcius = new double[] {motor.getMotorTemperature()};
   }

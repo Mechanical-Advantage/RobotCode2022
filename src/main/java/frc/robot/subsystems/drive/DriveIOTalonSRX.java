@@ -1,3 +1,10 @@
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
+
 package frc.robot.subsystems.drive;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -8,7 +15,6 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.kauailabs.navx.frc.AHRS;
-
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.SerialPort;
 import frc.robot.Constants;
@@ -55,20 +61,20 @@ public class DriveIOTalonSRX implements DriveIO {
 
   @Override
   public void updateInputs(DriveIOInputs inputs) {
-    inputs.leftPositionRad = Units.rotationsToRadians(
-        leftLeader.getSelectedSensorPosition() / encoderTicksPerRev);
-    inputs.rightPositionRad = Units.rotationsToRadians(
-        rightLeader.getSelectedSensorPosition() / encoderTicksPerRev);
-    inputs.leftVelocityRadPerSec = Units.rotationsToRadians(
-        leftLeader.getSelectedSensorVelocity() * 10 / encoderTicksPerRev);
-    inputs.rightVelocityRadPerSec = Units.rotationsToRadians(
-        rightLeader.getSelectedSensorVelocity() * 10 / encoderTicksPerRev);
+    inputs.leftPositionRad =
+        Units.rotationsToRadians(leftLeader.getSelectedSensorPosition() / encoderTicksPerRev);
+    inputs.rightPositionRad =
+        Units.rotationsToRadians(rightLeader.getSelectedSensorPosition() / encoderTicksPerRev);
+    inputs.leftVelocityRadPerSec =
+        Units.rotationsToRadians(leftLeader.getSelectedSensorVelocity() * 10 / encoderTicksPerRev);
+    inputs.rightVelocityRadPerSec =
+        Units.rotationsToRadians(rightLeader.getSelectedSensorVelocity() * 10 / encoderTicksPerRev);
     inputs.leftAppliedVolts = leftLeader.getMotorOutputVoltage();
     inputs.rightAppliedVolts = rightLeader.getMotorOutputVoltage();
-    inputs.leftCurrentAmps = new double[] {leftLeader.getSupplyCurrent(),
-        leftFollower.getSupplyCurrent()};
-    inputs.rightCurrentAmps = new double[] {rightLeader.getSupplyCurrent(),
-        rightFollower.getSupplyCurrent()};
+    inputs.leftCurrentAmps =
+        new double[] {leftLeader.getSupplyCurrent(), leftFollower.getSupplyCurrent()};
+    inputs.rightCurrentAmps =
+        new double[] {rightLeader.getSupplyCurrent(), rightFollower.getSupplyCurrent()};
 
     inputs.gyroConnected = gyro.isConnected();
     inputs.gyroYawPositionRad = Math.toRadians(gyro.getAngle());
@@ -85,16 +91,25 @@ public class DriveIOTalonSRX implements DriveIO {
   }
 
   @Override
-  public void setVelocity(double leftVelocityRadPerSec,
-      double rightVelocityRadPerSec, double leftFFVolts, double rightFFVolts) {
-    double leftTicksPer100Ms = Units.radiansToRotations(leftVelocityRadPerSec)
-        * encoderTicksPerRev / 10.0;
-    double rightTicksPer100Ms = Units.radiansToRotations(rightVelocityRadPerSec)
-        * encoderTicksPerRev / 10.0;
-    leftLeader.set(ControlMode.Velocity, leftTicksPer100Ms,
-        DemandType.ArbitraryFeedForward, leftFFVolts / 12.0);
-    rightLeader.set(ControlMode.Velocity, rightTicksPer100Ms,
-        DemandType.ArbitraryFeedForward, rightFFVolts / 12.0);
+  public void setVelocity(
+      double leftVelocityRadPerSec,
+      double rightVelocityRadPerSec,
+      double leftFFVolts,
+      double rightFFVolts) {
+    double leftTicksPer100Ms =
+        Units.radiansToRotations(leftVelocityRadPerSec) * encoderTicksPerRev / 10.0;
+    double rightTicksPer100Ms =
+        Units.radiansToRotations(rightVelocityRadPerSec) * encoderTicksPerRev / 10.0;
+    leftLeader.set(
+        ControlMode.Velocity,
+        leftTicksPer100Ms,
+        DemandType.ArbitraryFeedForward,
+        leftFFVolts / 12.0);
+    rightLeader.set(
+        ControlMode.Velocity,
+        rightTicksPer100Ms,
+        DemandType.ArbitraryFeedForward,
+        rightFFVolts / 12.0);
   }
 
   @Override

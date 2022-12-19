@@ -1,15 +1,11 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.subsystems.vision;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Supplier;
-
-import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -27,6 +23,11 @@ import frc.robot.oi.OverrideOI.VisionLedMode;
 import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
 import frc.robot.util.CircleFitter;
 import frc.robot.util.GeomUtil;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
+import org.littletonrobotics.junction.Logger;
 
 public class Vision extends SubsystemBase {
   private static final double circleFitPrecision = 0.01;
@@ -39,7 +40,7 @@ public class Vision extends SubsystemBase {
   private static final double blinkLengthSecs = 0.5;
 
   private static final double vizMaxNoLog = 0.25; // How long to wait with no vision data before
-                                                  // clearing log visualization
+  // clearing log visualization
   private static final double vizFinalWidth = 1080.0;
   private static final double vizFinalHeight = 1920.0;
   private static final double vizOriginX = 540.0;
@@ -49,8 +50,7 @@ public class Vision extends SubsystemBase {
   // FOV constants
   private static final double vpw =
       2.0 * Math.tan(VisionConstants.fovHorizontal.getRadians() / 2.0);
-  private static final double vph =
-      2.0 * Math.tan(VisionConstants.fovVertical.getRadians() / 2.0);
+  private static final double vph = 2.0 * Math.tan(VisionConstants.fovVertical.getRadians() / 2.0);
 
   private final VisionIO io;
   private final VisionIOInputs inputs = new VisionIOInputs();
@@ -75,8 +75,8 @@ public class Vision extends SubsystemBase {
     targetGraceTimer.start();
   }
 
-  public void setSuppliers(Supplier<VisionLedMode> modeSupplier,
-      Supplier<Boolean> climbModeSupplier) {
+  public void setSuppliers(
+      Supplier<VisionLedMode> modeSupplier, Supplier<Boolean> climbModeSupplier) {
     this.modeSupplier = modeSupplier;
     this.climbModeSupplier = climbModeSupplier;
   }
@@ -122,9 +122,10 @@ public class Vision extends SubsystemBase {
       if (targetCount > 0) {
         targetGraceTimer.reset();
       }
-      idleOn = targetGraceTimer.get() < targetGraceSecs
-          || Timer.getFPGATimestamp() % blinkPeriodSecs < blinkLengthSecs
-          || alwaysIdleOn;
+      idleOn =
+          targetGraceTimer.get() < targetGraceSecs
+              || Timer.getFPGATimestamp() % blinkPeriodSecs < blinkLengthSecs
+              || alwaysIdleOn;
     }
 
     Logger.getInstance().recordOutput("Vision/TargetCount", targetCount);
@@ -177,10 +178,12 @@ public class Vision extends SubsystemBase {
         yList.add(y);
       }
     }
-    Logger.getInstance().recordOutput("Vision/CornersVizX",
-        xList.stream().mapToDouble(Double::doubleValue).toArray());
-    Logger.getInstance().recordOutput("Vision/CornersVizY",
-        yList.stream().mapToDouble(Double::doubleValue).toArray());
+    Logger.getInstance()
+        .recordOutput(
+            "Vision/CornersVizX", xList.stream().mapToDouble(Double::doubleValue).toArray());
+    Logger.getInstance()
+        .recordOutput(
+            "Vision/CornersVizY", yList.stream().mapToDouble(Double::doubleValue).toArray());
   }
 
   /** Process the current vision data */
@@ -197,8 +200,7 @@ public class Vision extends SubsystemBase {
     if (hoodAngle.isEmpty()) { // No valid hood data
       return;
     }
-    CameraPosition cameraPosition =
-        VisionConstants.getCameraPosition(hoodAngle.get());
+    CameraPosition cameraPosition = VisionConstants.getCameraPosition(hoodAngle.get());
 
     // Calculate camera to target translation
     if (targetCount >= minTargetCount
@@ -222,10 +224,13 @@ public class Vision extends SubsystemBase {
         corners = sortCorners(corners, targetAvg);
 
         for (int i = 0; i < corners.size(); i++) {
-          Translation2d translation = solveCameraToTargetTranslation(
-              corners.get(i), i < 2 ? FieldConstants.visionTargetHeightUpper
-                  : FieldConstants.visionTargetHeightLower,
-              cameraPosition);
+          Translation2d translation =
+              solveCameraToTargetTranslation(
+                  corners.get(i),
+                  i < 2
+                      ? FieldConstants.visionTargetHeightUpper
+                      : FieldConstants.visionTargetHeightLower,
+                  cameraPosition);
           if (translation != null) {
             cameraToTargetTranslations.add(translation);
           }
@@ -239,20 +244,22 @@ public class Vision extends SubsystemBase {
       // Combine corner translations to full target translation
       if (cameraToTargetTranslations.size() >= minTargetCount * 4) {
         Translation2d cameraToTargetTranslation =
-            CircleFitter.fit(FieldConstants.visionTargetDiameter / 2.0,
-                cameraToTargetTranslations, circleFitPrecision);
+            CircleFitter.fit(
+                FieldConstants.visionTargetDiameter / 2.0,
+                cameraToTargetTranslations,
+                circleFitPrecision);
 
         // Calculate field to robot translation
-        Rotation2d robotRotation =
-            robotState.getDriveRotation(captureTimestamp);
-        Rotation2d cameraRotation = robotRotation
-            .rotateBy(cameraPosition.vehicleToCamera.getRotation());
+        Rotation2d robotRotation = robotState.getDriveRotation(captureTimestamp);
+        Rotation2d cameraRotation =
+            robotRotation.rotateBy(cameraPosition.vehicleToCamera.getRotation());
         Transform2d fieldToTargetRotated =
             new Transform2d(FieldConstants.hubCenter, cameraRotation);
-        Transform2d fieldToCamera = fieldToTargetRotated.plus(GeomUtil
-            .transformFromTranslation(cameraToTargetTranslation.unaryMinus()));
-        Pose2d fieldToVehicle = GeomUtil.transformToPose(
-            fieldToCamera.plus(cameraPosition.vehicleToCamera.inverse()));
+        Transform2d fieldToCamera =
+            fieldToTargetRotated.plus(
+                GeomUtil.transformFromTranslation(cameraToTargetTranslation.unaryMinus()));
+        Pose2d fieldToVehicle =
+            GeomUtil.transformToPose(fieldToCamera.plus(cameraPosition.vehicleToCamera.inverse()));
         if (fieldToVehicle.getX() > FieldConstants.fieldLength
             || fieldToVehicle.getX() < 0.0
             || fieldToVehicle.getY() > FieldConstants.fieldWidth
@@ -261,14 +268,12 @@ public class Vision extends SubsystemBase {
         }
 
         // Send final translation
-        robotState.addVisionData(captureTimestamp,
-            fieldToVehicle.getTranslation());
+        robotState.addVisionData(captureTimestamp, fieldToVehicle.getTranslation());
       }
     }
   }
 
-  private List<VisionPoint> sortCorners(List<VisionPoint> corners,
-      VisionPoint average) {
+  private List<VisionPoint> sortCorners(List<VisionPoint> corners, VisionPoint average) {
 
     // Find top corners
     Integer topLeftIndex = null;
@@ -279,7 +284,8 @@ public class Vision extends SubsystemBase {
       VisionPoint corner = corners.get(i);
       double angleRad =
           new Rotation2d(corner.x - average.x, average.y - corner.y)
-              .minus(Rotation2d.fromDegrees(90)).getRadians();
+              .minus(Rotation2d.fromDegrees(90))
+              .getRadians();
       if (angleRad > 0) {
         if (angleRad < minPosRads) {
           minPosRads = angleRad;
@@ -334,18 +340,16 @@ public class Vision extends SubsystemBase {
     return newCorners;
   }
 
-  private Translation2d solveCameraToTargetTranslation(VisionPoint corner,
-      double goalHeight, CameraPosition cameraPosition) {
+  private Translation2d solveCameraToTargetTranslation(
+      VisionPoint corner, double goalHeight, CameraPosition cameraPosition) {
 
     double halfWidthPixels = VisionConstants.widthPixels / 2.0;
     double halfHeightPixels = VisionConstants.heightPixels / 2.0;
-    double nY = -((corner.x - halfWidthPixels - VisionConstants.crosshairX)
-        / halfWidthPixels);
-    double nZ = -((corner.y - halfHeightPixels - VisionConstants.crosshairY)
-        / halfHeightPixels);
+    double nY = -((corner.x - halfWidthPixels - VisionConstants.crosshairX) / halfWidthPixels);
+    double nZ = -((corner.y - halfHeightPixels - VisionConstants.crosshairY) / halfHeightPixels);
 
-    Translation2d xzPlaneTranslation = new Translation2d(1.0, vph / 2.0 * nZ)
-        .rotateBy(cameraPosition.verticalRotation);
+    Translation2d xzPlaneTranslation =
+        new Translation2d(1.0, vph / 2.0 * nZ).rotateBy(cameraPosition.verticalRotation);
     double x = xzPlaneTranslation.getX();
     double y = vpw / 2.0 * nY;
     double z = xzPlaneTranslation.getY();
@@ -355,8 +359,7 @@ public class Vision extends SubsystemBase {
       double scaling = differentialHeight / -z;
       double distance = Math.hypot(x, y) * scaling;
       Rotation2d angle = new Rotation2d(x, y);
-      return new Translation2d(distance * angle.getCos(),
-          distance * angle.getSin());
+      return new Translation2d(distance * angle.getCos(), distance * angle.getSin());
     }
     return null;
   }
@@ -375,11 +378,9 @@ public class Vision extends SubsystemBase {
     public final double timestamp;
     public final Translation2d translation;
 
-    public TimestampedTranslation2d(double timestamp,
-        Translation2d translation) {
+    public TimestampedTranslation2d(double timestamp, Translation2d translation) {
       this.timestamp = timestamp;
       this.translation = translation;
     }
   }
 }
-

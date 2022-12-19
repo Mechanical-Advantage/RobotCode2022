@@ -1,14 +1,11 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.subsystems.pneumatics;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Supplier;
-
-import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -17,6 +14,10 @@ import frc.robot.Constants;
 import frc.robot.subsystems.pneumatics.PneumaticsIO.PneumaticsIOInputs;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
+import org.littletonrobotics.junction.Logger;
 
 public class Pneumatics extends SubsystemBase {
   public static final int revModuleID = 60; // CAN ID for pneumatics hub
@@ -39,8 +40,8 @@ public class Pneumatics extends SubsystemBase {
 
   private Timer noPressureTimer = new Timer();
   private Timer compressorEnabledTimer = new Timer();
-  private Alert dumpValveAlert = new Alert(
-      "Cannot build pressure. Is the dump value open?", AlertType.WARNING);
+  private Alert dumpValveAlert =
+      new Alert("Cannot build pressure. Is the dump value open?", AlertType.WARNING);
 
   /** Creates a new Pneumatics. */
   public Pneumatics(PneumaticsIO io) {
@@ -66,8 +67,7 @@ public class Pneumatics extends SubsystemBase {
     io.useLowClosedLoopThresholds(climbModeOverride.get());
 
     // Calculate input pressure for averaging filter
-    double limitedPressure =
-        inputs.pressurePsi < 0.0 ? 0.0 : inputs.pressurePsi;
+    double limitedPressure = inputs.pressurePsi < 0.0 ? 0.0 : inputs.pressurePsi;
     double processedPressure = 0.0;
     if (inputs.compressorActive) {
 
@@ -87,8 +87,8 @@ public class Pneumatics extends SubsystemBase {
       processedPressure = (compressorMinPoint + compressorMaxPoint) / 2.0;
 
       // Apply latency compensation
-      processedPressure += (compressorAveragingTaps / 2.0)
-          * Constants.loopPeriodSecs * compressorRatePsiPerSec;
+      processedPressure +=
+          (compressorAveragingTaps / 2.0) * Constants.loopPeriodSecs * compressorRatePsiPerSec;
     } else {
 
       // When compressor is inactive, reset min/max status and use normal pressure
@@ -101,13 +101,11 @@ public class Pneumatics extends SubsystemBase {
 
     // Run averaging filter
     filterData.add(processedPressure);
-    while (filterData
-        .size() > (inputs.compressorActive ? compressorAveragingTaps
-            : normalAveragingTaps)) {
+    while (filterData.size()
+        > (inputs.compressorActive ? compressorAveragingTaps : normalAveragingTaps)) {
       filterData.remove(0);
     }
-    pressureSmoothedPsi = filterData.stream().mapToDouble(a -> a)
-        .summaryStatistics().getAverage();
+    pressureSmoothedPsi = filterData.stream().mapToDouble(a -> a).summaryStatistics().getAverage();
 
     // Log pressure
     Logger.getInstance().recordOutput("PressurePsi", pressureSmoothedPsi);
@@ -120,7 +118,6 @@ public class Pneumatics extends SubsystemBase {
     if (!inputs.compressorActive) {
       compressorEnabledTimer.reset();
     }
-    dumpValveAlert.set(
-        noPressureTimer.hasElapsed(5) && compressorEnabledTimer.hasElapsed(5));
+    dumpValveAlert.set(noPressureTimer.hasElapsed(5) && compressorEnabledTimer.hasElapsed(5));
   }
 }

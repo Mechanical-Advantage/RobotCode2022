@@ -1,6 +1,9 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.commands.climber;
 
@@ -14,14 +17,12 @@ public class ResetClimber extends SequentialCommandGroup {
   private static final double initialRaiseVolts = 0.8;
   private static final double pullDownVolts = 0.5;
 
-  /**
-   * Creates a new ResetClimber.
-   */
+  /** Creates a new ResetClimber. */
   public ResetClimber(Climber climber) {
     addCommands(
-        new StartEndCommand(() -> climber.runVoltage(initialRaiseVolts),
-            () -> climber.runVoltage(0.0), climber)
-                .withTimeout(initialRaiseSecs),
+        new StartEndCommand(
+                () -> climber.runVoltage(initialRaiseVolts), () -> climber.runVoltage(0.0), climber)
+            .withTimeout(initialRaiseSecs),
         new RunClimberToBottom(climber, pullDownVolts),
         new InstantCommand(climber::resetPosition, climber));
   }

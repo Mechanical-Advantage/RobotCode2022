@@ -1,6 +1,9 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.subsystems.hood;
 
@@ -20,10 +23,16 @@ import frc.robot.Constants;
 public class HoodIOSim implements HoodIO {
   private static final double lengthMeters = Units.inchesToMeters(12.0);
   private static final double massKg = 2.5;
-  private SingleJointedArmSim sim = new SingleJointedArmSim(DCMotor.getNEO(1),
-      20.0, SingleJointedArmSim.estimateMOI(lengthMeters, massKg), lengthMeters,
-      Units.degreesToRadians(10.0), Units.degreesToRadians(80.0), massKg,
-      false);
+  private SingleJointedArmSim sim =
+      new SingleJointedArmSim(
+          DCMotor.getNEO(1),
+          20.0,
+          SingleJointedArmSim.estimateMOI(lengthMeters, massKg),
+          lengthMeters,
+          Units.degreesToRadians(10.0),
+          Units.degreesToRadians(80.0),
+          massKg,
+          false);
 
   private double appliedVolts = 0.0;
   private final MechanismLigament2d hood;
@@ -31,12 +40,11 @@ public class HoodIOSim implements HoodIO {
   public HoodIOSim() {
     Mechanism2d mech = new Mechanism2d(2.0, 3.0);
     MechanismRoot2d robot = mech.getRoot("Robot", 1.0, 0.0);
-    MechanismLigament2d tower = robot.append(new MechanismLigament2d("Tower",
-        1.0, 90.0, 20, new Color8Bit(Color.kGray)));
-    hood = tower.append(new MechanismLigament2d("Hood", 0.5, 45.0, 10,
-        new Color8Bit(Color.kSkyBlue)));
-    hood.append(new MechanismLigament2d("Camera", 0.2, 90.0, 10,
-        new Color8Bit(Color.kSkyBlue)));
+    MechanismLigament2d tower =
+        robot.append(new MechanismLigament2d("Tower", 1.0, 90.0, 20, new Color8Bit(Color.kGray)));
+    hood =
+        tower.append(new MechanismLigament2d("Hood", 0.5, 45.0, 10, new Color8Bit(Color.kSkyBlue)));
+    hood.append(new MechanismLigament2d("Camera", 0.2, 90.0, 10, new Color8Bit(Color.kSkyBlue)));
     SmartDashboard.putData("Hood", mech);
   }
 

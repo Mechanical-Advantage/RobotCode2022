@@ -1,13 +1,11 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.subsystems.feeder;
-
-import java.util.List;
-import java.util.function.Supplier;
-
-import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
@@ -27,21 +25,21 @@ import frc.robot.subsystems.hood.Hood;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.leds.Leds;
 import frc.robot.util.Alert;
-import frc.robot.util.TunableNumber;
 import frc.robot.util.Alert.AlertType;
+import frc.robot.util.TunableNumber;
+import java.util.List;
+import java.util.function.Supplier;
+import org.littletonrobotics.junction.Logger;
 
 public class Feeder extends SubsystemBase {
-  private static final List<RobotType> supportedRobots =
-      List.of(RobotType.ROBOT_2022C);
+  private static final List<RobotType> supportedRobots = List.of(RobotType.ROBOT_2022C);
   private static final int proxSensorFaultCycles = 3; // Send alert after invalid data for this many
-                                                      // cycles
+  // cycles
   private static final double colorSensorChannelThreshold = 1.5;
   private static final int colorSensorProxThreshold = 250;
 
-  private final TunableNumber shootHopperPercent =
-      new TunableNumber("Feeder/SHOOT/Hopper", 1.0);
-  private final TunableNumber shootKickerPercent =
-      new TunableNumber("Feeder/SHOOT/Kicker", 0.3);
+  private final TunableNumber shootHopperPercent = new TunableNumber("Feeder/SHOOT/Hopper", 1.0);
+  private final TunableNumber shootKickerPercent = new TunableNumber("Feeder/SHOOT/Kicker", 0.3);
 
   private final TunableNumber intakeForwardsHopperPercent =
       new TunableNumber("Feeder/INTAKE_FORWARDS/Hopper", 1.0);
@@ -104,14 +102,11 @@ public class Feeder extends SubsystemBase {
   private int lowerProxSensorFaultCounter;
   private int upperProxSensorFaultCounter;
   private final Alert lowerProxDisconnectedAlert =
-      new Alert("Invalid data from lower cargo sensor. Is is connected?",
-          AlertType.ERROR);
+      new Alert("Invalid data from lower cargo sensor. Is is connected?", AlertType.ERROR);
   private final Alert upperProxDisconnectedAlert =
-      new Alert("Invalid data from upper cargo sensor. Is is connected?",
-          AlertType.ERROR);
+      new Alert("Invalid data from upper cargo sensor. Is is connected?", AlertType.ERROR);
   private final Alert colorSensorDisconnectedAlert =
-      new Alert("Color sensor disconnected, opponent rejection disabled.",
-          AlertType.ERROR);
+      new Alert("Color sensor disconnected, opponent rejection disabled.", AlertType.ERROR);
 
   /** Creates a new Feeder. */
   public Feeder(FeederIO io) {
@@ -125,16 +120,15 @@ public class Feeder extends SubsystemBase {
     intakingStopTimer.reset();
   }
 
-  public void setSubsystems(Leds leds, Intake intake, Flywheels flywheels,
-      Hood hood) {
+  public void setSubsystems(Leds leds, Intake intake, Flywheels flywheels, Hood hood) {
     this.leds = leds;
     this.flywheels = flywheels;
     this.hood = hood;
-    intakeCommand = new StartEndCommand(
-        () -> intake.runPercent(ejectBottomIntakePercent.get()), intake::stop,
-        intake);
-    prepareShooterCommand = new PrepareShooterPreset(flywheels, hood, this,
-        ShooterPreset.OPPONENT_EJECT);
+    intakeCommand =
+        new StartEndCommand(
+            () -> intake.runPercent(ejectBottomIntakePercent.get()), intake::stop, intake);
+    prepareShooterCommand =
+        new PrepareShooterPreset(flywheels, hood, this, ShooterPreset.OPPONENT_EJECT);
   }
 
   public void setOverride(Supplier<Boolean> colorSensorDisableSupplier) {
@@ -170,33 +164,27 @@ public class Feeder extends SubsystemBase {
     }
 
     // Log sensor states
-    Logger.getInstance().recordOutput("Feeder/ProxSensors/Lower",
-        getLowerProxSensor());
-    Logger.getInstance().recordOutput("Feeder/ProxSensors/Upper",
-        getUpperProxSensor());
-    Logger.getInstance().recordOutput("Feeder/ProxSensors/Color",
-        getColorSensorProx());
-    Logger.getInstance().recordOutput("Feeder/DetectedColor",
-        getCargoColor().toString());
+    Logger.getInstance().recordOutput("Feeder/ProxSensors/Lower", getLowerProxSensor());
+    Logger.getInstance().recordOutput("Feeder/ProxSensors/Upper", getUpperProxSensor());
+    Logger.getInstance().recordOutput("Feeder/ProxSensors/Color", getColorSensorProx());
+    Logger.getInstance().recordOutput("Feeder/DetectedColor", getCargoColor().toString());
     SmartDashboard.putBoolean("Feeder/One Cargo", getUpperProxSensor());
-    SmartDashboard.putBoolean("Feeder/Two Cargo",
-        getUpperProxSensor() && getLowerProxSensor());
+    SmartDashboard.putBoolean("Feeder/Two Cargo", getUpperProxSensor() && getLowerProxSensor());
 
     // Set cargo count for LEDs
     leds.setTowerCount(getCargoCount());
 
     // Log normalized color
-    double mag = inputs.colorSensorRed + inputs.colorSensorGreen
-        + inputs.colorSensorBlue;
+    double mag = inputs.colorSensorRed + inputs.colorSensorGreen + inputs.colorSensorBlue;
     mag = (mag == 0.0 ? 1.0 : mag);
-    Color color = new Color(((double) inputs.colorSensorRed / mag),
-        ((double) inputs.colorSensorGreen / mag),
-        ((double) inputs.colorSensorBlue / mag));
+    Color color =
+        new Color(
+            ((double) inputs.colorSensorRed / mag),
+            ((double) inputs.colorSensorGreen / mag),
+            ((double) inputs.colorSensorBlue / mag));
     Logger.getInstance().recordOutput("Feeder/NormalizedColor/Red", color.red);
-    Logger.getInstance().recordOutput("Feeder/NormalizedColor/Green",
-        color.green);
-    Logger.getInstance().recordOutput("Feeder/NormalizedColor/Blue",
-        color.blue);
+    Logger.getInstance().recordOutput("Feeder/NormalizedColor/Green", color.green);
+    Logger.getInstance().recordOutput("Feeder/NormalizedColor/Blue", color.blue);
 
     // Update color sensor value
     boolean hasWrongColor = false;
@@ -227,8 +215,7 @@ public class Feeder extends SubsystemBase {
           if (shootRequested) {
             setState(FeederState.SHOOT);
           } else if (intakeForwardsRequested
-              && (!(getLowerProxSensor() && getUpperProxSensor())
-                  || hasWrongColor)) {
+              && (!(getLowerProxSensor() && getUpperProxSensor()) || hasWrongColor)) {
             setState(FeederState.INTAKE_FORWARDS);
             intakingProxValue = false;
             intakingProxCount = 0;
@@ -273,8 +260,7 @@ public class Feeder extends SubsystemBase {
               setState(FeederState.EJECT_TOP_WAIT);
               prepareShooterCommand.schedule(false);
             }
-          } else if (intakingStopTimer
-              .hasElapsed(intakeForwardsStopDelay.get())) {
+          } else if (intakingStopTimer.hasElapsed(intakeForwardsStopDelay.get())) {
             setState(FeederState.IDLE);
           }
           break;
@@ -387,12 +373,10 @@ public class Feeder extends SubsystemBase {
   /** Returns the color of the cargo detected by the color sensor. */
   public CargoColor getCargoColor() {
     if (!colorSensorDisableSupplier.get() && inputs.colorSensorConnected) {
-      if (inputs.colorSensorRed > inputs.colorSensorBlue
-          * colorSensorChannelThreshold) {
+      if (inputs.colorSensorRed > inputs.colorSensorBlue * colorSensorChannelThreshold) {
         return CargoColor.RED;
       }
-      if (inputs.colorSensorBlue > inputs.colorSensorRed
-          * colorSensorChannelThreshold) {
+      if (inputs.colorSensorBlue > inputs.colorSensorRed * colorSensorChannelThreshold) {
         return CargoColor.BLUE;
       }
     }
@@ -400,10 +384,19 @@ public class Feeder extends SubsystemBase {
   }
 
   private static enum FeederState {
-    IDLE, SHOOT, INTAKE_FORWARDS, INTAKE_BACKWARDS, EJECT_BOTTOM_ALL, EJECT_BOTTOM_FINISH, EJECT_TOP_WAIT, EJECT_TOP_FINISH
+    IDLE,
+    SHOOT,
+    INTAKE_FORWARDS,
+    INTAKE_BACKWARDS,
+    EJECT_BOTTOM_ALL,
+    EJECT_BOTTOM_FINISH,
+    EJECT_TOP_WAIT,
+    EJECT_TOP_FINISH
   }
 
   public static enum CargoColor {
-    UNKNOWN, BLUE, RED;
+    UNKNOWN,
+    BLUE,
+    RED;
   }
 }

@@ -1,6 +1,9 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.util;
 
@@ -10,8 +13,8 @@ import java.util.stream.Collectors;
 
 /** Runs a linear interpolation between a set of points. */
 public class LinearInterpolation {
-  private static final Comparator<Point> sortByX = (Point p1,
-      Point p2) -> Double.valueOf(p1.x).compareTo(Double.valueOf(p2.x));
+  private static final Comparator<Point> sortByX =
+      (Point p1, Point p2) -> Double.valueOf(p1.x).compareTo(Double.valueOf(p2.x));
 
   private final List<Point> points;
 

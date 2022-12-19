@@ -1,12 +1,11 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.commands;
-
-import java.util.function.Supplier;
-
-import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -14,10 +13,11 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.TunableNumber;
+import java.util.function.Supplier;
+import org.littletonrobotics.junction.Logger;
 
 public class DriveWithJoysticks extends CommandBase {
-  private static final TunableNumber deadband =
-      new TunableNumber("DriveWithJoysticks/Deadband");
+  private static final TunableNumber deadband = new TunableNumber("DriveWithJoysticks/Deadband");
   private static final TunableNumber sniperLevel =
       new TunableNumber("DriveWithJoysticks/SniperLevel");
   private static final TunableNumber maxAcceleration =
@@ -26,10 +26,10 @@ public class DriveWithJoysticks extends CommandBase {
       new TunableNumber("DriveWithJoysticks/MaxJerk"); // Percent velocity per second^2
   private static final TunableNumber curvatureThreshold =
       new TunableNumber("DriveWithJoysticks/CurvatureThreshold"); // Where to transition to full
-                                                                  // curvature
+  // curvature
   private static final TunableNumber curvatureArcadeTurnScale =
       new TunableNumber("DriveWithJoysticks/CurvatureArcadeTurnScale"); // Arcade turning scale
-                                                                        // factor
+  // factor
   private final Drive drive;
   private final Supplier<String> modeSupplier;
   private final Supplier<String> demoSpeedLimitSupplier;
@@ -45,10 +45,15 @@ public class DriveWithJoysticks extends CommandBase {
   private final AxisProcessor rightYProcessor = new AxisProcessor();
 
   /** Creates a new DriveWithJoysticks. Drives based on the joystick values. */
-  public DriveWithJoysticks(Drive drive, Supplier<String> modeSupplier,
-      Supplier<String> demoSpeedLimitSupplier, Supplier<Double> leftXSupplier,
-      Supplier<Double> leftYSupplier, Supplier<Double> rightXSupplier,
-      Supplier<Double> rightYSupplier, Supplier<Boolean> sniperModeSupplier) {
+  public DriveWithJoysticks(
+      Drive drive,
+      Supplier<String> modeSupplier,
+      Supplier<String> demoSpeedLimitSupplier,
+      Supplier<Double> leftXSupplier,
+      Supplier<Double> leftYSupplier,
+      Supplier<Double> rightXSupplier,
+      Supplier<Double> rightYSupplier,
+      Supplier<Boolean> sniperModeSupplier) {
     addRequirements(drive);
     this.drive = drive;
     this.modeSupplier = modeSupplier;
@@ -96,23 +101,20 @@ public class DriveWithJoysticks extends CommandBase {
         break;
 
       case "Curvature":
-        WheelSpeeds arcadeSpeeds = WheelSpeeds.fromArcade(leftYValue,
-            rightXValue * curvatureArcadeTurnScale.get());
-        WheelSpeeds curvatureSpeeds =
-            WheelSpeeds.fromCurvature(leftYValue, rightXValue);
+        WheelSpeeds arcadeSpeeds =
+            WheelSpeeds.fromArcade(leftYValue, rightXValue * curvatureArcadeTurnScale.get());
+        WheelSpeeds curvatureSpeeds = WheelSpeeds.fromCurvature(leftYValue, rightXValue);
         double hybridScale = Math.abs(leftYValue) / curvatureThreshold.get();
         hybridScale = hybridScale > 1 ? 1 : hybridScale;
-        speeds = new WheelSpeeds(
-            curvatureSpeeds.left * hybridScale
-                + arcadeSpeeds.left * (1 - hybridScale),
-            curvatureSpeeds.right * hybridScale
-                + arcadeSpeeds.right * (1 - hybridScale));
+        speeds =
+            new WheelSpeeds(
+                curvatureSpeeds.left * hybridScale + arcadeSpeeds.left * (1 - hybridScale),
+                curvatureSpeeds.right * hybridScale + arcadeSpeeds.right * (1 - hybridScale));
         break;
     }
 
     if (sniperModeSupplier.get()) {
-      speeds = new WheelSpeeds(speeds.left * sniperLevel.get(),
-          speeds.right * sniperLevel.get());
+      speeds = new WheelSpeeds(speeds.left * sniperLevel.get(), speeds.right * sniperLevel.get());
     }
 
     double demoSpeedLimit = 1.0;
@@ -130,17 +132,12 @@ public class DriveWithJoysticks extends CommandBase {
         break;
     }
 
-    double leftPercent =
-        MathUtil.clamp(speeds.left, -1.0, 1.0) * demoSpeedLimit;
-    double rightPercent =
-        MathUtil.clamp(speeds.right, -1.0, 1.0) * demoSpeedLimit;
+    double leftPercent = MathUtil.clamp(speeds.left, -1.0, 1.0) * demoSpeedLimit;
+    double rightPercent = MathUtil.clamp(speeds.right, -1.0, 1.0) * demoSpeedLimit;
 
-    Logger.getInstance().recordOutput("ActiveCommands/DriveWithJoysticks",
-        true);
-    Logger.getInstance().recordOutput("DriveWithJoysticks/LeftPercent",
-        leftPercent);
-    Logger.getInstance().recordOutput("DriveWithJoysticks/RightPercent",
-        rightPercent);
+    Logger.getInstance().recordOutput("ActiveCommands/DriveWithJoysticks", true);
+    Logger.getInstance().recordOutput("DriveWithJoysticks/LeftPercent", leftPercent);
+    Logger.getInstance().recordOutput("DriveWithJoysticks/RightPercent", rightPercent);
     drive.drivePercent(leftPercent, rightPercent);
   }
 
@@ -174,8 +171,7 @@ public class DriveWithJoysticks extends CommandBase {
       return new WheelSpeeds(baseSpeed + turnSpeed, baseSpeed - turnSpeed);
     }
 
-    public static WheelSpeeds fromCurvature(double baseSpeed,
-        double turnSpeed) {
+    public static WheelSpeeds fromCurvature(double baseSpeed, double turnSpeed) {
       turnSpeed = Math.abs(baseSpeed) * turnSpeed;
       return new WheelSpeeds(baseSpeed + turnSpeed, baseSpeed - turnSpeed);
     }
@@ -195,10 +191,11 @@ public class DriveWithJoysticks extends CommandBase {
         scaledValue = (Math.abs(value) - deadband.get()) / (1 - deadband.get());
         scaledValue = Math.copySign(scaledValue * scaledValue, value);
       }
-      TrapezoidProfile profile = new TrapezoidProfile(
-          new TrapezoidProfile.Constraints(maxAcceleration.get(),
-              maxJerk.get()),
-          new TrapezoidProfile.State(scaledValue, 0.0), state);
+      TrapezoidProfile profile =
+          new TrapezoidProfile(
+              new TrapezoidProfile.Constraints(maxAcceleration.get(), maxJerk.get()),
+              new TrapezoidProfile.State(scaledValue, 0.0),
+              state);
       state = profile.calculate(Constants.loopPeriodSecs);
       return state.position;
     }

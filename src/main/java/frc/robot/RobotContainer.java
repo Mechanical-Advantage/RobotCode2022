@@ -1,13 +1,11 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -25,16 +23,16 @@ import frc.robot.commands.AutoAimSimple;
 import frc.robot.commands.DriveToTarget;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.FeedForwardCharacterization;
+import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
 import frc.robot.commands.FeedForwardCharacterizationStepped;
 import frc.robot.commands.PrepareShooterAuto;
 import frc.robot.commands.PrepareShooterPreset;
+import frc.robot.commands.PrepareShooterPreset.ShooterPreset;
 import frc.robot.commands.ResetHood;
 import frc.robot.commands.RunIntake;
+import frc.robot.commands.RunIntake.IntakeMode;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.TrackWidthCharacterization;
-import frc.robot.commands.FeedForwardCharacterization.FeedForwardCharacterizationData;
-import frc.robot.commands.PrepareShooterPreset.ShooterPreset;
-import frc.robot.commands.RunIntake.IntakeMode;
 import frc.robot.commands.autos.FiveCargoAuto;
 import frc.robot.commands.autos.FourCargoAuto;
 import frc.robot.commands.autos.FourCargoAutoAvoidD;
@@ -49,8 +47,8 @@ import frc.robot.commands.autos.TwoCargoAuto;
 import frc.robot.commands.autos.TwoCargoAutoAndEject;
 import frc.robot.commands.climber.AutoClimb;
 import frc.robot.commands.climber.ResetClimber;
-import frc.robot.commands.climber.RunClimberWithJoystick;
 import frc.robot.commands.climber.RunClimberToPosition;
+import frc.robot.commands.climber.RunClimberWithJoystick;
 import frc.robot.oi.HandheldOI;
 import frc.robot.oi.OISelector;
 import frc.robot.oi.OverrideOI;
@@ -88,13 +86,16 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.util.Alert;
+import frc.robot.util.Alert.AlertType;
 import frc.robot.util.DisabledInstantCommand;
 import frc.robot.util.GeomUtil;
 import frc.robot.util.LoggedChoosers;
 import frc.robot.util.SparkMAXBurnManager;
 import frc.robot.util.StickyTrigger;
 import frc.robot.util.UninterruptibleScheduleCommand;
-import frc.robot.util.Alert.AlertType;
+import java.util.HashMap;
+import java.util.Map;
+import org.littletonrobotics.junction.Logger;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -123,8 +124,7 @@ public class RobotContainer {
 
   // Choosers
   private final LoggedChoosers choosers = new LoggedChoosers();
-  private final Map<String, AutoRoutine> autoRoutineMap =
-      new HashMap<String, AutoRoutine>();
+  private final Map<String, AutoRoutine> autoRoutineMap = new HashMap<String, AutoRoutine>();
 
   private boolean climberResetComplete = false;
 
@@ -172,31 +172,34 @@ public class RobotContainer {
     // Instantiate missing subsystems
     drive = drive != null ? drive : new Drive(new DriveIO() {});
     vision = vision != null ? vision : new Vision(new VisionIO() {});
-    flywheels =
-        flywheels != null ? flywheels : new Flywheels(new FlywheelsIO() {});
+    flywheels = flywheels != null ? flywheels : new Flywheels(new FlywheelsIO() {});
     hood = hood != null ? hood : new Hood(new HoodIO() {});
     feeder = feeder != null ? feeder : new Feeder(new FeederIO() {});
     intake = intake != null ? intake : new Intake(new IntakeIO() {});
     climber = climber != null ? climber : new Climber(new ClimberIO() {});
-    pneumatics =
-        pneumatics != null ? pneumatics : new Pneumatics(new PneumaticsIO() {});
+    pneumatics = pneumatics != null ? pneumatics : new Pneumatics(new PneumaticsIO() {});
     leds = leds != null ? leds : new Leds(new LedsIO() {});
 
     // Set up subsystems
     robotState.setLeds(leds);
-    drive.setDefaultCommand(new DriveWithJoysticks(drive,
-        () -> choosers.getJoystickMode(), () -> choosers.getDemoSpeedLimit(),
-        () -> handheldOI.getLeftDriveX(), () -> handheldOI.getLeftDriveY(),
-        () -> handheldOI.getRightDriveX(), () -> handheldOI.getRightDriveY(),
-        () -> handheldOI.getSniperModeButton().get()));
-    drive.setSuppliers(() -> overrideOI.getDriveDisable(),
-        () -> overrideOI.getOpenLoop(), () -> overrideOI.getInternalEncoders());
+    drive.setDefaultCommand(
+        new DriveWithJoysticks(
+            drive,
+            () -> choosers.getJoystickMode(),
+            () -> choosers.getDemoSpeedLimit(),
+            () -> handheldOI.getLeftDriveX(),
+            () -> handheldOI.getLeftDriveY(),
+            () -> handheldOI.getRightDriveX(),
+            () -> handheldOI.getRightDriveY(),
+            () -> handheldOI.getSniperModeButton().get()));
+    drive.setSuppliers(
+        () -> overrideOI.getDriveDisable(),
+        () -> overrideOI.getOpenLoop(),
+        () -> overrideOI.getInternalEncoders());
     drive.setRobotState(robotState);
     drive.setLeds(leds);
-    vision
-        .setDefaultCommand(new RunCommand(() -> vision.setPipeline(0), vision));
-    vision.setSuppliers(() -> overrideOI.getVisionLedMode(),
-        () -> overrideOI.getClimbMode());
+    vision.setDefaultCommand(new RunCommand(() -> vision.setPipeline(0), vision));
+    vision.setSuppliers(() -> overrideOI.getVisionLedMode(), () -> overrideOI.getClimbMode());
     vision.setRobotState(robotState);
     flywheels.setLeds(leds);
     hood.setDefaultCommand(new RunCommand(hood::moveToIdle, hood));
@@ -207,133 +210,252 @@ public class RobotContainer {
     leds.setDemoModeSupplier(() -> choosers.getDemoLedMode());
 
     // Set up auto routines
-    autoRoutineMap.put("Do Nothing",
-        new AutoRoutine(AutoPosition.ORIGIN, true, new InstantCommand()));
+    autoRoutineMap.put(
+        "Do Nothing", new AutoRoutine(AutoPosition.ORIGIN, true, new InstantCommand()));
 
-    autoRoutineMap.put("Five cargo (TD)",
-        new AutoRoutine(AutoPosition.TARMAC_D, false, new FiveCargoAuto(
-            robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
-    autoRoutineMap.put("Four cargo, standard (TD)",
-        new AutoRoutine(AutoPosition.TARMAC_D, false, new FourCargoAuto(
-            robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
-    autoRoutineMap.put("Four cargo, cross field (TA)",
-        new AutoRoutine(AutoPosition.TARMAC_A, false, new FourCargoAutoCross(
-            robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
-    autoRoutineMap.put("Four cargo, avoid tarmac D (TC)",
-        new AutoRoutine(AutoPosition.TARMAC_C, false, new FourCargoAutoAvoidD(
-            robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
-    autoRoutineMap.put("Three cargo, standard (TD)",
-        new AutoRoutine(AutoPosition.TARMAC_D, false, new ThreeCargoAuto(
-            robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
-    autoRoutineMap.put("Three cargo, cross midline (TA)",
-        new AutoRoutine(AutoPosition.TARMAC_A, false,
-            new ThreeCargoAutoCrossMidline(robotState, drive, vision, flywheels,
-                hood, feeder, intake, leds)));
-    autoRoutineMap.put("Three cargo, collect partner (FA)",
-        new AutoRoutine(AutoPosition.FENDER_A, false, new PartnerAuto(
-            robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
+    autoRoutineMap.put(
+        "Five cargo (TD)",
+        new AutoRoutine(
+            AutoPosition.TARMAC_D,
+            false,
+            new FiveCargoAuto(robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
+    autoRoutineMap.put(
+        "Four cargo, standard (TD)",
+        new AutoRoutine(
+            AutoPosition.TARMAC_D,
+            false,
+            new FourCargoAuto(robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
+    autoRoutineMap.put(
+        "Four cargo, cross field (TA)",
+        new AutoRoutine(
+            AutoPosition.TARMAC_A,
+            false,
+            new FourCargoAutoCross(
+                robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
+    autoRoutineMap.put(
+        "Four cargo, avoid tarmac D (TC)",
+        new AutoRoutine(
+            AutoPosition.TARMAC_C,
+            false,
+            new FourCargoAutoAvoidD(
+                robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
+    autoRoutineMap.put(
+        "Three cargo, standard (TD)",
+        new AutoRoutine(
+            AutoPosition.TARMAC_D,
+            false,
+            new ThreeCargoAuto(robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
+    autoRoutineMap.put(
+        "Three cargo, cross midline (TA)",
+        new AutoRoutine(
+            AutoPosition.TARMAC_A,
+            false,
+            new ThreeCargoAutoCrossMidline(
+                robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
+    autoRoutineMap.put(
+        "Three cargo, collect partner (FA)",
+        new AutoRoutine(
+            AutoPosition.FENDER_A,
+            false,
+            new PartnerAuto(robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
 
-    autoRoutineMap.put("Two cargo, eject hangar (TA)",
-        new AutoRoutine(AutoPosition.TARMAC_A, false,
-            new TwoCargoAutoAndEject(true, robotState, drive, vision, flywheels,
-                hood, feeder, intake, leds)));
-    autoRoutineMap.put("Two cargo, eject fender (TA)",
-        new AutoRoutine(AutoPosition.TARMAC_A, false,
-            new TwoCargoAutoAndEject(false, robotState, drive, vision,
-                flywheels, hood, feeder, intake, leds)));
-    autoRoutineMap.put("Two cargo (TA)",
-        new AutoRoutine(AutoPosition.TARMAC_A, false,
-            new TwoCargoAuto(true, AutoPosition.TARMAC_A, robotState, drive,
-                vision, flywheels, hood, feeder, intake, leds)));
-    autoRoutineMap.put("Two cargo (TC)",
-        new AutoRoutine(AutoPosition.TARMAC_C, false,
-            new TwoCargoAuto(true, AutoPosition.TARMAC_C, robotState, drive,
-                vision, flywheels, hood, feeder, intake, leds)));
-    autoRoutineMap.put("Two cargo (TD)",
-        new AutoRoutine(AutoPosition.TARMAC_D, false,
-            new TwoCargoAuto(true, AutoPosition.TARMAC_D, robotState, drive,
-                vision, flywheels, hood, feeder, intake, leds)));
+    autoRoutineMap.put(
+        "Two cargo, eject hangar (TA)",
+        new AutoRoutine(
+            AutoPosition.TARMAC_A,
+            false,
+            new TwoCargoAutoAndEject(
+                true, robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
+    autoRoutineMap.put(
+        "Two cargo, eject fender (TA)",
+        new AutoRoutine(
+            AutoPosition.TARMAC_A,
+            false,
+            new TwoCargoAutoAndEject(
+                false, robotState, drive, vision, flywheels, hood, feeder, intake, leds)));
+    autoRoutineMap.put(
+        "Two cargo (TA)",
+        new AutoRoutine(
+            AutoPosition.TARMAC_A,
+            false,
+            new TwoCargoAuto(
+                true,
+                AutoPosition.TARMAC_A,
+                robotState,
+                drive,
+                vision,
+                flywheels,
+                hood,
+                feeder,
+                intake,
+                leds)));
+    autoRoutineMap.put(
+        "Two cargo (TC)",
+        new AutoRoutine(
+            AutoPosition.TARMAC_C,
+            false,
+            new TwoCargoAuto(
+                true,
+                AutoPosition.TARMAC_C,
+                robotState,
+                drive,
+                vision,
+                flywheels,
+                hood,
+                feeder,
+                intake,
+                leds)));
+    autoRoutineMap.put(
+        "Two cargo (TD)",
+        new AutoRoutine(
+            AutoPosition.TARMAC_D,
+            false,
+            new TwoCargoAuto(
+                true,
+                AutoPosition.TARMAC_D,
+                robotState,
+                drive,
+                vision,
+                flywheels,
+                hood,
+                feeder,
+                intake,
+                leds)));
 
-    autoRoutineMap.put("One cargo (TA)",
-        new AutoRoutine(AutoPosition.TARMAC_A, true, new OneCargoAuto(false,
-            robotState, drive, vision, flywheels, hood, feeder, leds)));
-    autoRoutineMap.put("One cargo (TB)",
-        new AutoRoutine(AutoPosition.TARMAC_B, true, new OneCargoAuto(false,
-            robotState, drive, vision, flywheels, hood, feeder, leds)));
-    autoRoutineMap.put("One cargo (TC)",
-        new AutoRoutine(AutoPosition.TARMAC_C, true, new OneCargoAuto(false,
-            robotState, drive, vision, flywheels, hood, feeder, leds)));
-    autoRoutineMap.put("One cargo (TD)",
-        new AutoRoutine(AutoPosition.TARMAC_D, true, new OneCargoAuto(false,
-            robotState, drive, vision, flywheels, hood, feeder, leds)));
-    autoRoutineMap.put("One cargo (FA)",
-        new AutoRoutine(AutoPosition.FENDER_A, true, new OneCargoAuto(true,
-            robotState, drive, vision, flywheels, hood, feeder, leds)));
-    autoRoutineMap.put("One cargo (FB)",
-        new AutoRoutine(AutoPosition.FENDER_B, true, new OneCargoAuto(true,
-            robotState, drive, vision, flywheels, hood, feeder, leds)));
+    autoRoutineMap.put(
+        "One cargo (TA)",
+        new AutoRoutine(
+            AutoPosition.TARMAC_A,
+            true,
+            new OneCargoAuto(false, robotState, drive, vision, flywheels, hood, feeder, leds)));
+    autoRoutineMap.put(
+        "One cargo (TB)",
+        new AutoRoutine(
+            AutoPosition.TARMAC_B,
+            true,
+            new OneCargoAuto(false, robotState, drive, vision, flywheels, hood, feeder, leds)));
+    autoRoutineMap.put(
+        "One cargo (TC)",
+        new AutoRoutine(
+            AutoPosition.TARMAC_C,
+            true,
+            new OneCargoAuto(false, robotState, drive, vision, flywheels, hood, feeder, leds)));
+    autoRoutineMap.put(
+        "One cargo (TD)",
+        new AutoRoutine(
+            AutoPosition.TARMAC_D,
+            true,
+            new OneCargoAuto(false, robotState, drive, vision, flywheels, hood, feeder, leds)));
+    autoRoutineMap.put(
+        "One cargo (FA)",
+        new AutoRoutine(
+            AutoPosition.FENDER_A,
+            true,
+            new OneCargoAuto(true, robotState, drive, vision, flywheels, hood, feeder, leds)));
+    autoRoutineMap.put(
+        "One cargo (FB)",
+        new AutoRoutine(
+            AutoPosition.FENDER_B,
+            true,
+            new OneCargoAuto(true, robotState, drive, vision, flywheels, hood, feeder, leds)));
 
-    autoRoutineMap.put("Taxi (TA)",
-        new AutoRoutine(AutoPosition.TARMAC_A, true, new Taxi(drive, false)));
-    autoRoutineMap.put("Taxi (TB)",
-        new AutoRoutine(AutoPosition.TARMAC_B, true, new Taxi(drive, false)));
-    autoRoutineMap.put("Taxi (TC)",
-        new AutoRoutine(AutoPosition.TARMAC_C, true, new Taxi(drive, false)));
-    autoRoutineMap.put("Taxi (TD)",
-        new AutoRoutine(AutoPosition.TARMAC_D, true, new Taxi(drive, false)));
-    autoRoutineMap.put("Taxi (FA)",
-        new AutoRoutine(AutoPosition.FENDER_A, true, new Taxi(drive, true)));
-    autoRoutineMap.put("Taxi (FB)",
-        new AutoRoutine(AutoPosition.FENDER_B, true, new Taxi(drive, true)));
+    autoRoutineMap.put(
+        "Taxi (TA)", new AutoRoutine(AutoPosition.TARMAC_A, true, new Taxi(drive, false)));
+    autoRoutineMap.put(
+        "Taxi (TB)", new AutoRoutine(AutoPosition.TARMAC_B, true, new Taxi(drive, false)));
+    autoRoutineMap.put(
+        "Taxi (TC)", new AutoRoutine(AutoPosition.TARMAC_C, true, new Taxi(drive, false)));
+    autoRoutineMap.put(
+        "Taxi (TD)", new AutoRoutine(AutoPosition.TARMAC_D, true, new Taxi(drive, false)));
+    autoRoutineMap.put(
+        "Taxi (FA)", new AutoRoutine(AutoPosition.FENDER_A, true, new Taxi(drive, true)));
+    autoRoutineMap.put(
+        "Taxi (FB)", new AutoRoutine(AutoPosition.FENDER_B, true, new Taxi(drive, true)));
 
-    autoRoutineMap.put("HP Practice", new AutoRoutine(AutoPosition.ORIGIN,
-        false, new HPPractice(robotState, drive, intake, feeder, leds)));
-    autoRoutineMap.put("Demo Circles",
-        new AutoRoutine(AutoPosition.ORIGIN, true, new StartEndCommand(
-            () -> drive.drivePercent(0.1, 0.01), drive::stop, drive)));
+    autoRoutineMap.put(
+        "HP Practice",
+        new AutoRoutine(
+            AutoPosition.ORIGIN, false, new HPPractice(robotState, drive, intake, feeder, leds)));
+    autoRoutineMap.put(
+        "Demo Circles",
+        new AutoRoutine(
+            AutoPosition.ORIGIN,
+            true,
+            new StartEndCommand(() -> drive.drivePercent(0.1, 0.01), drive::stop, drive)));
 
-    autoRoutineMap.put("Track Width Characterization",
-        new AutoRoutine(AutoPosition.ORIGIN, false,
-            new TrackWidthCharacterization(drive, drive::driveVoltage,
-                drive::getLeftPositionMeters, drive::getRightPositionMeters,
+    autoRoutineMap.put(
+        "Track Width Characterization",
+        new AutoRoutine(
+            AutoPosition.ORIGIN,
+            false,
+            new TrackWidthCharacterization(
+                drive,
+                drive::driveVoltage,
+                drive::getLeftPositionMeters,
+                drive::getRightPositionMeters,
                 drive::getCharacterizationGyroPosition)));
 
     FeedForwardCharacterizationData driveLeftData =
         new FeedForwardCharacterizationData("Drive/Left");
     FeedForwardCharacterizationData driveRightData =
         new FeedForwardCharacterizationData("Drive/Right");
-    autoRoutineMap.put("FF Characterization (Drive/Forwards)",
-        new AutoRoutine(AutoPosition.ORIGIN, false,
-            new FeedForwardCharacterization(drive, true, driveLeftData,
-                driveRightData, drive::driveVoltage,
+    autoRoutineMap.put(
+        "FF Characterization (Drive/Forwards)",
+        new AutoRoutine(
+            AutoPosition.ORIGIN,
+            false,
+            new FeedForwardCharacterization(
+                drive,
+                true,
+                driveLeftData,
+                driveRightData,
+                drive::driveVoltage,
                 drive::getCharacterizationVelocityLeft,
                 drive::getCharacterizationVelocityRight)));
-    autoRoutineMap.put("FF Characterization (Drive/Backwards)",
-        new AutoRoutine(AutoPosition.ORIGIN, false,
-            new FeedForwardCharacterization(drive, false, driveLeftData,
-                driveRightData, drive::driveVoltage,
+    autoRoutineMap.put(
+        "FF Characterization (Drive/Backwards)",
+        new AutoRoutine(
+            AutoPosition.ORIGIN,
+            false,
+            new FeedForwardCharacterization(
+                drive,
+                false,
+                driveLeftData,
+                driveRightData,
+                drive::driveVoltage,
                 drive::getCharacterizationVelocityLeft,
                 drive::getCharacterizationVelocityRight)));
 
-    FeedForwardCharacterizationData flywheelData =
-        new FeedForwardCharacterizationData("Flywheels");
-    autoRoutineMap.put("FF Characterization (Flywheels/Forwards)",
-        new AutoRoutine(AutoPosition.ORIGIN, false,
-            new FeedForwardCharacterizationStepped(flywheels, true,
-                flywheelData, volts -> flywheels.runVoltage(volts),
+    FeedForwardCharacterizationData flywheelData = new FeedForwardCharacterizationData("Flywheels");
+    autoRoutineMap.put(
+        "FF Characterization (Flywheels/Forwards)",
+        new AutoRoutine(
+            AutoPosition.ORIGIN,
+            false,
+            new FeedForwardCharacterizationStepped(
+                flywheels,
+                true,
+                flywheelData,
+                volts -> flywheels.runVoltage(volts),
                 flywheels::getCharacterizationVelocity,
                 flywheels::getCharacterizationAppliedVolts)));
-    autoRoutineMap.put("FF Characterization (Flywheels/Backwards)",
-        new AutoRoutine(AutoPosition.ORIGIN, false,
-            new FeedForwardCharacterizationStepped(flywheels, false,
-                flywheelData, volts -> flywheels.runVoltage(volts),
+    autoRoutineMap.put(
+        "FF Characterization (Flywheels/Backwards)",
+        new AutoRoutine(
+            AutoPosition.ORIGIN,
+            false,
+            new FeedForwardCharacterizationStepped(
+                flywheels,
+                false,
+                flywheelData,
+                volts -> flywheels.runVoltage(volts),
                 flywheels::getCharacterizationVelocity,
                 flywheels::getCharacterizationAppliedVolts)));
 
     // Alert if in tuning mode
     if (Constants.tuningMode) {
-      new Alert("Tuning mode active, expect decreased network performance.",
-          AlertType.INFO).set(true);
+      new Alert("Tuning mode active, expect decreased network performance.", AlertType.INFO)
+          .set(true);
     }
 
     // Instantiate OI classes and bind buttons
@@ -353,149 +475,200 @@ public class RobotContainer {
     overrideOI = OISelector.findOverrideOI();
     handheldOI = OISelector.findHandheldOI();
 
-    handheldOI.getLogMarkerButton().whileActiveContinuous(new RunCommand(
-        () -> Logger.getInstance().recordOutput("Marker", true)));
+    handheldOI
+        .getLogMarkerButton()
+        .whileActiveContinuous(
+            new RunCommand(() -> Logger.getInstance().recordOutput("Marker", true)));
 
     // Demo triggers
-    Trigger demoShortTrigger =
-        new Trigger(() -> choosers.getDemoShooterPreset() == "Short Shot");
-    Trigger demoMediumTrigger =
-        new Trigger(() -> choosers.getDemoShooterPreset() == "Medium Shot");
-    Trigger demoLongTrigger =
-        new Trigger(() -> choosers.getDemoShooterPreset() == "Long Shot");
-    Trigger demoTallTrigger =
-        new Trigger(() -> choosers.getDemoShooterPreset() == "Tall Shot");
-    Trigger shooterDemoMode = demoShortTrigger.or(demoMediumTrigger)
-        .or(demoLongTrigger).or(demoTallTrigger);
+    Trigger demoShortTrigger = new Trigger(() -> choosers.getDemoShooterPreset() == "Short Shot");
+    Trigger demoMediumTrigger = new Trigger(() -> choosers.getDemoShooterPreset() == "Medium Shot");
+    Trigger demoLongTrigger = new Trigger(() -> choosers.getDemoShooterPreset() == "Long Shot");
+    Trigger demoTallTrigger = new Trigger(() -> choosers.getDemoShooterPreset() == "Tall Shot");
+    Trigger shooterDemoMode =
+        demoShortTrigger.or(demoMediumTrigger).or(demoLongTrigger).or(demoTallTrigger);
 
     // *** DRIVER CONTROLS ***
-    handheldOI.getAutoDriveButton().whileActiveContinuous(new DriveToTarget(
-        drive, robotState, vision, handheldOI::getLeftDriveY));
+    handheldOI
+        .getAutoDriveButton()
+        .whileActiveContinuous(
+            new DriveToTarget(drive, robotState, vision, handheldOI::getLeftDriveY));
 
     Trigger simpleAutoAim = new Trigger(overrideOI::getSimpleAutoAim);
-    handheldOI.getAutoAimButton().and(simpleAutoAim.negate()).whileActiveOnce(
-        new AutoAim(drive, robotState, vision, null, handheldOI::getLeftDriveY)
-            .perpetually());
-    handheldOI.getAutoAimButton().and(simpleAutoAim).whileActiveOnce(
-        new AutoAimSimple(drive, vision, false, handheldOI::getLeftDriveY)
-            .perpetually());
+    handheldOI
+        .getAutoAimButton()
+        .and(simpleAutoAim.negate())
+        .whileActiveOnce(
+            new AutoAim(drive, robotState, vision, null, handheldOI::getLeftDriveY).perpetually());
+    handheldOI
+        .getAutoAimButton()
+        .and(simpleAutoAim)
+        .whileActiveOnce(
+            new AutoAimSimple(drive, vision, false, handheldOI::getLeftDriveY).perpetually());
 
-    Command hoodResetSequence = new SequentialCommandGroup(new WaitCommand(1.5),
-        new UninterruptibleScheduleCommand(new ResetHood(hood)));
+    Command hoodResetSequence =
+        new SequentialCommandGroup(
+            new WaitCommand(1.5), new UninterruptibleScheduleCommand(new ResetHood(hood)));
     Trigger flywheelsReady = new Trigger(flywheels::atGoal);
     Trigger hoodReady = new Trigger(hood::atGoal);
-    handheldOI.getShootButton().and(flywheelsReady).and(hoodReady)
-        .whileActiveContinuous(
-            new Shoot(feeder, leds, handheldOI::setDriverRumble))
-        .whenInactive(hoodResetSequence).cancelWhenActive(hoodResetSequence);
+    handheldOI
+        .getShootButton()
+        .and(flywheelsReady)
+        .and(hoodReady)
+        .whileActiveContinuous(new Shoot(feeder, leds, handheldOI::setDriverRumble))
+        .whenInactive(hoodResetSequence)
+        .cancelWhenActive(hoodResetSequence);
 
-    handheldOI.getShootButton().and(shooterDemoMode).and(demoShortTrigger)
-        .whileActiveContinuous(new PrepareShooterPreset(flywheels, hood, feeder,
-            ShooterPreset.LOWER_FENDER));
-    handheldOI.getShootButton().and(shooterDemoMode).and(demoMediumTrigger)
-        .whileActiveContinuous(new PrepareShooterPreset(flywheels, hood, feeder,
-            ShooterPreset.UPPER_LAUNCHPAD));
-    handheldOI.getShootButton().and(shooterDemoMode).and(demoLongTrigger)
-        .whileActiveContinuous(new PrepareShooterPreset(flywheels, hood, feeder,
-            ShooterPreset.DEMO_LONG));
-    handheldOI.getShootButton().and(shooterDemoMode).and(demoTallTrigger)
-        .whileActiveContinuous(new PrepareShooterPreset(flywheels, hood, feeder,
-            ShooterPreset.DEMO_TALL));
+    handheldOI
+        .getShootButton()
+        .and(shooterDemoMode)
+        .and(demoShortTrigger)
+        .whileActiveContinuous(
+            new PrepareShooterPreset(flywheels, hood, feeder, ShooterPreset.LOWER_FENDER));
+    handheldOI
+        .getShootButton()
+        .and(shooterDemoMode)
+        .and(demoMediumTrigger)
+        .whileActiveContinuous(
+            new PrepareShooterPreset(flywheels, hood, feeder, ShooterPreset.UPPER_LAUNCHPAD));
+    handheldOI
+        .getShootButton()
+        .and(shooterDemoMode)
+        .and(demoLongTrigger)
+        .whileActiveContinuous(
+            new PrepareShooterPreset(flywheels, hood, feeder, ShooterPreset.DEMO_LONG));
+    handheldOI
+        .getShootButton()
+        .and(shooterDemoMode)
+        .and(demoTallTrigger)
+        .whileActiveContinuous(
+            new PrepareShooterPreset(flywheels, hood, feeder, ShooterPreset.DEMO_TALL));
 
     // *** OPERATOR CONTROLS ***
     Trigger climbMode = new Trigger(overrideOI::getClimbMode);
     Trigger normalMode = climbMode.negate();
 
-    new Trigger(DriverStation::isTeleopEnabled).whenActive(intake::retract,
-        intake);
-    handheldOI.getIntakeForwardsButton()
+    new Trigger(DriverStation::isTeleopEnabled).whenActive(intake::retract, intake);
+    handheldOI
+        .getIntakeForwardsButton()
         .or(handheldOI.getIntakeBackwardsButton())
         .whenActive(intake::extend, intake)
         .whenInactive(intake::retract, intake);
-    handheldOI.getIntakeForwardsButton().and(normalMode)
-        .whileActiveContinuous(new RunIntake(IntakeMode.FORWARDS, intake,
-            feeder, leds, handheldOI::setOperatorRumble));
-    handheldOI.getIntakeBackwardsButton().and(normalMode)
-        .whileActiveContinuous(new RunIntake(IntakeMode.BACKWARDS, intake,
-            feeder, leds, handheldOI::setOperatorRumble));
+    handheldOI
+        .getIntakeForwardsButton()
+        .and(normalMode)
+        .whileActiveContinuous(
+            new RunIntake(
+                IntakeMode.FORWARDS, intake, feeder, leds, handheldOI::setOperatorRumble));
+    handheldOI
+        .getIntakeBackwardsButton()
+        .and(normalMode)
+        .whileActiveContinuous(
+            new RunIntake(
+                IntakeMode.BACKWARDS, intake, feeder, leds, handheldOI::setOperatorRumble));
 
     StickyTrigger flywheelFenderTrigger = new StickyTrigger();
-    flywheelFenderTrigger.whileActiveContinuous(new PrepareShooterPreset(
-        flywheels, hood, feeder, ShooterPreset.UPPER_FENDER));
+    flywheelFenderTrigger.whileActiveContinuous(
+        new PrepareShooterPreset(flywheels, hood, feeder, ShooterPreset.UPPER_FENDER));
     StickyTrigger flywheelTarmacTrigger = new StickyTrigger();
-    flywheelTarmacTrigger.whileActiveContinuous(new PrepareShooterPreset(
-        flywheels, hood, feeder, ShooterPreset.UPPER_TARMAC));
+    flywheelTarmacTrigger.whileActiveContinuous(
+        new PrepareShooterPreset(flywheels, hood, feeder, ShooterPreset.UPPER_TARMAC));
     StickyTrigger flywheelLaunchpadTrigger = new StickyTrigger();
-    flywheelLaunchpadTrigger.whileActiveContinuous(new PrepareShooterPreset(
-        flywheels, hood, feeder, ShooterPreset.UPPER_LAUNCHPAD));
+    flywheelLaunchpadTrigger.whileActiveContinuous(
+        new PrepareShooterPreset(flywheels, hood, feeder, ShooterPreset.UPPER_LAUNCHPAD));
     StickyTrigger flywheelAutoTrigger = new StickyTrigger();
     flywheelAutoTrigger.whileActiveContinuous(
         new PrepareShooterAuto(flywheels, hood, feeder, robotState));
 
     Trigger usePresets = new Trigger(overrideOI::getShootPresets);
-    handheldOI.getStartFlywheelFenderButton().and(shooterDemoMode.negate())
-        .and(normalMode).whenActive(flywheelFenderTrigger::setActive) // Activate
+    handheldOI
+        .getStartFlywheelFenderButton()
+        .and(shooterDemoMode.negate())
+        .and(normalMode)
+        .whenActive(flywheelFenderTrigger::setActive) // Activate
         .whenActive(flywheelTarmacTrigger::setInactive)
         .whenActive(flywheelLaunchpadTrigger::setInactive)
         .whenActive(flywheelAutoTrigger::setInactive);
-    handheldOI.getStartFlywheelTarmacButton().and(shooterDemoMode.negate())
-        .and(normalMode).and(usePresets)
+    handheldOI
+        .getStartFlywheelTarmacButton()
+        .and(shooterDemoMode.negate())
+        .and(normalMode)
+        .and(usePresets)
         .whenActive(flywheelFenderTrigger::setInactive)
         .whenActive(flywheelTarmacTrigger::setActive) // Activate
         .whenActive(flywheelLaunchpadTrigger::setInactive)
         .whenActive(flywheelAutoTrigger::setInactive);
-    handheldOI.getStartFlywheelLaunchpadButton().and(shooterDemoMode.negate())
-        .and(normalMode).whenActive(flywheelFenderTrigger::setInactive)
+    handheldOI
+        .getStartFlywheelLaunchpadButton()
+        .and(shooterDemoMode.negate())
+        .and(normalMode)
+        .whenActive(flywheelFenderTrigger::setInactive)
         .whenActive(flywheelTarmacTrigger::setInactive)
         .whenActive(flywheelLaunchpadTrigger::setActive) // Activate
         .whenActive(flywheelAutoTrigger::setInactive);
-    handheldOI.getStartFlywheelAutoButton().and(shooterDemoMode.negate())
-        .and(normalMode).and(usePresets.negate())
+    handheldOI
+        .getStartFlywheelAutoButton()
+        .and(shooterDemoMode.negate())
+        .and(normalMode)
+        .and(usePresets.negate())
         .whenActive(flywheelFenderTrigger::setInactive)
         .whenActive(flywheelTarmacTrigger::setInactive)
         .whenActive(flywheelLaunchpadTrigger::setInactive)
         .whenActive(flywheelAutoTrigger::setActive); // Activate
-    handheldOI.getStopFlywheelButton()
-        .or(new Trigger(DriverStation::isDisabled)).and(normalMode)
+    handheldOI
+        .getStopFlywheelButton()
+        .or(new Trigger(DriverStation::isDisabled))
+        .and(normalMode)
         .whenActive(flywheelFenderTrigger::setInactive)
         .whenActive(flywheelTarmacTrigger::setInactive)
         .whenActive(flywheelLaunchpadTrigger::setInactive)
         .whenActive(flywheelAutoTrigger::setInactive);
 
-    shooterDemoMode.whenActive(flywheelFenderTrigger::setInactive)
+    shooterDemoMode
+        .whenActive(flywheelFenderTrigger::setInactive)
         .whenActive(flywheelTarmacTrigger::setInactive)
         .whenActive(flywheelLaunchpadTrigger::setInactive)
         .whenActive(flywheelAutoTrigger::setInactive);
-    normalMode.whenInactive(flywheelFenderTrigger::setInactive)
+    normalMode
+        .whenInactive(flywheelFenderTrigger::setInactive)
         .whenInactive(flywheelTarmacTrigger::setInactive)
         .whenInactive(flywheelLaunchpadTrigger::setInactive)
         .whenInactive(flywheelAutoTrigger::setInactive);
     normalMode.whenInactive(intake::retract, intake);
 
-    handheldOI.getShooterIncrement()
+    handheldOI
+        .getShooterIncrement()
         .whenActive(new DisabledInstantCommand(flywheels::incrementOffset));
-    handheldOI.getShooterDecrement()
+    handheldOI
+        .getShooterDecrement()
         .whenActive(new DisabledInstantCommand(flywheels::decrementOffset));
 
     // *** CLIMB CONTROLS ***
-    climbMode.whileActiveContinuous(new StartEndCommand(
-        () -> leds.setClimbing(true), () -> leds.setClimbing(false)));
-    climbMode.whileActiveContinuous(new RunClimberWithJoystick(climber,
-        handheldOI::getClimbStick, overrideOI::getClimbOpenLoop));
-    climbMode
-        .whileActiveContinuous(new RunCommand(() -> hood.moveToBottom(), hood));
+    climbMode.whileActiveContinuous(
+        new StartEndCommand(() -> leds.setClimbing(true), () -> leds.setClimbing(false)));
+    climbMode.whileActiveContinuous(
+        new RunClimberWithJoystick(
+            climber, handheldOI::getClimbStick, overrideOI::getClimbOpenLoop));
+    climbMode.whileActiveContinuous(new RunCommand(() -> hood.moveToBottom(), hood));
     climbMode.whenInactive(() -> climber.runVoltage(0.0), climber);
 
-    Trigger climbClosedLoop =
-        new Trigger(overrideOI::getClimbOpenLoop).negate();
-    handheldOI.getClimbTop().and(climbMode).and(climbClosedLoop)
+    Trigger climbClosedLoop = new Trigger(overrideOI::getClimbOpenLoop).negate();
+    handheldOI
+        .getClimbTop()
+        .and(climbMode)
+        .and(climbClosedLoop)
         .toggleWhenActive(new RunClimberToPosition(climber, true), false);
-    handheldOI.getClimbBottom().and(climbMode).and(climbClosedLoop)
+    handheldOI
+        .getClimbBottom()
+        .and(climbMode)
+        .and(climbClosedLoop)
         .toggleWhenActive(new RunClimberToPosition(climber, false), false);
-    handheldOI.getClimbAuto().and(climbMode).and(climbClosedLoop)
+    handheldOI
+        .getClimbAuto()
+        .and(climbMode)
+        .and(climbClosedLoop)
         .toggleWhenActive(new AutoClimb(climber, drive, leds), false);
-    handheldOI.getClimbReset().and(climbMode)
-        .toggleWhenActive(new ResetClimber(climber), false);
+    handheldOI.getClimbReset().and(climbMode).toggleWhenActive(new ResetClimber(climber), false);
   }
 
   /** Called when the robot is enabled to begin resetting the climber. */
@@ -533,8 +706,7 @@ public class RobotContainer {
       return routine.command;
 
     } else {
-      DriverStation.reportError("Unknown auto routine: '" + routineString + "'",
-          false);
+      DriverStation.reportError("Unknown auto routine: '" + routineString + "'", false);
       return null;
     }
   }
@@ -544,8 +716,7 @@ public class RobotContainer {
     public final boolean useVision;
     public final Command command;
 
-    public AutoRoutine(AutoPosition position, boolean useVision,
-        Command command) {
+    public AutoRoutine(AutoPosition position, boolean useVision, Command command) {
       this.position = position;
       this.useVision = useVision;
       this.command = command;
@@ -553,30 +724,34 @@ public class RobotContainer {
   }
 
   public static enum AutoPosition {
-    ORIGIN, TARMAC_A, TARMAC_B, TARMAC_C, TARMAC_D, FENDER_A, FENDER_B;
+    ORIGIN,
+    TARMAC_A,
+    TARMAC_B,
+    TARMAC_C,
+    TARMAC_D,
+    FENDER_A,
+    FENDER_B;
 
     public Pose2d getPose() {
       switch (this) {
         case ORIGIN:
           return new Pose2d();
         case TARMAC_A:
-          return FieldConstants.referenceA
-              .transformBy(GeomUtil.transformFromTranslation(-0.5, 0.7));
+          return FieldConstants.referenceA.transformBy(
+              GeomUtil.transformFromTranslation(-0.5, 0.7));
         case TARMAC_B:
-          return FieldConstants.referenceB
-              .transformBy(GeomUtil.transformFromTranslation(-0.5, -0.2));
+          return FieldConstants.referenceB.transformBy(
+              GeomUtil.transformFromTranslation(-0.5, -0.2));
         case TARMAC_C:
-          return FieldConstants.referenceC
-              .transformBy(GeomUtil.transformFromTranslation(-0.5, -0.1));
+          return FieldConstants.referenceC.transformBy(
+              GeomUtil.transformFromTranslation(-0.5, -0.1));
         case TARMAC_D:
-          return FieldConstants.referenceD
-              .transformBy(GeomUtil.transformFromTranslation(-0.5, -0.7));
+          return FieldConstants.referenceD.transformBy(
+              GeomUtil.transformFromTranslation(-0.5, -0.7));
         case FENDER_A:
-          return FieldConstants.fenderA
-              .transformBy(GeomUtil.transformFromTranslation(0.5, 0.0));
+          return FieldConstants.fenderA.transformBy(GeomUtil.transformFromTranslation(0.5, 0.0));
         case FENDER_B:
-          return FieldConstants.fenderB
-              .transformBy(GeomUtil.transformFromTranslation(0.5, 0.0));
+          return FieldConstants.fenderB.transformBy(GeomUtil.transformFromTranslation(0.5, 0.0));
         default:
           return new Pose2d();
       }

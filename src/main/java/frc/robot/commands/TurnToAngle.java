@@ -1,10 +1,11 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.commands;
-
-import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -14,6 +15,7 @@ import frc.robot.Constants;
 import frc.robot.RobotState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.TunableNumber;
+import org.littletonrobotics.junction.Logger;
 
 public class TurnToAngle extends CommandBase {
   private final Drive drive;
@@ -29,16 +31,13 @@ public class TurnToAngle extends CommandBase {
   private static final TunableNumber kD = new TunableNumber("TurnToAngle/kD");
   private static final TunableNumber integralMaxError =
       new TunableNumber("TurnToAngle/IntegralMaxError");
-  private static final TunableNumber minVelocity =
-      new TunableNumber("TurnToAngle/MinVelocity");
+  private static final TunableNumber minVelocity = new TunableNumber("TurnToAngle/MinVelocity");
   private static final TunableNumber toleranceDegrees =
       new TunableNumber("TurnToAngle/ToleranceDegrees");
-  private static final TunableNumber toleranceTime =
-      new TunableNumber("TurnToAngle/ToleranceTime");
+  private static final TunableNumber toleranceTime = new TunableNumber("TurnToAngle/ToleranceTime");
 
   /** Creates a new TurnToAngle. Turns to the specified rotation. */
-  public TurnToAngle(Drive drive, RobotState robotState, Rotation2d setpoint,
-      boolean relative) {
+  public TurnToAngle(Drive drive, RobotState robotState, Rotation2d setpoint, boolean relative) {
     addRequirements(drive);
     this.drive = drive;
     this.robotState = robotState;
@@ -78,8 +77,7 @@ public class TurnToAngle extends CommandBase {
         break;
     }
 
-    controller = new PIDController(kP.get(), kI.get(), kD.get(),
-        Constants.loopPeriodSecs);
+    controller = new PIDController(kP.get(), kI.get(), kD.get(), Constants.loopPeriodSecs);
     controller.setTolerance(toleranceDegrees.get());
     controller.enableContinuousInput(-180, 180);
   }
@@ -92,8 +90,7 @@ public class TurnToAngle extends CommandBase {
     toleranceTimer.start();
 
     if (relative) {
-      controller.setSetpoint(
-          robotState.getLatestRotation().rotateBy(setpoint).getDegrees());
+      controller.setSetpoint(robotState.getLatestRotation().rotateBy(setpoint).getDegrees());
     } else {
       controller.setSetpoint(setpoint.getDegrees());
     }
@@ -127,8 +124,7 @@ public class TurnToAngle extends CommandBase {
     } else {
       controller.setI(0);
     }
-    double angularSpeed =
-        controller.calculate(robotState.getLatestRotation().getDegrees());
+    double angularSpeed = controller.calculate(robotState.getLatestRotation().getDegrees());
     if (Math.abs(angularSpeed) < minVelocity.get()) {
       angularSpeed = Math.copySign(minVelocity.get(), angularSpeed);
     }
@@ -136,10 +132,8 @@ public class TurnToAngle extends CommandBase {
 
     // Log data
     Logger.getInstance().recordOutput("ActiveCommands/TurnToAngle", true);
-    Logger.getInstance().recordOutput("TurnToAngle/ErrorDegrees",
-        controller.getPositionError());
-    Logger.getInstance().recordOutput("TurnToAngle/OutputPercent",
-        angularSpeed);
+    Logger.getInstance().recordOutput("TurnToAngle/ErrorDegrees", controller.getPositionError());
+    Logger.getInstance().recordOutput("TurnToAngle/OutputPercent", angularSpeed);
   }
 
   // Called once the command ends or is interrupted.

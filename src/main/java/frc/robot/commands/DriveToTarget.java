@@ -1,12 +1,11 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.commands;
-
-import java.util.function.Supplier;
-
-import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -22,6 +21,8 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.GeomUtil;
 import frc.robot.util.TunableNumber;
+import java.util.function.Supplier;
+import org.littletonrobotics.junction.Logger;
 
 public class DriveToTarget extends CommandBase {
   private final Drive drive;
@@ -37,17 +38,20 @@ public class DriveToTarget extends CommandBase {
   private static final TunableNumber kD = new TunableNumber("DriveToTarget/kD");
 
   private final AxisProcessor axisProcessor = new AxisProcessor();
-  private final PIDController angularController =
-      new PIDController(0.0, 0.0, 0.0);
+  private final PIDController angularController = new PIDController(0.0, 0.0, 0.0);
   private Rotation2d closestRotation = new Rotation2d();
 
   private static final Pose2d[] fenderPoses =
-      new Pose2d[] {FieldConstants.fenderA, FieldConstants.fenderB,
-          FieldConstants.fenderAOpposite, FieldConstants.fenderBOpposite};
+      new Pose2d[] {
+        FieldConstants.fenderA,
+        FieldConstants.fenderB,
+        FieldConstants.fenderAOpposite,
+        FieldConstants.fenderBOpposite
+      };
 
   /** Creates a new DriveToTarget. Guides the driver to a fender using odometry data. */
-  public DriveToTarget(Drive drive, RobotState robotState, Vision vision,
-      Supplier<Double> speedSupplier) {
+  public DriveToTarget(
+      Drive drive, RobotState robotState, Vision vision, Supplier<Double> speedSupplier) {
     addRequirements(drive, vision);
     this.drive = drive;
     this.robotState = robotState;
@@ -85,8 +89,7 @@ public class DriveToTarget extends CommandBase {
     // Find closest rotation
     double closestDistance = Double.POSITIVE_INFINITY;
     for (Pose2d i : fenderPoses) {
-      double distance = i.getTranslation()
-          .getDistance(robotState.getLatestPose().getTranslation());
+      double distance = i.getTranslation().getDistance(robotState.getLatestPose().getTranslation());
       if (distance < closestDistance) {
         closestRotation = i.getRotation();
         closestDistance = distance;
@@ -99,10 +102,9 @@ public class DriveToTarget extends CommandBase {
   public void execute() {
     // Find target rotation w/ intermediate point
     double linearSpeed = axisProcessor.process(speedSupplier.get());
-    Translation2d intermediatePoint =
-        getIntermediatePoint(robotState.getLatestPose());
-    Rotation2d targetRotation = GeomUtil.direction(
-        intermediatePoint.minus(robotState.getLatestPose().getTranslation()));
+    Translation2d intermediatePoint = getIntermediatePoint(robotState.getLatestPose());
+    Rotation2d targetRotation =
+        GeomUtil.direction(intermediatePoint.minus(robotState.getLatestPose().getTranslation()));
 
     // Update PID gains
     if (kP.hasChanged()) {
@@ -114,26 +116,28 @@ public class DriveToTarget extends CommandBase {
 
     // Run angular controller
     angularController.setSetpoint(targetRotation.getDegrees());
-    double angularSpeed = angularController.calculate(robotState
-        .getLatestRotation().plus(Rotation2d.fromDegrees(180.0)).getDegrees());
-    angularSpeed = MathUtil.clamp(angularSpeed, -maxAngularSpeed.get(),
-        maxAngularSpeed.get());
+    double angularSpeed =
+        angularController.calculate(
+            robotState.getLatestRotation().plus(Rotation2d.fromDegrees(180.0)).getDegrees());
+    angularSpeed = MathUtil.clamp(angularSpeed, -maxAngularSpeed.get(), maxAngularSpeed.get());
     drive.drivePercent(linearSpeed - angularSpeed, linearSpeed + angularSpeed);
 
     // Log data
     Logger.getInstance().recordOutput("ActiveCommands/DriveToTarget", true);
-    Logger.getInstance().recordOutput("Odometry/DriveToTargetPoint",
-        new double[] {intermediatePoint.getX(), intermediatePoint.getY(),
-            closestRotation.getRadians()});
+    Logger.getInstance()
+        .recordOutput(
+            "Odometry/DriveToTargetPoint",
+            new double[] {
+              intermediatePoint.getX(), intermediatePoint.getY(), closestRotation.getRadians()
+            });
   }
 
   private Translation2d getIntermediatePoint(Pose2d robotPose) {
-    double centerDistance =
-        FieldConstants.hubCenter.getDistance(robotPose.getTranslation());
+    double centerDistance = FieldConstants.hubCenter.getDistance(robotPose.getTranslation());
     Pose2d intermediatePose =
         new Pose2d(FieldConstants.hubCenter, closestRotation)
-            .transformBy(GeomUtil.transformFromTranslation(
-                centerDistance * convergenceFactor.get(), 0.0));
+            .transformBy(
+                GeomUtil.transformFromTranslation(centerDistance * convergenceFactor.get(), 0.0));
     return intermediatePose.getTranslation();
   }
 

@@ -1,15 +1,17 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.subsystems.hood;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
-
+import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants;
@@ -30,8 +32,8 @@ public class HoodIOSparkMAX implements HoodIO {
         // 4:1 UP stage -> 3:1 UP stage -> 3:1 UP stage -> 18:44 stage -> 18 tooth : 66 tooth pulley
         // UP stages are not actually integer, so this accounts for that:
         // 4:1 is actually 76:21, 3:1 is actually 84:29
-        afterEncoderReduction = (76.0 / 21.0) * (84.0 / 29.0) * (84.0 / 29.0)
-            * (44.0 / 18.0) * (66.0 / 18.0);
+        afterEncoderReduction =
+            (76.0 / 21.0) * (84.0 / 29.0) * (84.0 / 29.0) * (44.0 / 18.0) * (66.0 / 18.0);
         break;
       default:
         throw new RuntimeException("Invalid robot for HoodIOSparkMax!");
@@ -57,13 +59,10 @@ public class HoodIOSparkMAX implements HoodIO {
 
   @Override
   public void updateInputs(HoodIOInputs inputs) {
-    inputs.positionRad =
-        Units.rotationsToRadians(encoder.getPosition()) / afterEncoderReduction;
+    inputs.positionRad = Units.rotationsToRadians(encoder.getPosition()) / afterEncoderReduction;
     inputs.velocityRadPerSec =
-        Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity())
-            / afterEncoderReduction;
-    inputs.appliedVolts =
-        motor.getAppliedOutput() * RobotController.getBatteryVoltage();
+        Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity()) / afterEncoderReduction;
+    inputs.appliedVolts = motor.getAppliedOutput() * RobotController.getBatteryVoltage();
     inputs.currentAmps = new double[] {motor.getOutputCurrent()};
     inputs.tempCelcius = new double[] {motor.getMotorTemperature()};
   }

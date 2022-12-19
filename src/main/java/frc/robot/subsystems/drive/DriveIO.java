@@ -1,6 +1,9 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.subsystems.drive;
 
@@ -53,8 +56,7 @@ public interface DriveIO {
       table.put("ExternalLeftPositionRad", externalLeftPositionRad);
       table.put("ExternalLeftVelocityRadPerSec", externalLeftVelocityRadPerSec);
       table.put("ExternalRightPositionRad", externalRightPositionRad);
-      table.put("ExternalRightVelocityRadPerSec",
-          externalRightVelocityRadPerSec);
+      table.put("ExternalRightVelocityRadPerSec", externalRightVelocityRadPerSec);
 
       table.put("GyroConnected", gyroConnected);
       table.put("GyroYawPositionRad", gyroYawPositionRad);
@@ -66,46 +68,33 @@ public interface DriveIO {
 
     public void fromLog(LogTable table) {
       leftPositionRad = table.getDouble("LeftPositionRad", leftPositionRad);
-      leftVelocityRadPerSec =
-          table.getDouble("LeftVelocityRadPerSec", leftVelocityRadPerSec);
+      leftVelocityRadPerSec = table.getDouble("LeftVelocityRadPerSec", leftVelocityRadPerSec);
       leftAppliedVolts = table.getDouble("LeftAppliedVolts", leftAppliedVolts);
-      leftCurrentAmps =
-          table.getDoubleArray("LeftCurrentAmps", leftCurrentAmps);
-      leftTempCelcius =
-          table.getDoubleArray("LeftTempCelcius", leftTempCelcius);
+      leftCurrentAmps = table.getDoubleArray("LeftCurrentAmps", leftCurrentAmps);
+      leftTempCelcius = table.getDoubleArray("LeftTempCelcius", leftTempCelcius);
 
       rightPositionRad = table.getDouble("RightPositionRad", rightPositionRad);
-      rightVelocityRadPerSec =
-          table.getDouble("RightVelocityRadPerSec", rightVelocityRadPerSec);
-      rightAppliedVolts =
-          table.getDouble("RightAppliedVolts", rightAppliedVolts);
-      rightCurrentAmps =
-          table.getDoubleArray("RightCurrentAmps", rightCurrentAmps);
-      rightTempCelcius =
-          table.getDoubleArray("RightTempCelcius", rightTempCelcius);
+      rightVelocityRadPerSec = table.getDouble("RightVelocityRadPerSec", rightVelocityRadPerSec);
+      rightAppliedVolts = table.getDouble("RightAppliedVolts", rightAppliedVolts);
+      rightCurrentAmps = table.getDoubleArray("RightCurrentAmps", rightCurrentAmps);
+      rightTempCelcius = table.getDoubleArray("RightTempCelcius", rightTempCelcius);
 
-      externalAvailable =
-          table.getBoolean("ExternalAvailable", externalAvailable);
-      externalLeftPositionRad =
-          table.getDouble("ExternalLeftPositionRad", externalLeftPositionRad);
-      externalLeftVelocityRadPerSec = table.getDouble(
-          "ExternalLeftVelocityRadPerSec", externalLeftVelocityRadPerSec);
+      externalAvailable = table.getBoolean("ExternalAvailable", externalAvailable);
+      externalLeftPositionRad = table.getDouble("ExternalLeftPositionRad", externalLeftPositionRad);
+      externalLeftVelocityRadPerSec =
+          table.getDouble("ExternalLeftVelocityRadPerSec", externalLeftVelocityRadPerSec);
       externalRightPositionRad =
           table.getDouble("ExternalRightPositionRad", externalRightPositionRad);
-      externalRightVelocityRadPerSec = table.getDouble(
-          "ExternalRightVelocityRadPerSec", externalRightVelocityRadPerSec);
+      externalRightVelocityRadPerSec =
+          table.getDouble("ExternalRightVelocityRadPerSec", externalRightVelocityRadPerSec);
 
       gyroConnected = table.getBoolean("GyroConnected", gyroConnected);
-      gyroYawPositionRad =
-          table.getDouble("GyroYawPositionRad", gyroYawPositionRad);
+      gyroYawPositionRad = table.getDouble("GyroYawPositionRad", gyroYawPositionRad);
       gyroYawVelocityRadPerSec =
           table.getDouble("GyroYawVelocityRadPerSec", gyroYawVelocityRadPerSec);
-      gyroPitchPositionRad =
-          table.getDouble("GyroPitchPositionRad", gyroPitchPositionRad);
-      gyroRollPositionRad =
-          table.getDouble("GyroRollPositionRad", gyroRollPositionRad);
-      gyroZAccelMetersPerSec2 =
-          table.getDouble("GyroZAccelMetersPerSec2", gyroZAccelMetersPerSec2);
+      gyroPitchPositionRad = table.getDouble("GyroPitchPositionRad", gyroPitchPositionRad);
+      gyroRollPositionRad = table.getDouble("GyroRollPositionRad", gyroRollPositionRad);
+      gyroZAccelMetersPerSec2 = table.getDouble("GyroZAccelMetersPerSec2", gyroZAccelMetersPerSec2);
     }
   }
 
@@ -116,8 +105,11 @@ public interface DriveIO {
   public default void setVoltage(double leftVolts, double rightVolts) {}
 
   /** Run closed loop at the specified velocity. */
-  public default void setVelocity(double leftVelocityRadPerSec,
-      double rightVelocityRadPerSec, double leftFFVolts, double rightFFVolts) {}
+  public default void setVelocity(
+      double leftVelocityRadPerSec,
+      double rightVelocityRadPerSec,
+      double leftFFVolts,
+      double rightFFVolts) {}
 
   /** Enable or disable brake mode. */
   public default void setBrakeMode(boolean enable) {}

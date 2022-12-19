@@ -1,6 +1,9 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.commands;
 
@@ -13,8 +16,10 @@ import frc.robot.subsystems.hood.Hood;
 public class ResetHood extends SequentialCommandGroup {
   /** Creates a new ResetHood. Drives the hood to the bottom and resets it. */
   public ResetHood(Hood hood) {
-    addCommands(new InstantCommand(() -> hood.moveToBottom(), hood),
-        new WaitCommand(0.1), new WaitUntilCommand(hood::atGoal),
+    addCommands(
+        new InstantCommand(() -> hood.moveToBottom(), hood),
+        new WaitCommand(0.1),
+        new WaitUntilCommand(hood::atGoal),
         new InstantCommand(() -> hood.reset(), hood));
   }
 }

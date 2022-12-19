@@ -1,6 +1,9 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.subsystems.feeder;
 
@@ -67,7 +70,6 @@ public interface FeederIO {
       table.put("Kicker/AppliedVolts", kickerAppliedVolts);
       table.put("Kicker/CurrentAmps", kickerCurrentAmps);
       table.put("Kicker/TempCelcius", kickerTempCelcius);
-
     }
 
     public void fromLog(LogTable table) {
@@ -75,44 +77,31 @@ public interface FeederIO {
       lowerProxSensor2 = table.getBoolean("LowerProxSensor2", lowerProxSensor2);
       upperProxSensor1 = table.getBoolean("UpperProxSensor1", upperProxSensor1);
       upperProxSensor2 = table.getBoolean("UpperProxSensor2", upperProxSensor2);
-      colorSensorConnected =
-          table.getBoolean("ColorSensorConnected", colorSensorConnected);
+      colorSensorConnected = table.getBoolean("ColorSensorConnected", colorSensorConnected);
       colorSensorRed = table.getInteger("ColorSensorRed", colorSensorRed);
       colorSensorGreen = table.getInteger("ColorSensorGreen", colorSensorGreen);
       colorSensorBlue = table.getInteger("ColorSensorBlue", colorSensorBlue);
       colorSensorProx = table.getInteger("ColorSensorProx", colorSensorProx);
 
-      hopperPositionRad =
-          table.getDouble("Hopper/PositionRad", hopperPositionRad);
+      hopperPositionRad = table.getDouble("Hopper/PositionRad", hopperPositionRad);
       hopperVelocityRadPerSec =
           table.getDouble("Hopper/VelocityRadPerSec", hopperVelocityRadPerSec);
-      hopperAppliedVolts =
-          table.getDouble("Hopper/AppliedVolts", hopperAppliedVolts);
-      hopperCurrentAmps =
-          table.getDoubleArray("Hopper/CurrentAmps", hopperCurrentAmps);
-      hopperTempCelcius =
-          table.getDoubleArray("Hopper/TempCelcius", hopperTempCelcius);
+      hopperAppliedVolts = table.getDouble("Hopper/AppliedVolts", hopperAppliedVolts);
+      hopperCurrentAmps = table.getDoubleArray("Hopper/CurrentAmps", hopperCurrentAmps);
+      hopperTempCelcius = table.getDoubleArray("Hopper/TempCelcius", hopperTempCelcius);
 
       towerPositionRad = table.getDouble("Tower/PositionRad", towerPositionRad);
-      towerVelocityRadPerSec =
-          table.getDouble("Tower/VelocityRadPerSec", towerVelocityRadPerSec);
-      towerAppliedVolts =
-          table.getDouble("Tower/AppliedVolts", towerAppliedVolts);
-      towerCurrentAmps =
-          table.getDoubleArray("Tower/CurrentAmps", towerCurrentAmps);
-      towerTempCelcius =
-          table.getDoubleArray("Tower/TempCelcius", towerTempCelcius);
+      towerVelocityRadPerSec = table.getDouble("Tower/VelocityRadPerSec", towerVelocityRadPerSec);
+      towerAppliedVolts = table.getDouble("Tower/AppliedVolts", towerAppliedVolts);
+      towerCurrentAmps = table.getDoubleArray("Tower/CurrentAmps", towerCurrentAmps);
+      towerTempCelcius = table.getDoubleArray("Tower/TempCelcius", towerTempCelcius);
 
-      kickerPositionRad =
-          table.getDouble("Kicker/PositionRad", kickerPositionRad);
+      kickerPositionRad = table.getDouble("Kicker/PositionRad", kickerPositionRad);
       kickerVelocityRadPerSec =
           table.getDouble("Kicker/VelocityRadPerSec", kickerVelocityRadPerSec);
-      kickerAppliedVolts =
-          table.getDouble("Kicker/AppliedVolts", kickerAppliedVolts);
-      kickerCurrentAmps =
-          table.getDoubleArray("Kicker/CurrentAmps", kickerCurrentAmps);
-      kickerTempCelcius =
-          table.getDoubleArray("Kicker/TempCelcius", kickerTempCelcius);
+      kickerAppliedVolts = table.getDouble("Kicker/AppliedVolts", kickerAppliedVolts);
+      kickerCurrentAmps = table.getDoubleArray("Kicker/CurrentAmps", kickerCurrentAmps);
+      kickerTempCelcius = table.getDoubleArray("Kicker/TempCelcius", kickerTempCelcius);
     }
   }
 

@@ -1,16 +1,30 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot;
 
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.Threads;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.Mode;
+import frc.robot.Constants.RobotType;
+import frc.robot.util.Alert;
+import frc.robot.util.Alert.AlertType;
+import frc.robot.util.BatteryTracker;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggedNetworkTables;
@@ -18,19 +32,6 @@ import org.littletonrobotics.junction.inputs.LoggedSystemStats;
 import org.littletonrobotics.junction.io.ByteLogReceiver;
 import org.littletonrobotics.junction.io.ByteLogReplay;
 import org.littletonrobotics.junction.io.LogSocketServer;
-
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Threads;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.Constants.Mode;
-import frc.robot.Constants.RobotType;
-import frc.robot.util.Alert;
-import frc.robot.util.BatteryTracker;
-import frc.robot.util.Alert.AlertType;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -49,19 +50,15 @@ public class Robot extends LoggedRobot {
   private boolean batteryNameWritten = false;
 
   private final Alert logNoFileAlert =
-      new Alert("No log path set for current robot. Data will NOT be logged.",
-          AlertType.WARNING);
+      new Alert("No log path set for current robot. Data will NOT be logged.", AlertType.WARNING);
   private final Alert logReceiverQueueAlert =
-      new Alert("Logging queue exceeded capacity, data will NOT be logged.",
-          AlertType.ERROR);
-  private final Alert logOpenFileAlert = new Alert(
-      "Failed to open log file. Data will NOT be logged.", AlertType.ERROR);
+      new Alert("Logging queue exceeded capacity, data will NOT be logged.", AlertType.ERROR);
+  private final Alert logOpenFileAlert =
+      new Alert("Failed to open log file. Data will NOT be logged.", AlertType.ERROR);
   private final Alert logWriteAlert =
-      new Alert("Failed write to the log file. Data will NOT be logged.",
-          AlertType.ERROR);
+      new Alert("Failed write to the log file. Data will NOT be logged.", AlertType.ERROR);
   private final Alert sameBatteryAlert =
-      new Alert("The battery has not been changed since the last match.",
-          AlertType.WARNING);
+      new Alert("The battery has not been changed since the last match.", AlertType.WARNING);
 
   public Robot() {
     super(Constants.loopPeriodSecs);
@@ -75,8 +72,7 @@ public class Robot extends LoggedRobot {
   public void robotInit() {
     Logger logger = Logger.getInstance();
     setUseTiming(Constants.getMode() != Mode.REPLAY);
-    LoggedNetworkTables.getInstance()
-        .addTable("/SmartDashboard/TunableNumbers");
+    LoggedNetworkTables.getInstance().addTable("/SmartDashboard/TunableNumbers");
     logger.recordMetadata("Robot", Constants.getRobot().toString());
     logger.recordMetadata("BatteryName", BatteryTracker.scanBattery(1.0));
     logger.recordMetadata("TuningMode", Boolean.toString(Constants.tuningMode));
@@ -109,8 +105,7 @@ public class Robot extends LoggedRobot {
         }
         logger.addDataReceiver(new LogSocketServer(5800));
         if (Constants.getRobot() == RobotType.ROBOT_2022C) {
-          LoggedSystemStats.getInstance().setPowerDistributionConfig(50,
-              ModuleType.kRev);
+          LoggedSystemStats.getInstance().setPowerDistributionConfig(50, ModuleType.kRev);
         }
         break;
 
@@ -121,8 +116,7 @@ public class Robot extends LoggedRobot {
       case REPLAY:
         String path = ByteLogReplay.promptForPath();
         logger.setReplaySource(new ByteLogReplay(path));
-        logger.addDataReceiver(
-            new ByteLogReceiver(ByteLogReceiver.addPathSuffix(path, "_sim")));
+        logger.addDataReceiver(new ByteLogReceiver(ByteLogReceiver.addPathSuffix(path, "_sim")));
         break;
     }
     logger.start();
@@ -140,12 +134,10 @@ public class Robot extends LoggedRobot {
         String previousBatteryName = "";
         try {
           previousBatteryName =
-              new String(Files.readAllBytes(Paths.get(batteryNameFile)),
-                  StandardCharsets.UTF_8);
+              new String(Files.readAllBytes(Paths.get(batteryNameFile)), StandardCharsets.UTF_8);
         } catch (IOException e) {
           e.printStackTrace();
         }
-
 
         if (previousBatteryName.equals(BatteryTracker.getName())) {
           // Same battery, set alert
@@ -163,9 +155,8 @@ public class Robot extends LoggedRobot {
    * This function is called every robot packet, no matter the mode. Use this for items like
    * diagnostics that you want ran during disabled, autonomous, teleoperated and test.
    *
-   * <p>
-   * This runs after the mode specific periodic functions, but before LiveWindow and SmartDashboard
-   * integrated updating.
+   * <p>This runs after the mode specific periodic functions, but before LiveWindow and
+   * SmartDashboard integrated updating.
    */
   @Override
   public void robotPeriodic() {
@@ -176,10 +167,12 @@ public class Robot extends LoggedRobot {
     robotContainer.updateLeds();
 
     // Log scheduled commands
-    Logger.getInstance().recordOutput("ActiveCommands/Scheduler",
-        NetworkTableInstance.getDefault()
-            .getEntry("/LiveWindow/Ungrouped/Scheduler/Names")
-            .getStringArray(new String[] {}));
+    Logger.getInstance()
+        .recordOutput(
+            "ActiveCommands/Scheduler",
+            NetworkTableInstance.getDefault()
+                .getEntry("/LiveWindow/Ungrouped/Scheduler/Names")
+                .getStringArray(new String[] {}));
 
     // Check logging faults
     logReceiverQueueAlert.set(Logger.getInstance().getReceiverQueueFault());
@@ -192,19 +185,21 @@ public class Robot extends LoggedRobot {
     if (autoCommand != null) {
       if (!autoCommand.isScheduled() && !autoMessagePrinted) {
         if (DriverStation.isAutonomousEnabled()) {
-          System.out.println(String.format("*** Auto finished in %.2f secs ***",
-              Timer.getFPGATimestamp() - autoStart));
+          System.out.println(
+              String.format(
+                  "*** Auto finished in %.2f secs ***", Timer.getFPGATimestamp() - autoStart));
         } else {
-          System.out
-              .println(String.format("*** Auto cancelled in %.2f secs ***",
-                  Timer.getFPGATimestamp() - autoStart));
+          System.out.println(
+              String.format(
+                  "*** Auto cancelled in %.2f secs ***", Timer.getFPGATimestamp() - autoStart));
         }
         autoMessagePrinted = true;
       }
     }
 
     // Write battery name if connected to field
-    if (Constants.getMode() == Mode.REAL && !batteryNameWritten
+    if (Constants.getMode() == Mode.REAL
+        && !batteryNameWritten
         && !BatteryTracker.getName().equals(BatteryTracker.defaultName)
         && DriverStation.isFMSAttached()) {
       batteryNameWritten = true;

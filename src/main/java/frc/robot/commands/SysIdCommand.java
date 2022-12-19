@@ -1,17 +1,19 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.commands;
-
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class SysIdCommand extends CommandBase {
   private final boolean isDriveTrain;
@@ -24,7 +26,8 @@ public class SysIdCommand extends CommandBase {
   private String data;
 
   /** Creates a new SysIdCommand for a drive train. */
-  public SysIdCommand(Subsystem subsystem,
+  public SysIdCommand(
+      Subsystem subsystem,
       BiConsumer<Double, Double> driveTrainSetter,
       Supplier<DriveTrainSysIdData> driveTrainGetter) {
     addRequirements(subsystem);
@@ -34,7 +37,9 @@ public class SysIdCommand extends CommandBase {
   }
 
   /** Creates a new SysIdCommand for a generic mechanism. */
-  public SysIdCommand(Subsystem subsystem, Consumer<Double> mechanismSetter,
+  public SysIdCommand(
+      Subsystem subsystem,
+      Consumer<Double> mechanismSetter,
       Supplier<MechanismSysIdData> mechanismGetter) {
     addRequirements(subsystem);
     isDriveTrain = false;
@@ -60,11 +65,9 @@ public class SysIdCommand extends CommandBase {
     String test = SmartDashboard.getString("SysIdTest", "");
     boolean correctTest;
     if (isDriveTrain) {
-      correctTest =
-          test.equals("Drivetrain") || test.equals("Drivetrain (Angular)");
+      correctTest = test.equals("Drivetrain") || test.equals("Drivetrain (Angular)");
     } else {
-      correctTest = test.equals("Arm") || test.equals("Elevator")
-          || test.equals("Simple");
+      correctTest = test.equals("Arm") || test.equals("Elevator") || test.equals("Simple");
     }
     SmartDashboard.putBoolean("SysIdWrongMech", !correctTest);
 
@@ -80,8 +83,7 @@ public class SysIdCommand extends CommandBase {
 
     // Calculate voltage
     String testType = SmartDashboard.getString("SysIdTestType", "");
-    double voltageCommand =
-        SmartDashboard.getNumber("SysIdVoltageCommand", 0.0);
+    double voltageCommand = SmartDashboard.getNumber("SysIdVoltageCommand", 0.0);
     boolean rotate = SmartDashboard.getBoolean("SysIdRotate", false);
     double baseVoltage;
     switch (testType) {
@@ -108,10 +110,8 @@ public class SysIdCommand extends CommandBase {
       data += Double.toString(secondaryVoltage) + ",";
       data += Double.toString(subsystemData.leftPosRad / (2 * Math.PI)) + ",";
       data += Double.toString(subsystemData.rightPosRad / (2 * Math.PI)) + ",";
-      data +=
-          Double.toString(subsystemData.leftVelRadPerSec / (2 * Math.PI)) + ",";
-      data += Double.toString(subsystemData.rightVelRadPerSec / (2 * Math.PI))
-          + ",";
+      data += Double.toString(subsystemData.leftVelRadPerSec / (2 * Math.PI)) + ",";
+      data += Double.toString(subsystemData.rightVelRadPerSec / (2 * Math.PI)) + ",";
       data += Double.toString(subsystemData.gyroPosRad) + ",";
       data += Double.toString(subsystemData.gyroVelRadPerSec) + ",";
     } else {
@@ -129,10 +129,9 @@ public class SysIdCommand extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     if (data.length() > 0) {
-      SmartDashboard.putString("SysIdTelemetry",
-          data.substring(0, data.length() - 1));
-      System.out.println("Saved "
-          + Long.toString(Math.round(data.length() / 1024.0)) + " KB of data.");
+      SmartDashboard.putString("SysIdTelemetry", data.substring(0, data.length() - 1));
+      System.out.println(
+          "Saved " + Long.toString(Math.round(data.length() / 1024.0)) + " KB of data.");
     } else {
       System.out.println("No data to save. Something's gone wrong here...");
     }
@@ -160,7 +159,7 @@ public class SysIdCommand extends CommandBase {
 
     /**
      * Creates a new DriveTrainSysIdData.
-     * 
+     *
      * @param leftPosRad Left position (radians)
      * @param rightPosRad Right position (radians)
      * @param leftVelRadPerSec Left velocity (radians per second)
@@ -168,8 +167,12 @@ public class SysIdCommand extends CommandBase {
      * @param gyroPosRad Gyro position (radians)
      * @param gyroVelRadPerSec Gyro position (radians per second)
      */
-    public DriveTrainSysIdData(double leftPosRad, double rightPosRad,
-        double leftVelRadPerSec, double rightVelRadPerSec, double gyroPosRad,
+    public DriveTrainSysIdData(
+        double leftPosRad,
+        double rightPosRad,
+        double leftVelRadPerSec,
+        double rightVelRadPerSec,
+        double gyroPosRad,
         double gyroVelRadPerSec) {
       this.leftPosRad = leftPosRad;
       this.rightPosRad = rightPosRad;
@@ -187,7 +190,7 @@ public class SysIdCommand extends CommandBase {
 
     /**
      * Creates a new MechanismSysIdData.
-     * 
+     *
      * @param posRad Position (radians)
      * @param velRadPerSec Velocity (radians per second)
      */

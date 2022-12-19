@@ -1,12 +1,11 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.subsystems.drive;
-
-import java.util.function.Supplier;
-
-import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -20,19 +19,20 @@ import frc.robot.RobotState;
 import frc.robot.subsystems.drive.DriveIO.DriveIOInputs;
 import frc.robot.subsystems.leds.Leds;
 import frc.robot.util.Alert;
-import frc.robot.util.TunableNumber;
 import frc.robot.util.Alert.AlertType;
+import frc.robot.util.TunableNumber;
+import java.util.function.Supplier;
+import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase {
   private static final double maxCoastVelocityMetersPerSec = 0.05; // Need to be under this to
-                                                                   // switch to coast when disabling
+  // switch to coast when disabling
   private static final double ledsClimbFailureAccelMetersPerSec2 = 40.0; // Threshold to detect
-                                                                         // climb failures
+  // climb failures
   private static final double ledsFallenAngleDegrees = 75.0; // Threshold to detect falls
 
   private final Alert gyroDisconnectedAlert =
-      new Alert("Gyro sensor disconnected, odometry will be very inaccurate",
-          AlertType.ERROR);
+      new Alert("Gyro sensor disconnected, odometry will be very inaccurate", AlertType.ERROR);
 
   private final double wheelRadiusMeters;
   private final double maxVelocityMetersPerSec;
@@ -131,7 +131,8 @@ public class Drive extends SubsystemBase {
   }
 
   /** Set suppliers for external data. */
-  public void setSuppliers(Supplier<Boolean> disableOverride,
+  public void setSuppliers(
+      Supplier<Boolean> disableOverride,
       Supplier<Boolean> openLoopOverride,
       Supplier<Boolean> internalEncoderOverride) {
     this.disableOverride = disableOverride;
@@ -154,26 +155,26 @@ public class Drive extends SubsystemBase {
     Logger.getInstance().processInputs("Drive", inputs);
 
     // Update odometry
-    Rotation2d currentGyroRotation =
-        new Rotation2d(inputs.gyroYawPositionRad * -1);
-    double leftPositionMetersDelta =
-        getLeftPositionMeters() - lastLeftPositionMeters;
-    double rightPositionMetersDelta =
-        getRightPositionMeters() - lastRightPositionMeters;
-    double avgPositionMetersDelta =
-        (leftPositionMetersDelta + rightPositionMetersDelta) / 2.0;
+    Rotation2d currentGyroRotation = new Rotation2d(inputs.gyroYawPositionRad * -1);
+    double leftPositionMetersDelta = getLeftPositionMeters() - lastLeftPositionMeters;
+    double rightPositionMetersDelta = getRightPositionMeters() - lastRightPositionMeters;
+    double avgPositionMetersDelta = (leftPositionMetersDelta + rightPositionMetersDelta) / 2.0;
     Rotation2d gyroRotationDelta =
-        (inputs.gyroConnected && !lastGyroConnected) ? new Rotation2d()
+        (inputs.gyroConnected && !lastGyroConnected)
+            ? new Rotation2d()
             : currentGyroRotation.minus(lastGyroRotation);
 
     if (inputs.gyroConnected) {
-      robotState.addDriveData(Timer.getFPGATimestamp(), new Twist2d(
-          avgPositionMetersDelta, 0.0, gyroRotationDelta.getRadians()));
+      robotState.addDriveData(
+          Timer.getFPGATimestamp(),
+          new Twist2d(avgPositionMetersDelta, 0.0, gyroRotationDelta.getRadians()));
     } else {
-      robotState.addDriveData(Timer.getFPGATimestamp(),
-          new Twist2d(avgPositionMetersDelta, 0.0,
-              (rightPositionMetersDelta - leftPositionMetersDelta)
-                  / trackWidthMeters));
+      robotState.addDriveData(
+          Timer.getFPGATimestamp(),
+          new Twist2d(
+              avgPositionMetersDelta,
+              0.0,
+              (rightPositionMetersDelta - leftPositionMetersDelta) / trackWidthMeters));
     }
 
     lastLeftPositionMeters = getLeftPositionMeters();
@@ -192,16 +193,15 @@ public class Drive extends SubsystemBase {
     Logger.getInstance().recordOutput("Drive/PitchDegrees", getPitchDegrees());
 
     // Check for climb failure (high z acceleration)
-    if (Math.abs(
-        inputs.gyroZAccelMetersPerSec2) > ledsClimbFailureAccelMetersPerSec2) {
+    if (Math.abs(inputs.gyroZAccelMetersPerSec2) > ledsClimbFailureAccelMetersPerSec2) {
       leds.setClimbFailure(true);
     }
 
     // Check for fallen robot
-    leds.setFallen(Units.radiansToDegrees(
-        Math.abs(inputs.gyroPitchPositionRad)) > ledsFallenAngleDegrees
-        || Units.radiansToDegrees(
-            Math.abs(inputs.gyroRollPositionRad)) > ledsFallenAngleDegrees);
+    leds.setFallen(
+        Units.radiansToDegrees(Math.abs(inputs.gyroPitchPositionRad)) > ledsFallenAngleDegrees
+            || Units.radiansToDegrees(Math.abs(inputs.gyroRollPositionRad))
+                > ledsFallenAngleDegrees);
 
     // Update brake mode
     if (DriverStation.isEnabled()) {
@@ -211,10 +211,8 @@ public class Drive extends SubsystemBase {
       }
     } else {
       if (brakeMode
-          && Math
-              .abs(getLeftVelocityMetersPerSec()) < maxCoastVelocityMetersPerSec
-          && Math.abs(
-              getRightVelocityMetersPerSec()) < maxCoastVelocityMetersPerSec) {
+          && Math.abs(getLeftVelocityMetersPerSec()) < maxCoastVelocityMetersPerSec
+          && Math.abs(getRightVelocityMetersPerSec()) < maxCoastVelocityMetersPerSec) {
         brakeMode = false;
         io.setBrakeMode(false);
       }
@@ -262,9 +260,7 @@ public class Drive extends SubsystemBase {
     }
   }
 
-  /**
-   * Drive at the specified voltage with no other processing. Only use when characterizing.
-   */
+  /** Drive at the specified voltage with no other processing. Only use when characterizing. */
   public void driveVoltage(double leftVolts, double rightVolts) {
     if (disableOverride.get()) {
       io.setVoltage(0, 0);
@@ -274,24 +270,18 @@ public class Drive extends SubsystemBase {
     io.setVoltage(leftVolts, rightVolts);
   }
 
-  /**
-   * Drive at the specified percentage of max speed.
-   */
+  /** Drive at the specified percentage of max speed. */
   public void drivePercent(double leftPercent, double rightPercent) {
     if (disableOverride.get()) {
       io.setVoltage(0, 0);
       return;
     }
 
-    driveVelocity(leftPercent * maxVelocityMetersPerSec,
-        rightPercent * maxVelocityMetersPerSec);
+    driveVelocity(leftPercent * maxVelocityMetersPerSec, rightPercent * maxVelocityMetersPerSec);
   }
 
-  /**
-   * Drive at the specified velocity.
-   */
-  public void driveVelocity(double leftVelocityMetersPerSec,
-      double rightVelocityMetersPerSec) {
+  /** Drive at the specified velocity. */
+  public void driveVelocity(double leftVelocityMetersPerSec, double rightVelocityMetersPerSec) {
     if (disableOverride.get()) {
       io.setVoltage(0, 0);
       return;
@@ -299,29 +289,23 @@ public class Drive extends SubsystemBase {
 
     // Calculate setpoint and feed forward voltage
     double leftVelocityRadPerSec = leftVelocityMetersPerSec / wheelRadiusMeters;
-    double rightVelocityRadPerSec =
-        rightVelocityMetersPerSec / wheelRadiusMeters;
+    double rightVelocityRadPerSec = rightVelocityMetersPerSec / wheelRadiusMeters;
     double leftFFVolts = leftModel.calculate(leftVelocityRadPerSec);
     double rightFFVolts = rightModel.calculate(rightVelocityRadPerSec);
 
-    Logger.getInstance().recordOutput("Drive/LeftSetpointRadPerSec",
-        leftVelocityRadPerSec);
-    Logger.getInstance().recordOutput("Drive/RightSetpointRadPerSec",
-        rightVelocityRadPerSec);
+    Logger.getInstance().recordOutput("Drive/LeftSetpointRadPerSec", leftVelocityRadPerSec);
+    Logger.getInstance().recordOutput("Drive/RightSetpointRadPerSec", rightVelocityRadPerSec);
 
     // Send commands to motors
     if (openLoopOverride.get()) {
       // Use open loop control
       io.setVoltage(leftFFVolts, rightFFVolts);
     } else {
-      io.setVelocity(leftVelocityRadPerSec, rightVelocityRadPerSec, leftFFVolts,
-          rightFFVolts);
+      io.setVelocity(leftVelocityRadPerSec, rightVelocityRadPerSec, leftFFVolts, rightFFVolts);
     }
   }
 
-  /**
-   * In open loop, goes to neutral. In closed loop, resets velocity setpoint.
-   */
+  /** In open loop, goes to neutral. In closed loop, resets velocity setpoint. */
   public void stop() {
     drivePercent(0, 0);
   }

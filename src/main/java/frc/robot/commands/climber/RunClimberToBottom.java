@@ -1,13 +1,15 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.commands.climber;
 
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.climber.Climber;
+import org.littletonrobotics.junction.Logger;
 
 public class RunClimberToBottom extends CommandBase {
   private final Climber climber;
@@ -29,8 +31,7 @@ public class RunClimberToBottom extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Logger.getInstance().recordOutput("ActiveCommands/RunClimberToBottom",
-        true);
+    Logger.getInstance().recordOutput("ActiveCommands/RunClimberToBottom", true);
   }
 
   // Called once the command ends or is interrupted.

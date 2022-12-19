@@ -1,21 +1,23 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.subsystems.feeder;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
+import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants;
 import frc.robot.util.PicoColorSensor;
-import frc.robot.util.SparkMAXBurnManager;
 import frc.robot.util.PicoColorSensor.RawColor;
+import frc.robot.util.SparkMAXBurnManager;
 
 public class FeederIOSparkMAX implements FeederIO {
   private boolean hopperInvert = false;
@@ -111,8 +113,7 @@ public class FeederIOSparkMAX implements FeederIO {
     inputs.colorSensorProx = colorSensor.getProximity0();
 
     inputs.hopperPositionRad =
-        Units.rotationsToRadians(hopperEncoder.getPosition())
-            / hopperAfterEncoderReduction;
+        Units.rotationsToRadians(hopperEncoder.getPosition()) / hopperAfterEncoderReduction;
     inputs.hopperVelocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(hopperEncoder.getVelocity())
             / hopperAfterEncoderReduction;
@@ -122,19 +123,16 @@ public class FeederIOSparkMAX implements FeederIO {
     inputs.hopperTempCelcius = new double[] {hopperMotor.getMotorTemperature()};
 
     inputs.towerPositionRad =
-        Units.rotationsToRadians(towerEncoder.getPosition())
-            / towerAfterEncoderReduction;
+        Units.rotationsToRadians(towerEncoder.getPosition()) / towerAfterEncoderReduction;
     inputs.towerVelocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(towerEncoder.getVelocity())
             / towerAfterEncoderReduction;
-    inputs.towerAppliedVolts =
-        towerMotor.getAppliedOutput() * RobotController.getBatteryVoltage();
+    inputs.towerAppliedVolts = towerMotor.getAppliedOutput() * RobotController.getBatteryVoltage();
     inputs.towerCurrentAmps = new double[] {towerMotor.getOutputCurrent()};
     inputs.towerTempCelcius = new double[] {towerMotor.getMotorTemperature()};
 
     inputs.kickerPositionRad =
-        Units.rotationsToRadians(kickerEncoder.getPosition())
-            / kickerAfterEncoderReduction;
+        Units.rotationsToRadians(kickerEncoder.getPosition()) / kickerAfterEncoderReduction;
     inputs.kickerVelocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(kickerEncoder.getVelocity())
             / kickerAfterEncoderReduction;

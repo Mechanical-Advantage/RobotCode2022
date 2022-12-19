@@ -1,17 +1,19 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.subsystems.flywheels;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.SparkMaxPIDController.ArbFFUnits;
-
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants;
@@ -56,14 +58,14 @@ public class FlywheelsIOSparkMAX implements FlywheelsIO {
 
   @Override
   public void updateInputs(FlywheelsIOInputs inputs) {
-    inputs.positionRad =
-        Units.rotationsToRadians(encoder.getPosition()) / afterEncoderReduction;
+    inputs.positionRad = Units.rotationsToRadians(encoder.getPosition()) / afterEncoderReduction;
     inputs.velocityRadPerSec =
-        Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity())
-            / afterEncoderReduction;
-    inputs.appliedVolts =
-        motor.getAppliedOutput() * RobotController.getBatteryVoltage();
-    inputs.currentAmps = new double[] {motor.getOutputCurrent(),};
+        Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity()) / afterEncoderReduction;
+    inputs.appliedVolts = motor.getAppliedOutput() * RobotController.getBatteryVoltage();
+    inputs.currentAmps =
+        new double[] {
+          motor.getOutputCurrent(),
+        };
     inputs.tempCelcius = new double[] {motor.getMotorTemperature()};
   }
 
@@ -75,9 +77,11 @@ public class FlywheelsIOSparkMAX implements FlywheelsIO {
   @Override
   public void setVelocity(double velocityRadPerSec, double ffVolts) {
     pid.setReference(
-        Units.radiansPerSecondToRotationsPerMinute(velocityRadPerSec)
-            * afterEncoderReduction,
-        ControlType.kVelocity, 0, ffVolts, ArbFFUnits.kVoltage);
+        Units.radiansPerSecondToRotationsPerMinute(velocityRadPerSec) * afterEncoderReduction,
+        ControlType.kVelocity,
+        0,
+        ffVolts,
+        ArbFFUnits.kVoltage);
   }
 
   @Override

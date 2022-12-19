@@ -1,15 +1,17 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.commands.climber;
-
-import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.util.TunableNumber;
+import org.littletonrobotics.junction.Logger;
 
 public class ResetClimberWithVelocity extends CommandBase {
   private static final TunableNumber initialRaiseSecs =
@@ -74,8 +76,8 @@ public class ResetClimberWithVelocity extends CommandBase {
         break;
 
       case PULL_DOWN:
-        if (timer.hasElapsed(pullDownGraceSecs.get()) && Math
-            .abs(climber.getVelocity()) < pullDownVelocityThreshold.get()) {
+        if (timer.hasElapsed(pullDownGraceSecs.get())
+            && Math.abs(climber.getVelocity()) < pullDownVelocityThreshold.get()) {
           timer.reset();
           stage = ResetStage.RELEASE_TENSION;
           climber.runVoltage(releaseTensionVolts.get());
@@ -99,11 +101,13 @@ public class ResetClimberWithVelocity extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return stage == ResetStage.RELEASE_TENSION
-        && timer.hasElapsed(releaseTensionSecs.get());
+    return stage == ResetStage.RELEASE_TENSION && timer.hasElapsed(releaseTensionSecs.get());
   }
 
   private static enum ResetStage {
-    INACTIVE, INITIAL_RAISE, PULL_DOWN, RELEASE_TENSION
+    INACTIVE,
+    INITIAL_RAISE,
+    PULL_DOWN,
+    RELEASE_TENSION
   }
 }

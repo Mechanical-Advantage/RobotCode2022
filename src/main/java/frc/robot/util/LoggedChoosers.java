@@ -1,57 +1,76 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.util;
-
-import java.util.List;
-
-import org.littletonrobotics.junction.LogTable;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.List;
+import org.littletonrobotics.junction.LogTable;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 /** Manages all SendableChoosers, including replaying values without NT. */
 public class LoggedChoosers extends SubsystemBase {
 
-  private final SendableChooser<String> autoRoutineChooser =
-      new SendableChooser<String>();
-  private final SendableChooser<String> joystickModeChooser =
-      new SendableChooser<String>();
-  private final SendableChooser<String> demoSpeedLimitChooser =
-      new SendableChooser<String>();
-  private final SendableChooser<String> demoShooterPresetChooser =
-      new SendableChooser<String>();
-  private final SendableChooser<String> demoLedModeChooser =
-      new SendableChooser<String>();
+  private final SendableChooser<String> autoRoutineChooser = new SendableChooser<String>();
+  private final SendableChooser<String> joystickModeChooser = new SendableChooser<String>();
+  private final SendableChooser<String> demoSpeedLimitChooser = new SendableChooser<String>();
+  private final SendableChooser<String> demoShooterPresetChooser = new SendableChooser<String>();
+  private final SendableChooser<String> demoLedModeChooser = new SendableChooser<String>();
 
   private final ChooserData data = new ChooserData();
 
   public LoggedChoosers() {
-    addOptions(autoRoutineChooser, List.of("Do Nothing", "Five cargo (TD)",
-        "Four cargo, standard (TD)", "Four cargo, cross field (TA)",
-        "Four cargo, avoid tarmac D (TC)", "Three cargo, standard (TD)",
-        "Three cargo, cross midline (TA)", "Three cargo, collect partner (FA)",
-        "Two cargo, eject hangar (TA)", "Two cargo, eject fender (TA)",
-        "Two cargo (TA)", "Two cargo (TC)", "Two cargo (TD)", "One cargo (TA)",
-        "One cargo (TB)", "One cargo (TC)", "One cargo (TD)", "One cargo (FA)",
-        "One cargo (FB)", "Taxi (TA)", "Taxi (TB)", "Taxi (TC)", "Taxi (TD)",
-        "Taxi (FA)", "Taxi (FB)", "HP Practice", "Demo Circles",
-        "Track Width Characterization", "FF Characterization (Drive/Forwards)",
-        "FF Characterization (Drive/Backwards)",
-        "FF Characterization (Flywheels/Forwards)",
-        "FF Characterization (Flywheels/Backwards)"));
-    addOptions(joystickModeChooser,
-        List.of("Curvature", "Split Arcade", "Tank"));
-    addOptions(demoSpeedLimitChooser, List.of("--Competition Mode--",
-        "Fast Speed (70%)", "Medium Speed (30%)", "Slow Speed (15%)"));
-    addOptions(demoShooterPresetChooser, List.of("--Competition Mode--",
-        "Short Shot", "Medium Shot", "Long Shot", "Tall Shot"));
-    addOptions(demoLedModeChooser,
-        List.of("--Competition Mode--", "Team Colors", "Rainbow"));
+    addOptions(
+        autoRoutineChooser,
+        List.of(
+            "Do Nothing",
+            "Five cargo (TD)",
+            "Four cargo, standard (TD)",
+            "Four cargo, cross field (TA)",
+            "Four cargo, avoid tarmac D (TC)",
+            "Three cargo, standard (TD)",
+            "Three cargo, cross midline (TA)",
+            "Three cargo, collect partner (FA)",
+            "Two cargo, eject hangar (TA)",
+            "Two cargo, eject fender (TA)",
+            "Two cargo (TA)",
+            "Two cargo (TC)",
+            "Two cargo (TD)",
+            "One cargo (TA)",
+            "One cargo (TB)",
+            "One cargo (TC)",
+            "One cargo (TD)",
+            "One cargo (FA)",
+            "One cargo (FB)",
+            "Taxi (TA)",
+            "Taxi (TB)",
+            "Taxi (TC)",
+            "Taxi (TD)",
+            "Taxi (FA)",
+            "Taxi (FB)",
+            "HP Practice",
+            "Demo Circles",
+            "Track Width Characterization",
+            "FF Characterization (Drive/Forwards)",
+            "FF Characterization (Drive/Backwards)",
+            "FF Characterization (Flywheels/Forwards)",
+            "FF Characterization (Flywheels/Backwards)"));
+    addOptions(joystickModeChooser, List.of("Curvature", "Split Arcade", "Tank"));
+    addOptions(
+        demoSpeedLimitChooser,
+        List.of(
+            "--Competition Mode--", "Fast Speed (70%)", "Medium Speed (30%)", "Slow Speed (15%)"));
+    addOptions(
+        demoShooterPresetChooser,
+        List.of("--Competition Mode--", "Short Shot", "Medium Shot", "Long Shot", "Tall Shot"));
+    addOptions(demoLedModeChooser, List.of("--Competition Mode--", "Team Colors", "Rainbow"));
 
     SmartDashboard.putData("Auto Routine", autoRoutineChooser);
     SmartDashboard.putData("Joystick Mode", joystickModeChooser);
@@ -61,8 +80,7 @@ public class LoggedChoosers extends SubsystemBase {
   }
 
   /** Adds a set of options to a SendableChooser. */
-  private void addOptions(SendableChooser<String> chooser,
-      List<String> options) {
+  private void addOptions(SendableChooser<String> chooser, List<String> options) {
     boolean firstOption = true;
     for (String option : options) {
       if (firstOption) {
@@ -96,8 +114,7 @@ public class LoggedChoosers extends SubsystemBase {
       autoRoutine = table.getString("AutoRoutine", autoRoutine);
       joystickMode = table.getString("JoystickMode", joystickMode);
       demoSpeedLimit = table.getString("DemoSpeedLimit", demoSpeedLimit);
-      demoShooterPreset =
-          table.getString("DemoShooterPreset", demoShooterPreset);
+      demoShooterPreset = table.getString("DemoShooterPreset", demoShooterPreset);
       demoLedMode = table.getString("DemoLedMode", demoLedMode);
     }
   }

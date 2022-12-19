@@ -1,3 +1,10 @@
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
+
 package frc.robot.subsystems.drive;
 
 import com.kauailabs.navx.frc.AHRS;
@@ -8,7 +15,6 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.SparkMaxPIDController.ArbFFUnits;
-
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
@@ -171,20 +177,19 @@ public class DriveIOSparkMAX implements DriveIO {
   @Override
   public void updateInputs(DriveIOInputs inputs) {
     inputs.leftPositionRad =
-        Units.rotationsToRadians(leftInternalEncoder.getPosition())
-            / afterEncoderReduction;
+        Units.rotationsToRadians(leftInternalEncoder.getPosition()) / afterEncoderReduction;
     inputs.rightPositionRad =
-        Units.rotationsToRadians(rightInternalEncoder.getPosition())
+        Units.rotationsToRadians(rightInternalEncoder.getPosition()) / afterEncoderReduction;
+    inputs.leftVelocityRadPerSec =
+        Units.rotationsPerMinuteToRadiansPerSecond(leftInternalEncoder.getVelocity())
             / afterEncoderReduction;
-    inputs.leftVelocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(
-        leftInternalEncoder.getVelocity()) / afterEncoderReduction;
-    inputs.rightVelocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(
-        rightInternalEncoder.getVelocity()) / afterEncoderReduction;
+    inputs.rightVelocityRadPerSec =
+        Units.rotationsPerMinuteToRadiansPerSecond(rightInternalEncoder.getVelocity())
+            / afterEncoderReduction;
 
     inputs.externalAvailable = hasExternalEncoders;
     if (hasExternalEncoders) {
-      inputs.externalLeftPositionRad =
-          Units.rotationsToRadians(leftExternalEncoder.getDistance());
+      inputs.externalLeftPositionRad = Units.rotationsToRadians(leftExternalEncoder.getDistance());
       inputs.externalRightPositionRad =
           Units.rotationsToRadians(rightExternalEncoder.getDistance());
       inputs.externalLeftVelocityRadPerSec =
@@ -193,33 +198,45 @@ public class DriveIOSparkMAX implements DriveIO {
           Units.rotationsToRadians(rightExternalEncoder.getRate());
     }
 
-    inputs.leftAppliedVolts =
-        leftLeader.getAppliedOutput() * RobotController.getBatteryVoltage();
-    inputs.rightAppliedVolts =
-        rightLeader.getAppliedOutput() * RobotController.getBatteryVoltage();
+    inputs.leftAppliedVolts = leftLeader.getAppliedOutput() * RobotController.getBatteryVoltage();
+    inputs.rightAppliedVolts = rightLeader.getAppliedOutput() * RobotController.getBatteryVoltage();
 
     if (hasThreeControllers) {
-      inputs.leftCurrentAmps = new double[] {leftLeader.getOutputCurrent(),
-          leftFollower.getOutputCurrent(), leftFollower2.getOutputCurrent()};
-      inputs.rightCurrentAmps = new double[] {rightLeader.getOutputCurrent(),
-          rightFollower.getOutputCurrent(), rightFollower2.getOutputCurrent()};
+      inputs.leftCurrentAmps =
+          new double[] {
+            leftLeader.getOutputCurrent(),
+            leftFollower.getOutputCurrent(),
+            leftFollower2.getOutputCurrent()
+          };
+      inputs.rightCurrentAmps =
+          new double[] {
+            rightLeader.getOutputCurrent(),
+            rightFollower.getOutputCurrent(),
+            rightFollower2.getOutputCurrent()
+          };
 
-      inputs.leftTempCelcius = new double[] {leftLeader.getMotorTemperature(),
-          leftFollower.getMotorTemperature(),
-          leftFollower2.getMotorTemperature()};
-      inputs.rightTempCelcius = new double[] {rightLeader.getMotorTemperature(),
-          rightFollower.getMotorTemperature(),
-          rightFollower2.getMotorTemperature()};
+      inputs.leftTempCelcius =
+          new double[] {
+            leftLeader.getMotorTemperature(),
+            leftFollower.getMotorTemperature(),
+            leftFollower2.getMotorTemperature()
+          };
+      inputs.rightTempCelcius =
+          new double[] {
+            rightLeader.getMotorTemperature(),
+            rightFollower.getMotorTemperature(),
+            rightFollower2.getMotorTemperature()
+          };
     } else {
-      inputs.leftCurrentAmps = new double[] {leftLeader.getOutputCurrent(),
-          leftFollower.getOutputCurrent()};
-      inputs.rightCurrentAmps = new double[] {rightLeader.getOutputCurrent(),
-          rightFollower.getOutputCurrent()};
+      inputs.leftCurrentAmps =
+          new double[] {leftLeader.getOutputCurrent(), leftFollower.getOutputCurrent()};
+      inputs.rightCurrentAmps =
+          new double[] {rightLeader.getOutputCurrent(), rightFollower.getOutputCurrent()};
 
-      inputs.leftTempCelcius = new double[] {leftLeader.getMotorTemperature(),
-          leftFollower.getMotorTemperature()};
-      inputs.rightTempCelcius = new double[] {rightLeader.getMotorTemperature(),
-          rightFollower.getMotorTemperature()};
+      inputs.leftTempCelcius =
+          new double[] {leftLeader.getMotorTemperature(), leftFollower.getMotorTemperature()};
+      inputs.rightTempCelcius =
+          new double[] {rightLeader.getMotorTemperature(), rightFollower.getMotorTemperature()};
     }
 
     if (gyro != null) {
@@ -241,18 +258,17 @@ public class DriveIOSparkMAX implements DriveIO {
   }
 
   @Override
-  public void setVelocity(double leftVelocityRadPerSec,
-      double rightVelocityRadPerSec, double leftFFVolts, double rightFFVolts) {
+  public void setVelocity(
+      double leftVelocityRadPerSec,
+      double rightVelocityRadPerSec,
+      double leftFFVolts,
+      double rightFFVolts) {
     double leftRPM =
-        Units.radiansPerSecondToRotationsPerMinute(leftVelocityRadPerSec)
-            * afterEncoderReduction;
+        Units.radiansPerSecondToRotationsPerMinute(leftVelocityRadPerSec) * afterEncoderReduction;
     double rightRPM =
-        Units.radiansPerSecondToRotationsPerMinute(rightVelocityRadPerSec)
-            * afterEncoderReduction;
-    leftPID.setReference(leftRPM, ControlType.kVelocity, 0, leftFFVolts,
-        ArbFFUnits.kVoltage);
-    rightPID.setReference(rightRPM, ControlType.kVelocity, 0, rightFFVolts,
-        ArbFFUnits.kVoltage);
+        Units.radiansPerSecondToRotationsPerMinute(rightVelocityRadPerSec) * afterEncoderReduction;
+    leftPID.setReference(leftRPM, ControlType.kVelocity, 0, leftFFVolts, ArbFFUnits.kVoltage);
+    rightPID.setReference(rightRPM, ControlType.kVelocity, 0, rightFFVolts, ArbFFUnits.kVoltage);
   }
 
   @Override

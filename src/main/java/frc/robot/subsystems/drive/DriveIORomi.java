@@ -1,3 +1,10 @@
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
+
 package frc.robot.subsystems.drive;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -13,10 +20,8 @@ public class DriveIORomi implements DriveIO {
   private final Encoder leftEncoder = new Encoder(4, 5);
   private final Encoder rightEncoder = new Encoder(6, 7);
   private final RomiGyro gyro = new RomiGyro();
-  private PIDController leftPID =
-      new PIDController(0.0, 0.0, 0.0, Constants.loopPeriodSecs);
-  private PIDController rightPID =
-      new PIDController(0.0, 0.0, 0.0, Constants.loopPeriodSecs);
+  private PIDController leftPID = new PIDController(0.0, 0.0, 0.0, Constants.loopPeriodSecs);
+  private PIDController rightPID = new PIDController(0.0, 0.0, 0.0, Constants.loopPeriodSecs);
 
   private boolean closedLoop = false;
   private double leftFFVolts = 0.0;
@@ -34,8 +39,7 @@ public class DriveIORomi implements DriveIO {
   public void updateInputs(DriveIOInputs inputs) {
     if (closedLoop) {
       double leftVolts = leftPID.calculate(leftEncoder.getRate()) + leftFFVolts;
-      double rightVolts =
-          rightPID.calculate(rightEncoder.getRate()) + rightFFVolts;
+      double rightVolts = rightPID.calculate(rightEncoder.getRate()) + rightFFVolts;
       appliedVoltsRight = rightVolts;
       appliedVoltsLeft = leftVolts;
       leftMotor.setVoltage(leftVolts);
@@ -69,8 +73,11 @@ public class DriveIORomi implements DriveIO {
   }
 
   @Override
-  public void setVelocity(double leftVelocityRadPerSec,
-      double rightVelocityRadPerSec, double leftFFVolts, double rightFFVolts) {
+  public void setVelocity(
+      double leftVelocityRadPerSec,
+      double rightVelocityRadPerSec,
+      double leftFFVolts,
+      double rightFFVolts) {
     closedLoop = true;
     leftPID.setSetpoint(leftVelocityRadPerSec);
     rightPID.setSetpoint(rightVelocityRadPerSec);

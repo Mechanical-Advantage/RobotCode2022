@@ -1,17 +1,19 @@
-// NOTE: This file is available at
-// https://github.com/ThadHouse/picocolorsensor/blob/main/wpilib/java/PicoColorSensor.java
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.util;
 
+import edu.wpi.first.hal.FRCNetComm.tResourceType;
+import edu.wpi.first.hal.HAL;
+import edu.wpi.first.hal.SerialPortJNI;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
-
 import org.littletonrobotics.junction.Logger;
-
-import edu.wpi.first.hal.HAL;
-import edu.wpi.first.hal.SerialPortJNI;
-import edu.wpi.first.hal.FRCNetComm.tResourceType;
 
 public class PicoColorSensor implements AutoCloseable {
   public static class RawColor {
@@ -47,15 +49,13 @@ public class PicoColorSensor implements AutoCloseable {
     public CharSequence subSequence(int start, int end) {
       return new String(data, start, end, StandardCharsets.UTF_8);
     }
-
   }
 
   private static class IntRef {
     int value;
   }
 
-  int parseIntFromIndex(SingleCharSequence charSeq, int readLen,
-      IntRef lastComma) {
+  int parseIntFromIndex(SingleCharSequence charSeq, int readLen, IntRef lastComma) {
     int nextComma = 0;
     try {
       nextComma = findNextComma(charSeq.data, readLen, lastComma.value);

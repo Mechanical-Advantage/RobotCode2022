@@ -1,19 +1,21 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.commands;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.util.PolynomialRegression;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class FeedForwardCharacterization extends CommandBase {
   private static final double startDelaySecs = 2.0;
@@ -32,7 +34,9 @@ public class FeedForwardCharacterization extends CommandBase {
   private final Timer timer = new Timer();
 
   /** Creates a new FeedForwardCharacterization for a drive. */
-  public FeedForwardCharacterization(Subsystem drive, boolean forwards,
+  public FeedForwardCharacterization(
+      Subsystem drive,
+      boolean forwards,
       FeedForwardCharacterizationData leftData,
       FeedForwardCharacterizationData rightData,
       BiConsumer<Double, Double> voltageConsumer,
@@ -50,8 +54,11 @@ public class FeedForwardCharacterization extends CommandBase {
   }
 
   /** Creates a new FeedForwardCharacterization for a simple subsystem. */
-  public FeedForwardCharacterization(Subsystem subsystem, boolean forwards,
-      FeedForwardCharacterizationData data, Consumer<Double> voltageConsumer,
+  public FeedForwardCharacterization(
+      Subsystem subsystem,
+      boolean forwards,
+      FeedForwardCharacterizationData data,
+      Consumer<Double> voltageConsumer,
       Supplier<Double> velocitySupplier) {
     addRequirements(subsystem);
     this.forwards = forwards;
@@ -81,8 +88,7 @@ public class FeedForwardCharacterization extends CommandBase {
         voltageConsumerSimple.accept(0.0);
       }
     } else {
-      double voltage = (timer.get() - startDelaySecs) * rampRateVoltsPerSec
-          * (forwards ? 1 : -1);
+      double voltage = (timer.get() - startDelaySecs) * rampRateVoltsPerSec * (forwards ? 1 : -1);
       if (isDrive) {
         voltageConsumerDrive.accept(voltage, voltage);
       } else {
@@ -133,13 +139,14 @@ public class FeedForwardCharacterization extends CommandBase {
     }
 
     public void print() {
-      PolynomialRegression regression = new PolynomialRegression(
-          velocityData.stream().mapToDouble(Double::doubleValue).toArray(),
-          voltageData.stream().mapToDouble(Double::doubleValue).toArray(), 1);
+      PolynomialRegression regression =
+          new PolynomialRegression(
+              velocityData.stream().mapToDouble(Double::doubleValue).toArray(),
+              voltageData.stream().mapToDouble(Double::doubleValue).toArray(),
+              1);
 
       System.out.println("FF Characterization Results (" + name + "):");
-      System.out
-          .println("\tCount=" + Integer.toString(velocityData.size()) + "");
+      System.out.println("\tCount=" + Integer.toString(velocityData.size()) + "");
       System.out.println(String.format("\tR2=%.5f", regression.R2()));
       System.out.println(String.format("\tkS=%.5f", regression.beta(0)));
       System.out.println(String.format("\tkV=%.5f", regression.beta(1)));

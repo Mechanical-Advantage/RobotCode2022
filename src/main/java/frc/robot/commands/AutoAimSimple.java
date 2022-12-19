@@ -1,10 +1,11 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.commands;
-
-import java.util.function.Supplier;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -15,6 +16,7 @@ import frc.robot.commands.DriveWithJoysticks.AxisProcessor;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.TunableNumber;
+import java.util.function.Supplier;
 
 public class AutoAimSimple extends CommandBase {
   private static final TunableNumber kP = new TunableNumber("AutoAimSimple/kP");
@@ -41,8 +43,8 @@ public class AutoAimSimple extends CommandBase {
   /**
    * Creates a new AutoAimSimple. Points towards the center of the field using simple vision data.
    */
-  public AutoAimSimple(Drive drive, Vision vision, boolean cargoTracking,
-      Supplier<Double> speedSupplier) {
+  public AutoAimSimple(
+      Drive drive, Vision vision, boolean cargoTracking, Supplier<Double> speedSupplier) {
     addRequirements(drive, vision);
     this.drive = drive;
     this.vision = vision;
@@ -66,8 +68,7 @@ public class AutoAimSimple extends CommandBase {
         break;
     }
 
-    controller = new PIDController(kP.get(), kI.get(), kD.get(),
-        Constants.loopPeriodSecs);
+    controller = new PIDController(kP.get(), kI.get(), kD.get(), Constants.loopPeriodSecs);
     controller.setSetpoint(0.0);
     controller.setTolerance(toleranceDegrees.get());
     controller.enableContinuousInput(-180, 180);

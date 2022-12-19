@@ -1,16 +1,18 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.commands;
 
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
-import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.util.TunableNumber;
+import org.littletonrobotics.junction.Logger;
 
 public class PrepareShooterPreset extends CommandBase {
   public static final TunableNumber lowerFenderRpm =
@@ -78,8 +80,7 @@ public class PrepareShooterPreset extends CommandBase {
    * Creates a new PrepareShooterPreset. Runs the flywheel and sets the hood position for the given
    * preset. Set the feeder to null to disable controlling the tower speed.
    */
-  public PrepareShooterPreset(Flywheels flywheels, Hood hood, Feeder feeder,
-      ShooterPreset preset) {
+  public PrepareShooterPreset(Flywheels flywheels, Hood hood, Feeder feeder, ShooterPreset preset) {
     addRequirements(flywheels, hood);
     this.flywheels = flywheels;
     this.hood = hood;
@@ -176,8 +177,7 @@ public class PrepareShooterPreset extends CommandBase {
     if (feeder != null) {
       feeder.requestTowerShootPercent(towerSpeed);
     }
-    Logger.getInstance().recordOutput("ActiveCommands/PrepareShooterPreset",
-        true);
+    Logger.getInstance().recordOutput("ActiveCommands/PrepareShooterPreset", true);
   }
 
   // Called once the command ends or is interrupted.
@@ -193,6 +193,13 @@ public class PrepareShooterPreset extends CommandBase {
   }
 
   public static enum ShooterPreset {
-    LOWER_FENDER, UPPER_FENDER, UPPER_TARMAC, UPPER_LAUNCHPAD, HANGAR_EJECT, OPPONENT_EJECT, DEMO_LONG, DEMO_TALL
+    LOWER_FENDER,
+    UPPER_FENDER,
+    UPPER_TARMAC,
+    UPPER_LAUNCHPAD,
+    HANGAR_EJECT,
+    OPPONENT_EJECT,
+    DEMO_LONG,
+    DEMO_TALL
   }
 }

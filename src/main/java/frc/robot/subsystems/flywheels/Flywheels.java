@@ -1,10 +1,11 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.subsystems.flywheels;
-
-import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -16,25 +17,22 @@ import frc.robot.Constants;
 import frc.robot.subsystems.flywheels.FlywheelsIO.FlywheelsIOInputs;
 import frc.robot.subsystems.leds.Leds;
 import frc.robot.util.TunableNumber;
+import org.littletonrobotics.junction.Logger;
 
 public class Flywheels extends SubsystemBase {
   private final FlywheelsIO io;
   private final FlywheelsIOInputs inputs = new FlywheelsIOInputs();
 
-  private final TunableNumber rpmHistoryLength =
-      new TunableNumber("Flywheels/RPMHistoryLength");
-  private final TunableNumber maxVelocityRpm =
-      new TunableNumber("Flywheels/MaxVelocityRPM");
+  private final TunableNumber rpmHistoryLength = new TunableNumber("Flywheels/RPMHistoryLength");
+  private final TunableNumber maxVelocityRpm = new TunableNumber("Flywheels/MaxVelocityRPM");
   private final TunableNumber maxAccelerationRpmPerSec2 =
       new TunableNumber("Flywheels/MaxAccelerationRPMPerSec2");
-  private final TunableNumber maxJerkRpmPerSec3 =
-      new TunableNumber("Flywheels/MaxJerkRPMPerSec3");
+  private final TunableNumber maxJerkRpmPerSec3 = new TunableNumber("Flywheels/MaxJerkRPMPerSec3");
   private final SimpleMotorFeedforward ffModel;
   private final TunableNumber kP = new TunableNumber("Flywheels/kP");
   private final TunableNumber kI = new TunableNumber("Flywheels/kI");
   private final TunableNumber kD = new TunableNumber("Flywheels/kD");
-  private final TunableNumber toleranceRpm =
-      new TunableNumber("Flywheels/ToleranceRPM");
+  private final TunableNumber toleranceRpm = new TunableNumber("Flywheels/ToleranceRPM");
 
   private boolean closedLoop = false;
   private TrapezoidProfile.State profileGoal = new TrapezoidProfile.State();
@@ -107,21 +105,20 @@ public class Flywheels extends SubsystemBase {
 
     // Set closed loop setpoint
     if (closedLoop) {
-      TrapezoidProfile profile = new TrapezoidProfile(
-          new TrapezoidProfile.Constraints(maxAccelerationRpmPerSec2.get(),
-              maxJerkRpmPerSec3.get()),
-          profileGoal, profileState);
+      TrapezoidProfile profile =
+          new TrapezoidProfile(
+              new TrapezoidProfile.Constraints(
+                  maxAccelerationRpmPerSec2.get(), maxJerkRpmPerSec3.get()),
+              profileGoal,
+              profileState);
       profileState = profile.calculate(Constants.loopPeriodSecs);
 
-      Logger.getInstance().recordOutput("Flywheels/SetpointRPM",
-          profileState.position);
-      Logger.getInstance().recordOutput("Flywheels/GoalRPM",
-          profileGoal.position);
+      Logger.getInstance().recordOutput("Flywheels/SetpointRPM", profileState.position);
+      Logger.getInstance().recordOutput("Flywheels/GoalRPM", profileGoal.position);
       Logger.getInstance().recordOutput("Flywheels/AtSetpoint", atSetpoint());
       Logger.getInstance().recordOutput("Flywheels/AtGoal", atGoal());
 
-      double velocityRadPerSec =
-          Units.rotationsPerMinuteToRadiansPerSecond(profileState.position);
+      double velocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(profileState.position);
       io.setVelocity(velocityRadPerSec, ffModel.calculate(velocityRadPerSec));
     }
 
@@ -137,8 +134,7 @@ public class Flywheels extends SubsystemBase {
 
   /** Run at velocity with closed loop control. */
   public void runVelocity(double rpm) {
-    if (rpm > 0)
-      rpm += offsetRpm;
+    if (rpm > 0) rpm += offsetRpm;
     rpm = MathUtil.clamp(rpm, -maxVelocityRpm.get(), maxVelocityRpm.get());
     profileGoal = new TrapezoidProfile.State(rpm, 0.0);
     if (!closedLoop) {
@@ -160,8 +156,7 @@ public class Flywheels extends SubsystemBase {
   /** Returns whether the velocity has reached the closed loop setpoint. */
   public boolean atSetpoint() {
     if (closedLoop) {
-      return Math.abs(getVelocity() - profileGoal.position) < toleranceRpm
-          .get();
+      return Math.abs(getVelocity() - profileGoal.position) < toleranceRpm.get();
     } else {
       return false;
     }
@@ -170,8 +165,7 @@ public class Flywheels extends SubsystemBase {
   /** Returns whether the velocity setpoint has reached the goal. */
   public boolean atGoal() {
     if (closedLoop) {
-      return Math.abs(
-          profileGoal.position - profileState.position) < toleranceRpm.get();
+      return Math.abs(profileGoal.position - profileState.position) < toleranceRpm.get();
     } else {
       return false;
     }

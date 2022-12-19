@@ -1,10 +1,11 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.subsystems.climber;
-
-import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -14,25 +15,22 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.climber.ClimberIO.ClimberIOInputs;
 import frc.robot.util.TunableNumber;
+import org.littletonrobotics.junction.Logger;
 
 public class Climber extends SubsystemBase {
   private final ClimberIO io;
   private final ClimberIOInputs inputs = new ClimberIOInputs();
 
-  public final TunableNumber minPositionRad =
-      new TunableNumber("Climber/MinPosition");
-  public final TunableNumber maxPositionRad =
-      new TunableNumber("Climber/MaxPosition");
+  public final TunableNumber minPositionRad = new TunableNumber("Climber/MinPosition");
+  public final TunableNumber maxPositionRad = new TunableNumber("Climber/MaxPosition");
   private final TunableNumber kP = new TunableNumber("Climber/Kp");
   private final TunableNumber kI = new TunableNumber("Climber/Ki");
   private final TunableNumber kD = new TunableNumber("Climber/Kd");
-  private final TunableNumber maxVelocity =
-      new TunableNumber("Climber/MaxVelocity");
-  private final TunableNumber maxAcceleration =
-      new TunableNumber("Climber/MaxAcceleration");
+  private final TunableNumber maxVelocity = new TunableNumber("Climber/MaxVelocity");
+  private final TunableNumber maxAcceleration = new TunableNumber("Climber/MaxAcceleration");
 
-  private final ProfiledPIDController controller = new ProfiledPIDController(
-      0.0, 0.0, 0.0, new Constraints(0.0, 0.0), Constants.loopPeriodSecs);
+  private final ProfiledPIDController controller =
+      new ProfiledPIDController(0.0, 0.0, 0.0, new Constraints(0.0, 0.0), Constants.loopPeriodSecs);
   private double basePositionRad = 0.0;
   private double requestedVolts = 0.0;
   private boolean closedLoop = false;
@@ -76,8 +74,8 @@ public class Climber extends SubsystemBase {
 
     // Log position
     Logger.getInstance().recordOutput("Climber/Position", getPosition());
-    Logger.getInstance().recordOutput("Climber/PositionSetpoint",
-        controller.getSetpoint().position);
+    Logger.getInstance()
+        .recordOutput("Climber/PositionSetpoint", controller.getSetpoint().position);
 
     // Update PID controller with tunable numbers
     if (kP.hasChanged()) {
@@ -90,8 +88,7 @@ public class Climber extends SubsystemBase {
       controller.setI(kD.get());
     }
     if (maxVelocity.hasChanged() || maxAcceleration.hasChanged()) {
-      controller.setConstraints(
-          new Constraints(maxVelocity.get(), maxAcceleration.get()));
+      controller.setConstraints(new Constraints(maxVelocity.get(), maxAcceleration.get()));
     }
 
     // Run PID controller
@@ -111,9 +108,7 @@ public class Climber extends SubsystemBase {
     }
   }
 
-  /**
-   * Runs open loop and disables PID control
-   */
+  /** Runs open loop and disables PID control */
   public void runVoltage(double volts) {
     requestedVolts = volts;
     closedLoop = false;
@@ -121,15 +116,14 @@ public class Climber extends SubsystemBase {
 
   /**
    * Runs closed loop to the specified position
-   * 
+   *
    * @param positionRad Position in radians (between 0 and max height)
    */
   public void setGoal(double positionRad) {
     if (!closedLoop) {
       controller.reset(getPosition());
     }
-    controller.setGoal(MathUtil.clamp(positionRad, minPositionRad.get(),
-        maxPositionRad.get()));
+    controller.setGoal(MathUtil.clamp(positionRad, minPositionRad.get(), maxPositionRad.get()));
     closedLoop = true;
   }
 

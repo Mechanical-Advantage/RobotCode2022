@@ -1,19 +1,22 @@
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
+
 package frc.robot.util;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
 
-import edu.wpi.first.math.geometry.Pose2d;
-
-/**
- * Stores a history of timestamped Pose2d objects.
- */
+/** Stores a history of timestamped Pose2d objects. */
 public class PoseHistory {
   // Inner class handling interpolation of double values
-  private static class InterpolatingTimestamp
-      implements Comparable<InterpolatingTimestamp> {
+  private static class InterpolatingTimestamp implements Comparable<InterpolatingTimestamp> {
     public double value;
 
     public InterpolatingTimestamp(double value) {
@@ -21,15 +24,13 @@ public class PoseHistory {
     }
 
     @SuppressWarnings("unused")
-    public InterpolatingTimestamp interpolate(InterpolatingTimestamp other,
-        double x) {
+    public InterpolatingTimestamp interpolate(InterpolatingTimestamp other, double x) {
       double dydx = other.value - value;
       double searchY = dydx * x + value;
       return new InterpolatingTimestamp(searchY);
     }
 
-    public double inverseInterpolate(InterpolatingTimestamp upper,
-        InterpolatingTimestamp query) {
+    public double inverseInterpolate(InterpolatingTimestamp upper, InterpolatingTimestamp query) {
       double upper_to_lower = upper.value - value;
       if (upper_to_lower <= 0) {
         return 0;
@@ -48,10 +49,8 @@ public class PoseHistory {
 
     @Override
     public boolean equals(Object o) {
-      if (this == o)
-        return true;
-      if (o == null || getClass() != o.getClass())
-        return false;
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
       InterpolatingTimestamp that = (InterpolatingTimestamp) o;
       return Double.compare(that.value, value) == 0;
     }
@@ -92,7 +91,7 @@ public class PoseHistory {
   /**
    * Creates a new PoseHistory with the given capacity. When the history is at capacity, the oldest
    * poses are removed as new ones are inserted.
-   * 
+   *
    * @param capacity The capacity of the history
    */
   public PoseHistory(int capacity) {
@@ -107,16 +106,14 @@ public class PoseHistory {
     this(0);
   }
 
-  /**
-   * Resets the pose history, deleting all entries.
-   */
+  /** Resets the pose history, deleting all entries. */
   public void reset() {
     map.clear();
   }
 
   /**
    * Inserts a new timestamped pose into the history.
-   * 
+   *
    * @param timestamp The timestamp, in seconds
    * @param pose The pose
    */
@@ -131,7 +128,7 @@ public class PoseHistory {
 
   /**
    * Gets the latest timestamp and pose from the history.
-   * 
+   *
    * @return An object containing the timestamp and the pose
    */
   public Optional<TimestampedPose2d> getLatest() {
@@ -145,10 +142,10 @@ public class PoseHistory {
   /**
    * Retrieves a pose at the given timestamp. If no pose is available at the requested timestamp,
    * interpolation is performed between the two timestamps nearest to the one requested.
-   * 
+   *
    * @param timestamp The timestamp to obtain a pose at
    * @return An Optional object which potentially contains the located pose, or is empty if no pose
-   *         could be computed.
+   *     could be computed.
    */
   public Optional<Pose2d> get(double timestamp) {
     InterpolatingTimestamp key = new InterpolatingTimestamp(timestamp);
@@ -172,7 +169,7 @@ public class PoseHistory {
     // Get surrounding values for interpolation
     Pose2d topElem = map.get(topBound);
     Pose2d bottomElem = map.get(bottomBound);
-    return Optional.of(GeomUtil.interpolate(bottomElem, topElem,
-        bottomBound.inverseInterpolate(topBound, key)));
+    return Optional.of(
+        GeomUtil.interpolate(bottomElem, topElem, bottomBound.inverseInterpolate(topBound, key)));
   }
 }

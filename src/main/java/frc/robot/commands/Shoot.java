@@ -1,25 +1,24 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.commands;
-
-import java.util.function.Consumer;
-
-import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.leds.Leds;
 import frc.robot.util.TunableNumber;
+import java.util.function.Consumer;
+import org.littletonrobotics.junction.Logger;
 
 public class Shoot extends CommandBase {
   private static final boolean enableRumble = true;
-  private static final TunableNumber rumblePercent =
-      new TunableNumber("Shoot/RumblePercent");
-  private static final TunableNumber rumbleDurationSecs =
-      new TunableNumber("Shoot/RumbleDuration");
+  private static final TunableNumber rumblePercent = new TunableNumber("Shoot/RumblePercent");
+  private static final TunableNumber rumbleDurationSecs = new TunableNumber("Shoot/RumbleDuration");
 
   private final Feeder feeder;
   private final Leds leds;
@@ -31,8 +30,7 @@ public class Shoot extends CommandBase {
 
   /** Creates a new Shoot. Runs the feeder to fire cargo. */
   public Shoot(Feeder feeder, Leds leds) {
-    this(feeder, leds, x -> {
-    });
+    this(feeder, leds, x -> {});
   }
 
   /** Creates a new Shoot. Runs the feeder to fire cargo. */

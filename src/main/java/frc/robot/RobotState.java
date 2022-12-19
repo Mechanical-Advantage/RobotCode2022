@@ -1,15 +1,11 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot;
-
-import java.util.Map;
-import java.util.Optional;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
-import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -20,18 +16,23 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.commands.AutoAim;
 import frc.robot.subsystems.leds.Leds;
+import java.util.Map;
+import java.util.Optional;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import org.littletonrobotics.junction.Logger;
 
 /** Manages the robot's pose based on state data from various subsystems. */
 public class RobotState {
   private static final double historyLengthSecs = 1.0;
   private static final double maxNoVisionLog = 0.25; // How long to wait with no vision data before
-                                                     // clearing log visualization
+  // clearing log visualization
   private static final double visionShiftPerSec = 0.999; // After one second of vision data, what %
-                                                         // of pose average should be vision
+  // of pose average should be vision
   private static final double visionMaxAngularVelocity =
       Units.degreesToRadians(180.0); // Max angular velocity before vision data is rejected
   private static final double ledsAlignedMaxDegrees = 5.0; // How far from fully targeted can the
-                                                           // robot be for setting LEDs
+  // robot be for setting LEDs
 
   private final TreeMap<Double, Double> hoodData = new TreeMap<>(); // Hood angles
   private final TreeMap<Double, Twist2d> driveData = new TreeMap<>(); // Relative movement per cycle
@@ -106,15 +107,14 @@ public class RobotState {
     }
 
     // Clear old drive data
-    while (driveData.size() > 1 && driveData
-        .firstKey() < Timer.getFPGATimestamp() - historyLengthSecs) {
+    while (driveData.size() > 1
+        && driveData.firstKey() < Timer.getFPGATimestamp() - historyLengthSecs) {
       basePose = getPose(driveData.higherKey(driveData.firstKey()));
       driveData.pollFirstEntry();
     }
 
     // Clear old vision data
-    while (visionData.size() > 0
-        && visionData.firstKey() < driveData.firstKey()) {
+    while (visionData.size() > 0 && visionData.firstKey() < driveData.firstKey()) {
       // Any vision data before first drive data won't be used in calculations
       visionData.pollFirstEntry();
     }
@@ -123,31 +123,42 @@ public class RobotState {
     latestPose = getPose(null);
 
     // Log poses
-    Logger.getInstance().recordOutput("Odometry/Robot",
-        new double[] {latestPose.getX(), latestPose.getY(),
-            latestPose.getRotation().getRadians()});
+    Logger.getInstance()
+        .recordOutput(
+            "Odometry/Robot",
+            new double[] {
+              latestPose.getX(), latestPose.getY(), latestPose.getRotation().getRadians()
+            });
     Map.Entry<Double, Translation2d> visionEntry = visionData.lastEntry();
     if (visionEntry != null) {
       if (visionEntry.getKey() > Timer.getFPGATimestamp() - maxNoVisionLog) {
-        Logger.getInstance().recordOutput("Odometry/VisionPose",
-            new double[] {visionEntry.getValue().getX(),
-                visionEntry.getValue().getY(),
-                latestPose.getRotation().getRadians()});
-        Logger.getInstance().recordOutput("Odometry/VisionTarget",
-            new double[] {FieldConstants.hubCenter.getX(),
-                FieldConstants.hubCenter.getY()});
-        Logger.getInstance().recordOutput("Vision/DistanceInches",
-            Units.metersToInches(
-                visionEntry.getValue().getDistance(FieldConstants.hubCenter)));
+        Logger.getInstance()
+            .recordOutput(
+                "Odometry/VisionPose",
+                new double[] {
+                  visionEntry.getValue().getX(),
+                  visionEntry.getValue().getY(),
+                  latestPose.getRotation().getRadians()
+                });
+        Logger.getInstance()
+            .recordOutput(
+                "Odometry/VisionTarget",
+                new double[] {FieldConstants.hubCenter.getX(), FieldConstants.hubCenter.getY()});
+        Logger.getInstance()
+            .recordOutput(
+                "Vision/DistanceInches",
+                Units.metersToInches(visionEntry.getValue().getDistance(FieldConstants.hubCenter)));
       }
     }
 
     // Check if robot is aligned for LEDs
     if (leds != null) {
       leds.setTargeted(
-          Math.abs(AutoAim.getTargetRotation(latestPose.getTranslation())
-              .minus(latestPose.getRotation())
-              .getDegrees()) < ledsAlignedMaxDegrees);
+          Math.abs(
+                  AutoAim.getTargetRotation(latestPose.getTranslation())
+                      .minus(latestPose.getRotation())
+                      .getDegrees())
+              < ledsAlignedMaxDegrees);
     }
   }
 
@@ -178,26 +189,23 @@ public class RobotState {
           visionData.subMap(driveEntry.getKey(), nextTimestamp);
 
       // Apply vision data
-      for (Map.Entry<Double, Translation2d> visionEntry : filteredVisionData
-          .entrySet()) {
+      for (Map.Entry<Double, Translation2d> visionEntry : filteredVisionData.entrySet()) {
 
         // Calculate vision shift based on angular velocity
-        double angularVelocityRadPerSec = driveEntry.getValue().dtheta
-            / (nextTimestamp - driveEntry.getKey());
-        double angularErrorScale =
-            Math.abs(angularVelocityRadPerSec) / visionMaxAngularVelocity;
+        double angularVelocityRadPerSec =
+            driveEntry.getValue().dtheta / (nextTimestamp - driveEntry.getKey());
+        double angularErrorScale = Math.abs(angularVelocityRadPerSec) / visionMaxAngularVelocity;
         angularErrorScale = MathUtil.clamp(angularErrorScale, 0, 1);
-        double visionShift = 1 - Math.pow(1 - visionShiftPerSec,
-            1 / VisionConstants.nominalFramerate);
+        double visionShift =
+            1 - Math.pow(1 - visionShiftPerSec, 1 / VisionConstants.nominalFramerate);
         visionShift *= 1 - angularErrorScale;
 
         // Adjust pose
-        pose = new Pose2d(
-            pose.getX() * (1 - visionShift)
-                + visionEntry.getValue().getX() * visionShift,
-            pose.getY() * (1 - visionShift)
-                + visionEntry.getValue().getY() * visionShift,
-            pose.getRotation());
+        pose =
+            new Pose2d(
+                pose.getX() * (1 - visionShift) + visionEntry.getValue().getX() * visionShift,
+                pose.getY() * (1 - visionShift) + visionEntry.getValue().getY() * visionShift,
+                pose.getRotation());
       }
 
       // Apply drive twist
@@ -221,8 +229,7 @@ public class RobotState {
       return Optional.of(floor.getValue());
     }
 
-    double dydx = (ceiling.getValue() - floor.getValue())
-        / (ceiling.getKey() - floor.getKey());
+    double dydx = (ceiling.getValue() - floor.getValue()) / (ceiling.getKey() - floor.getKey());
     double y = dydx * (timestamp - floor.getKey()) + floor.getValue();
     return Optional.of(y);
   }
@@ -233,12 +240,10 @@ public class RobotState {
    */
   public Rotation2d getDriveRotation(double timestamp) {
     Rotation2d rotation = basePose.getRotation();
-    for (Map.Entry<Double, Twist2d> entry : driveData.headMap(timestamp)
-        .entrySet()) {
+    for (Map.Entry<Double, Twist2d> entry : driveData.headMap(timestamp).entrySet()) {
       Double nextTimestamp = driveData.higherKey(entry.getKey());
       if (nextTimestamp != null && nextTimestamp > timestamp) { // Last twist, apply partial
-        double t =
-            (timestamp - entry.getKey()) / (nextTimestamp - entry.getKey());
+        double t = (timestamp - entry.getKey()) / (nextTimestamp - entry.getKey());
         rotation = rotation.plus(new Rotation2d(entry.getValue().dtheta * t));
       } else { // Apply full twist
         rotation = rotation.plus(new Rotation2d(entry.getValue().dtheta));

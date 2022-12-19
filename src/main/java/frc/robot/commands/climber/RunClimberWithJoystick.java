@@ -1,18 +1,19 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.commands.climber;
-
-import java.util.function.Supplier;
-
-import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.util.TunableNumber;
+import java.util.function.Supplier;
+import org.littletonrobotics.junction.Logger;
 
 public class RunClimberWithJoystick extends CommandBase {
   private static final TunableNumber maxVelocityRadPerSec =
@@ -23,8 +24,8 @@ public class RunClimberWithJoystick extends CommandBase {
   private final Supplier<Boolean> openLoopSupplier;
 
   /** Creates a new RunClimber. */
-  public RunClimberWithJoystick(Climber climber, Supplier<Double> axisSupplier,
-      Supplier<Boolean> openLoopSupplier) {
+  public RunClimberWithJoystick(
+      Climber climber, Supplier<Double> axisSupplier, Supplier<Boolean> openLoopSupplier) {
     addRequirements(climber);
     this.climber = climber;
     this.axisSupplier = axisSupplier;
@@ -39,22 +40,22 @@ public class RunClimberWithJoystick extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Logger.getInstance().recordOutput("ActiveCommands/RunClimberWithJoystick",
-        true);
+    Logger.getInstance().recordOutput("ActiveCommands/RunClimberWithJoystick", true);
 
     double value = axisSupplier.get();
     double scaledValue = 0.0;
     if (Math.abs(value) > DriveWithJoysticks.getDeadband()) {
-      scaledValue = (Math.abs(value) - DriveWithJoysticks.getDeadband())
-          / (1 - DriveWithJoysticks.getDeadband());
+      scaledValue =
+          (Math.abs(value) - DriveWithJoysticks.getDeadband())
+              / (1 - DriveWithJoysticks.getDeadband());
       scaledValue = Math.copySign(scaledValue * scaledValue, value);
     }
 
     if (openLoopSupplier.get()) {
       climber.runVoltage(scaledValue * 12.0);
     } else {
-      double newGoal = climber.getGoal() + (scaledValue
-          * maxVelocityRadPerSec.get() * Constants.loopPeriodSecs);
+      double newGoal =
+          climber.getGoal() + (scaledValue * maxVelocityRadPerSec.get() * Constants.loopPeriodSecs);
       climber.setGoal(newGoal);
     }
   }

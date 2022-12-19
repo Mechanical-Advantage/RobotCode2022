@@ -1,9 +1,9 @@
-/*----------------------------------------------------------------------------*/
-/* Copyright (c) 2019 FIRST. All Rights Reserved. */
-/* Open Source Software - may be modified and shared by FRC teams. The code */
-/* must be accompanied by the FIRST BSD license file in the root directory of */
-/* the project. */
-/*----------------------------------------------------------------------------*/
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.commands;
 
@@ -25,11 +25,8 @@ public class TurnToAngleFast extends CommandBase {
 
   private boolean spinLeft;
 
-  /**
-   * Creates a new TurnToAngleFast.
-   */
-  public TurnToAngleFast(Drive drive, RobotState robotState,
-      Rotation2d rotation, double power) {
+  /** Creates a new TurnToAngleFast. */
+  public TurnToAngleFast(Drive drive, RobotState robotState, Rotation2d rotation, double power) {
     addRequirements(drive);
     this.drive = drive;
     this.robotState = robotState;
@@ -40,8 +37,7 @@ public class TurnToAngleFast extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    double difference =
-        robotState.getLatestRotation().minus(rotation).getDegrees();
+    double difference = robotState.getLatestRotation().minus(rotation).getDegrees();
     if (difference > 0) {
       drive.drivePercent(power, power * -1);
       spinLeft = false;
@@ -64,8 +60,7 @@ public class TurnToAngleFast extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    double difference =
-        robotState.getLatestRotation().minus(rotation).getDegrees();
+    double difference = robotState.getLatestRotation().minus(rotation).getDegrees();
     if (spinLeft) {
       if (difference > 0) {
         return true;

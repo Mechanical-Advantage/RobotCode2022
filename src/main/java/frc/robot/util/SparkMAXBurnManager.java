@@ -1,18 +1,20 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.util;
 
+import edu.wpi.first.wpilibj.RobotBase;
+import frc.robot.BuildConstants;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-
-import edu.wpi.first.wpilibj.RobotBase;
-import frc.robot.BuildConstants;
+import java.nio.file.Paths;
 
 /** Determines whether to burn SparkMAX configs to flash. */
 public class SparkMAXBurnManager {
@@ -44,8 +46,7 @@ public class SparkMAXBurnManager {
       String previousBuildDate = "";
       try {
         previousBuildDate =
-            new String(Files.readAllBytes(Paths.get(buildDateFile)),
-                StandardCharsets.UTF_8);
+            new String(Files.readAllBytes(Paths.get(buildDateFile)), StandardCharsets.UTF_8);
       } catch (IOException e) {
         e.printStackTrace();
       }
@@ -62,12 +63,10 @@ public class SparkMAXBurnManager {
     }
 
     if (shouldBurn) {
-      System.out.println(
-          "[SparkMAXBurnManager] Build date changed, burning SparkMAX flash");
+      System.out.println("[SparkMAXBurnManager] Build date changed, burning SparkMAX flash");
     } else {
       System.out.println(
           "[SparkMAXBurnManager] Build date unchanged, will not burn SparkMAX flash");
     }
   }
 }
-

@@ -1,12 +1,11 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.commands;
-
-import java.util.function.Supplier;
-
-import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -20,6 +19,8 @@ import frc.robot.commands.DriveWithJoysticks.AxisProcessor;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.TunableNumber;
+import java.util.function.Supplier;
+import org.littletonrobotics.junction.Logger;
 
 public class AutoAim extends CommandBase {
   private final Drive drive;
@@ -37,20 +38,22 @@ public class AutoAim extends CommandBase {
   private static final TunableNumber kD = new TunableNumber("AutoAim/kD");
   private static final TunableNumber integralMaxError =
       new TunableNumber("AutoAim/IntegralMaxError");
-  private static final TunableNumber minVelocity =
-      new TunableNumber("AutoAim/MinVelocity");
+  private static final TunableNumber minVelocity = new TunableNumber("AutoAim/MinVelocity");
   private static final TunableNumber toleranceDegrees =
       new TunableNumber("AutoAim/ToleranceDegrees");
-  private static final TunableNumber toleranceTime =
-      new TunableNumber("AutoAim/ToleranceTime");
+  private static final TunableNumber toleranceTime = new TunableNumber("AutoAim/ToleranceTime");
 
   /**
    * Creates a new AutoAim. Points towards the center of the field using odometry data. Set the
    * vision to null to disable controlling LEDs, target to null to point to the hub, or
    * speedSupplier to null to disable operator controls.
    */
-  public AutoAim(Drive drive, RobotState robotState, Vision vision,
-      Translation2d target, Supplier<Double> speedSupplier) {
+  public AutoAim(
+      Drive drive,
+      RobotState robotState,
+      Vision vision,
+      Translation2d target,
+      Supplier<Double> speedSupplier) {
     addRequirements(drive);
     if (vision != null) {
       addRequirements(vision);
@@ -94,8 +97,7 @@ public class AutoAim extends CommandBase {
         break;
     }
 
-    controller = new PIDController(kP.get(), kI.get(), kD.get(),
-        Constants.loopPeriodSecs);
+    controller = new PIDController(kP.get(), kI.get(), kD.get(), Constants.loopPeriodSecs);
     controller.setTolerance(toleranceDegrees.get());
     controller.enableContinuousInput(-180, 180);
   }
@@ -131,12 +133,11 @@ public class AutoAim extends CommandBase {
     // Update setpoint
     if (target == null) {
       controller.setSetpoint(
-          getTargetRotation(robotState.getLatestPose().getTranslation())
-              .getDegrees());
+          getTargetRotation(robotState.getLatestPose().getTranslation()).getDegrees());
     } else {
       controller.setSetpoint(
-          getTargetRotation(robotState.getLatestPose().getTranslation(), target,
-              false).getDegrees());
+          getTargetRotation(robotState.getLatestPose().getTranslation(), target, false)
+              .getDegrees());
     }
 
     // Check if in tolerance
@@ -150,8 +151,7 @@ public class AutoAim extends CommandBase {
     } else {
       controller.setI(0);
     }
-    double angularSpeed =
-        controller.calculate(robotState.getLatestRotation().getDegrees());
+    double angularSpeed = controller.calculate(robotState.getLatestRotation().getDegrees());
     if (Math.abs(angularSpeed) < minVelocity.get()) {
       angularSpeed = Math.copySign(minVelocity.get(), angularSpeed);
     }
@@ -161,14 +161,13 @@ public class AutoAim extends CommandBase {
 
     // Log data
     Logger.getInstance().recordOutput("ActiveCommands/AutoAim", true);
-    Logger.getInstance().recordOutput("AutoAim/ErrorDegrees",
-        controller.getPositionError());
+    Logger.getInstance().recordOutput("AutoAim/ErrorDegrees", controller.getPositionError());
     Logger.getInstance().recordOutput("AutoAim/OutputPercent", angularSpeed);
   }
 
   /**
    * Calculates the rotation which points the robot towards the hub for shooting.
-   * 
+   *
    * @param position The current robot position
    */
   public static Rotation2d getTargetRotation(Translation2d position) {
@@ -177,16 +176,15 @@ public class AutoAim extends CommandBase {
 
   /**
    * Calculates the rotation which points the robot towards a target.
-   * 
+   *
    * @param position The current robot position
    * @param target The position to aim towards
    * @param reversed Point the back of the robot towards the target
    */
-  public static Rotation2d getTargetRotation(Translation2d position,
-      Translation2d target, boolean reversed) {
+  public static Rotation2d getTargetRotation(
+      Translation2d position, Translation2d target, boolean reversed) {
     Translation2d vehicleToCenter = target.minus(position);
-    Rotation2d targetRotation =
-        new Rotation2d(vehicleToCenter.getX(), vehicleToCenter.getY());
+    Rotation2d targetRotation = new Rotation2d(vehicleToCenter.getX(), vehicleToCenter.getY());
     if (reversed) {
       return targetRotation.plus(Rotation2d.fromDegrees(180));
     } else {

@@ -1,6 +1,9 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.oi;
 
@@ -13,8 +16,7 @@ import frc.robot.util.Alert.AlertType;
  */
 public class OISelector {
   private static final String overrideName = "Generic   USB  Joystick";
-  private static String[] lastJoystickNames =
-      new String[] {null, null, null, null, null, null};
+  private static String[] lastJoystickNames = new String[] {null, null, null, null, null, null};
   private static final Alert noOverrideWarning =
       new Alert("No override controller connected.", AlertType.INFO);
   private static final Alert noHandheldWarning =

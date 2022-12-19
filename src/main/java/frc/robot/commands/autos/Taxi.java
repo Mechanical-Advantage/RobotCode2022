@@ -1,6 +1,9 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.commands.autos;
 
@@ -10,10 +13,8 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.TunableNumber;
 
 public class Taxi extends CommandBase {
-  private static TunableNumber longDuration =
-      new TunableNumber("Taxi/LongDurationSecs");
-  private static TunableNumber shortDuration =
-      new TunableNumber("Taxi/ShortDurationSecs");
+  private static TunableNumber longDuration = new TunableNumber("Taxi/LongDurationSecs");
+  private static TunableNumber shortDuration = new TunableNumber("Taxi/ShortDurationSecs");
   private static TunableNumber speed = new TunableNumber("Taxi/Speed");
 
   private final Drive drive;

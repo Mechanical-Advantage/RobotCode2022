@@ -1,14 +1,16 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.subsystems.climber;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
+import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -35,8 +37,7 @@ public class ClimberIOSparkMAX implements ClimberIO {
   public ClimberIOSparkMAX() {
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
-        solenoid =
-            new Solenoid(Pneumatics.revModuleID, PneumaticsModuleType.REVPH, 0);
+        solenoid = new Solenoid(Pneumatics.revModuleID, PneumaticsModuleType.REVPH, 0);
         leader = new CANSparkMax(6, MotorType.kBrushless);
         follower = new CANSparkMax(14, MotorType.kBrushless);
         invert = false;
@@ -81,17 +82,13 @@ public class ClimberIOSparkMAX implements ClimberIO {
     inputs.limitSwitchLeft = limitSwitchLeft.get();
     inputs.limitSwitchRight = limitSwitchRight.get();
 
-    inputs.positionRad =
-        Units.rotationsToRadians(encoder.getPosition()) / afterEncoderReduction;
+    inputs.positionRad = Units.rotationsToRadians(encoder.getPosition()) / afterEncoderReduction;
     inputs.velocityRadPerSec =
-        Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity())
-            / afterEncoderReduction;
-    inputs.appliedVolts =
-        leader.getAppliedOutput() * RobotController.getBatteryVoltage();
-    inputs.currentAmps =
-        new double[] {leader.getOutputCurrent(), follower.getOutputCurrent()};
-    inputs.tempCelcius = new double[] {leader.getMotorTemperature(),
-        follower.getMotorTemperature()};
+        Units.rotationsPerMinuteToRadiansPerSecond(encoder.getVelocity()) / afterEncoderReduction;
+    inputs.appliedVolts = leader.getAppliedOutput() * RobotController.getBatteryVoltage();
+    inputs.currentAmps = new double[] {leader.getOutputCurrent(), follower.getOutputCurrent()};
+    inputs.tempCelcius =
+        new double[] {leader.getMotorTemperature(), follower.getMotorTemperature()};
   }
 
   @Override

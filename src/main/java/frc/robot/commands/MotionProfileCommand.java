@@ -1,12 +1,11 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.commands;
-
-import java.util.List;
-
-import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -15,9 +14,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
-import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.math.trajectory.TrajectoryParameterizer.TrajectoryGenerationException;
 import edu.wpi.first.math.trajectory.constraint.CentripetalAccelerationConstraint;
 import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
@@ -31,40 +30,55 @@ import frc.robot.RobotState;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.Alert;
 import frc.robot.util.Alert.AlertType;
+import java.util.List;
+import org.littletonrobotics.junction.Logger;
 
 public class MotionProfileCommand extends CommandBase {
   private static final double ramseteB = 2;
   private static final double ramseteZeta = 0.7;
 
-  private static final Alert generatorAlert = new Alert(
-      "Failed to generate all trajectories, check constants.", AlertType.ERROR);
+  private static final Alert generatorAlert =
+      new Alert("Failed to generate all trajectories, check constants.", AlertType.ERROR);
 
   private final Drive drive;
   private final RobotState robotState;
   private final DifferentialDriveKinematics kinematics;
   private final Trajectory trajectory;
-  private final RamseteController controller =
-      new RamseteController(ramseteB, ramseteZeta);
+  private final RamseteController controller = new RamseteController(ramseteB, ramseteZeta);
   private final Timer timer = new Timer();
 
   /**
    * Creates a new MotionProfileCommand with no extra constraints. Drives along the specified path
    * based on odometry data.
    */
-  public MotionProfileCommand(Drive drive, RobotState robotState,
-      double startVelocityMetersPerSec, List<Pose2d> waypoints,
-      double endVelocityMetersPerSec, boolean reversed) {
-    this(drive, robotState, startVelocityMetersPerSec, waypoints,
-        endVelocityMetersPerSec, reversed, List.of());
+  public MotionProfileCommand(
+      Drive drive,
+      RobotState robotState,
+      double startVelocityMetersPerSec,
+      List<Pose2d> waypoints,
+      double endVelocityMetersPerSec,
+      boolean reversed) {
+    this(
+        drive,
+        robotState,
+        startVelocityMetersPerSec,
+        waypoints,
+        endVelocityMetersPerSec,
+        reversed,
+        List.of());
   }
 
   /**
    * Creates a new MotionProfileCommand with extra constraints. Drives along the specified path
    * based on odometry data.
    */
-  public MotionProfileCommand(Drive drive, RobotState robotState,
-      double startVelocityMetersPerSec, List<Pose2d> waypoints,
-      double endVelocityMetersPerSec, boolean reversed,
+  public MotionProfileCommand(
+      Drive drive,
+      RobotState robotState,
+      double startVelocityMetersPerSec,
+      List<Pose2d> waypoints,
+      double endVelocityMetersPerSec,
+      boolean reversed,
       List<TrajectoryConstraint> constraints) {
     addRequirements(drive);
     this.drive = drive;
@@ -72,7 +86,9 @@ public class MotionProfileCommand extends CommandBase {
 
     // Select max velocity & acceleration
     boolean supportedRobot = true;
-    double maxVoltage, maxVelocityMetersPerSec, maxAccelerationMetersPerSec2,
+    double maxVoltage,
+        maxVelocityMetersPerSec,
+        maxAccelerationMetersPerSec2,
         maxCentripetalAccelerationMetersPerSec2;
     switch (Constants.getRobot()) {
       case ROBOT_2022C:
@@ -107,26 +123,27 @@ public class MotionProfileCommand extends CommandBase {
     // Set up trajectory configuration
     kinematics = new DifferentialDriveKinematics(drive.getTrackWidthMeters());
     CentripetalAccelerationConstraint centripetalAccelerationConstraint =
-        new CentripetalAccelerationConstraint(
-            maxCentripetalAccelerationMetersPerSec2);
-    TrajectoryConfig config = new TrajectoryConfig(maxVelocityMetersPerSec,
-        maxAccelerationMetersPerSec2).setKinematics(kinematics)
+        new CentripetalAccelerationConstraint(maxCentripetalAccelerationMetersPerSec2);
+    TrajectoryConfig config =
+        new TrajectoryConfig(maxVelocityMetersPerSec, maxAccelerationMetersPerSec2)
+            .setKinematics(kinematics)
             .addConstraint(centripetalAccelerationConstraint)
             .addConstraints(constraints)
             .setStartVelocity(startVelocityMetersPerSec)
-            .setEndVelocity(endVelocityMetersPerSec).setReversed(reversed);
+            .setEndVelocity(endVelocityMetersPerSec)
+            .setReversed(reversed);
     if (drive.getKa() != 0) {
-      config.addConstraint(new DifferentialDriveVoltageConstraint(
-          new SimpleMotorFeedforward(drive.getKs(), drive.getKv(),
-              drive.getKa()),
-          kinematics, maxVoltage));
+      config.addConstraint(
+          new DifferentialDriveVoltageConstraint(
+              new SimpleMotorFeedforward(drive.getKs(), drive.getKv(), drive.getKa()),
+              kinematics,
+              maxVoltage));
     }
 
     // Generate trajectory
     Trajectory generatedTrajectory;
     try {
-      generatedTrajectory =
-          TrajectoryGenerator.generateTrajectory(waypoints, config);
+      generatedTrajectory = TrajectoryGenerator.generateTrajectory(waypoints, config);
     } catch (TrajectoryGenerationException exception) {
       generatedTrajectory = new Trajectory();
       if (supportedRobot) {
@@ -148,15 +165,17 @@ public class MotionProfileCommand extends CommandBase {
   @Override
   public void execute() {
     State setpoint = trajectory.sample(timer.get());
-    Logger.getInstance().recordOutput("Odometry/ProfileSetpoint",
-        new double[] {setpoint.poseMeters.getX(), setpoint.poseMeters.getY(),
-            setpoint.poseMeters.getRotation().getRadians()});
-    ChassisSpeeds chassisSpeeds =
-        controller.calculate(robotState.getLatestPose(), setpoint);
-    DifferentialDriveWheelSpeeds wheelSpeeds =
-        kinematics.toWheelSpeeds(chassisSpeeds);
-    drive.driveVelocity(wheelSpeeds.leftMetersPerSecond,
-        wheelSpeeds.rightMetersPerSecond);
+    Logger.getInstance()
+        .recordOutput(
+            "Odometry/ProfileSetpoint",
+            new double[] {
+              setpoint.poseMeters.getX(),
+              setpoint.poseMeters.getY(),
+              setpoint.poseMeters.getRotation().getRadians()
+            });
+    ChassisSpeeds chassisSpeeds = controller.calculate(robotState.getLatestPose(), setpoint);
+    DifferentialDriveWheelSpeeds wheelSpeeds = kinematics.toWheelSpeeds(chassisSpeeds);
+    drive.driveVelocity(wheelSpeeds.leftMetersPerSecond, wheelSpeeds.rightMetersPerSecond);
   }
 
   // Called once the command ends or is interrupted.

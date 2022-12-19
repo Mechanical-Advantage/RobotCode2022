@@ -1,12 +1,11 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.commands;
-
-import java.util.function.Consumer;
-
-import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -14,19 +13,18 @@ import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.leds.Leds;
 import frc.robot.util.TunableNumber;
+import java.util.function.Consumer;
+import org.littletonrobotics.junction.Logger;
 
 public class RunIntake extends CommandBase {
   private static final boolean enableRumbleFirstCargo = true;
   private static final boolean enableRumbleSecondCargo = true;
-  private static final TunableNumber rumblePercent =
-      new TunableNumber("RunIntake/RumblePercent");
+  private static final TunableNumber rumblePercent = new TunableNumber("RunIntake/RumblePercent");
   private static final TunableNumber rumbleDurationSecs =
       new TunableNumber("RunIntake/RumbleDuration");
 
-  private static final TunableNumber forwardsSpeed =
-      new TunableNumber("RunIntake/ForwardsSpeed");
-  private static final TunableNumber backwardsSpeed =
-      new TunableNumber("RunIntake/BackwardsSpeed");
+  private static final TunableNumber forwardsSpeed = new TunableNumber("RunIntake/ForwardsSpeed");
+  private static final TunableNumber backwardsSpeed = new TunableNumber("RunIntake/BackwardsSpeed");
   private static final TunableNumber backwardsSlowSpeed =
       new TunableNumber("RunIntake/BackwardsSlowSpeed");
 
@@ -45,36 +43,34 @@ public class RunIntake extends CommandBase {
   private final Timer rumbleOneTimer = new Timer();
   private final Timer rumbleTwoTimer = new Timer();
 
-  /**
-   * Creates a new RunIntake. Runs the intake forwards or backwards.
-   */
+  /** Creates a new RunIntake. Runs the intake forwards or backwards. */
   public RunIntake(IntakeMode mode, Intake intake, Feeder feeder, Leds leds) {
-    this(mode, intake, feeder, leds, false, x -> {
-    });
+    this(mode, intake, feeder, leds, false, x -> {});
   }
 
   /**
    * Creates a new RunIntake. Runs the intake forwards or backwards, intended for operator controls.
    */
-  public RunIntake(IntakeMode mode, Intake intake, Feeder feeder, Leds leds,
-      Consumer<Double> rumbleConsumer) {
+  public RunIntake(
+      IntakeMode mode, Intake intake, Feeder feeder, Leds leds, Consumer<Double> rumbleConsumer) {
     this(mode, intake, feeder, leds, false, rumbleConsumer);
   }
 
-  /**
-   * Creates a new RunIntake. Runs the intake forwards or backwards.
-   */
-  public RunIntake(IntakeMode mode, Intake intake, Feeder feeder, Leds leds,
-      boolean forceRollers) {
-    this(mode, intake, feeder, leds, forceRollers, x -> {
-    });
+  /** Creates a new RunIntake. Runs the intake forwards or backwards. */
+  public RunIntake(IntakeMode mode, Intake intake, Feeder feeder, Leds leds, boolean forceRollers) {
+    this(mode, intake, feeder, leds, forceRollers, x -> {});
   }
 
   /**
    * Creates a new RunIntake. Runs the intake forwards or backwards, intended for operator controls.
    */
-  public RunIntake(IntakeMode mode, Intake intake, Feeder feeder, Leds leds,
-      boolean forceRollers, Consumer<Double> rumbleConsumer) {
+  public RunIntake(
+      IntakeMode mode,
+      Intake intake,
+      Feeder feeder,
+      Leds leds,
+      boolean forceRollers,
+      Consumer<Double> rumbleConsumer) {
     addRequirements(intake);
     this.mode = mode;
     this.intake = intake;
@@ -100,8 +96,7 @@ public class RunIntake extends CommandBase {
     leds.setIntaking(true);
 
     rumbleLastOneTripped = feeder.getUpperProxSensor();
-    rumbleLastTwoTripped =
-        feeder.getLowerProxSensor() && feeder.getUpperProxSensor();
+    rumbleLastTwoTripped = feeder.getLowerProxSensor() && feeder.getUpperProxSensor();
     rumbleOneActive = false;
     rumbleTwoActive = false;
     rumbleOneTimer.reset();
@@ -126,20 +121,16 @@ public class RunIntake extends CommandBase {
 
         boolean rumbleOneTripped = cargoCount >= 1;
         boolean rumbleTwoTripped = cargoCount >= 2;
-        if (rumbleOneTripped && !rumbleLastOneTripped
-            && enableRumbleFirstCargo) {
+        if (rumbleOneTripped && !rumbleLastOneTripped && enableRumbleFirstCargo) {
           rumbleOneActive = true;
           rumbleOneTimer.reset();
         }
-        if (rumbleTwoTripped && !rumbleLastTwoTripped
-            && enableRumbleSecondCargo) {
+        if (rumbleTwoTripped && !rumbleLastTwoTripped && enableRumbleSecondCargo) {
           rumbleTwoActive = true;
           rumbleTwoTimer.reset();
         }
-        if ((rumbleOneActive
-            && !rumbleOneTimer.hasElapsed(rumbleDurationSecs.get()))
-            || (rumbleTwoActive
-                && !rumbleTwoTimer.hasElapsed(rumbleDurationSecs.get()))) {
+        if ((rumbleOneActive && !rumbleOneTimer.hasElapsed(rumbleDurationSecs.get()))
+            || (rumbleTwoActive && !rumbleTwoTimer.hasElapsed(rumbleDurationSecs.get()))) {
           rumbleConsumer.accept(rumblePercent.get());
         } else {
           rumbleConsumer.accept(0.0);
@@ -177,6 +168,8 @@ public class RunIntake extends CommandBase {
   }
 
   public static enum IntakeMode {
-    FORWARDS, BACKWARDS, BACKWARDS_SLOW
+    FORWARDS,
+    BACKWARDS,
+    BACKWARDS_SLOW
   }
 }

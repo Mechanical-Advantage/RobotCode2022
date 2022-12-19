@@ -1,6 +1,9 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.subsystems.flywheels;
 
@@ -27,8 +30,7 @@ public interface FlywheelsIO {
 
     public void fromLog(LogTable table) {
       positionRad = table.getDouble("PositionRad", positionRad);
-      velocityRadPerSec =
-          table.getDouble("VelocityRadPerSec", velocityRadPerSec);
+      velocityRadPerSec = table.getDouble("VelocityRadPerSec", velocityRadPerSec);
       appliedVolts = table.getDouble("AppliedVolts", appliedVolts);
       currentAmps = table.getDoubleArray("CurrentAmps", currentAmps);
       tempCelcius = table.getDoubleArray("TempCelcius", tempCelcius);

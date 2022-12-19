@@ -1,15 +1,17 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.commands;
-
-import java.util.function.BiConsumer;
-import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 public class TrackWidthCharacterization extends CommandBase {
   private static final double rampRateVoltsPerSec = 0.1;
@@ -26,7 +28,8 @@ public class TrackWidthCharacterization extends CommandBase {
   private double baseGyroPosition;
 
   /** Creates a new TrackWidthCharacterization. */
-  public TrackWidthCharacterization(Subsystem drive,
+  public TrackWidthCharacterization(
+      Subsystem drive,
       BiConsumer<Double, Double> voltageConsumer,
       Supplier<Double> leftPositionSupplier,
       Supplier<Double> rightPositionSupplier,
@@ -62,12 +65,9 @@ public class TrackWidthCharacterization extends CommandBase {
     voltageConsumer.accept(0.0, 0.0);
     timer.stop();
 
-    double leftDistance =
-        Math.abs(leftPositionSupplier.get() - basePositionLeft);
-    double rightDistance =
-        Math.abs(rightPositionSupplier.get() - basePositionRight);
-    double gyroDistance =
-        Math.abs(gyroPositionSupplier.get() - baseGyroPosition);
+    double leftDistance = Math.abs(leftPositionSupplier.get() - basePositionLeft);
+    double rightDistance = Math.abs(rightPositionSupplier.get() - basePositionRight);
+    double gyroDistance = Math.abs(gyroPositionSupplier.get() - baseGyroPosition);
     double trackWidth = (leftDistance + rightDistance) / gyroDistance;
 
     System.out.println(String.format("Track width=%.5f", trackWidth));

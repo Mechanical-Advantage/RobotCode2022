@@ -1,28 +1,29 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.subsystems.drive;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim.KitbotGearing;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim.KitbotMotor;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim.KitbotWheelSize;
 import frc.robot.Constants;
-import edu.wpi.first.math.util.Units;
 
 /** Drive subsystem hardware interface for WPILib drivetrain sim. */
 public class DriveIOSim implements DriveIO {
 
   private static final double wheelRadiusMeters = Units.inchesToMeters(3.0);
   private DifferentialDrivetrainSim sim =
-      DifferentialDrivetrainSim.createKitbotSim(KitbotMotor.kDualCIMPerSide,
-          KitbotGearing.k10p71, KitbotWheelSize.kSixInch, null);
-  private PIDController leftPID =
-      new PIDController(0.0, 0.0, 0.0, Constants.loopPeriodSecs);
-  private PIDController rightPID =
-      new PIDController(0.0, 0.0, 0.0, Constants.loopPeriodSecs);
+      DifferentialDrivetrainSim.createKitbotSim(
+          KitbotMotor.kDualCIMPerSide, KitbotGearing.k10p71, KitbotWheelSize.kSixInch, null);
+  private PIDController leftPID = new PIDController(0.0, 0.0, 0.0, Constants.loopPeriodSecs);
+  private PIDController rightPID = new PIDController(0.0, 0.0, 0.0, Constants.loopPeriodSecs);
 
   private boolean closedLoop = false;
   private double leftFFVolts = 0.0;
@@ -32,12 +33,11 @@ public class DriveIOSim implements DriveIO {
 
   public void updateInputs(DriveIOInputs inputs) {
     if (closedLoop) {
-      double leftVolts = leftPID
-          .calculate(sim.getLeftVelocityMetersPerSecond() / wheelRadiusMeters)
-          + leftFFVolts;
-      double rightVolts = rightPID
-          .calculate(sim.getRightVelocityMetersPerSecond() / wheelRadiusMeters)
-          + rightFFVolts;
+      double leftVolts =
+          leftPID.calculate(sim.getLeftVelocityMetersPerSecond() / wheelRadiusMeters) + leftFFVolts;
+      double rightVolts =
+          rightPID.calculate(sim.getRightVelocityMetersPerSecond() / wheelRadiusMeters)
+              + rightFFVolts;
       appliedVoltsLeft = leftVolts;
       appliedVoltsRight = rightVolts;
       sim.setInputs(leftVolts, rightVolts);
@@ -45,15 +45,13 @@ public class DriveIOSim implements DriveIO {
 
     sim.update(Constants.loopPeriodSecs);
     inputs.leftPositionRad = sim.getLeftPositionMeters() / wheelRadiusMeters;
-    inputs.leftVelocityRadPerSec =
-        sim.getLeftVelocityMetersPerSecond() / wheelRadiusMeters;
+    inputs.leftVelocityRadPerSec = sim.getLeftVelocityMetersPerSecond() / wheelRadiusMeters;
     inputs.leftAppliedVolts = appliedVoltsLeft;
     inputs.leftCurrentAmps = new double[] {sim.getLeftCurrentDrawAmps()};
     inputs.leftTempCelcius = new double[] {};
 
     inputs.rightPositionRad = sim.getRightPositionMeters() / wheelRadiusMeters;
-    inputs.rightVelocityRadPerSec =
-        sim.getRightVelocityMetersPerSecond() / wheelRadiusMeters;
+    inputs.rightVelocityRadPerSec = sim.getRightVelocityMetersPerSecond() / wheelRadiusMeters;
     inputs.rightAppliedVolts = appliedVoltsRight;
     inputs.rightCurrentAmps = new double[] {sim.getRightCurrentDrawAmps()};
     inputs.rightTempCelcius = new double[] {};
@@ -62,8 +60,7 @@ public class DriveIOSim implements DriveIO {
     double lastGyroPosition = inputs.gyroYawPositionRad;
     inputs.gyroYawPositionRad = sim.getHeading().getRadians() * -1;
     inputs.gyroYawVelocityRadPerSec =
-        (inputs.gyroYawPositionRad - lastGyroPosition)
-            / Constants.loopPeriodSecs;
+        (inputs.gyroYawPositionRad - lastGyroPosition) / Constants.loopPeriodSecs;
   }
 
   public void setVoltage(double leftVolts, double rightVolts) {
@@ -73,8 +70,11 @@ public class DriveIOSim implements DriveIO {
     sim.setInputs(leftVolts, rightVolts);
   }
 
-  public void setVelocity(double leftVelocityRadPerSec,
-      double rightVelocityRadPerSec, double leftFFVolts, double rightFFVolts) {
+  public void setVelocity(
+      double leftVelocityRadPerSec,
+      double rightVelocityRadPerSec,
+      double leftFFVolts,
+      double rightFFVolts) {
     closedLoop = true;
     leftPID.setSetpoint(leftVelocityRadPerSec);
     rightPID.setSetpoint(rightVelocityRadPerSec);

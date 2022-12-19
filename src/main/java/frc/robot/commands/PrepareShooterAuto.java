@@ -1,13 +1,11 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.commands;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
@@ -18,10 +16,14 @@ import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.flywheels.Flywheels;
 import frc.robot.subsystems.hood.Hood;
 import frc.robot.util.LinearInterpolation;
+import java.util.ArrayList;
+import java.util.List;
+import org.littletonrobotics.junction.Logger;
 
 public class PrepareShooterAuto extends CommandBase {
   private static final List<ShootingPosition> positionData =
-      List.of(new ShootingPosition(53.0, 1220.0, 3.0),
+      List.of(
+          new ShootingPosition(53.0, 1220.0, 3.0),
           new ShootingPosition(64.0, 1170.0, 11.0),
           new ShootingPosition(89.0, 1170.0, 17.0),
           new ShootingPosition(113.0, 1180.0, 21.0),
@@ -36,9 +38,10 @@ public class PrepareShooterAuto extends CommandBase {
   private static final LinearInterpolation flywheelSpeedInterpolation;
   private static final LinearInterpolation hoodAngleInterpolation;
   private static final LinearInterpolation towerSpeedInterpolation =
-      new LinearInterpolation(List.of(
-          new LinearInterpolation.Point(Units.inchesToMeters(60.0), 0.35),
-          new LinearInterpolation.Point(Units.inchesToMeters(80.0), 0.6)));
+      new LinearInterpolation(
+          List.of(
+              new LinearInterpolation.Point(Units.inchesToMeters(60.0), 0.35),
+              new LinearInterpolation.Point(Units.inchesToMeters(80.0), 0.6)));
 
   private final Flywheels flywheels;
   private final Hood hood;
@@ -51,12 +54,12 @@ public class PrepareShooterAuto extends CommandBase {
     List<LinearInterpolation.Point> flywheelSpeedPoints = new ArrayList<>();
     List<LinearInterpolation.Point> hoodAnglePoints = new ArrayList<>();
     for (ShootingPosition position : positionData) {
-      flywheelSpeedPoints.add(new LinearInterpolation.Point(
-          Units.inchesToMeters(position.distanceInches),
-          position.flywheelSpeedRpm));
-      hoodAnglePoints.add(new LinearInterpolation.Point(
-          Units.inchesToMeters(position.distanceInches),
-          position.hoodAngleDegrees));
+      flywheelSpeedPoints.add(
+          new LinearInterpolation.Point(
+              Units.inchesToMeters(position.distanceInches), position.flywheelSpeedRpm));
+      hoodAnglePoints.add(
+          new LinearInterpolation.Point(
+              Units.inchesToMeters(position.distanceInches), position.hoodAngleDegrees));
     }
     flywheelSpeedInterpolation = new LinearInterpolation(flywheelSpeedPoints);
     hoodAngleInterpolation = new LinearInterpolation(hoodAnglePoints);
@@ -67,8 +70,7 @@ public class PrepareShooterAuto extends CommandBase {
    * shot based on a known shooting position. Set the feeder to null to disable controlling the
    * tower speed.
    */
-  public PrepareShooterAuto(Flywheels flywheels, Hood hood, Feeder feeder,
-      Translation2d position) {
+  public PrepareShooterAuto(Flywheels flywheels, Hood hood, Feeder feeder, Translation2d position) {
     addRequirements(flywheels, hood);
     this.flywheels = flywheels;
     this.hood = hood;
@@ -81,8 +83,7 @@ public class PrepareShooterAuto extends CommandBase {
    * Creates a new PrepareShooterAuto. Runs the flywheel and sets the hood position for the upper
    * shot based on odometry. Set the feeder to null to disable controlling the tower speed.
    */
-  public PrepareShooterAuto(Flywheels flywheels, Hood hood, Feeder feeder,
-      RobotState robotState) {
+  public PrepareShooterAuto(Flywheels flywheels, Hood hood, Feeder feeder, RobotState robotState) {
     addRequirements(flywheels, hood);
     this.flywheels = flywheels;
     this.hood = hood;
@@ -105,8 +106,7 @@ public class PrepareShooterAuto extends CommandBase {
     if (robotState != null) {
       update(robotState.getLatestPose().getTranslation());
     }
-    Logger.getInstance().recordOutput("ActiveCommands/PrepareShooterAuto",
-        true);
+    Logger.getInstance().recordOutput("ActiveCommands/PrepareShooterAuto", true);
   }
 
   public void update(Translation2d position) {
@@ -114,8 +114,7 @@ public class PrepareShooterAuto extends CommandBase {
     flywheels.runVelocity(flywheelSpeedInterpolation.predict(distance));
     hood.moveToAngle(hoodAngleInterpolation.predict(distance));
     if (feeder != null) {
-      feeder
-          .requestTowerShootPercent(towerSpeedInterpolation.predict(distance));
+      feeder.requestTowerShootPercent(towerSpeedInterpolation.predict(distance));
     }
   }
 
@@ -136,8 +135,8 @@ public class PrepareShooterAuto extends CommandBase {
     public final double flywheelSpeedRpm;
     public final double hoodAngleDegrees;
 
-    public ShootingPosition(double distanceInches, double flywheelSpeedRpm,
-        double hoodAngleDegrees) {
+    public ShootingPosition(
+        double distanceInches, double flywheelSpeedRpm, double hoodAngleDegrees) {
       this.distanceInches = distanceInches;
       this.flywheelSpeedRpm = flywheelSpeedRpm;
       this.hoodAngleDegrees = hoodAngleDegrees;

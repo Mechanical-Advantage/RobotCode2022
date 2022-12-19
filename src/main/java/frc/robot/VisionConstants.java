@@ -1,6 +1,9 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot;
 
@@ -33,17 +36,22 @@ public final class VisionConstants {
 
   public static CameraPosition getCameraPosition(double hoodAngle) {
     // Side-on frame of reference (y is used as z)
-    Pose2d vehicleToPivot = new Pose2d(vehicleToPivotX, vehicleToPivotZ,
-        Rotation2d.fromDegrees(hoodAngle));
-    Pose2d vehicleToCamera = vehicleToPivot.transformBy(new Transform2d(
-        new Translation2d(pivotToCameraX, pivotToCameraZ), new Rotation2d()));
-    vehicleToCamera = vehicleToCamera.transformBy(new Transform2d(
-        new Translation2d(),
-        Rotation2d.fromDegrees(180.0).minus(cameraVerticalRotation).minus(
-            Rotation2d.fromDegrees(cameraVerticalRotationFudgeDegrees.get()))));
+    Pose2d vehicleToPivot =
+        new Pose2d(vehicleToPivotX, vehicleToPivotZ, Rotation2d.fromDegrees(hoodAngle));
+    Pose2d vehicleToCamera =
+        vehicleToPivot.transformBy(
+            new Transform2d(new Translation2d(pivotToCameraX, pivotToCameraZ), new Rotation2d()));
+    vehicleToCamera =
+        vehicleToCamera.transformBy(
+            new Transform2d(
+                new Translation2d(),
+                Rotation2d.fromDegrees(180.0)
+                    .minus(cameraVerticalRotation)
+                    .minus(Rotation2d.fromDegrees(cameraVerticalRotationFudgeDegrees.get()))));
 
     // Convert to camera position
-    return new CameraPosition(vehicleToCamera.getY(),
+    return new CameraPosition(
+        vehicleToCamera.getY(),
         Rotation2d.fromDegrees(180.0).minus(vehicleToCamera.getRotation()),
         new Transform2d(
             new Translation2d(vehicleToCamera.getX(), vehicleToCameraY),
@@ -55,8 +63,8 @@ public final class VisionConstants {
     public final Rotation2d verticalRotation;
     public final Transform2d vehicleToCamera;
 
-    public CameraPosition(double cameraHeight, Rotation2d verticalRotation,
-        Transform2d vehicleToCamera) {
+    public CameraPosition(
+        double cameraHeight, Rotation2d verticalRotation, Transform2d vehicleToCamera) {
       this.cameraHeight = cameraHeight;
       this.verticalRotation = verticalRotation;
       this.vehicleToCamera = vehicleToCamera;

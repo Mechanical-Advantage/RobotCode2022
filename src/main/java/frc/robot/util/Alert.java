@@ -1,26 +1,27 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.util;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.function.Predicate;
-import java.util.HashMap;
-import java.util.Map;
 
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
 
 /** Class for managing persistent alerts to be sent over NetworkTables. */
 public class Alert {
-  private static Map<String, SendableAlerts> groups =
-      new HashMap<String, SendableAlerts>();
+  private static Map<String, SendableAlerts> groups = new HashMap<String, SendableAlerts>();
 
   private final AlertType type;
   private boolean active = false;
@@ -30,7 +31,7 @@ public class Alert {
   /**
    * Creates a new Alert in the default group - "Alerts". If this is the first to be instantiated,
    * the appropriate entries will be added to NetworkTables.
-   * 
+   *
    * @param text Text to be displayed when the alert is active.
    * @param type Alert level specifying urgency.
    */
@@ -41,7 +42,7 @@ public class Alert {
   /**
    * Creates a new Alert. If this is the first to be instantiated in its group, the appropriate
    * entries will be added to NetworkTables.
-   * 
+   *
    * @param group Group identifier, also used as NetworkTables title
    * @param text Text to be displayed when the alert is active.
    * @param type Alert level specifying urgency.
@@ -79,9 +80,7 @@ public class Alert {
     this.active = active;
   }
 
-  /**
-   * Updates current alert text.
-   */
+  /** Updates current alert text. */
   public void setText(String text) {
     this.text = text;
   }
@@ -91,27 +90,25 @@ public class Alert {
 
     public String[] getStrings(AlertType type) {
       Predicate<Alert> activeFilter = (Alert x) -> x.type == type && x.active;
-      Comparator<Alert> timeSorter = (Alert a1,
-          Alert a2) -> (int) (a2.activeStartTime - a1.activeStartTime);
-      return alerts.stream().filter(activeFilter).sorted(timeSorter)
-          .map((Alert a) -> a.text).toArray(String[]::new);
+      Comparator<Alert> timeSorter =
+          (Alert a1, Alert a2) -> (int) (a2.activeStartTime - a1.activeStartTime);
+      return alerts.stream()
+          .filter(activeFilter)
+          .sorted(timeSorter)
+          .map((Alert a) -> a.text)
+          .toArray(String[]::new);
     }
 
     @Override
     public void initSendable(SendableBuilder builder) {
       builder.setSmartDashboardType("Alerts");
-      builder.addStringArrayProperty("errors",
-          () -> getStrings(AlertType.ERROR), null);
-      builder.addStringArrayProperty("warnings",
-          () -> getStrings(AlertType.WARNING), null);
-      builder.addStringArrayProperty("infos", () -> getStrings(AlertType.INFO),
-          null);
+      builder.addStringArrayProperty("errors", () -> getStrings(AlertType.ERROR), null);
+      builder.addStringArrayProperty("warnings", () -> getStrings(AlertType.WARNING), null);
+      builder.addStringArrayProperty("infos", () -> getStrings(AlertType.INFO), null);
     }
   }
 
-  /**
-   * Represents an alert's level of urgency.
-   */
+  /** Represents an alert's level of urgency. */
   public static enum AlertType {
     /**
      * High priority alert - displayed first on the dashboard with a red "X" symbol. Use this type

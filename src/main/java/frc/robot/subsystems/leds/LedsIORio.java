@@ -1,6 +1,9 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.subsystems.leds;
 
@@ -75,24 +78,20 @@ public class LedsIORio implements LedsIO {
         solid(Color.kBlue);
         break;
       case DEFAULT_AUTO:
-        wave(Color.kGold, Color.kDarkBlue, waveFastFullLength,
-            waveFastDuration);
+        wave(Color.kGold, Color.kDarkBlue, waveFastFullLength, waveFastDuration);
         break;
       case DEFAULT_TELEOP:
         solid(Color.kBlack);
         break;
       case DISABLED_RED:
-        wave(Color.kRed, Color.kBlack, waveAllianceFullLength,
-            waveAllianceDuration);
+        wave(Color.kRed, Color.kBlack, waveAllianceFullLength, waveAllianceDuration);
         break;
       case DISABLED_BLUE:
-        wave(Color.kBlue, Color.kBlack, waveAllianceFullLength,
-            waveAllianceDuration);
+        wave(Color.kBlue, Color.kBlack, waveAllianceFullLength, waveAllianceDuration);
         break;
       case DISABLED_NEUTRAL:
       case DEMO_TEAM:
-        wave(Color.kGold, Color.kDarkBlue, waveSlowFullLength,
-            waveSlowDuration);
+        wave(Color.kGold, Color.kDarkBlue, waveSlowFullLength, waveSlowDuration);
         break;
       case DEMO_RAINBOW:
         rainbow(rainbowSlowFullLength, rainbowSlowDuration);
@@ -103,8 +102,7 @@ public class LedsIORio implements LedsIO {
     }
 
     if (sameBattery) {
-      boolean on =
-          ((Timer.getFPGATimestamp() % strobeDuration) / strobeDuration) > 0.5;
+      boolean on = ((Timer.getFPGATimestamp() % strobeDuration) / strobeDuration) > 0.5;
       for (int i = batteryStartIndex; i < batteryEndIndex; i++) {
         buffer.setLED(i, on ? Color.kRed : Color.kBlack);
       }
@@ -120,14 +118,12 @@ public class LedsIORio implements LedsIO {
   }
 
   private void strobe(Color color) {
-    boolean on =
-        ((Timer.getFPGATimestamp() % strobeDuration) / strobeDuration) > 0.5;
+    boolean on = ((Timer.getFPGATimestamp() % strobeDuration) / strobeDuration) > 0.5;
     solid(on ? color : Color.kBlack);
   }
 
   private void breath(Color c1, Color c2) {
-    double x = ((Timer.getFPGATimestamp() % breathDuration) / breathDuration)
-        * 2.0 * Math.PI;
+    double x = ((Timer.getFPGATimestamp() % breathDuration) / breathDuration) * 2.0 * Math.PI;
     double ratio = (Math.sin(x) + 1.0) / 2.0;
     double red = (c1.red * (1 - ratio)) + (c2.red * ratio);
     double green = (c1.green * (1 - ratio)) + (c2.green * ratio);
@@ -146,8 +142,7 @@ public class LedsIORio implements LedsIO {
   }
 
   private void wave(Color c1, Color c2, double fullLength, double duration) {
-    double x = (1 - ((Timer.getFPGATimestamp() % duration) / duration)) * 2.0
-        * Math.PI;
+    double x = (1 - ((Timer.getFPGATimestamp() % duration) / duration)) * 2.0 * Math.PI;
     double xDiffPerLed = (2.0 * Math.PI) / fullLength;
     for (int i = 0; i < halfLength; i++) {
       x += xDiffPerLed;

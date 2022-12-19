@@ -1,6 +1,9 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.util;
 
@@ -13,7 +16,7 @@ public class VelocityProfiler {
 
   /**
    * Sets the target setpoint
-   * 
+   *
    * @param setpoint Target setpoint
    */
   public void setSetpointGoal(double setpoint) {
@@ -22,7 +25,7 @@ public class VelocityProfiler {
 
   /**
    * Sets the target setpoint, starting from the current speed
-   * 
+   *
    * @param setpoint Target setpoint
    * @param currentSpeed Current speed, to be used as the starting setpoint
    */
@@ -31,9 +34,7 @@ public class VelocityProfiler {
     currentSetpoint = currentSpeed;
   }
 
-  /**
-   * Resets target setpoint and current setpoint
-   */
+  /** Resets target setpoint and current setpoint */
   public void reset() {
     currentSetpoint = 0;
     goalSetpoint = 0;
@@ -41,7 +42,7 @@ public class VelocityProfiler {
 
   /**
    * Returns the current setpoint to send to motors
-   * 
+   *
    * @param acceleration Max acceleration per second
    * @return Setpoint to send to motors
    */
@@ -61,9 +62,7 @@ public class VelocityProfiler {
     return currentSetpoint;
   }
 
-  /**
-   * Returns the current setpoint goal
-   */
+  /** Returns the current setpoint goal */
   public double getSetpointGoal() {
     return goalSetpoint;
   }

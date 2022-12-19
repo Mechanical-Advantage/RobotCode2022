@@ -1,10 +1,11 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// Copyright (c) 2022 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
 package frc.robot.subsystems.hood;
-
-import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -17,27 +18,20 @@ import frc.robot.Constants;
 import frc.robot.RobotState;
 import frc.robot.subsystems.hood.HoodIO.HoodIOInputs;
 import frc.robot.util.TunableNumber;
+import org.littletonrobotics.junction.Logger;
 
 public class Hood extends SubsystemBase {
-  private final TunableNumber resetAngle =
-      new TunableNumber("Hood/ResetAngleDegrees");
-  private final TunableNumber minAngle =
-      new TunableNumber("Hood/MinAngleDegrees");
-  private final TunableNumber maxAngle =
-      new TunableNumber("Hood/MaxAngleDegres");
-  private final TunableNumber idleAngle =
-      new TunableNumber("Hood/IdleAngleDegrees");
+  private final TunableNumber resetAngle = new TunableNumber("Hood/ResetAngleDegrees");
+  private final TunableNumber minAngle = new TunableNumber("Hood/MinAngleDegrees");
+  private final TunableNumber maxAngle = new TunableNumber("Hood/MaxAngleDegres");
+  private final TunableNumber idleAngle = new TunableNumber("Hood/IdleAngleDegrees");
   private final TunableNumber kP = new TunableNumber("Hood/kP");
   private final TunableNumber kD = new TunableNumber("Hood/kD");
-  private final TunableNumber maxVelocity =
-      new TunableNumber("Hood/MaxVelocity");
-  private final TunableNumber maxAcceleration =
-      new TunableNumber("Hood/MaxAcceleration");
-  private final TunableNumber goalTolerance =
-      new TunableNumber("Hood/GoalToleranceDegrees");
+  private final TunableNumber maxVelocity = new TunableNumber("Hood/MaxVelocity");
+  private final TunableNumber maxAcceleration = new TunableNumber("Hood/MaxAcceleration");
+  private final TunableNumber goalTolerance = new TunableNumber("Hood/GoalToleranceDegrees");
 
-  private static final TunableNumber resetVolts =
-      new TunableNumber("Hood/Reset/Voltage");
+  private static final TunableNumber resetVolts = new TunableNumber("Hood/Reset/Voltage");
   private static final TunableNumber resetGraceSeconds =
       new TunableNumber("Hood/Reset/GraceSeconds");
   private static final TunableNumber resetVelocityThreshold =
@@ -47,8 +41,8 @@ public class Hood extends SubsystemBase {
   private final HoodIOInputs inputs = new HoodIOInputs();
 
   private final ProfiledPIDController controller =
-      new ProfiledPIDController(0.0, 0.0, 0.0,
-          new TrapezoidProfile.Constraints(0.0, 0.0), Constants.loopPeriodSecs);
+      new ProfiledPIDController(
+          0.0, 0.0, 0.0, new TrapezoidProfile.Constraints(0.0, 0.0), Constants.loopPeriodSecs);
   private RobotState robotState;
   private final Timer resetGraceTimer = new Timer();
   private boolean resetComplete = false;
@@ -130,8 +124,8 @@ public class Hood extends SubsystemBase {
       controller.setP(kD.get());
     }
     if (maxVelocity.hasChanged() || maxAcceleration.hasChanged()) {
-      controller.setConstraints(new TrapezoidProfile.Constraints(
-          maxVelocity.get(), maxAcceleration.get()));
+      controller.setConstraints(
+          new TrapezoidProfile.Constraints(maxVelocity.get(), maxAcceleration.get()));
     }
 
     // Log data
@@ -151,8 +145,7 @@ public class Hood extends SubsystemBase {
           resetGraceTimer.reset();
           io.setVoltage(-resetVolts.get());
         } else {
-          double velocityDegreesPerSec =
-              Units.radiansToDegrees(inputs.velocityRadPerSec);
+          double velocityDegreesPerSec = Units.radiansToDegrees(inputs.velocityRadPerSec);
           if (resetGraceTimer.hasElapsed(resetGraceSeconds.get())
               && -velocityDegreesPerSec < resetVelocityThreshold.get()) {
             io.setVoltage(0.0);
@@ -173,10 +166,8 @@ public class Hood extends SubsystemBase {
       if (closedLoop) {
         double volts = controller.calculate(getAngle());
         io.setVoltage(volts);
-        Logger.getInstance().recordOutput("Hood/GoalAngle",
-            controller.getGoal().position);
-        Logger.getInstance().recordOutput("Hood/SetpointAngle",
-            controller.getSetpoint().position);
+        Logger.getInstance().recordOutput("Hood/GoalAngle", controller.getGoal().position);
+        Logger.getInstance().recordOutput("Hood/SetpointAngle", controller.getSetpoint().position);
         Logger.getInstance().recordOutput("Hood/AtGoal", atGoal());
       }
     }
@@ -205,8 +196,7 @@ public class Hood extends SubsystemBase {
   public double getAngle() {
     Logger.getInstance().recordOutput("Hood/ResetComplete", resetComplete);
     if (resetComplete) {
-      return Units.radiansToDegrees(inputs.positionRad - basePositionRad)
-          + resetAngle.get();
+      return Units.radiansToDegrees(inputs.positionRad - basePositionRad) + resetAngle.get();
     } else {
       return minAngle.get();
     }
@@ -215,8 +205,8 @@ public class Hood extends SubsystemBase {
   /** Returns whether the hood has reached the commanded angle. */
   public boolean atGoal() {
     if (closedLoop) {
-      return Math.abs(controller.getGoal().position
-          - controller.getSetpoint().position) < goalTolerance.get();
+      return Math.abs(controller.getGoal().position - controller.getSetpoint().position)
+          < goalTolerance.get();
     } else {
       return false;
     }
