@@ -40,5 +40,8 @@
   "editor.autoIndent": "full",
   "spotlessGradle.format.enable": true,
   "spotlessGradle.diagnostics.enable": false,
-  "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+  "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle",
+  "[json]": {
+    "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
+  }
 }
